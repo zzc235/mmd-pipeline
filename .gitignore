@@ -1,0 +1,39 @@
+# 白名单式忽略：默认忽略一切，只放行本工程的源码与文档。
+# 原因：工作区里有大量渲染产物（单目录 200–600 MB）和与 MMD 无关的历史文件，
+# 用"排除清单"迟早会误提交，用"放行清单"不会。
+
+/*
+!/.gitignore
+
+# ---- 源码与测试 ----
+!/mmdpipe/
+!/addon/
+!/tests/
+!/tests_bpy/
+!/presets/
+!/docs/
+
+# ---- 根目录脚本 ----
+!/*.py
+# 与 MMD 无关的脚本单独排除
+/crawl4ai_demo.py
+
+# ---- 文档 ----
+!/AGENTS.md
+!/README.md
+!/CHANGELOG.md
+!/HANDOVER.md
+# docs/ 里与 MMD 无关的交接笔记
+/docs/handover-vault-pass.md
+
+# ---- 放行目录内部再排除 ----
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+
+# 产物目录（即便将来挪进放行目录也不进库）
+build/
+dist/
+out/
+*.log

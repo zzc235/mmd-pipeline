@@ -1,0 +1,25 @@
+{
+  "_note": "绯英 × 原神摇 项目预设。相机取自原工程 feiying_combined.blend 的 CAM_sample，冻结后跳过全片包围盒测量。",
+  "camera": {
+    "loc": [1.4163086414337158, -3.4105472564697266, 1.7959074974060059],
+    "rot": [1.3488916158676147, -4.958156551992943e-09, 0.4453010857105255],
+    "lens": 50.0
+  },
+  "render": {
+    "fps": 24,
+    "resolution": [720, 576],
+    "taa_render_samples": 10,
+    "crf": 18
+  },
+  "physics": {
+    "substeps_per_frame": 10,
+    "solver_iterations": 20,
+    "angular_damping": 0.75,
+    "linear_damping": 0.25
+  },
+  "look": {
+    "route": "hsr",
+    "sdf_body_type": "W168",
+    "sdf_variant": "00"
+  }
+}

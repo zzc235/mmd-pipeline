@@ -1,0 +1,9 @@
+{
+  "look": {
+    "route": "auto",
+    "post_processing": true
+  },
+  "physics": {
+    "policy": "strict"
+  }
+}

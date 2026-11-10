@@ -1,0 +1,25 @@
+schema_version = "1.0.0"
+
+id = "mmd_pipeline"
+version = "1.2.0"
+name = "MMD Pipeline"
+tagline = "PMX 与 VMD 一键成片，含物理、净空、多段拼接与门禁自检"
+maintainer = "furina"
+type = "add-on"
+
+tags = [
+  "Animation",
+  "Physics",
+  "Render",
+  "Import-Export",
+]
+
+blender_version_min = "4.2.0"
+
+license = ["SPDX:GPL-3.0-or-later"]
+copyright = ["2026 furina"]
+
+# 本扩展会读写文件、调用外部 ffmpeg
+[permissions]
+files = "需要读取 PMX/VMD 并写出帧序列与成片"
+network = "不需要网络"
