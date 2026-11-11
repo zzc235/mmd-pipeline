@@ -388,3 +388,62 @@ python -m mmdpipe.chainplan a.vmd b.vmd --pmx 模型.pmx --gap 6 [--json 计划.
 - `head_capsules()` 仍依赖骨名 `頭/头/head`（带回退：半径最大的胶囊）
 - 阻尼施加目标仍按 `裙/下擺/skirt` 匹配，匹配不到会显式警告
 - 未做表情 VMD 合并、道具并入、多动作拼接
+
+---
+
+# v1.3.0 — 产物隔离 + state 契约（2026-11-11）
+
+这一版只做两件"收尾"的事：让**失败的运行骗不了人**，让**读不懂的 state 拦得住人**。
+主流程一个阶段都没动。
+
+## 产物隔离：`--layout isolated`（新默认）
+
+以前所有产物平铺在 `--out` 根目录：帧序列、`scene.blend`、修过的 PMX、拼接 VMD、
+成片、联络表、相机参数、state 全混在一起。后果很具体——**渲到一半失败的 `result.mp4`
+和跑通的 `result.mp4` 长得一模一样**，只能翻 state 才知道哪张能交。
+
+现在默认：
+
+```
+<out>/
+  pipeline_state.json          # 最近一次运行的记录（不跟着 run id 走）
+  work/<run_id>/               # 中间产物：frames/、scene.blend、pmx/、vmd/、preflight.json
+  final/<run_id>/              # 成片：result.mp4、contact_sheet.png、camera.json、scene.blend、pipeline_state.json
+```
+
+- `run_id` 由 `started_at` 生成（`2026-11-11 21:07:30` → `20261111_210730`），同一 `--out` 多次运行不互相覆盖
+- **只有全流程 ok 才 promote 到 `final/`**：未通过时 `final/` 里一个文件都不出现
+- promote 用**复制**不用移动：work 里留原件，删 work 不影响 final，事后比对帧也不用重跑
+- `--layout legacy` 保留旧行为（全写根目录），旧脚本/旧习惯随时切回去
+
+## state 契约：schema 2 → 3，读不懂就拒绝
+
+`pipeline_state.json` 是唯一真相，字段一直在加。旧 state 被新代码读到，
+最坏不是报错而是**静默用错语义**。规则落成代码（`mmdpipe/statefile.py`）：
+
+| schema | 动作 |
+|---|---|
+| 缺 / <2 | **改名归档**为 `pipeline_state.schema0.bak`，不覆盖唯一的历史记录 |
+| ==2 | 内存迁移（补 `layout=legacy` / `run_id` / `paths`），提示一行后继续 |
+| ==3 | 当前，直接用 |
+| >3 | **拒绝运行**（退出码 4）：新字段什么意思不知道，覆盖等于销毁证据 |
+
+`python -m mmdpipe.statefile <state...>` 可以单独体检旧产物，不用开 Blender。
+
+## 证据
+
+- 纯 Python 测试 **27 → 48 条**（新增 `tests/test_layout.py` 11 条、`tests/test_statefile.py` 10 条），全绿
+- `_guard_state` 四种动作实测（无 state / schema2 / v1 / 更新版）：4/4 PASS
+  —— 用假 `bpy` 拉起 runner 单独测，不渲一帧
+- `layout.plan` 路径实测：`isolated` 得到 `work/<id>` 与 `final/<id>`，`legacy` 的 `final` 为空串（不凭空造目录）
+
+## 顺手修掉的
+
+- `mmdpipe.__version__` 停在 `1.1.5`、manifest 写 `1.2.0` —— 两处漂移，统一到 `1.3.0`
+- `statefile` 的命令行输出原来用 `✓/✗`，GBK 控制台下 `UnicodeEncodeError`，改成 ASCII 记号
+
+## 已知限制
+
+- `final/` 的 `scene.blend` 是复制不是硬链接：833 帧的一次运行会多占一份体积（实测待补，估计两百 MB 级）
+- 没有 `--resume`：隔离后每次都是全新 run，中途失败只能整条重跑（这是现状，不是本版引入）
+

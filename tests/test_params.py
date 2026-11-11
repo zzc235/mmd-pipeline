@@ -50,6 +50,7 @@ class TestParsing(unittest.TestCase):
         self.assertEqual(a.align, "auto")
         self.assertEqual(int(a.fps), 30)
         self.assertEqual(a.frames, 360)
+        self.assertEqual(a.layout, "isolated", "默认要隔离产物，旧的走 --layout legacy")
 
     def test_path_with_spaces(self):
         a = self.ap.parse_args(["--pmx", "E:/a b/模型.pmx",

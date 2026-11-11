@@ -42,7 +42,7 @@
 | HSR 材质插件 | `jinfengling_hsr_addon`（`scripts/addons/`），11 个 `jflhsr.*` operator | 读 `__init__.py` |
 | ffmpeg | `C:/Users/zzc/ffmpeg/bin/ffmpeg.exe` | 联络表生成成功 |
 | Python（纯逻辑层） | `C:/Users/zzc/.dsh/.../python/python.exe`，**无 pytest**，有 numpy/PIL | `import pytest` 失败 |
-| 本插件 | `mmd_pipeline` 1.2.0，安装于 `%APPDATA%/Blender Foundation/Blender/5.2/extensions/user_default/mmd_pipeline` | `--command extension install-file` 返回 Reinstalled |
+| 本插件 | `mmd_pipeline` 源码 1.3.0；已装副本仍为 1.2.0（本轮只改了源码与测试，**还没重新打包安装**） | `addon/mmd_pipeline/blender_manifest.toml` |
 
 **扩展的模块名是 `bl_ext.user_default.mmd_pipeline`，不是短名 `mmd_pipeline`。**
 用短名 `addon_utils.enable()` 会报 `No module named 'mmd_pipeline'`（实测）。
@@ -57,7 +57,9 @@
 |---|---|---|
 | `mmdpipe/pmx.py` | 577 | PMX 解析 + 按字节偏移回写（不重新序列化；拒绝覆盖源文件） |
 | `mmdpipe/vmd.py` | 424 | VMD 解析（骨骼/表情/相机/灯光/阴影/IK 全轨道）+ `concat` / `merge` |
-| `mmdpipe/params.py` | 172 | **参数唯一声明源**（21 字段） |
+| `mmdpipe/params.py` | 176 | **参数唯一声明源**（22 字段） |
+| `mmdpipe/layout.py` | 92 | 产物布局：`work/<run_id>` 与 `final/<run_id>`，成片只在 ok 后落地 |
+| `mmdpipe/statefile.py` | 132 | state 兼容判定与迁移（schema 2→3，读不懂就拒绝，不猜） |
 | `mmdpipe/physics.py` | 330 | 物理资格分类（结构判定，不看名字）+ 物理单元识别 |
 | `mmdpipe/clearance.py` | 415 | 初始穿透检测与外移修复 |
 | `mmdpipe/chainplan.py` | 353 | 拼接 dry-run（**只有局部量与姿态差，没有世界位移**） |
@@ -87,7 +89,7 @@
 | `addon/mmd_pipeline/properties.py` | 28 | 从 `params.PARAMS` **动态生成** PropertyGroup |
 | `addon/mmd_pipeline/operators.py` | 158 | 子进程 + modal timer：进度、ESC 取消、日志落盘、argv 生成 |
 | `addon/mmd_pipeline/panels.py` | 45 | 主参数平铺，`advanced=True` 的进"高级"折叠区 |
-| `addon/mmd_pipeline/blender_manifest.toml` | 25 | 扩展清单，`version = "1.2.0"` |
+| `addon/mmd_pipeline/blender_manifest.toml` | 25 | 扩展清单，`version = "1.3.0"` |
 
 ### 3.4 测试
 
@@ -115,11 +117,11 @@
 
 ### 4.1 参数唯一声明源（`mmdpipe/params.py`）
 
-**决定**：21 个参数只在 `PARAMS` 声明一次；`add_arguments(ap)` 生成 CLI，`blender_properties(bpy)` 生成面板 PropertyGroup。
+**决定**：22 个参数只在 `PARAMS` 声明一次；`add_arguments(ap)` 生成 CLI，`blender_properties(bpy)` 生成面板 PropertyGroup。
 
 **理由**：之前面板 12 个字段 vs CLI 21 个参数，逐个补齐必然再次漂移。评审原话是"面板追 CLI 是典型的返工陷阱"。
 
-**证据**：面板实测 21 字段，`面板缺: []`（`tests_bpy/smoke.py` 断言）。
+**证据**：面板实测 21 字段，`面板缺: []`（`tests_bpy/smoke.py` 断言）；v1.3.0 加 `layout` 后声明与面板同为 22，冒烟未重跑（需装新包）。
 
 ### 4.2 插件分层（仿本机 mmd_tools）
 
@@ -202,7 +204,7 @@
 
 ## 5. 改动清单（按版本，含落点）
 
-> 版本号来自 `CHANGELOG.md`（8 个版本：v1.0.0 → v1.2.0）。
+> 版本号来自 `CHANGELOG.md`（9 个版本：v1.0.0 → v1.3.0）。
 > "落点"给到文件 + 函数；"验证"写实际跑过的命令或测试。
 
 ### v1.0.0（基线，2026-11-08）
@@ -280,6 +282,19 @@
 | unittest | `tests/*.py`（27 断言） | 这轮三个事故都是人工撞出来的 |
 | bpy 冒烟 | `tests_bpy/smoke.py`（4 项） | 扩展包内导入 / 参数同源 / 无预设路径 |
 
+### v1.3.0 — 产物隔离 + state 契约（2026-11-11）
+| 改动 | 落点 | 为什么 |
+|---|---|---|
+| 产物隔离 `--layout isolated`（新默认） | `mmdpipe/layout.py`、`runner.run` | 失败那次与跑通那次的 `result.mp4` 长得一样，只能翻 state 判断 |
+| 成片落地门 | `runner.run` 末尾 `layout.promote` | 只有 `state["ok"]` 才进 `final/<run_id>/`；未通过时 final 为空 |
+| run_id | `layout.run_id(started_at)` | 同一 `--out` 多次运行不互相覆盖（`20261111_210730`） |
+| state schema 2→3 + 守卫 | `mmdpipe/statefile.py`、`runner._guard_state` | 旧 state 被新代码读到会**静默用错语义**；现在旧到读不懂就改名归档（`*.schema0.bak`），比插件新就拒绝（退出码 4） |
+| 新参数 `layout` | `mmdpipe/params.py` | 走声明源，面板/CLI 同时长出来；旧行为用 `--layout legacy` |
+| 版本号回归单一 | `mmdpipe/__init__.py`（原 `1.1.5`）、manifest、`bl_info` | 三处漂移，统一 1.3.0 |
+| 测试 | `tests/test_layout.py`（11）、`tests/test_statefile.py`（10） | 27 → 48 条，全绿 |
+
+**未做**：重新打包 `dist/mmd_pipeline-1.3.0.zip` 并安装（`build_addon.py` 会拉起 Blender，本轮用户在用显卡，故意没跑）；`tests_bpy/smoke.py` 因此仍是 1.2.0 的结论。
+
 ---
 
 ## 6. 当前能力
@@ -297,10 +312,10 @@ S0_env → S1_census → S1_physics → S1_suspect_static → S3_match
 
 `E-00 E-05 E-07 E-10 E-14 E-15 E-16 E-17 E-21` + `G1 G2 G3 G4 G5 G6 G7 G8 G9`
 
-### 6.3 参数（21 个，`mmdpipe/params.py`）
+### 6.3 参数（22 个，`mmdpipe/params.py`）
 
 ```
-pmx vmd motions expression preset camera out frames fps
+pmx vmd motions expression preset camera out layout frames fps
 physics_policy force_static force_physics probe
 chain_mode chain_gap chain_blend align
 clearance clearance_margin prop force
@@ -318,6 +333,7 @@ bpy.ops.mmd_pipeline.run()
 # 纯逻辑
 python -m mmdpipe.preflight 模型.pmx 动作.vmd --json 报告.json
 python -m mmdpipe.chainplan a.vmd b.vmd --pmx 模型.pmx --gap 6
+python -m mmdpipe.statefile out/pipeline_state.json   # 旧 state 能不能按当前语义读
 ```
 
 ---
@@ -325,7 +341,7 @@ python -m mmdpipe.chainplan a.vmd b.vmd --pmx 模型.pmx --gap 6
 ## 7. 测试与验证
 
 ```bash
-# 纯 Python 层（27 断言，约 1.5 s）—— 实测 OK
+# 纯 Python 层（48 断言，约 1.8 s）—— 实测 OK
 python -m unittest discover -s tests
 
 # bpy 层冒烟（4 项）—— 实测 SMOKE RESULT OK (0 failed)
@@ -333,7 +349,7 @@ blender -b -P tests_bpy/smoke.py
 
 # 插件安装
 python build_addon.py
-blender --command extension install-file -r user_default -e dist/mmd_pipeline-1.2.0.zip
+blender --command extension install-file -r user_default -e dist/mmd_pipeline-1.3.0.zip
 ```
 
 ---
@@ -348,13 +364,13 @@ blender --command extension install-file -r user_default -e dist/mmd_pipeline-1.
 
 **已实现但未在本环境验证**
 - modal 进度条与 ESC 取消（需要 GUI 实际点一次）
+- 1.3.0 的隔离布局**没有跑过一次真渲染**：`layout.plan`/`promote`/`_guard_state` 有单测与假 bpy 实测，但 `work/`→`final/` 只在单元层验证，端到端待一次 12 帧探针
 
 **未做**
-- 产物隔离（`work/` 与 `final/` 分开、按 run id 存、清理命令）
 - N 段 NLA（现只支持 2 段；第 3 段起只 warn）
 - Y 轴旋转注入（`align.py` 里 `NotImplementedError`；两对样本朝向差仅 -0.4°，无需求驱动）
 - 错误信息的"下一步动作"链接（目前只给 `blocked_by` + 日志路径）
-- state 的旧版本迁移（只写了 `schema: 2`，没有迁移函数）
+- `--resume`（隔离后每次都是全新 run，中途失败只能整条重跑）
 
 **已知风险**
 - 物理跨进程不可复现（同一 .blend 两次测量包围盒不同），所以相机必须冻结
@@ -419,8 +435,8 @@ blender --command extension install-file -r user_default -e dist/mmd_pipeline-1.
 ## 10. 下一步建议（按收益/成本）
 
 1. **GUI 点一次渲染**，确认进度条与 ESC 取消（唯一没自动验的路径）
-2. **产物隔离**：`out/work/`（可删中间产物）与 `out/final/`（全流程 ok 才落地），run id 用 `state.started_at`
-3. **state 迁移函数**：`schema < 2` 时明确拒绝并给提示，而不是静默续跑
+2. **跑一次 12 帧探针**，确认 1.3.0 的 `work/`→`final/` 端到端落地（单测已过，端到端未验）
+3. **重新打包安装 1.3.0**（`build_addon.py` + `extension install-file`），再跑 `tests_bpy/smoke.py` 确认面板 22 字段同源
 4. N 段 NLA（把两层 strip 泛化成链式排布，相邻对各自报告 junction）
 5. 旋转注入（等出现朝向差 > 5° 的样本再做）
 

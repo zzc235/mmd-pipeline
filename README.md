@@ -60,7 +60,7 @@ bpy.ops.mmd_pipeline.render(
 
 | 层 | 模块 | 依赖 | 能回答什么 |
 |---|---|---|---|
-| 纯 Python | `pmx` `vmd` `match` `preset` `report` `preflight` | 无 | 这个模型有没有物理、掩码语义对不对、这个 VMD 套得上吗 |
+| 纯 Python | `pmx` `vmd` `match` `preset` `report` `preflight` `layout` `statefile` | 无 | 这个模型有没有物理、掩码语义对不对、这个 VMD 套得上吗、产物落在哪、旧 state 能不能读 |
 | Blender | `stage` `runner` | bpy | 建链、接动作、材质、取景、渲染、验收 |
 
 ## 用法
@@ -81,7 +81,9 @@ blender -b -P run_pipeline.py -- \
   [--probe] [--force]
 ```
 
-产物：`pipeline_state.json`、`preflight.json`、`camera.json`、`scene.blend`、`frames/s_XXXX.png`、`result.mp4`、**`contact_sheet.png`**（12 帧联络表，验收先看它）。
+产物默认分两处（`--layout isolated`）：中间产物在 `work/<run_id>/`（`frames/s_XXXX.png`、`scene.blend`、`preflight.json`），**只有全流程通过才落** `final/<run_id>/`（`result.mp4`、`contact_sheet.png`、`camera.json`、`scene.blend`、`pipeline_state.json`）。`pipeline_state.json` 留在 `--out` 根目录，记的是"最近一次运行"。想回到旧的平铺行为加 `--layout legacy`。
+
+验收先看 `final/<run_id>/contact_sheet.png`（12 帧联络表）；没通过时 `final/` 是空的，产物留在 `work/` 可复查。
 
 ## 多段拼接先跑 dry-run
 
@@ -94,7 +96,7 @@ python -m mmdpipe.chainplan a.vmd b.vmd --pmx 模型.pmx --gap 6 --json 计划.j
 ## 跑测试
 
 ```bash
-python -m unittest discover -s tests          # 纯 Python 层，27 个断言，秒级
+python -m unittest discover -s tests          # 纯 Python 层，48 个断言，秒级
 blender -b -P tests_bpy/smoke.py              # bpy 层冒烟（包内导入 / 参数同源 / 无预设取景）
 ```
 

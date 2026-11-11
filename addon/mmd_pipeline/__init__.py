@@ -13,7 +13,7 @@
 bl_info = {
     "name": "MMD Pipeline",
     "author": "furina",
-    "version": (1, 2, 0),
+    "version": (1, 3, 0),
     "blender": (4, 2, 0),
     "location": "3D 视图 > 侧栏 > MMD Pipeline",
     "description": "PMX + VMD 一键成片：物理资格判断、净空修复、多段拼接、门禁自检",

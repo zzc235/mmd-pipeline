@@ -14,6 +14,7 @@ import argparse
 import hashlib
 import json
 import os
+import shutil
 import sys
 import time
 
@@ -22,6 +23,7 @@ import bpy
 from . import clearance as clearance_mod
 from . import chainplan as chainplan_mod
 from . import concatvmd as concatvmd_mod
+from . import layout as layout_mod
 from . import match as match_mod
 from . import mergevmd as mergevmd_mod
 from . import physics as physics_mod
@@ -29,6 +31,7 @@ from . import pmx as pmx_mod
 from . import preset as preset_mod
 from . import report as report_mod
 from . import stage as stage_mod
+from . import statefile as statefile_mod
 from . import verify_pmx as verify_mod
 from . import vmd as vmd_mod
 
@@ -60,7 +63,6 @@ def _write_state(path: str, state: dict) -> None:
 
 def _copy_textures(src_pmx: str, dst_pmx: str, textures) -> tuple:
     """把 PMX 引用的贴图按相对路径复制到 dst 所在目录。返回 (复制数, 缺失列表)。"""
-    import shutil
     src_dir = os.path.dirname(os.path.abspath(src_pmx))
     dst_dir = os.path.dirname(os.path.abspath(dst_pmx))
     copied, missing = 0, []
@@ -91,6 +93,37 @@ def _parse_args(argv):
     from . import params as params_mod
     params_mod.add_arguments(ap)
     return ap.parse_args(argv)
+
+
+def _guard_state(path: str) -> bool:
+    """开工前处理已存在的 state。
+
+    三种情况，三种动作：
+      * 能迁移（schema 2）→ 提示一句，继续（跑完覆盖成当前 schema）
+      * 旧到读不懂（无 schema / <2）→ **改名归档**，不覆盖唯一的历史记录
+      * 比插件新（> 当前）→ 拒绝运行：新字段什么意思不知道，覆盖等于销毁证据
+    """
+    if not os.path.exists(path):
+        return True
+    try:
+        _, notes = statefile_mod.load_compatible(path)
+    except statefile_mod.StateIncompatible as exc:
+        if exc.newer:
+            print("拒绝运行：%s" % exc)
+            print("  → %s" % (exc.hint or "升级插件，或换一个 --out 目录"))
+            return False
+        try:
+            old_schema = statefile_mod.schema_of(statefile_mod.read(path))
+        except (OSError, ValueError):
+            old_schema = "bad"
+        bak = "%s.schema%s.bak" % (path, old_schema)
+        os.replace(path, bak)
+        print("旧 state 无法按当前语义读取，已归档为 %s" % bak)
+        print("  → %s" % (exc.hint or "它只能由旧版工具读取"))
+        return True
+    for note in notes:
+        print(note)
+    return True
 
 
 def run(args) -> int:
@@ -128,23 +161,35 @@ def run(args) -> int:
         preset["camera"]["loc"] = frozen["loc"]
         preset["camera"]["rot"] = frozen["rot"]
         preset["camera"]["lens"] = frozen.get("lens", preset["camera"]["lens"])
-    out_dir = os.path.abspath(args.out)
+    started_at = time.strftime("%Y-%m-%d %H:%M:%S")
+    paths = layout_mod.plan(os.path.abspath(args.out),
+                            getattr(args, "layout", layout_mod.DEFAULT_LAYOUT),
+                            started_at)
+    out_dir = paths["work"]
     png_dir = os.path.join(out_dir, "frames")
     mp4_path = os.path.join(out_dir, "result.mp4")
     scene_path = os.path.join(out_dir, "scene.blend")
-    state_path = os.path.join(out_dir, "pipeline_state.json")
+    # state 留在 --out 根目录，不跟着 run id 走：
+    # 它是"最近一次运行"的记录，也是下次开跑时的兼容性检查点；产物才进 work/。
+    state_path = os.path.join(paths["root"], "pipeline_state.json")
     os.makedirs(out_dir, exist_ok=True)
+    if not _guard_state(state_path):
+        return 4
 
     frame_start = 1
     frame_end = max(1, args.frames)
     state = {
         # 契约层：schema 变了必须显式迁移或拒绝，否则续跑会静默用错语义
-        "schema": 2,
+        "schema": statefile_mod.SCHEMA,
+        "run_id": paths["run_id"],
+        "layout": paths["layout"],
+        "paths": {"root": paths["root"], "work": paths["work"],
+                  "final": paths["final"]},
         "env": {
             "blender": bpy.app.version_string,
             "mmdpipe": __import__("mmdpipe").__version__,
         },
-        "started_at": time.strftime("%Y-%m-%d %H:%M:%S"),
+        "started_at": started_at,
         "input": {"pmx": args.pmx, "vmd": args.vmd},
         "params": {"frame_start": frame_start, "frame_end": frame_end,
                    "fps": preset["render"]["fps"],
@@ -159,6 +204,7 @@ def run(args) -> int:
     print("  pmx %s" % args.pmx)
     print("  vmd %s" % args.vmd)
     print("  输出 %s" % out_dir)
+    print("  %s" % layout_mod.describe(paths))
     print("  帧 %d..%d @ %d fps" % (frame_start, frame_end, preset["render"]["fps"]))
     print("=" * 72, flush=True)
 
@@ -665,6 +711,15 @@ def run(args) -> int:
     state["ok"] = not state["blocked_by"]
     state["finished_at"] = time.strftime("%Y-%m-%d %H:%M:%S")
     source_unchanged("流程结束")
+
+    # 成片落地：只有全流程 ok 才进 final/。没通过时 final/ 里一个文件都不该出现，
+    # 免得"看着有 mp4 就当成了成品"。
+    landed = []
+    if state["ok"] and paths["final"]:
+        landed = layout_mod.promote(out_dir, paths["final"])
+        shutil.copy2(state_path, os.path.join(paths["final"], "pipeline_state.json"))
+        landed.append("pipeline_state.json")
+        state["final"] = {"dir": paths["final"], "files": landed}
     _write_state(state_path, state)
 
     print()
@@ -672,7 +727,13 @@ def run(args) -> int:
     print("结果：%s" % ("通过" if state["ok"] else "未通过"))
     if state["blocked_by"]:
         print("卡在：%s" % ", ".join(state["blocked_by"]))
-    print("成片 %s" % mp4_path)
+    if landed:
+        print("成片 %s" % os.path.join(paths["final"], "result.mp4"))
+        print("落地 %s" % paths["final"])
+    else:
+        print("成片 %s" % mp4_path)
+        if paths["final"]:
+            print("未通过，未落地到 final/（产物留在 work/ 可复查）")
     print("状态 %s" % state_path)
     print("=" * 72, flush=True)
     return 0 if state["ok"] else 3

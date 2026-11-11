@@ -55,6 +55,10 @@ PARAMS: tuple[Param, ...] = (
     # ---- 输出与长度 ----
     Param("out", "path", default="mmdpipe_out", label="输出目录",
           help="所有产物写到这里（源文件不会被改）"),
+    Param("layout", "choice", default="isolated", choices=("isolated", "legacy"),
+          label="产物布局",
+          help="isolated：中间产物进 work/<run>，成片只在全流程通过后落 final/<run>；"
+               "legacy：全部写在 --out 根目录（旧行为）"),
     Param("frames", "int", default=360, label="帧数", help="要渲染的帧数"),
     Param("fps", "choice", default="30", choices=("24", "30"), label="帧率",
           help="VMD 以 30fps 为基准；改 fps 不重采样，等于变速"),

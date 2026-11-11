@@ -1,7 +1,7 @@
 schema_version = "1.0.0"
 
 id = "mmd_pipeline"
-version = "1.2.0"
+version = "1.3.0"
 name = "MMD Pipeline"
 tagline = "PMX 与 VMD 一键成片，含物理、净空、多段拼接与门禁自检"
 maintainer = "furina"

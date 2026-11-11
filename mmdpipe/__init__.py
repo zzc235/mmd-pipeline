@@ -5,7 +5,7 @@
 安全约定：源文件只读，改动落在副本，有哈希守卫。
 """
 
-__version__ = "1.1.5"
+__version__ = "1.3.0"
 
 # ============================================================ MODULE MAP
 # 读代码先看这张图。分三圈：纯 Python → Blender 内 → 打包。
@@ -18,8 +18,11 @@ __version__ = "1.1.5"
 #   clearance.py   初始穿透检测与修复
 #   report.py      StageResult / Issue 契约
 #   preset.py      预设与默认值
+#   archive plan 等纯逻辑
 #   chainplan.py   拼接 dry-run（**算不出世界位移**，只给局部量与姿态差）
 #   align.py       对齐 plan 结构 + 判定 + 注入（纯算术，测量在 Blender 侧）
+#   layout.py      产物布局：work/（中间物）与 final/（成片，通过才落地）
+#   statefile.py   pipeline_state 的兼容判定与迁移（读不懂就拒绝，不猜）
 #   concatvmd.py / mergevmd.py  两个命令行入口
 #
 # 【Blender 内｜需要 bpy】
