@@ -14,7 +14,9 @@ import io
 import json
 import os
 import shutil
+import sys
 import tempfile
+import time
 import unittest
 
 from coordination import board as board_mod
@@ -38,7 +40,7 @@ OUTSIDE = os.path.join(os.path.dirname(ROOT), "_outside_worktree")
 
 
 def outside_path(*parts):
-    """构造一条**确实在树外**的路径，并用判据自己的归一化函数当场断言。
+    r"""构造一条**确实在树外**的路径，并用判据自己的归一化函数当场断言。
 
     「树外」不许继续是一个需要相信的名字：换一个树根（`E:\dsh pr` / 别处）时，
     dirname 拼法未必还成立，那时应当红在这条断言上（说清「样本构造错了」），
@@ -792,6 +794,94 @@ class DispatcherP0Test(TempDirTest):
         self.board.add_task("M00", "M00", "P0", status="ready")
         self.approve("M00", "模块负责4")
         self.assertEqual(self.lane_row(self.plan(), "P0")["action"], "needs_approval")
+
+
+class LockGuardTest(TempDirTest):
+    """`lock guard`：取锁→跑→必放，取不到锁则命令**根本不执行**。
+
+    这几条对着 2026-11-16 的真实事故写：`3号` 18:18 与 `2号` 19:00 都拿了
+    `acquire` 的退出码 3 没判就往下跑，各自在别人的窗口里起了 Blender。
+    所以第一条断言不是「guard 能跑」，是**「取不到锁时命令一次都没被调用」**。
+    """
+    OWNER = "模块负责1|A1"
+
+    def setUp(self):
+        super().setUp()
+        self.lease = self.path("blender.lock")
+
+    def test_guard_runs_command_under_lock_and_always_releases(self):
+        seen = {}
+
+        def runner(command):
+            seen["command"] = command
+            seen["status"] = lock_mod.status(self.lease)
+            return 0
+
+        result = lock_mod.guard(self.OWNER, ["python", "-c", "x"], "t", self.lease, 0,
+                                heartbeat_every=0, runner=runner)
+        self.assertEqual(seen["command"], ["python", "-c", "x"])
+        self.assertTrue(seen["status"]["held"])            # 命令执行时锁确实在自己手里
+        self.assertEqual(seen["status"]["ident"], self.OWNER)
+        self.assertEqual(result["rc"], 0)
+        self.assertIsNone(result["lock_lost"])
+        self.assertFalse(lock_mod.status(self.lease)["held"])   # 跑完必放
+
+    def test_guard_refuses_to_run_at_all_when_someone_else_holds_the_lock(self):
+        lock_mod.acquire("模块负责2|A2", "别人的窗口", self.lease)
+        self.addCleanup(lambda: lock_mod.release("模块负责2|A2", self.lease))
+        called = []
+        with self.assertRaises(lock_mod.LockHeld):
+            lock_mod.guard(self.OWNER, ["python", "-c", "x"], "t", self.lease, 0,
+                           heartbeat_every=0,
+                           runner=lambda command: called.append(command) or 0)
+        self.assertEqual(called, [])                       # 命令一个字节都没跑
+        self.assertEqual(lock_mod.status(self.lease)["ident"], "模块负责2|A2")   # 也没动别人的锁
+
+    def test_guard_passes_exit_code_through_and_still_releases(self):
+        result = lock_mod.guard(self.OWNER, ["false"], "", self.lease, 0,
+                                heartbeat_every=0, runner=lambda command: 7)
+        self.assertEqual(result["rc"], 7)
+        self.assertFalse(lock_mod.status(self.lease)["held"])
+
+    def test_guard_reports_lock_lost_when_it_vanishes_mid_run(self):
+        def runner(command):
+            lock_mod.release(self.OWNER, self.lease)       # 模拟：跑着的时候锁没了
+            return 0
+
+        result = lock_mod.guard(self.OWNER, ["x"], "", self.lease, 0,
+                                heartbeat_every=0, runner=runner)
+        self.assertEqual(result["rc"], 0)
+        self.assertIn("锁目录不存在", result["lock_lost"])
+
+    def test_guard_heartbeats_while_the_command_runs(self):
+        ticks = []
+
+        def runner(command):
+            time.sleep(0.25)
+            return 0
+
+        result = lock_mod.guard(self.OWNER, ["x"], "", self.lease, 0, heartbeat_every=0.05,
+                                runner=runner,
+                                toucher=lambda owner, lock_dir, note: ticks.append(1))
+        self.assertGreaterEqual(len(ticks), 1)             # 长跑期间心跳真的在跳
+        self.assertEqual(result["heartbeats"], len(ticks))
+
+    def test_cli_guard_accepts_both_argument_orderings(self):
+        # 2026-11-16 19:05 我自己撞的：用 argparse.REMAINDER 时，`guard --owner X -- cmd`
+        # 会把 --owner 吞进命令，owner 变空串 ⇒ 报「owner 必须写成 模块|工作树」。
+        # 那种错法把「用法错」伪装成「参数错」，所以两种顺序都必须能用。
+        for argv in (
+            ["guard", "--lock", self.lease, "--owner", self.OWNER, "--heartbeat-every", "0",
+             "--", sys.executable, "-c", "pass"],
+            ["--lock", self.lease, "--owner", self.OWNER, "--heartbeat-every", "0", "guard",
+             "--", sys.executable, "-c", "pass"],
+        ):
+            self.assertEqual(lock_mod.main(argv), 0, argv)
+            self.assertFalse(lock_mod.status(self.lease)["held"])
+
+    def test_cli_guard_without_a_command_is_a_usage_error(self):
+        self.assertEqual(lock_mod.main(["guard", "--lock", self.lease, "--owner", self.OWNER]), 2)
+        self.assertFalse(lock_mod.status(self.lease)["held"])   # 用法错时也不许留下锁
 
 
 if __name__ == "__main__":
