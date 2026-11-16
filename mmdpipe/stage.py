@@ -1234,7 +1234,7 @@ def stage_verify(preset, png_dir: str, mp4: str, frame_start: int, frame_end: in
                "-i", os.path.join(png_dir, "s_%04d.png"),
                "-vf", r"select='not(mod(n\,%d))',scale=320:-1,tile=4x3" % step,
                "-frames:v", "1", "-update", "1", sheet]
-        r = subprocess.run(cmd, capture_output=True, timeout=180, encoding="utf-8", errors="replace")
+        r = subprocess.run(cmd, capture_output=True, timeout=180)
         if os.path.exists(sheet):
             res.artifacts.append(sheet)
             res.metrics["contact_sheet"] = sheet
