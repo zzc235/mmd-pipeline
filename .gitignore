@@ -40,10 +40,10 @@ out/
 
 # ---- 协调层（调度器与任务板，M00 产物）----
 !/coordination/
-
-# ---- 协调层运行时产物：不得入库（board 是唯一事实源，不能有四份副本）----
+# ---- 协调层运行时产物：不得入库（board 是唯一事实源，四棵树共享主工作树那一份）----
 /coordination/*.db
 /coordination/*.db-journal
 /coordination/*.db-wal
 /coordination/*.db-shm
 /coordination/dispatch.json
+/coordination/*.db-journal
