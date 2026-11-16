@@ -128,7 +128,8 @@ def enable_mmd_tools():
 
 
 def rigid_objects():
-    return [o for o in bpy.data.objects if getattr(o, "mmd_type", None) == "RIGID_BODY"]
+    # 与 stage.collision_bodies() 同一取法（`mmd_type` 会漏掉 地面_物理 这类对象）
+    return stage.collision_scope()[0]
 
 
 def constraint_census():
@@ -156,9 +157,19 @@ def main():
     bpy.ops.wm.open_mainfile(filepath=args.blend)
     out = {"blend": args.blend, "addon": enable_mmd_tools()}
     bodies = rigid_objects()
+    wide = [o for o in bpy.data.objects
+            if getattr(o, "rigid_body", None) is not None
+            and getattr(o, "mmd_rigid", None) is not None]
     out["census"] = object_census()
-    out["before"] = scene_state(bodies)
-    out["before"].update(constraint_census())
+    # 两个宇宙都报，**都带标签**（D-20261116-133）：1c 的等式只在 U323 成立
+    out["universe_u323"] = scene_state(bodies)
+    out["universe_u323"].update(constraint_census())
+    out["universe_u324"] = scene_state(wide)
+    out["rigid_object_set_diff"] = {
+        "only_by_rigid_body": [o.name for o in wide if o not in bodies],
+        "only_by_mmd_type": [o.name for o in bodies if o not in wide],
+    }
+    out["exception_bodies"] = stage.exception_rows(bodies, [o for o in wide if o not in bodies])
 
     if args.apply:
         before_snapshot = snapshot(bodies)
