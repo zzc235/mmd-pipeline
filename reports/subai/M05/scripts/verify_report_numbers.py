@@ -37,19 +37,33 @@ EXPECT_ARMS = 5
 # 所以另加一条棘轮：豁免条数写死，要加一条就得动这个常量（留下 diff 与理由）。
 EXPECT_EXEMPTIONS = 3
 MIN_REASON_CHARS = 12
+# `4号` 20:23 的形状：**载体必须是机器能判真假的一档，不是理由里的一句话**。
+# `kind: git` ⇒ 该路径必须过 `git ls-files`；`out` ⇒ 还得指回一条 git 内的承载方；
+# `input` ⇒ 落在某份输入件上（本案三条都落在 git 内，所以全走 git 档）。
 ALLOWED_NOT_IN_GIT = {
-    "out/subai/M05/arms/20261116_324/manifest.json":
-        "冻结账本本身；其 sha 结论由 reports/subai/M05/arms_audit_324.json 承载（本脚本断言 state/listed/drift）",
-    "out/subai/M05/arms/20261116_324/readback_arms.json":
-        "回读原件；五臂读数已并入 reports/subai/M05/arms/20261116_324/summary.json."
-        "artifact_readback（本脚本逐臂断言 u324/掩码/窗口/权限）",
-    "out/subai/M05/probe_fcurve_write_shape.json":
-        "探针原件；其四条形状读数已写进报告 §十三 的表格，摘要口径由 summary.json 与"
-        " evidence_m05_attempt11.json 承载",
+    "out/subai/M05/arms/20261116_324/manifest.json": {
+        "reason": "冻结账本本身；其 sha 结论由审计结果承载，本脚本断言 state/listed/drift/only_on_disk",
+        "carrier": {"kind": "git", "path": "reports/subai/M05/arms_audit_324.json"},
+    },
+    "out/subai/M05/arms/20261116_324/readback_arms.json": {
+        "reason": "回读原件；五臂读数已并入物证摘要，本脚本逐臂断言 u324/掩码/窗口/权限",
+        "carrier": {"kind": "git",
+                    "path": "reports/subai/M05/arms/20261116_324/summary.json"},
+    },
+    "out/subai/M05/probe_fcurve_write_shape.json": {
+        "reason": "探针原件；四条形状读数已写进报告 §十三 的表格与证据口径",
+        "carrier": {"kind": "git", "path": "reports/subai/M05/evidence_m05_attempt11.json"},
+    },
 }
-for _k, _why in ALLOWED_NOT_IN_GIT.items():
+for _k, _spec in ALLOWED_NOT_IN_GIT.items():
+    _why = _spec.get("reason") if isinstance(_spec, dict) else _spec
     assert isinstance(_why, str) and len(_why) >= MIN_REASON_CHARS, \
         "豁免 %s 的「承载方」理由太短或为空（不许拿空话换一个不查）" % _k
+    _car = (_spec or {}).get("carrier") if isinstance(_spec, dict) else None
+    assert isinstance(_car, dict) and _car.get("kind") in ("git", "out", "input"), \
+        "豁免 %s 缺 carrier.kind（git/out/input 三档，理由里写一句不算）" % _k
+    assert isinstance(_car.get("path"), str) and _car["path"], \
+        "豁免 %s 的 carrier.path 为空" % _k
 assert len(ALLOWED_NOT_IN_GIT) == EXPECT_EXEMPTIONS, \
     "豁免条数变了（%d != %d）：要加豁免就得连 EXPECT_EXEMPTIONS 一起改，并写清承载方" % (
         len(ALLOWED_NOT_IN_GIT), EXPECT_EXEMPTIONS)
@@ -133,8 +147,16 @@ def main():
     refs = sorted({p for p in re.findall(r"[\w/.\-]+\.(?:py|json|md)", text) if "M05" in p})
     for rel in refs:
         if rel in ALLOWED_NOT_IN_GIT:
-            print("%-46s skip  %s\n%54s理由：%s"
-                  % ("git ls-files", rel, "", ALLOWED_NOT_IN_GIT[rel]))
+            spec = ALLOWED_NOT_IN_GIT[rel]
+            car = spec["carrier"]
+            # 载体必须能被机器判真假：`kind: git` 就去问 git，不接受「理由里提过一句」
+            if car["kind"] == "git":
+                check("carrier in-git（%s）" % rel, in_git(car["path"]), True)
+            elif car["kind"] == "out":
+                check("carrier 需指回 git 内承载方（%s）" % rel,
+                      bool(car.get("carrier_of")) and in_git(car["carrier_of"]), True)
+            print("%-46s skip  %s\n%54s理由：%s\n%54s载体：%s"
+                  % ("git ls-files", rel, "", spec["reason"], "", car["path"]))
             continue
         check("in-git %s" % rel, in_git(rel), True)
 
