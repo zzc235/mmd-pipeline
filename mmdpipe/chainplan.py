@@ -300,6 +300,9 @@ def plan(paths, pmx_path=None, gap=DEFAULT_GAP, fps=VMD_FPS, limit=12):
     report["last_frame"] = last
     report["total_frames"] = last + 1          # 0..last 共 last+1 帧
     report["total_duration_s"] = round(report["total_frames"] / fps, 3)
+    # 同一份 segments 若换成"默认 gap"真拼接会得到多少帧。M07 只吃 JSON，
+    # 所以这列必须进 JSON，不能只打在文本里——面板要显示的就是"预检 vs 成片"的差。
+    report["frames_if_default_gap"] = total_frames_for_gap(report, DEFAULT_GAP)
     return report
 
 

@@ -217,6 +217,15 @@ class TestThreeSegmentLedger(unittest.TestCase):
         self.assertIn("与默认 gap=0 的真拼接一致", text)
         self.assertNotIn("差 ", text)
 
+    def test_json_carries_default_gap_frames(self):
+        """M07 只吃 JSON：'换默认 gap 会得多少帧' 必须在 JSON 里，不能只在文本里。"""
+        rep = chainplan.plan(self.segs[:2], gap=6)      # 188 帧
+        self.assertEqual(rep["total_frames"], 188)
+        self.assertEqual(rep["frames_if_default_gap"], 182)
+        # gap 与默认一致时两列相等
+        rep0 = chainplan.plan(self.segs[:2])
+        self.assertEqual(rep0["frames_if_default_gap"], rep0["total_frames"])
+
 
 if __name__ == "__main__":
     unittest.main()
