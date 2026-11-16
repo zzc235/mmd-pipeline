@@ -109,10 +109,25 @@ Blender 语义（`rigid_body.collision_collections`，20 位布尔）——**以
 
 ## 4. 验收（D0 会逐条执行，缺一条不算过）
 
+### 4.0 `WIRED` 的唯一定义（`D-20261116-145`，两份实现都必须实现这一条）
+
+`WIRED` ⟺ **四条同时成立**：
+
+1. `distinct_pattern_count >= 2`（位型不止一种）；
+2. **逐刚体回读全符**（`readback_mismatch == 0`）——写进去的位与算出来的位一致；
+3. **覆盖面齐全**：PMX 说不该碰的每一对，都被分开（位或约束），即 `nocollide_pairs_still_colliding == 0` 且 `blocked_and_should_collide == 0`；
+4. **没有被 cap、没有被跳过**：`constraints_capped == false` 且 `skipped == []`。
+
+任一条不成立 ⇒ `PARTIAL`（能指出命中哪一条）或 `EMPTY`（一条位都没读到）。
+
+**为什么要把第 3、4 条写死**：`m02_mask_channel_probe.py` 旧口径是「位型 ≥2 **且** 至少一对该分而被分开」，它在 `constraints_capped=true` 的场景上**照样报 `WIRED`**（`D-145` 的实测分歧：同一份 capped 场景，探头 `WIRED`、`stage_mask` `PARTIAL`+`capped=true`+`skipped_count=4298`）。**两根仪器各读一半，读起来都像绿。**
+
+允许**两份独立实现**（独立性要保留），但不许**两套判据**；词表统一用 `WIRED / PARTIAL / EMPTY`，探头的 `0/1/2/3` 保留但在输出里映射到这三个词。**两仪器分歧时只报分歧，那个数不许用。**
+
 | # | 判据 | 应当被拒 / 应当区分的输入 |
 |---|---|---|
 | 1 | 逐刚体回读：`collision_collections` 与源掩码一致 | **全 0 掩码与全 1 掩码必须给出不同的位**（4号 自己提的那种单元级判据） |
-| 1b | **场景级**：`reports/subai/M02/scripts/m02_mask_channel_probe.py`（1号 交，三态 0 WIRED / 2 UNWIRED PENDING / 1 CANNOT） | 通道落地后必须从 `UNWIRED separated=0` 变成 `WIRED`，且 `separated` 相对 40418 的差能被解释 |
+| 1b | **场景级**：`reports/subai/M02/scripts/m02_mask_channel_probe.py`（1号 交，三态 0 WIRED / 2 UNWIRED PENDING / 1 CANNOT） | 通道落地后必须从 `UNWIRED separated=0` 变成 `WIRED`，且 `separated` 相对 40418 的差能被解释。**判据按 §4.0 四条**，不是「位型 ≥2 且至少分开一对」 |
 | 1c | **差额分三桶报**（`D-114`/`D-115` 修正）：`separated_by_bits` / `separated_by_constraint` / `unseparated` | **三桶相加 == 40 418**，否则这个数说不清是「没接上」「表达不了」还是「早就被 ncc 挡住」。另须**分开归因**：`separated_by_constraint` 里哪些来自**通道新增**的约束、哪些是**落地前就存在**的——否则会把 2196 条被放掉的旧约束与新增的混成同一件事 |
 | 2 | 源数据未被改动 | 跑前跑后 `mmd_rigid.collision_group`/`collision_group_mask` 逐刚体快照相同；源 `.blend` sha256 前后一致 |
 | 3 | 非对称掩码被报出 | 合成场景里放一对非对称掩码，返回值 `asymmetric_pairs > 0` 且 `skipped[]` 非空 |
