@@ -157,13 +157,17 @@ def main():
     # 这份读数是**报告引用的物证**，而它在 `out/` 里、git 看不见 —— 被重跑覆盖掉就只剩「记忆」。
     # 所以默认拒绝覆盖：目标已存在就 exit 2，要重测必须显式 --force（`D-225`：不可逆的用拒绝）。
     if os.path.exists(dst) and "--force" not in sys.argv:
-        # 在 `blender -b` 里 `SystemExit` **不改变退出码**（实测 exit 0），要非零必须抛异常
-        # 交给 `--python-exit-code`。所以这里用 RuntimeError，不用 `return 2`。
-        raise RuntimeError("REFUSE 已有读数：%s（确需重测加 --force）" % dst)
+        # 语义码 10 = 拒绝覆盖（不用 3：那是 `coordination.lock` 的冲突码，guard 会透传）。
+        print("REFUSE 已有读数：%s（确需重测加 --force）" % dst)
+        return 10
     with open(dst, "w", encoding="utf-8") as fh:
         json.dump(out, fh, ensure_ascii=False, indent=2, sort_keys=True)
     print("WROTE %s" % dst)
     sys.stdout.flush()
 
 
-main()
+# `4号` 2026-11-16 20:08 实测七种形状：**返回码没人接**才是 rc=0 的原因（`main()` 的返回值被丢掉），
+# 不是 Blender 吞了 `SystemExit`；模块级 `raise SystemExit(main())` 会原样带出码。
+# 语义码从 10 起，别用 3 —— 3 是 `coordination.lock` 自己的「冲突」码，而 guard 透传子进程 rc。
+#   10 拒绝覆盖 / 11 输入或身份对不上 / 12 断言不成立；`--python-exit-code 3` 只兜「意外异常」。
+raise SystemExit(main())
