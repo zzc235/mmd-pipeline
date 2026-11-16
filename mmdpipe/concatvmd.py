@@ -1,6 +1,6 @@
 """多动作拼接：把几段 VMD 首尾接成一条时间轴。
 
-    python -m mmdpipe.concatvmd a.vmd b.vmd c.vmd --out 拼接.vmd [--gap 6] [--offsets 0,300]
+    python -m mmdpipe.concatvmd a.vmd b.vmd c.vmd --out 拼接.vmd [--gap N] [--offsets 0,300]
     python -m mmdpipe.concatvmd a.vmd b.vmd --out 拼接.vmd --expression 表情.vmd
 """
 from __future__ import annotations
@@ -9,9 +9,10 @@ import argparse
 import sys
 
 from . import vmd as vmd_mod
+from .chain_defaults import DEFAULT_GAP
 
 
-def concat_vmd(paths, out_path, offsets=None, gap=0, model_name=None,
+def concat_vmd(paths, out_path, offsets=None, gap=DEFAULT_GAP, model_name=None,
                expression=None, pmx=None, verbose=True, expression_offset=0,
                frames=None):
     motions = [vmd_mod.load(p) for p in paths]
@@ -90,7 +91,8 @@ def main(argv=None) -> int:
     ap = argparse.ArgumentParser(prog="mmdpipe.concatvmd")
     ap.add_argument("motions", nargs="+")
     ap.add_argument("--out", required=True)
-    ap.add_argument("--gap", type=int, default=0, help="段间空帧数（默认 0）")
+    ap.add_argument("--gap", type=int, default=DEFAULT_GAP,
+                    help="段间空帧数（默认 %d，与 chainplan 同一常量）" % DEFAULT_GAP)
     ap.add_argument("--offsets", help="逗号分隔的起始帧，给就按它排，不给自动接")
     ap.add_argument("--model-name")
     ap.add_argument("--expression", help="拼接后再合并表情")

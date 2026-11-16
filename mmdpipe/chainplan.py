@@ -19,6 +19,7 @@ from dataclasses import dataclass, field
 
 from . import pmx as pmx_mod
 from . import vmd as vmd_mod
+from .chain_defaults import DEFAULT_GAP
 
 VMD_FPS = 30.0
 ANGLE_WARN = 20.0
@@ -26,6 +27,21 @@ ANGLE_ERROR = 45.0
 POS_WARN = 1.0          # PMX 单位（×0.08 ≈ 8 cm）
 POS_ERROR = 2.5
 NLA_MAX_SEGMENTS = 2    # chain_nla.concat_via_nla 的两段接口上限
+
+
+def total_frames_for_gap(rep, gap: int) -> int:
+    """同一份 segments 换一个 gap 时，时间轴一共多少帧。
+
+    gap 只决定相邻段之间插多少空帧，不改段内帧数：
+        total = Σ expected_count + gap × (段数 - 1)
+
+    用途：把「预检按 gap=6」与「真拼接按 gap=0」这两个数**在读数那一刻**并列出来，
+    而不是等成片和面板对不上时再回头查（D-040 的 188 vs 182 就是这么来的）。
+    """
+    counts = [s["expected_count"] for s in rep.get("segments") or []]
+    if not counts:
+        return 0
+    return sum(counts) + int(gap) * (len(counts) - 1)
 
 
 def nla_segments_check(n: int) -> tuple:
@@ -108,7 +124,7 @@ def _morph_range(m):
     return [lo, hi]
 
 
-def plan(paths, pmx_path=None, gap=6, fps=VMD_FPS, limit=12):
+def plan(paths, pmx_path=None, gap=DEFAULT_GAP, fps=VMD_FPS, limit=12):
     """只读体检。
 
     能力边界（重要）：本模块纯 Python，没有骨架求值，**算不出世界位移**。
@@ -374,6 +390,18 @@ def render_text(rep, limit=10):
         lines.append("  过渡速度：gap %d → %.1f°/帧（建议 gap ≥ %d，约 5°/帧）"
                      % (rep["gap"], dpg, rep["recommended_gap"]))
     lines.append("  合计 %d 帧（末帧 %d）/ %.2f s" % (rep["total_frames"], rep["last_frame"], rep["total_duration_s"]))
+
+    # 帧账校核：预检用的 gap 与"没传 --gap 时真拼接用的默认 gap"并列给出来。
+    # 188 vs 182 这种差必须在读数那一刻看得见，否则面板与成片永远对不上还查不出原因。
+    default_total = total_frames_for_gap(rep, DEFAULT_GAP)
+    if default_total != rep["total_frames"]:
+        lines.append("  帧账校核：本段 gap=%d → %d 帧；不传 --gap 真拼接会是 %d 帧（差 %d 帧）"
+                     % (rep["gap"], rep["total_frames"], default_total,
+                        abs(default_total - rep["total_frames"])))
+        lines.append("    → 面板/脚本必须显式对齐 --gap，否则预检与成片永远差这么多帧")
+    else:
+        lines.append("  帧账校核：本段 gap=%d → %d 帧，与默认 gap=%d 的真拼接一致"
+                     % (rep["gap"], rep["total_frames"], DEFAULT_GAP))
     return "\n".join(lines)
 
 
@@ -381,7 +409,8 @@ def main(argv=None) -> int:
     ap = argparse.ArgumentParser(prog="mmdpipe.chainplan")
     ap.add_argument("motions", nargs="+")
     ap.add_argument("--pmx", help="用它的骨骼层级判断根链")
-    ap.add_argument("--gap", type=int, default=6)
+    ap.add_argument("--gap", type=int, default=DEFAULT_GAP,
+                    help="段间空帧数（默认 %d，与 concatvmd 同一常量）" % DEFAULT_GAP)
     ap.add_argument("--fps", type=float, default=VMD_FPS)
     ap.add_argument("--json")
     ap.add_argument("--quiet", action="store_true")
