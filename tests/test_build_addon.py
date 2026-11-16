@@ -107,6 +107,55 @@ class TestZipSelection(BuildCase):
         self.assertFalse(os.path.isfile(build_addon.expected_zip("1.3.0")))
 
 
+class TestMainGate(BuildCase):
+    """`main()` 的三道出口：校验失败不打包、打包失败不认产物、正常通过才报 PACKAGE。"""
+
+    def test_validate_failure_returns_2_and_no_package(self):
+        calls = {"build": 0}
+
+        def fake_stage():
+            calls["stage"] = calls.get("stage", 0) + 1
+
+        def fake_validate():
+            return False
+
+        def fake_build():
+            calls["build"] += 1
+            return 0
+
+        saved = (build_addon.stage, build_addon.validate, build_addon.build)
+        build_addon.stage, build_addon.validate, build_addon.build = fake_stage, fake_validate, fake_build
+        try:
+            self.assertEqual(build_addon.main(), 2)
+            self.assertEqual(calls["build"], 0, "校验失败仍然调用了 build")
+            self.assertFalse(os.path.isfile(build_addon.expected_zip("1.3.0")))
+        finally:
+            build_addon.stage, build_addon.validate, build_addon.build = saved
+
+    def test_build_failure_returns_3(self):
+        saved = (build_addon.stage, build_addon.validate, build_addon.build)
+        build_addon.stage = lambda: None
+        build_addon.validate = lambda: True
+        build_addon.build = lambda: 1
+        try:
+            self.assertEqual(build_addon.main(), 3)
+        finally:
+            build_addon.stage, build_addon.validate, build_addon.build = saved
+
+    def test_expected_zip_missing_returns_4(self):
+        """build 说成功、但文件名对不上（只剩旧包）→ 不认产物。"""
+        saved = (build_addon.stage, build_addon.validate, build_addon.build)
+        build_addon.stage = lambda: None
+        build_addon.validate = lambda: True
+        build_addon.build = lambda: 0
+        try:
+            os.makedirs(self.dist, exist_ok=True)
+            _write(os.path.join(self.dist, "mmd_pipeline-1.2.0.zip"), "old")
+            self.assertEqual(build_addon.main(), 4)
+        finally:
+            build_addon.stage, build_addon.validate, build_addon.build = saved
+
+
 class TestSha(BuildCase):
     def test_sha256_of_known_content(self):
         path = os.path.join(self.root, "a.bin")
