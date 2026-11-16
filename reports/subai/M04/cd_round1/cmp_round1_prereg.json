@@ -1,0 +1,93 @@
+{
+  "epsilon_m": 0.02,
+  "groups": {
+    "C_W1": {
+      "baseline_sha256": "91e4650c960ac6ae7c383a0764689cdc117cae4252560aaa6f7850c80da6b566",
+      "baseline_source": "loaded",
+      "blend": "E:\\code\\mmdpipe-ai\\A3\\out\\subai\\M05\\arms\\C_W1.blend",
+      "deepest_bone": "下擺_0_16",
+      "deepest_bone_other": "下擺_1_17",
+      "deepest_frame": 169,
+      "deepest_max_depth_m": -0.006322,
+      "epsilon_m": 0.02,
+      "eval_policy": "sequential_from_frame_start",
+      "frames_in_meta": 240,
+      "frames_over_epsilon": 0,
+      "frames_read": 240,
+      "group": "C_W1",
+      "judgeable": false,
+      "mask_state": null,
+      "overlapping_pairs_all_zero": false,
+      "overlapping_pairs_median": 46.0,
+      "pairs_without_baseline": 38,
+      "raw_depth_m_at_deepest": -0.017454,
+      "unknown_reasons": [
+        "pairs_without_baseline=38（缺基线的对不许默认 0）"
+      ],
+      "vmd_sha256": null,
+      "window": [
+        1,
+        240
+      ]
+    },
+    "C_W2": {
+      "baseline_sha256": "91e4650c960ac6ae7c383a0764689cdc117cae4252560aaa6f7850c80da6b566",
+      "baseline_source": "loaded",
+      "blend": "E:\\code\\mmdpipe-ai\\A3\\out\\subai\\M05\\arms\\C_W2.blend",
+      "deepest_bone": "下擺_0_16",
+      "deepest_bone_other": "下擺_1_17",
+      "deepest_frame": 379,
+      "deepest_max_depth_m": -0.007907,
+      "epsilon_m": 0.02,
+      "eval_policy": "sequential_from_frame_start",
+      "frames_in_meta": 832,
+      "frames_over_epsilon": 0,
+      "frames_read": 832,
+      "group": "C_W2",
+      "judgeable": false,
+      "mask_state": null,
+      "overlapping_pairs_all_zero": false,
+      "overlapping_pairs_median": 44.0,
+      "pairs_without_baseline": 39,
+      "raw_depth_m_at_deepest": -0.019039,
+      "unknown_reasons": [
+        "pairs_without_baseline=39（缺基线的对不许默认 0）"
+      ],
+      "vmd_sha256": null,
+      "window": [
+        1,
+        832
+      ]
+    },
+    "D": {
+      "baseline_sha256": "91e4650c960ac6ae7c383a0764689cdc117cae4252560aaa6f7850c80da6b566",
+      "baseline_source": "loaded",
+      "blend": "E:\\code\\mmdpipe-ai\\A3\\out\\subai\\M05\\arms\\D.blend",
+      "deepest_bone": "下擺_0_10",
+      "deepest_bone_other": "上半身",
+      "deepest_frame": 409,
+      "deepest_max_depth_m": -0.049928,
+      "epsilon_m": 0.02,
+      "eval_policy": "sequential_from_frame_start",
+      "frames_in_meta": 832,
+      "frames_over_epsilon": 832,
+      "frames_read": 832,
+      "group": "D",
+      "judgeable": false,
+      "mask_state": null,
+      "overlapping_pairs_all_zero": false,
+      "overlapping_pairs_median": 124.0,
+      "pairs_without_baseline": 6789,
+      "raw_depth_m_at_deepest": -0.10116,
+      "unknown_reasons": [
+        "pairs_without_baseline=6789（缺基线的对不许默认 0）"
+      ],
+      "vmd_sha256": null,
+      "window": [
+        1,
+        832
+      ]
+    }
+  },
+  "note": "max_depth_m = -max(0, depth-baseline)，负值=新增重叠；判词只用 frames_over_epsilon，raw_depth_m 只作量级描述。"
+}

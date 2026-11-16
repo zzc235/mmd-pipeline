@@ -1,0 +1,148 @@
+{
+  "arms": {
+    "C_W1": {
+      "bytes": 5963499,
+      "eval_policy": "sequential_from_frame_start",
+      "meta_bytes": 77306,
+      "meta_sha256": "09f754e5bafa0db2c33f5d50afac226115914804536ff908d78fdf2105e73c8d",
+      "path": "E:/code/mmdpipe-ai/A3/out/subai/M05/arms/C_W1.blend",
+      "pose_source_is_baked": false,
+      "sha256_after": "251146e962de1716fb6ff4f3ce173348679fd9479c27f1792c605d1772192d80",
+      "sha256_before": "251146e962de1716fb6ff4f3ce173348679fd9479c27f1792c605d1772192d80"
+    },
+    "C_W2": {
+      "bytes": 5965883,
+      "eval_policy": "sequential_from_frame_start",
+      "meta_bytes": 259860,
+      "meta_sha256": "7c411dcb9e2a5bf61aad3009fcd19359cf9ef3b73a734bb72fbc24a6ea633687",
+      "path": "E:/code/mmdpipe-ai/A3/out/subai/M05/arms/C_W2.blend",
+      "pose_source_is_baked": false,
+      "sha256_after": "c02c982f9d3c70f25cabf0aaebea0cccd400ce55dcda609d04f841adcb0f9996",
+      "sha256_before": "c02c982f9d3c70f25cabf0aaebea0cccd400ce55dcda609d04f841adcb0f9996"
+    },
+    "D": {
+      "bytes": 10037702,
+      "eval_policy": "sequential_from_frame_start",
+      "meta_bytes": 260179,
+      "meta_sha256": "f90b42aa7204751c8409ac7a3785508ad12aca860554cf9c7be0258db677263d",
+      "path": "E:/code/mmdpipe-ai/A3/out/subai/M05/arms/D.blend",
+      "pose_source_is_baked": false,
+      "sha256_after": "be6c0a1c8875ea73677fcabba2cf12a3a9b2fee51258e85e2ebcb686a485998d",
+      "sha256_before": "be6c0a1c8875ea73677fcabba2cf12a3a9b2fee51258e85e2ebcb686a485998d"
+    }
+  },
+  "arms_dir": "E:/code/mmdpipe-ai/A3/out/subai/M05/arms",
+  "finished_at": "2026-11-16T18:29:25",
+  "gates": {
+    "C_W1": {
+      "complete": true,
+      "eval_policy": "sequential_from_frame_start",
+      "frames_got": 240,
+      "frames_measured": 240,
+      "frames_want": 240,
+      "is_baked": false,
+      "pairs_without_baseline": 38,
+      "roi_missing": []
+    },
+    "C_W2": {
+      "complete": true,
+      "eval_policy": "sequential_from_frame_start",
+      "frames_got": 832,
+      "frames_measured": 832,
+      "frames_want": 832,
+      "is_baked": false,
+      "pairs_without_baseline": 39,
+      "roi_missing": []
+    },
+    "D": {
+      "complete": true,
+      "eval_policy": "sequential_from_frame_start",
+      "frames_got": 832,
+      "frames_measured": 832,
+      "frames_want": 832,
+      "is_baked": false,
+      "pairs_without_baseline": 6789,
+      "roi_missing": []
+    }
+  },
+  "input": "E:/code/mmdpipe-ai/A1/out/subai/M08/run_20261116_1805/rebuild_built.blend",
+  "input_sha256": "ef8e31a9fa2d4ef48d7e1b3e684a2238091c4b3b6b253d012fab4abe9f7ef27e",
+  "roi_bones": [
+    "下擺_0_0",
+    "下擺_0_1",
+    "下擺_0_10",
+    "下擺_0_11",
+    "下擺_0_12",
+    "下擺_0_13",
+    "下擺_0_14",
+    "下擺_0_15",
+    "下擺_0_16",
+    "下擺_0_17",
+    "下擺_0_2",
+    "下擺_0_3",
+    "下擺_0_4",
+    "下擺_0_5",
+    "下擺_0_6",
+    "下擺_0_7",
+    "下擺_0_8",
+    "下擺_0_9"
+  ],
+  "spec": "m04_run_cd/1",
+  "started_at": "2026-11-16T18:20:28",
+  "steps": [
+    {
+      "exit": 0,
+      "log": "E:/dsh pr/woker2/out/subai/M04/penetration/cd_step1_dump.log",
+      "ok_by_product": true,
+      "product": "E:/dsh pr/woker2/out/subai/M04/penetration/rigid_mask_dump_cd.json",
+      "product_bytes": 36668,
+      "seconds": 2.1,
+      "step": "1_dump"
+    },
+    {
+      "exit": 0,
+      "log": "E:/dsh pr/woker2/out/subai/M04/penetration/cd_step3_align.log",
+      "ok_by_product": true,
+      "product": "E:/dsh pr/woker2/out/subai/M04/penetration/roi_align_cd.json",
+      "product_bytes": 1369,
+      "seconds": 1.9,
+      "step": "3_align"
+    },
+    {
+      "exit": 0,
+      "log": "E:/dsh pr/woker2/out/subai/M04/penetration/cd_step4_baseline.log",
+      "ok_by_product": true,
+      "product": "E:/dsh pr/woker2/out/subai/M04/penetration/baseline_delivery_v1.json",
+      "product_bytes": 3986,
+      "seconds": 2.2,
+      "step": "4_baseline"
+    },
+    {
+      "exit": 3221225477,
+      "log": "E:/dsh pr/woker2/out/subai/M04/penetration/cd_step5_C_W1.log",
+      "ok_by_product": true,
+      "product": "E:/dsh pr/woker2/out/subai/M04/penetration/C_W1.meta.json",
+      "product_bytes": 77306,
+      "seconds": 64.4,
+      "step": "5_C_W1"
+    },
+    {
+      "exit": 3221225477,
+      "log": "E:/dsh pr/woker2/out/subai/M04/penetration/cd_step6_C_W2.log",
+      "ok_by_product": true,
+      "product": "E:/dsh pr/woker2/out/subai/M04/penetration/C_W2.meta.json",
+      "product_bytes": 259860,
+      "seconds": 238.3,
+      "step": "6_C_W2"
+    },
+    {
+      "exit": 0,
+      "log": "E:/dsh pr/woker2/out/subai/M04/penetration/cd_step7_D.log",
+      "ok_by_product": true,
+      "product": "E:/dsh pr/woker2/out/subai/M04/penetration/D.meta.json",
+      "product_bytes": 260179,
+      "seconds": 228.5,
+      "step": "7_D"
+    }
+  ]
+}

@@ -1,0 +1,91 @@
+{
+  "round1": {
+    "C_W1.meta.json": {
+      "bytes": 77306,
+      "sha256_lf_normalized": "09f754e5bafa0db2c33f5d50afac226115914804536ff908d78fdf2105e73c8d"
+    },
+    "C_W2.meta.json": {
+      "bytes": 259860,
+      "sha256_lf_normalized": "7c411dcb9e2a5bf61aad3009fcd19359cf9ef3b73a734bb72fbc24a6ea633687"
+    },
+    "D.meta.json": {
+      "bytes": 260179,
+      "sha256_lf_normalized": "f90b42aa7204751c8409ac7a3785508ad12aca860554cf9c7be0258db677263d"
+    },
+    "baseline_delivery_v1.json": {
+      "bytes": 3986,
+      "sha256_lf_normalized": "91e4650c960ac6ae7c383a0764689cdc117cae4252560aaa6f7850c80da6b566"
+    },
+    "cd_cmp_CW1_vs_Rfree.json": {
+      "bytes": 3235,
+      "sha256_lf_normalized": "2554436872d41f9cbae85e6f33cc9ba485fce8fcb49b07f2fa9f688f0df9f727"
+    },
+    "cd_cmp_D_vs_CW2.json": {
+      "bytes": 3192,
+      "sha256_lf_normalized": "098c6fe725edacd903c0f424700a6b978bb3dbd011c4007fdc572bbb4414e69b"
+    },
+    "cd_run_ledger.json": {
+      "bytes": 4806,
+      "sha256_lf_normalized": "5f56a270832c8e598444fe666e939e8e2c8cba1641dabace4a270c2f8a9d9961"
+    },
+    "roi_align_cd.json": {
+      "bytes": 1369,
+      "sha256_lf_normalized": "899089d627d0834861af6f9acb2b87bdae80c10b7c48c8f5bb2d309c70f0266a"
+    }
+  },
+  "spec": "m04_cd_snapshots/1",
+  "void1816": {
+    "VOID1816_C_W1.jsonl": {
+      "bytes": 21076,
+      "sha256_lf_normalized": "c97001241dbcf0c3888d13d23b90ff276b6d223a07c509ded8823e8edeba89ac"
+    },
+    "VOID1816_C_W1.meta.json": {
+      "bytes": 76961,
+      "sha256_lf_normalized": "af2eb50461fb84f969c104a40ecb6eaa4ce47e5bfcf1bbeb296bba5465f929ed"
+    },
+    "VOID1816_README.md": {
+      "bytes": 1275,
+      "sha256_lf_normalized": "d01814b6e13a4438755295647df328d05b91d55eb7d9739b0c623d574a361f26"
+    },
+    "VOID1816_baseline_delivery_v1.json": {
+      "bytes": 3986,
+      "sha256_lf_normalized": "91e4650c960ac6ae7c383a0764689cdc117cae4252560aaa6f7850c80da6b566"
+    },
+    "VOID1816_baseline_probe.jsonl": {
+      "bytes": 85,
+      "sha256_lf_normalized": "ebbd433662afd0633a3f81084cdac084b25486d676160a0f798f1b7ee60f99ce"
+    },
+    "VOID1816_baseline_probe.meta.json": {
+      "bytes": 3421,
+      "sha256_lf_normalized": "04332c5aaaa3f015fd80beaf10bbbfa4862868e94da49eaffa4254b21e461d02"
+    },
+    "VOID1816_cd_step1_dump.log": {
+      "bytes": 287,
+      "sha256_lf_normalized": "80c037c014b9c0ea9e2d9b1fc77f915187ab165460fb984bc20c78478038a7a4"
+    },
+    "VOID1816_cd_step3_align.log": {
+      "bytes": 295,
+      "sha256_lf_normalized": "adab712a48880ac5dbf302c1f6fe4ac05ee164d6891b006fbe8b640d4e44522c"
+    },
+    "VOID1816_cd_step4_baseline.log": {
+      "bytes": 1009,
+      "sha256_lf_normalized": "7a7fc33b2a3a75de849b803cc1b4908791112f218e58033c60d88c804c18d106"
+    },
+    "VOID1816_cd_step5_C_W1.log": {
+      "bytes": 1271,
+      "sha256_lf_normalized": "a26809d416b21cc807d16c266640a40d4eee0c1524adbaee82174e4334ded191"
+    },
+    "VOID1816_cd_step6_C_W2.log": {
+      "bytes": 1416,
+      "sha256_lf_normalized": "b490a0b3a44ad6a297509c5dfc5b5a29f274f715401cfcf42dada57f08061b28"
+    },
+    "VOID1816_rigid_mask_dump_cd.json": {
+      "bytes": 36668,
+      "sha256_lf_normalized": "0a2a27796315b7888d3042b0c912433339fc4360ad0a0ed51b30d3c42384dde7"
+    },
+    "VOID1816_roi_align_cd.json": {
+      "bytes": 1369,
+      "sha256_lf_normalized": "899089d627d0834861af6f9acb2b87bdae80c10b7c48c8f5bb2d309c70f0266a"
+    }
+  }
+}

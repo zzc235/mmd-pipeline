@@ -485,7 +485,7 @@ class TestBakeFailureShapeTellsTheThreeApart(unittest.TestCase):
         `D-219`：把 `UNMEASURED` 当 `FAIL` 用，会让读者去找一个不存在的正确性 bug。
         """
         record = self._record()
-        self.assertEqual(self.stage.bake_failure_shape(record), "replay_unmeasured")
+        self.assertEqual(self.stage.bake_failure_shape(record), "replay_unmeasured_not_run")
         self.assertEqual(self.stage.bake_artifact_missing(record),
                          ["reopen_measured", "cache_usable_after_reopen",
                           "replay_first_eval_after_open", "replay_matched_after_reopen"])
@@ -494,7 +494,7 @@ class TestBakeFailureShapeTellsTheThreeApart(unittest.TestCase):
         """缓存可用、但没做重放对照 ⇒ 仍然是「缺料」，不许写成不一致。"""
         record = self._record(reopened=True, baked_after=True, outdated=False)
         record["persist"]["replay_probe"] = None
-        self.assertEqual(self.stage.bake_failure_shape(record), "replay_unmeasured")
+        self.assertEqual(self.stage.bake_failure_shape(record), "replay_unmeasured_not_run")
         self.assertEqual(self.stage.bake_artifact_missing(record),
                          ["replay_first_eval_after_open", "replay_matched_after_reopen"])
 
@@ -520,7 +520,8 @@ class TestBakeFailureShapeTellsTheThreeApart(unittest.TestCase):
         """
         record = self._record(reopened=True, baked_after=True, outdated=False,
                               first_eval=False)
-        self.assertEqual(self.stage.bake_failure_shape(record), "replay_unmeasured")
+        self.assertEqual(self.stage.bake_failure_shape(record),
+                         "replay_unmeasurable_engine")
         checks = self.stage.bake_checks(record)
         self.assertFalse(checks["replay_first_eval_after_open"])
         self.assertFalse(checks["replay_matched_after_reopen"],
@@ -532,7 +533,7 @@ class TestBakeFailureShapeTellsTheThreeApart(unittest.TestCase):
         """漏写这个键 ⇒ 同样算没量（不许因为默认值变成"一致"）。"""
         record = self._record(reopened=True, baked_after=True, outdated=False)
         del record["persist"]["replay_probe"]["first_eval_after_open"]
-        self.assertEqual(self.stage.bake_failure_shape(record), "replay_unmeasured")
+        self.assertEqual(self.stage.bake_failure_shape(record), "replay_unmeasured_not_run")
         self.assertFalse(self.stage.bake_checks(record)["replay_matched_after_reopen"])
 
     def test_replay_probe_builder_defaults_the_flag_to_false(self):
@@ -540,6 +541,10 @@ class TestBakeFailureShapeTellsTheThreeApart(unittest.TestCase):
 
         `D-225`：「能靠记录解决的事，不要用拒绝解决」—— 漏一个可补的字段不该让一次
         6–12 分钟的构建当场死掉，红在记录里、理由看得见、单条重跑就补得回。
+
+        分档（`D-228`）：**键缺了**算 `replay_unmeasured_not_run`（记录缺一位，补记即可）；
+        **键在且为 false** 算 `replay_unmeasurable_engine`（真做了，只是量的是热身后的自证循环）。
+        构造器落 false 属于后者。
         """
         probe = self.stage.bake_replay_probe(matched=True, max_delta=0.0, frames=[417])
         self.assertIs(probe["first_eval_after_open"], False)
@@ -547,8 +552,9 @@ class TestBakeFailureShapeTellsTheThreeApart(unittest.TestCase):
                                          "matched", "max_delta"])
         record = self._record(reopened=True, baked_after=True, outdated=False)
         record["persist"]["replay_probe"] = probe
-        self.assertEqual(self.stage.bake_failure_shape(record), "replay_unmeasured",
-                         "漏键的探针不许被判成「一致」")
+        self.assertEqual(self.stage.bake_failure_shape(record),
+                         "replay_unmeasurable_engine",
+                         "漏写标记的探针不许被判成「一致」")
         self.assertIn("replay_first_eval_after_open",
                       self.stage.bake_artifact_missing(record))
 
@@ -569,6 +575,46 @@ class TestBakeFailureShapeTellsTheThreeApart(unittest.TestCase):
                          list(self.stage.BAKE_CRITERIA)
                          + ["reopen_measured", "cache_usable_after_reopen",
                             "replay_first_eval_after_open", "replay_matched_after_reopen"])
+
+    def test_ok_is_a_construction_the_engine_cannot_reach(self):
+        """结构哨兵：`ok` 要求「开件后第一次求值」**且**「等于顺序重算」，两者在非起始帧互斥。
+
+        * 暖探针（顺序重算后冷跳）⇒ `first_eval_after_open=false` ⇒ `replay_unmeasured`；
+        * 冷探针（开件后第一次求值就是它）⇒ 没有同会话暖参照，只能比另一会话的冷参照，
+          而 `D-223` 保证两者差 1.86–1.99 m ⇒ `replay_mismatch`。
+
+        所以 `ok` 在引擎里到不了；`2号` 19:49 的 `f1` 判别补了边界（姿态与解算状态无关的帧上两者相同）。
+        这条测试是那个待决点的哨兵：引擎或口径一变它就红，提醒回去重新裁，不许在实现里偷偷放宽。
+        """
+        warm = self._record(reopened=True, baked_after=True, outdated=False, first_eval=False)
+        self.assertEqual(self.stage.bake_failure_shape(warm), "replay_unmeasurable_engine")
+        cold_mismatch = self._record(reopened=True, baked_after=True, outdated=False,
+                                    first_eval=True, replay_matched=False)
+        self.assertEqual(self.stage.bake_failure_shape(cold_mismatch), "replay_mismatch")
+        # 仪器本身允许 ok（引擎做不到的那种组合），否则判据就成了「恒红」
+        instrument_ok = self._record(reopened=True, baked_after=True, outdated=False)
+        self.assertEqual(self.stage.bake_failure_shape(instrument_ok), "ok")
+
+    def test_cache_unusable_outranks_the_probe_shape(self):
+        """缓存不可用时先报 `baked_not_persisted` —— 那是件的事实，探针形状其次。"""
+        record = self._record(reopened=True, baked_after=True, outdated=True,
+                              first_eval=False)
+        self.assertEqual(self.stage.bake_failure_shape(record), "baked_not_persisted")
+
+    def test_the_three_replay_buckets_are_distinguishable(self):
+        """`D-228`：没做 / 引擎做不到 / 真的不一致，三者判词必须不同。"""
+        not_run = self._record(reopened=True, baked_after=True, outdated=False)
+        not_run["persist"]["replay_probe"] = None
+        engine = self._record(reopened=True, baked_after=True, outdated=False,
+                              first_eval=False)
+        mismatch = self._record(reopened=True, baked_after=True, outdated=False,
+                                first_eval=True, replay_matched=False)
+        shapes = [self.stage.bake_failure_shape(record)
+                  for record in (not_run, engine, mismatch)]
+        self.assertEqual(shapes, ["replay_unmeasured_not_run",
+                                  "replay_unmeasurable_engine",
+                                  "replay_mismatch"])
+        self.assertEqual(len(set(shapes)), 3, "三档不许压成同一个判词")
 
     def test_the_six_criteria_names_are_unchanged(self):
         """1号 在读 `bake_checks()["probe_informative"]`：老键的名字与语义不许动。"""

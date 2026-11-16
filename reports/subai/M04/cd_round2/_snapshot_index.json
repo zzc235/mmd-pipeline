@@ -1,0 +1,64 @@
+{
+  "files": {
+    "C_W1.meta.json": {
+      "bytes": 76876,
+      "sha256_lf_normalized": "0ee4f06d1c7fd20e28034741d6a292045318adc39c2d739e20989956ca691782"
+    },
+    "C_W2.meta.json": {
+      "bytes": 258696,
+      "sha256_lf_normalized": "1908a1162aed70c5148c88eb512e5f0e9fca9f38aa30a95076ecd39b01517c2e"
+    },
+    "D.meta.json": {
+      "bytes": 257851,
+      "sha256_lf_normalized": "191608454f44a6c07c0f37da949b5f028ae0f5d9852bafce03fc030f45b704af"
+    },
+    "baseline_C_W1.json": {
+      "bytes": 173934,
+      "sha256_lf_normalized": "54be168d18916e923b2ef7a1a953b9d73e8a1752a95d727833bdba532310bf47"
+    },
+    "baseline_C_W2.json": {
+      "bytes": 173934,
+      "sha256_lf_normalized": "4f33087b321b3a7d50bd38fc002e7fe5bd96574f67023a61577c12e3454d74fa"
+    },
+    "baseline_D.json": {
+      "bytes": 174177,
+      "sha256_lf_normalized": "3b2b021c78198ab176a60001d6efc8b4618753b9af04fb43368264dbb023703a"
+    },
+    "cd_run_ledger.json": {
+      "bytes": 9307,
+      "sha256_lf_normalized": "e52cde6e8a13b4f5a9319218e817eeda7a745959775bafca6a26a8bbbe565adf"
+    },
+    "cmp_round2.json": {
+      "bytes": 2845,
+      "sha256_lf_normalized": "1688c85206e334c0f19f0862de4713bdf78f06ce81b836618bf39ab42335f0e9"
+    },
+    "compare.log": {
+      "bytes": 1082,
+      "sha256_lf_normalized": "7757340c6ef8dbd87c7a70456dc757841ccaa39cea1ae31b1359be7bcbcaf16f"
+    },
+    "compare_selftest.log": {
+      "bytes": 1812,
+      "sha256_lf_normalized": "9fbcefb0b99ca87f1c122f317a5d4072c07f9be1748bd5a8c0b4c10c58a5017d"
+    },
+    "manifest.json": {
+      "bytes": 10720,
+      "sha256_lf_normalized": "59a503c963cf446579dbeeabe991536d9e046696a248bbb5dff7444617498dc8"
+    }
+  },
+  "hash_basis": "lf_normalized_v1",
+  "later_additions": {
+    "compare.log.txt": {
+      "bytes": 1096,
+      "sha256_lf_normalized": "7757340c6ef8dbd87c7a70456dc757841ccaa39cea1ae31b1359be7bcbcaf16f",
+      "source_name_in_base": "compare.log",
+      "why": "原件名被 .gitignore:39 的 *.log 吞掉、从未进 git；快照里以 .txt 落地，内容逐字节相同（只有文件名变了）"
+    },
+    "compare_selftest.log.txt": {
+      "bytes": 1833,
+      "sha256_lf_normalized": "9fbcefb0b99ca87f1c122f317a5d4072c07f9be1748bd5a8c0b4c10c58a5017d",
+      "source_name_in_base": "compare_selftest.log",
+      "why": "原件名被 .gitignore:39 的 *.log 吞掉、从未进 git；快照里以 .txt 落地，内容逐字节相同（只有文件名变了）"
+    }
+  },
+  "source": "E:/dsh pr/woker2/out/subai/M04/penetration/round2_324b"
+}

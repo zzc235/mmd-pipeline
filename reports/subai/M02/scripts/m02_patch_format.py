@@ -331,6 +331,24 @@ def split_diff(expected, actual):
             diff_body(expected, actual, SOFT_BODY_FIELDS))
 
 
+# `D-226`：读 `matrix_world` 的判据要先顺序热身；但**用记录、不用拒绝** ——
+# 断言只对将来的读数生效，已有的补丁读数既没记也没法补，会整体变成「不可比」。
+# 两个字段**分开记**，不许拿一个冒充另一个（`4号` 2026-11-16）：
+#   `first_eval_after_open`：这次读数是不是「开件后第一次求值」；
+#   `warmed_up`            ：读之前有没有先做过一次顺序步进。
+WARM_FIELDS = ("warmed_up", "first_eval_after_open")
+
+
+def warm_record(warmed_up=None, first_eval_after_open=None, evidence=None):
+    """读数前的前置状态（两字段独立）。`unrecorded=True` ⇒ 读者要当成「没标注」，不是「没问题」。"""
+    return {
+        "warmed_up": warmed_up,
+        "first_eval_after_open": first_eval_after_open,
+        "evidence": evidence,
+        "unrecorded": warmed_up is None and first_eval_after_open is None,
+    }
+
+
 def _mini_patch():
     bodies = []
     for i, name in enumerate(WANT_NAMES):
@@ -470,6 +488,17 @@ def selftest():
     strict_mt, soft_mt = split_diff(body, mt)
     cases.append(("记账标记：mmd_type 不同 ⇒ 进 soft、不进 strict",
                   (len(strict_mt), len(soft_mt) > 0), (0, True)))
+
+    # `D-226`：两个前置字段分开记，且「没记」不许看起来像「没问题」
+    wr = warm_record(True, False, "frame_set 走了两帧")
+    cases.append(("前置记录：热身过 ⇒ warmed_up=True / first_eval=False",
+                  (wr["warmed_up"], wr["first_eval_after_open"]), (True, False)))
+    cases.append(("前置记录：两个字段不许被同一个值冒充",
+                  warm_record(True, True) == warm_record(False, False), False))
+    cases.append(("前置记录：都没记 ⇒ unrecorded=True（不是「没问题」）",
+                  warm_record()["unrecorded"], True))
+    cases.append(("前置记录：只记一个 ⇒ unrecorded=False",
+                  warm_record(first_eval_after_open=True)["unrecorded"], False))
 
     bad = 0
     for label, got, want in cases:

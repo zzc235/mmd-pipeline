@@ -1,0 +1,21 @@
+[selftest] 计数规则三条控制（预注册 §七）
+  [PASS] 正控：一帧越判据、一帧不越 → 1                          got=1 want=1
+  [PASS] 负控·符号写反（正=更深）→ 0，证明方向不是随便写的                got=0 want=0
+  [PASS] 负控·边界：恰好等于 -epsilon 不算越                    got=0 want=0
+  [PASS] 负控·再深一点就计上（-0.0201）                        got=1 want=1
+[selftest] 可判性正控（空集与缺基线必须不可判）
+  [PASS] 空 per_frame 不可判                            got=False want=False
+  [PASS] 缺基线 >0 不可判                                 got=False want=False
+  [PASS] overlapping_pairs 全 0 不可判                  got=False want=False
+  [PASS] frames_measured 与行数不符不可判                   got=False want=False
+[selftest] 判词正控
+  [PASS] 0 → 非0 判结论级变化                              got='结论级变化' want='结论级变化'
+  [PASS] 两组都 0 判结论不变                                got='数值变化、结论不变' want='数值变化、结论不变'
+  [PASS] 有一组不可判 → 判 UNKNOWN（原来没测过这条分支）              got='UNKNOWN' want='UNKNOWN'
+  [PASS] 同动作才比数值差                                   got=True want=True
+  [PASS] 跨动作不比数值差                                   got=True want=True
+[selftest] 分支覆盖（每个分支至少走到一次，否则断言全绿也说明不了它被走过）
+  [PASS] 七个分支都被走到过（缺：无）                             got=[] want=[]
+  branch_hits={'judgeable': 5, 'unjudgeable': 5, 'verdict_flip': 1, 'verdict_same': 3, 'verdict_same_action_false': 2, 'verdict_same_action_numeric': 1, 'verdict_unknown': 1}
+
+[selftest] 全部通过

@@ -40,6 +40,8 @@ sys.path.insert(0, r"E:\dsh pr\woker2")
 sys.path.insert(0, r"E:\code\mmdpipe-ai\A2")
 from mmdpipe import clearance as C  # noqa: E402
 from mmdpipe.measure import SequentialEvalError, plan_sequential_eval  # noqa: E402
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from m04_baseline import baseline_payload  # noqa: E402
 
 SHAPE_OF = {"SPHERE": 0, "BOX": 1, "CAPSULE": 2}
 
@@ -326,24 +328,15 @@ def main():
             print("[capsule] baseline computed at frame %d: %d pairs" % (bf, len(baseline)),
                   flush=True)
             if a.baseline_write:
-                doc = {
-                    "spec": "penetration_baseline/1",
-                    "basis": "capsule",
-                    "scene": os.path.basename(a.blend),
-                    "roi": a.roi_label,
-                    "baseline_frame": bf,
-                    "note": "按刚体对记录的重叠量；判定用 max(0, depth-baseline) > epsilon。"
-                            "该基线只对这一份交付物成立（第 11 行占位刚体只存在于 Nov-7 交付物里）",
-                    "pairs": len(baseline),
-                    "baseline_m": {k: round(v, 6) for k, v in sorted(baseline.items()) if v > 0.0},
-                }
+                doc = baseline_payload(a.blend, a.roi_label, bf, baseline)
                 os.makedirs(os.path.dirname(a.baseline_write), exist_ok=True)
                 with open(a.baseline_write, "w", encoding="utf-8", newline="\n") as fh:
                     json.dump(doc, fh, ensure_ascii=False, indent=2, sort_keys=True)
                     fh.write("\n")
                 base_sha = hashlib.sha256(open(a.baseline_write, "rb").read()).hexdigest()
-                print("[capsule] baseline written: %s  sha256=%s"
-                      % (a.baseline_write, base_sha), flush=True)
+                print("[capsule] baseline written: %s  sha256=%s  pairs=%d (zero-overlap=%d)"
+                      % (a.baseline_write, base_sha, doc["pairs"],
+                         doc["pairs_with_zero_overlap"]), flush=True)
         if not (f0 <= f <= f1):
             continue  # 预热段：只步进物理，不取数
         roi_rbs = [(o, as_clearance(o)) for o in roi_objs]
@@ -443,4 +436,7 @@ def main():
     sys.exit(0)
 
 
-main()
+# 只在当脚本跑时进入 main：19:45 需要**导入**本模块的胶囊口径（`run_pairs()` 那种复用），
+# 无条件 `main()` 会让「import 一下」变成「跑一遍完整测量」。
+if __name__ == "__main__":
+    main()
