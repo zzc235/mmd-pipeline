@@ -22,7 +22,7 @@
 |---|---|---|
 | main HEAD | `e913b4f`（最终值见 §12 收尾补记） | `git log --oneline -1` |
 | 裁决条数 | 229 | `python -m coordination.taxonomy --check` |
-| 测试 | **907**（默认 / utf-8 / gbk 三环境，exit 0，skipped 1） | `python -m unittest discover -s tests -t tests -p 'test_*.py'` |
+| 测试 | **911**（默认 / utf-8 / gbk 三环境，exit 0，skipped 1） | `python -m unittest discover -s tests -t tests -p 'test_*.py'` |
 | 状态对账 | `state=OK / conflicts=[] / pending_human=[]` | `python -m coordination.status --check` |
 | 词表对账 | `state=OK / bad_supersedes=[]` | `python -m coordination.taxonomy --check` |
 | 冻结账本 | M08 6 份 manifest / 18 项；M04 批次 35 项；M05 批次 14 项 | `python -m coordination.artifact_audit --root <树>` |
@@ -429,7 +429,7 @@ AssertionError: Lists differ: [('reports/subai/M04/scripts/m04_snapshot_scope.py
 ```powershell
 cd 'E:\dsh pr\woker2'
 git log --oneline -1                                   # HEAD
-python -m unittest discover -s tests -t tests -p 'test_*.py'   # 907 tests
+python -m unittest discover -s tests -t tests -p 'test_*.py'   # 911 tests
 python -m coordination.status --check                  # state=OK / pending_human=[]
 python -m coordination.taxonomy --check                # state=OK / records=230
 python -m coordination.artifact_audit --root 'E:\code\mmdpipe-ai\A1\out\subai\M08'
@@ -445,13 +445,13 @@ git diff --name-status ae9ef4f HEAD                     # 今晚全部改动
 
 | 项 | 读数 | 命令 |
 |---|---|---|
-| main HEAD | **`deef5d6`（最后一笔席位合并）+ 本文件所在的那笔收尾提交** | `git log --oneline -3` |
-| 测试 | **907 passed / exit 0**，默认、utf-8、gbk **三环境各跑一遍**（skipped 1，Blender 不可用那条） | `python -m unittest discover -s tests -t tests -p 'test_*.py'` |
+| main HEAD | **`2f0ee6b`（最后一笔席位合并）+ 本文件所在的那笔收尾提交** | `git log --oneline -3` |
+| 测试 | **911 passed / exit 0**，默认、utf-8、gbk **三环境各跑一遍**（skipped 1，Blender 不可用那条） | `python -m unittest discover -s tests -t tests -p 'test_*.py'` |
 | 裁决 | **230 条**，`state=OK / bad_supersedes=[] / unknown_decision_kinds=[]` | `python -m coordination.taxonomy --check` |
 | 状态对账 | `state=OK / conflicts=[] / pending_human=[] / task_count=9` | `python -m coordination.status --check` |
 | 四支分支 | `ai/a1` `ai/a2` `ai/a3` `ai/a4` **ahead 全部 = 0**（一支不落、全部并入 main） | `git rev-list --count main..ai/aN` |
 | 今日提交 | **421** 笔（含 18:00 之后 57 笔合并提交） | `git rev-list --count --since='2026-11-16 00:00' main` |
-| 最终合并 | `39dc480`→`5a9bd72`→`aff6119`→`1ac05f5`→`b1753ed`→`4a4242c`→**`e913b4f`**→`a0bf2fd`→`6d657bd`→**`deef5d6`**（`ai/a2` 的 `ce20ae7` 守卫 + `ai/a3` 的 `4c786e6` 头条数核验器） | `git log --merges --oneline --since='2026-11-16 18:00'` |
+| 最终合并 | `39dc480`→`5a9bd72`→`aff6119`→`1ac05f5`→`b1753ed`→`4a4242c`→**`e913b4f`**→`a0bf2fd`→`6d657bd`→`deef5d6`→`9c7c566`（我修编码）→`b5b4031`（并入 `3号` 自己的 `5005813`）→**`2f0ee6b`**（并入 `2号` 的 `c162134` carriers 表） | `git log --merges --oneline --since='2026-11-16 18:00'` |
 
 ### 12.2 收尾最后 40 分钟新增的三条读数（都是当晚量出来的，不是推理）
 
@@ -521,7 +521,7 @@ AssertionError: Lists differ: [('reports/subai/M05/scripts/verify_report_numbers
 
 ### 12.7 本轮封版（最终）
 
-- 从本文件提交的那一刻起，**我不再合任何分支**；四支 ahead 全 0 是封版读数，之后席位若有新提交，明天开工时重新 `fetch` + 重跑三环境再合。
+- 从本文件提交的那一刻起，**我不再合任何分支**。封版时 `ai/a1`/`ai/a2`/`ai/a4` ahead=0，`ai/a3` 仍有 1 笔（`f27c3c8`：豁免条数棘轮 + 理由最小长度）**故意不并**——`2f0ee6b` 是最后一笔席位合并，之后席位的新提交一律明天开工时 `fetch` + 重跑三环境再合。
 - 锁空闲、0 个 Blender 进程、无未提交文件（除本报告与 `D-230`／`task_status` 的收尾改动，随本文件一起提交）。
 - 唯一挂在 Human 身上的一条没变：**`T3` ② 要不要改定义**（默认按（一），认 `T2` 为天花板，已写进 `task_status`）。
 
