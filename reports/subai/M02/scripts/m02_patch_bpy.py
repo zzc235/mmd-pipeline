@@ -205,6 +205,27 @@ def rigidbody_world_snapshot():
     return out
 
 
+def warm_scene(scene=None):
+    """读 `matrix_world` 之前的**顺序热身**（`D-223②` / `D-226`）。返回记录，不判。
+
+    为什么需要：同一份件上，「开件后第一次求值」读到的 `matrix_world` 与顺序重算能差
+    **1.99 m**（实测 323/323 条，`digest_warmup.json`）。`body_spec()` 里含 `matrix_world`，
+    所以补丁回读属于「必须先热身」的那一族。
+
+    为什么**不**用拒绝：断言只对将来的读数生效，已有读数既没记也没法补，会整体变成
+    「不可比」——比「可能偏差」更难处理（`D-226`）。所以只记两个独立字段：
+    `warmed_up`（读之前有没有走过一次顺序步进）、`first_eval_after_open`（这次是不是开件后首读）。
+    """
+    scene = scene or bpy.context.scene
+    start = int(getattr(scene, "frame_start", 1))
+    scene.frame_set(start)          # 第一次求值（把状态初始化出来）
+    scene.frame_set(start + 1)      # 顺序走一帧：这才叫「热身」
+    scene.frame_set(start)          # 回到读数帧；此时已不是「开件后第一次求值」
+    return {"warmed_up": True, "first_eval_after_open": False,
+            "evidence": "frame_set(%d) → frame_set(%d) → frame_set(%d)"
+                        % (start, start + 1, start)}
+
+
 def _create_mmd_rigid(spec, arm_obj):
     """用 mmd_tools 自己的算子造 MMD 刚体（唯一一份「造 MMD 刚体」的实现）。
 

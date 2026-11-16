@@ -106,6 +106,16 @@ def apply_input_patch(patch_path, arm):
         rec["source"]["reverified_note"] = "来源件不在盘上，只复验补丁自身 sha（不假装验过来源）"
 
     rec["rigidbody_world_before"] = pb.rigidbody_world_snapshot()
+    # `D-223②`/`D-226`：`body_spec()` 里含 `matrix_world`，而「开件后第一次求值」与
+    # 顺序重算能差到 1.99 m（实测 323/323 条）。这里**先顺序热身再读**，并把前置状态
+    # 作为两个独立字段记进记录（`warmed_up` ≠ `first_eval_after_open`），不加硬断言：
+    # 拒绝只对将来的读数生效，已有读数会整体变成「不可比」。
+    try:
+        rec["warm"] = pb.warm_scene()
+    except Exception as exc:                                    # noqa: BLE001
+        rec["warm"] = pf.warm_record(evidence="热身失败：%s: %s" % (type(exc).__name__, exc))
+    rec["warmed_up"] = rec["warm"]["warmed_up"]
+    rec["first_eval_after_open"] = rec["warm"]["first_eval_after_open"]
     for spec in patch["bodies"]:
         obj = pb.create_body_from_spec(spec, arm_obj=arm)
         actual = pb.body_spec(obj)
