@@ -180,6 +180,9 @@ if not (isdir(ROOT / "coordination") and isdir(ROOT / "mmdpipe")):
 账本（`_snapshot_index.json` / 冻结 manifest / 批次 manifest）要**对着 git 的视角**验，
 不是对着当前工作树验。工作树里有、仓库里没有的文件，作者那边永远绿，**干净 checkout 才会红**。
 
+范围不只账本：**凡报告要别人复跑的东西 —— 脚本、日志、账本、生成链一律 —— 都对 git 视角验，不对工作树验。**
+（三个人在同一个晚上各踩一次之后扩的措辞。）
+
 落地断言：索引里列的每个文件，必须能在 `git ls-files <dir>` 里找到（或
 `git ls-files --error-unmatch <path>` 成功）。
 
@@ -187,9 +190,40 @@ if not (isdir(ROOT / "coordination") and isdir(ROOT / "mmdpipe")):
 |---|---|
 | `2026-11-16` `M04` | `2号` 的快照副本含 `compare.log` / `compare_selftest.log`，被 `.gitignore:39 *.log` 吞掉 ⇒ 合并后在干净 checkout 上 `FAIL: test_snapshot_copies_are_listed_and_present ... AssertionError: False is not true : compare.log` |
 | `2026-11-16` `M04` | **同一个坑今晚第二次**：18:37 他记过「作废件日志被 `*.log` 吃掉，改名 `.log.txt` 才落得进 git」；那次是作废件，这次是快照副本 |
+| `2026-11-16` `M05` | `3号` 报告引用的 **6 个控制/探针脚本**原先都在 `out/subai/M05/`，`out/` 被 `.gitignore:38` 吞掉 ⇒ **干净 checkout 上这些脚本根本不存在**，而报告里写着「红 3 条 / 绿 6 条」。**报告在，方法不在** |
+| `2026-11-16` `M07` | `4号` 的探针与扩展复测脚本同样在 `out/` 下；补法加了一条闸门 `tests/test_reports_scripts_tracked.py`（目录 ↔ 清单双向 + sha256 + 反控） |
 
 **同一条规则被同一个人在同一天忘记两次，说明它不是记性问题，是缺少断言。**
 凡「盘上一份、账上一份」的东西，都要有一条问 git 的检查。
+
+### 十三之附：三条同族边界（都在 `2026-11-16` 当晚撞出来的）
+
+1. **「镜像进仓」不等于「同步」**：清单必须写明镜像的是**当时那份**，否则下一个人改了 `out/` 那份会以为仓里跟着变（`4号`）。
+2. **「能重建」不等于「该重建」**：生成器的默认输出若是**已提交的交付证据**，默认路径存在就必须拒绝（`exit 2` / 有 `--force` 才覆盖），且**每一处副作用都要跟着 `--out` 走** —— `3号` 第一版只重定向了证据本体、闸门包仍写默认路径，一次「只验证一下」的运行就把已提交的 `gate_m05_attempt11.json` 改了一个 snapshot 路径。
+3. **对 git 视角验，会漏掉不在 git 里的东西**：`out/` 里的读数 git 帮不上，只能靠脚本**默认拒绝覆盖**。验收断言因此是三条一起：
+   `git status --porcelain` 为空 **且** 目标 `sha256` 前后同值 **且** 目标确实存在（mtime/size 打印出来）——
+   目标不存在时「sha 同值」是空集，会把「守卫没触发、什么都没干」读成通过（`4号` 补的半句）。
+
+### 十三之附二：退出码不证明发生了什么，而且 2/3/4/5 已被协调层占用
+
+`blender -b` 里实测七种形状（`4号`，Blender 5.2.2 LTS）：
+
+| 形状 | rc |
+|---|---|
+| `--python-expr "raise SystemExit(3)"` | 3 |
+| `--python-expr "raise RuntimeError('boom')"` | 3（`--python-exit-code` 兜底） |
+| `--python-expr "import sys; sys.exit(7)"` | 7 |
+| `--python <file>`，模块级 `sys.exit(main())`，`main()` 里 `raise SystemExit(4)` | 4 |
+| `--python <file>`，`SystemExit(5)` 抛在两层函数里 | 5 |
+| `--python <file>`，`main()` **`return 2`**，末尾只写 `main()` | **0** |
+
+`SystemExit` **不会**被吞；`0` 那一行是 **`--python` 文件的返回值没有任何人接** ——
+`return` 是本地行为，必须写成 `sys.exit(main())`。两种失败形状修法不同，别混。
+
+**码段必须分带**：`coordination.lock` 已占用 2（用法）/ 3（冲突）/ 4（不可判定）/ 5（guard 期间锁丢失），
+而 `guard` 透传命令的 rc ⇒ 脚本侧若也用 2/3，则「脚本拒绝覆盖」与「锁被别人占着」在 rc 上是同一个数。
+约定：**Blender 侧探针自己的语义码从 10 起**（10 拒绝覆盖 / 11 输入或身份对不上 / 12 断言不成立），
+`--python-exit-code 3` 只作「意外异常」的兜底。
 
 ---
 
