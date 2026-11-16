@@ -225,9 +225,40 @@ def extremum_report(frames, frame: int, key: str = "max_depth_m",
     }
 
 
+def ratio_cuts(segment_start: int, segment_end: int, ratios) -> list:
+    """把一组比例映射成一组候选切点（窗口末帧），供 `cut_sensitivity()` 用。
+
+    比例与切点是一一对应的：`cut = start + round(len * ratio) - 1`。
+    `2号` 2026-11-16 晚量到这条对应关系的**下限**：`C@W2` 保持段上
+
+        5%  -> 瞬态 302..328，稳态里还有 24 帧越判据、最深 -81.290 @f347（结论翻转）
+        10% -> 瞬态 302..354，稳态 11 帧越判据、最深 -65.647 @f646
+        15% / 20% -> 与 10% 同
+
+    所以「比例规则先于数据可判」还不够 —— **比例本身也得带上敏感度**。
+    """
+    length = int(segment_end) - int(segment_start) + 1
+    if length <= 0:
+        raise ComparabilityError("段 [%d, %d] 不成立" % (segment_start, segment_end))
+    out = []
+    for r in ratios:
+        r = float(r)
+        if not 0.0 < r < 1.0:
+            raise ComparabilityError("ratio 必须在 (0, 1)，收到 %r" % (r,))
+        out.append(int(segment_start) + max(1, int(round(length * r))) - 1)
+    return out
+
+
 def window_cut(segment_start: int, segment_end: int, rule: str,
-               ratio: float = 0.10, cut: int | None = None, note: str = "") -> dict:
-    """按规则切一个窗口。`segment_ratio` 用段长比例（先于数据可判）；`preregistered` 要显式切点。"""
+               ratio: float = 0.10, cut: int | None = None, note: str = "",
+               stability: dict | None = None) -> dict:
+    """按规则切一个窗口。
+
+    `segment_ratio` 用段长比例（先于数据可判），但**必须同时给 `stability`**
+    ——`cut_sensitivity()` 在若干比例上的结果。理由：比例规则救得了「换个人换个数」，
+    救不了「比例本身把结论切翻」（5% 时极端值落进稳态窗口）。
+    `worst_frame_stable` 为假即拒：那时的比例把结论切翻了，不许当判据。
+    """
     if rule not in WINDOW_RULES:
         raise ComparabilityError("window_rule %r 不在闭集 %r" % (rule, WINDOW_RULES))
     start, end = int(segment_start), int(segment_end)
@@ -238,11 +269,25 @@ def window_cut(segment_start: int, segment_end: int, rule: str,
         if not 0.0 < ratio < 1.0:
             raise ComparabilityError("ratio 必须在 (0, 1)，收到 %r" % (ratio,))
         width = max(1, int(round(length * ratio)))
-        return {"rule": rule, "ratio": ratio, "segment": [start, end],
-                "window": [start, start + width - 1],
-                "rest": [start + width, end] if start + width <= end else [],
-                "usable_as_criterion": True,
-                "note": "比例先于数据，换件可照同一条规则切"}
+        got = {"rule": rule, "ratio": ratio, "segment": [start, end],
+               "window": [start, start + width - 1],
+               "rest": [start + width, end] if start + width <= end else [],
+               "usable_as_criterion": False,
+               "note": ""}
+        if stability is None:
+            got["note"] = ("比例规则必须先跑 `cut_sensitivity()`（用 `ratio_cuts()` 把比例映射成切点）"
+                           "并在报告里带上比例；未带敏感度时不许当判据")
+            return got
+        if not stability.get("worst_frame_stable"):
+            got["note"] = ("该比例把结论切翻了（极值帧随比例变化：%r）"
+                           % (stability.get("worst_frames"),))
+            return got
+        got["usable_as_criterion"] = True
+        got["ratio_floor_checked"] = True
+        got["over_eps_range"] = stability.get("over_eps_range")
+        got["note"] = ("比例先于数据可判，且极值帧对该组比例不变 => 结论可引；"
+                       "over_eps 随比例浮动 => 引用时必须带比例")
+        return got
     if cut is None:
         raise ComparabilityError("rule=%s 必须给显式 cut 帧" % rule)
     cut = int(cut)
@@ -255,40 +300,65 @@ def window_cut(segment_start: int, segment_end: int, rule: str,
                              else "事后窗口：只许作解释，不许作判据")}
 
 
-def cut_sensitivity(frames, cuts, segment_start: int, key: str = "max_depth_m",
-                    eps: float = 0.020) -> dict:
+def _window_stats(m, lo, hi, key, eps):
+    sel = [f for f in m if lo <= f <= hi]
+    if not sel:
+        return None
+    over = [f for f in sel if m[f] <= -eps]
+    worst = min(sel, key=lambda f: m[f])
+    return {"window": [lo, hi], "frames": len(sel), "over_eps": len(over),
+            "worst_frame": worst, key: m[worst]}
+
+
+def cut_sensitivity(frames, cuts, segment_start: int, segment_end: int | None = None,
+                    key: str = "max_depth_m", eps: float = 0.020) -> dict:
     """同一个「窗口从哪儿切」换成若干个候选切点，看结论稳不稳、数浮不浮。
 
-    这是 `4号` 2026-11-16 晚两次建议的共同底座，也是我采纳为一个函数的原因：
     **「对切点稳健」这句话必须由它自己算出来，不能由作者嘴说。**
 
-    实测出处（`C@W2` 保持段 302..832，`eps = 0.020`）：
+    两段都算（给定 `segment_end` 时）：`prefix = [start, cut]`、`rest = [cut+1, end]`。
+    只看 `prefix` 会漏掉真正会翻的那种情况 —— `2号` / `4号` 量的下限：
 
-        切 302..315 -> over 2   最深 f304 ；切 302..330 -> over 4   最深 f304
-        切 302..351 -> over 15  最深 f304 ；切 302..364 -> over 17  最深 f304
-        切 302..450 -> over 17  最深 f304 ；切 302..531 -> over 20  最深 f304
+        5%  -> prefix 302..328，rest 里还有 24 帧越判据、最深 -81.290 @f347
+        10% -> prefix 302..354，rest 11 帧越判据、最深 -65.647 @f646
 
-    ⇒ 最深帧对所有切点不变（`CONCLUSION_STABLE`），而 count 从 2 浮到 20
-    （`NUMBER_UNSTABLE`）。这种结论只能引用前半句，后半句必须带切点一起写。
+    `prefix` 的极值帧两次都是 `f304`（看起来稳），**翻的是 `rest` 的极值帧**。
+    所以判词按两段的极值帧**联合**判：任一段的极值帧随切点动，结论就不稳。
     """
     m = _frames_map(frames, key)
     start = int(segment_start)
+    end = None if segment_end is None else int(segment_end)
     rows = []
     for cut in sorted(int(c) for c in cuts):
         if cut < start:
             raise ComparabilityError("切点 f%d 在段起点 f%d 之前" % (cut, start))
-        sel = [f for f in m if start <= f <= cut]
-        if not sel:
+        pre = _window_stats(m, start, cut, key, eps)
+        if pre is None:
             raise ComparabilityError("窗口 [%d, %d] 里没有数据" % (start, cut))
-        over = [f for f in sel if m[f] <= -eps]
-        worst = min(sel, key=lambda f: m[f])
-        rows.append({"cut": cut, "frames": len(sel), "over_eps": len(over),
-                     "worst_frame": worst, key: m[worst]})
-    frames_seen = {r["worst_frame"] for r in rows}
-    counts = [r["over_eps"] for r in rows]
-    values = [r[key] for r in rows]
-    stable_frame = len(frames_seen) == 1
-    stable_count = len(set(counts)) == 1
+        row = {"cut": cut, "prefix": pre}
+        if end is not None:
+            if cut >= end:
+                raise ComparabilityError("切点 f%d 不早于段末 f%d" % (cut, end))
+            row["rest"] = _window_stats(m, cut + 1, end, key, eps)
+        rows.append(row)
+
+    def _collect(side, field):
+        vals = []
+        for r in rows:
+            blk = r.get(side)
+            if blk is None:
+                continue
+            vals.append(blk["worst_frame"] if field == "worst_frame" else blk[field])
+        return vals
+
+    sides = ["prefix"] + (["rest"] if end is not None else [])
+    frame_sets = {s: _collect(s, "worst_frame") for s in sides}
+    count_sets = {s: _collect(s, "over_eps") for s in sides}
+    worst_frames = sorted({f for vs in frame_sets.values() for f in vs})
+    counts = [c for vs in count_sets.values() for c in vs]
+    values = [r[s][key] for r in rows for s in sides if r.get(s)]
+    stable_frame = all(len(set(vs)) == 1 for vs in frame_sets.values())
+    stable_count = all(len(set(vs)) == 1 for vs in count_sets.values())
     if stable_frame and stable_count:
         verdict = "STABLE"
     elif stable_frame:
@@ -296,19 +366,21 @@ def cut_sensitivity(frames, cuts, segment_start: int, key: str = "max_depth_m",
     else:
         verdict = "UNSTABLE"
     return {
-        "segment_start": start,
+        "segment": [start, end] if end is not None else [start, max(r["cut"] for r in rows)],
+        "sides": sides,
         "eps": eps,
         "rows": rows,
-        "worst_frames": sorted(frames_seen),
+        "worst_frames": worst_frames,
+        "worst_frames_by_side": frame_sets,
         "over_eps_range": [min(counts), max(counts)],
         "worst_value_range": [min(values), max(values)],
         "worst_frame_stable": stable_frame,
         "over_eps_stable": stable_count,
         "verdict": verdict,
-        "note": ("最深帧对所有切点不变 => 这一句可以当结论引用；over_eps 随切点浮动 => "
-                 "引用时必须带切点，或改用先于数据可判的比例规则"
+        "note": ("极值帧对所有切点不变 => 这一句可以当结论引用；over_eps 随切点浮动 => "
+                 "引用时必须带切点或比例"
                  if verdict == "CONCLUSION_STABLE_NUMBER_UNSTABLE" else
-                 "切点选择影响结论本身 => 不许用事后切点，必须用先于数据可判的规则"),
+                 "切点/比例影响结论本身 => 不许用事后切点，比例也必须带敏感度表"),
     }
 
 

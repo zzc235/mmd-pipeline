@@ -2,7 +2,7 @@
 """可比性闸门（`coordination/comparability.py`）的回归。
 
 2026-11-16 一晚同一形状错四次，每次都由**人**抓到、没有一次自查出来。这组测试就是
-把那四次错各做成一条**必红**的负控，外加「拿它当靶子」的对抗清单：
+把那几次错各做成一条**必红**的负控，外加「拿它当靶子」的对抗清单：
 
 | 出处 | 错的形状 | 对齐的负控 |
 |---|---|---|
@@ -10,7 +10,8 @@
 | `2号` 方向 | 「更负」当「更浅」 | `DomainExtremaTest.test_deeper_is_lower_flag` |
 | `2号` 瞬态当整段 | 50 帧极值冒充 531 帧属性 | `ExtremumReportTest.test_spike_is_transient` |
 | `4号` 窗外帧号 | `355..832` 引用 `f353` | `ExtremumReportTest.test_frame_outside_domain_rejected` |
-| `4号` 切点敏感度 | 「稳健」由作者嘴说 | `CutSensitivityTest` 三条 |
+| `4号` 切点敏感度 | 「稳健」由作者嘴说 | `CutSensitivityTest` |
+| `2号` 比例下限 | 比例把结论切翻（5%） | `WindowCutTest.test_segment_ratio_with_unstable_stability_refused` |
 
 运行：`python -m unittest discover -s tests -t tests -p 'test_*.py'`
 """
@@ -189,13 +190,42 @@ class ExtremumReportTest(unittest.TestCase):
 
 
 class WindowCutTest(unittest.TestCase):
-    """窗口规则必须「先于数据可判」。"""
+    """窗口规则必须「先于数据可判」，且比例本身要带敏感度。"""
 
-    def test_segment_ratio_is_pre_data(self):
+    def test_segment_ratio_needs_stability_to_be_a_criterion(self):
         got = C.window_cut(302, 832, "segment_ratio", ratio=0.10)
         self.assertEqual(got["window"], [302, 354])
         self.assertEqual(got["rest"], [355, 832])
+        self.assertFalse(got["usable_as_criterion"],
+                         "没带敏感度的比例规则不许当判据 —— 5% 就把结论切翻了")
+        self.assertIn("cut_sensitivity", got["note"])
+
+    def test_segment_ratio_with_stable_stability_passes(self):
+        data = series(302, 832, overrides={304: -0.09, 646: -0.05})
+        cuts = C.ratio_cuts(302, 832, [0.10, 0.15, 0.20])
+        stab = C.cut_sensitivity(data, cuts, 302, segment_end=832)
+        self.assertTrue(stab["worst_frame_stable"], stab["worst_frames_by_side"])
+        got = C.window_cut(302, 832, "segment_ratio", ratio=0.10, stability=stab)
         self.assertTrue(got["usable_as_criterion"])
+        self.assertTrue(got["ratio_floor_checked"])
+
+    def test_segment_ratio_with_unstable_stability_refused(self):
+        """`2号` 量到的下限：5% 时 rest 的极值帧落回交接附近。"""
+        data = series(302, 832, overrides={304: -0.09, 347: -0.08129, 646: -0.0656})
+        cuts = C.ratio_cuts(302, 832, [0.05, 0.10])
+        stab = C.cut_sensitivity(data, cuts, 302, segment_end=832)
+        self.assertFalse(stab["worst_frame_stable"], stab["rows"])
+        got = C.window_cut(302, 832, "segment_ratio", ratio=0.05, stability=stab)
+        self.assertFalse(got["usable_as_criterion"])
+        self.assertIn("切翻", got["note"])
+
+    def test_ratio_cuts_mapping(self):
+        self.assertEqual(C.ratio_cuts(302, 832, [0.05, 0.10, 0.20]), [328, 354, 407])
+
+    def test_ratio_cuts_bad_ratio(self):
+        for bad in (0, 1, -0.1):
+            with self.assertRaises(C.ComparabilityError):
+                C.ratio_cuts(302, 832, [bad])
 
     def test_preregistered_needs_explicit_cut(self):
         with self.assertRaises(C.ComparabilityError):
@@ -217,19 +247,20 @@ class WindowCutTest(unittest.TestCase):
 
 
 class CutSensitivityTest(unittest.TestCase):
-    """`4号` 的建议：稳健不稳健要由函数算，不由作者嘴说。"""
+    """`4号` 的建议：稳健不稳健要由函数算，不由作者嘴说；而且**两段都要算**。"""
 
     def _cw2_like(self):
-        """按 `C@W2` 保持段的真实结构造：最深帧恒为 f304，越判据帧数随切点浮动。"""
+        """按 `C@W2` 保持段的真实结构造：prefix 极值恒为 f304，越判据帧数浮动。"""
         over = {304: -0.083250, 307: -0.041,                       # 302..315 -> 2
                 317: -0.043, 325: -0.045,                           # 316..330 -> 4
-                353: -0.069097, 344: -0.0688, 347: -0.0813, 346: -0.0618,
-                338: -0.030, 340: -0.031, 342: -0.032, 348: -0.033,
-                350: -0.034, 351: -0.035, 333: -0.036,              # ..351 -> 15
-                360: -0.037, 362: -0.038}                           # ..364 -> 17
+                338: -0.030, 340: -0.031, 342: -0.032, 344: -0.0688,
+                346: -0.0618, 347: -0.0813, 350: -0.034, 351: -0.035,
+                349: -0.036, 345: -0.037, 343: -0.038,              # ..351 -> 15
+                360: -0.039, 362: -0.040}                           # ..364 -> 17
         return series(302, 832, overrides=over)
 
     def test_conclusion_stable_number_unstable(self):
+        """只看 prefix：极值帧恒为 f304，越判据帧数 2 / 4 / 15 / 17 浮动。"""
         got = C.cut_sensitivity(self._cw2_like(), [315, 330, 351, 364], 302)
         self.assertEqual(got["worst_frames"], [304])
         self.assertTrue(got["worst_frame_stable"])
@@ -237,10 +268,15 @@ class CutSensitivityTest(unittest.TestCase):
         self.assertEqual(got["over_eps_range"], [2, 17])
         self.assertEqual(got["verdict"], "CONCLUSION_STABLE_NUMBER_UNSTABLE")
 
+    def test_prefix_only_when_no_segment_end(self):
+        got = C.cut_sensitivity(self._cw2_like(), [315, 330], 302)
+        self.assertEqual(got["sides"], ["prefix"])
+        self.assertEqual(got["worst_frames"], [304])
+
     def test_stable_when_both_invariant(self):
-        data = series(302, 832, overrides={304: -0.09, 305: -0.05})
-        got = C.cut_sensitivity(data, [320, 331], 302)
-        self.assertEqual(got["verdict"], "STABLE")
+        data = series(302, 800, overrides={304: -0.09, 646: -0.06})
+        got = C.cut_sensitivity(data, [354, 381, 407], 302, segment_end=800)
+        self.assertEqual(got["verdict"], "STABLE", got["rows"])
 
     def test_unstable_when_worst_frame_moves(self):
         """对照：极值帧随切点变 ⇒ 这条结论本身不能用事后切点。"""
@@ -249,9 +285,21 @@ class CutSensitivityTest(unittest.TestCase):
         self.assertFalse(got["worst_frame_stable"])
         self.assertEqual(got["verdict"], "UNSTABLE")
 
+    def test_rest_side_flip_is_caught(self):
+        """`2号` 量到的下限：prefix 看着稳，翻的是 rest。"""
+        data = series(302, 832, overrides={304: -0.09, 347: -0.08129, 646: -0.0656})
+        got = C.cut_sensitivity(data, C.ratio_cuts(302, 832, [0.05, 0.10]), 302, segment_end=832)
+        self.assertFalse(got["worst_frame_stable"], got["worst_frames_by_side"])
+        self.assertEqual(got["worst_frames_by_side"]["prefix"], [304, 304])
+        self.assertEqual(got["worst_frames_by_side"]["rest"], [347, 646])
+
     def test_cut_before_segment_start_refused(self):
         with self.assertRaises(C.ComparabilityError):
             C.cut_sensitivity(series(302, 400), [300], 302)
+
+    def test_cut_not_before_segment_end_refused(self):
+        with self.assertRaises(C.ComparabilityError):
+            C.cut_sensitivity(series(302, 400), [400], 302, segment_end=400)
 
 
 class CliTest(unittest.TestCase):
