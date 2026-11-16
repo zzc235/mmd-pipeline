@@ -209,6 +209,34 @@ class PreflightTest(TempDirTest):
         self.addCleanup(self.release_lease)
         self.assertEqual(self.check(expect_owner="模块负责2|A2")["reason_code"], "LEASE_EXPIRED")
 
+    # ---- assert-owner：跑 Blender 之前的第一句（D0 2026-11-16 18:20，3号 真事故）----
+    def test_assert_owner_refuses_when_lock_is_free(self):
+        """锁空闲 ⇒ 不是你的 ⇒ 抛 NotOwner（空闲不等于「谁都能跑」）。"""
+        if os.path.isdir(self.lease):
+            lock_mod.release("模块负责1|A1", lock_dir=self.lease)
+        with self.assertRaises(lock_mod.NotOwner):
+            lock_mod.assert_owner("模块负责1|A1", lock_dir=self.lease)
+
+    def test_assert_owner_refuses_someone_elses_lock(self):
+        """真事：3号 在 2号 持锁时 acquire 拿到 LOCK_HELD 却没看退出码，起了 7 个 Blender 进程。
+        退出码管不住不看的人，所以给一条在产物侧才爆炸的检查。"""
+        lock_mod.acquire("模块负责2|A2", note="M04 三臂", lock_dir=self.lease)
+        self.addCleanup(lambda: lock_mod.release("模块负责2|A2", lock_dir=self.lease))
+        with self.assertRaises(lock_mod.NotOwner) as ctx:
+            lock_mod.assert_owner("模块负责3|A3", lock_dir=self.lease)
+        self.assertIn("不许起 Blender", str(ctx.exception))
+
+    def test_assert_owner_passes_for_holder(self):
+        lock_mod.acquire("模块负责1|A1", note="重建", lock_dir=self.lease)
+        self.addCleanup(self.release_lease)
+        info = lock_mod.assert_owner("模块负责1|A1", lock_dir=self.lease)
+        self.assertTrue(info["held"])
+        self.assertEqual(info["ident"], "模块负责1|A1")
+
+    def test_assert_owner_rejects_malformed_owner(self):
+        with self.assertRaises(ValueError):
+            lock_mod.assert_owner("模块负责1", lock_dir=self.lease)
+
     def test_capacity_shortfall_blocks(self):
         # 真事：8298 条需求对着 4000 的护栏值，开工必然半套通道。
         result = self.check(cap=4000, lease=False)
