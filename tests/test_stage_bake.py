@@ -224,7 +224,8 @@ class TestPoseSnapshotAndProbe(unittest.TestCase):
 
 # ---------------------------------------------------------------- 五条判据
 def green_record(stage):
-    probe = {"matched": True, "mismatch_count": 0, "max_delta": 0.0, "frames": [1]}
+    probe = {"matched": True, "reference_moved": True, "mismatch_count": 0,
+             "max_delta": 0.0, "frames": [1]}
     return {"requested": {"frame_start": 1, "frame_end": 10}, "applied": True,
             "frame_start": 1, "frame_end": 10, "fps": 24,
             "pose_source": "cache_replay", "is_baked": True, "is_outdated": False,
@@ -241,14 +242,20 @@ class TestBakeChecks(unittest.TestCase):
         self.assertIsNone(self.stage.bake_gate_reason(record))
 
     def test_each_criterion_can_be_red_alone(self):
-        """五条各红一次，每次只有那一条红——否则合取式里坏一条就看不见。"""
+        """六条各红一次，每次只有那一条红——否则合取式里坏一条就看不见。"""
         cases = {
             "requested": lambda r: r.update({"requested": None}),
             "applied": lambda r: r.update({"applied": False}),
             "not_outdated": lambda r: r.update({"is_outdated": True}),
             "probe_matched": lambda r: r.update({"probe": {"matched": False,
+                                                           "reference_moved": True,
                                                            "mismatch_count": 3,
                                                            "max_delta": 0.5, "frames": [1]}}),
+            "probe_informative": lambda r: r.update({"probe": {"matched": True,
+                                                               "reference_moved": False,
+                                                               "mismatch_count": 0,
+                                                               "max_delta": 0.0,
+                                                               "frames": [1]}}),
             "fields_complete": lambda r: r.pop("fps"),
         }
         for key, mutate in cases.items():
@@ -262,8 +269,8 @@ class TestBakeChecks(unittest.TestCase):
 
     def test_probe_failure_reason_carries_numbers(self):
         record = green_record(self.stage)
-        record["probe"] = {"matched": False, "mismatch_count": 7, "max_delta": 0.25,
-                           "frames": [1, 5, 10]}
+        record["probe"] = {"matched": False, "reference_moved": True, "mismatch_count": 7,
+                           "max_delta": 0.25, "frames": [1, 5, 10]}
         reason = self.stage.bake_gate_reason(record)
         self.assertIn("probe_matched", reason)
         self.assertIn("7", reason)
@@ -325,6 +332,26 @@ class TestStageBake(unittest.TestCase):
                               bake_call=honest_bake(self.scene, self.world))
         tail = self.scene.frame_sets[-4:]
         self.assertEqual(tail, [0, 3, 0, 5])
+
+    def test_static_scene_gives_matched_but_uninformative(self):
+        """场景不动时，烘前烘后必然逐位相同 —— 那只是「两次读到同一个静态值」，不是证据。
+
+        这正是真 Blender 上「无动作的件」的形状：`matched=True`、`max_delta=0.0`，
+        但它证明不了缓存忠实。所以 `reference_moved=False` 必须单独判红。
+        """
+        static_world = FakeWorld()
+        static_world.truth = lambda name, frame: [[0.0, 0.0, 0.0, 0.0],
+                                                  [0.0, 0.0, 0.0, 0.0],
+                                                  [0.0, 0.0, 0.0, 0.0],
+                                                  [0.0, 0.0, 0.0, 1.0]]
+        scene = FakeScene(static_world)
+        objects = [FakeRigid(static_world, name) for name in static_world.names]
+        record = self.stage.stage_bake(scene, {"frame_start": 1, "frame_end": 5},
+                                       objects=objects,
+                                       bake_call=honest_bake(scene, static_world))
+        self.assertTrue(record["probe"]["matched"])
+        self.assertFalse(record["probe"]["reference_moved"])
+        self.assertEqual(self.stage.bake_missing(record), ["probe_informative"])
 
 
 # ---------------------------------------------------------------- 调用点与旧路径
