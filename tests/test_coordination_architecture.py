@@ -30,6 +30,10 @@ from coordination import taxonomy as taxonomy_mod
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ZERO = "0" * 64
+# 「树外路径」必须按当前 worktree 现算，不能硬编码某一棵树：
+# 写着 `E:\code\mmdpipe-ai\A1\...` 时，这组测试在 A1 worktree 里跑就恒红（那条路径在树**内**）。
+# 取 ROOT 的父目录下的一支，任何 worktree（main / A1..A4）都稳定落在树外。
+OUTSIDE = os.path.join(os.path.dirname(ROOT), "_outside_worktree")
 
 
 def ev(task_id="M00", **extra):
@@ -79,7 +83,7 @@ class GateBundleTest(TempDirTest):
         self.assertEqual(self.code(b), "SNAPSHOT_INVALID")
 
     def test_module_outside_worktree_is_provenance_invalid(self):
-        b = self.bundle(module_provenance={"stage_file": r"E:\code\mmdpipe-ai\A1\mmdpipe\stage.py"})
+        b = self.bundle(module_provenance={"stage_file": os.path.join(OUTSIDE, "mmdpipe", "stage.py")})
         self.assertEqual(self.code(b), "PROVENANCE_INVALID")
 
     def test_physics_claim_needs_fresh_solve(self):
@@ -205,7 +209,7 @@ class PreflightTest(TempDirTest):
 
     def test_provenance_outside_worktree_blocks(self):
         result = self.check(lease=False,
-                            provenance={"stage_file": r"E:\code\mmdpipe-ai\A1\mmdpipe\stage.py"})
+                            provenance={"stage_file": os.path.join(OUTSIDE, "mmdpipe", "stage.py")})
         self.assertEqual(result["reason_code"], "PROVENANCE_INVALID")
 
     def test_missing_provenance_blocks(self):
