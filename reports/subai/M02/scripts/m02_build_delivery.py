@@ -30,8 +30,18 @@ import runpy
 import sys
 import time
 
+# GBK 控制台下中文/符号会让脚本崩在打印上（总控 18:18）：入口统一 UTF-8
+for _stream in (sys.stdout, sys.stderr):
+    try:
+        _stream.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:  # noqa: BLE001
+        pass
+
 TREE = os.environ.get("MMDPIPE_TREE") or r"E:\dsh pr\woker2"
-V3 = r"E:\dsh pr\woker2\reports\subai\M02\scripts\m02_rebuild_scene_v3.py"
+# v3 从**本树**解析：跨树引用会让 identity 记录指向别的树，进闸门时 provenance 判 PROVENANCE_INVALID
+# （那是闸门在正常工作）。真要跨树必须显式 `MMDPIPE_V3=<绝对路径>`，并被记成「跨树」可见于记录。
+V3_DEFAULT = os.path.join(TREE, "reports", "subai", "M02", "scripts", "m02_rebuild_scene_v3.py")
+V3 = os.environ.get("MMDPIPE_V3") or V3_DEFAULT
 
 
 def sha256_file(path):
@@ -55,10 +65,27 @@ def write_json(path, rec):
     os.replace(tmp, path)
 
 
+def _guarded_os_exit(code=0):
+    """把 v3 的 `os._exit()` 变成本进程可捕获的 SystemExit。
+
+    不拦的话（2026-11-16 实测）：v3 结尾 `os._exit(0)` 直接掐死进程，wrapper 来不及把
+    identity 写成 `completed`，记录永远停在 `started` —— 那份身份**分不出「跑完」与
+    「跑到一半死了」**。拦下来之后由 wrapper 自己写终态、自己给退出码。
+    """
+    raise SystemExit("v3_os_exit:%r" % (code,))
+
+
 def main():
     argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
     out_dir = argv[2] if len(argv) > 2 else "."
     stamp = time.strftime("%Y%m%d_%H%M%S")
+    # 输出目录不存在就建：以前这里抛 FileNotFoundError 而 Blender 照样返回 0（fail-open）。
+    try:
+        if out_dir and not os.path.isdir(out_dir):
+            os.makedirs(out_dir)
+    except OSError as exc:
+        print("ABORT 无法创建输出目录 %r：%s" % (out_dir, exc))
+        return 2
     ident_path = os.path.join(out_dir, "build_identity_%s.json" % stamp)
     rec = {
         "tool": "m02_build_delivery",
@@ -72,6 +99,19 @@ def main():
         "v3_script": V3,
         "v3_sha256": sha256_file(V3) if os.path.exists(V3) else None,
     }
+    # `--patch <path>`：重建时是一个具名步骤（v3 的 apply_input_patch），身份记录里必须留补丁 sha
+    if "--patch" in argv:
+        i = argv.index("--patch")
+        patch_path = argv[i + 1] if i + 1 < len(argv) else None
+        info = {"path": os.path.abspath(patch_path) if patch_path else None}
+        if patch_path and os.path.isfile(patch_path):
+            info["file_sha256"] = sha256_file(patch_path)
+            try:
+                with open(patch_path, encoding="utf-8-sig") as fh:
+                    info["patch_sha256"] = json.load(fh).get("patch_sha256")
+            except (OSError, ValueError):
+                info["patch_sha256"] = None
+        rec["input_patch"] = info
     try:
         import bpy  # noqa: F401  —— 只为了把 Blender 版本也记进去
         rec["blender"] = ".".join(str(v) for v in bpy.app.version)
@@ -117,24 +157,38 @@ def main():
 
     rec["outcome"] = "started"
     write_json(ident_path, rec)
+    # v3 结尾是 `os._exit(0)`：不拦就掐死进程，identity 永远停在 `started`。
+    # 拦成 SystemExit 之后，终态由这里写，退出码也由这里给（Blender 的 0 不可信）。
+    real_os_exit = os._exit
+    os._exit = _guarded_os_exit
     try:
         sys.argv = [V3] + ["--"] + argv
         runpy.run_path(V3, run_name="__main__")
         rec["outcome"] = "completed"
+        rec["exit_code"] = 0
     except SystemExit as exc:
-        # v3 自己调 `sys.exit(0)` 是正常收工；非 0 才是它判了「不能出」
+        # v3 自己调 `sys.exit(0)` 是正常收工；非 0 才是它判了「不能出」。
+        # `v3_os_exit:0` 是 v3 的 `os._exit(0)`——正常收工，但**必须**在记录里可区分。
         code = exc.code
-        rec["outcome"] = "sys_exit:%r" % (code,)
-        if code not in (0, None):
-            rec["finished_at"] = time.strftime("%Y-%m-%dT%H:%M:%S%z")
-            write_json(ident_path, rec)
+        rec["outcome"] = "os_exit:%r" % (code,) if isinstance(code, str) and code.startswith("v3_os_exit") \
+            else "sys_exit:%r" % (code,)
+        normal = code in (0, None)
+        if isinstance(code, str) and code.startswith("v3_os_exit:"):
+            normal = code.split(":")[-1] in ("0", "None")
+        rec["exit_code"] = 0 if normal else 1
+        rec["finished_at"] = time.strftime("%Y-%m-%dT%H:%M:%S%z")
+        write_json(ident_path, rec)
+        if not normal:
             raise
     except BaseException as exc:                    # noqa: BLE001 — 任何异常都要进记录再抛
         rec["outcome"] = "raised:%s" % type(exc).__name__
+        rec["exit_code"] = 1
         rec["error"] = str(exc)[:2000]
         rec["finished_at"] = time.strftime("%Y-%m-%dT%H:%M:%S%z")
         write_json(ident_path, rec)
         raise
+    finally:
+        os._exit = real_os_exit
     rec["finished_at"] = time.strftime("%Y-%m-%dT%H:%M:%S%z")
     write_json(ident_path, rec)
     return 0
