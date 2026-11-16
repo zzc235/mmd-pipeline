@@ -1,0 +1,13 @@
+{
+ "constraint_creation": "template_copy",
+ "constraints_added": 6686,
+ "constraints_already_blocked": 1813,
+ "constraints_capped": false,
+ "constraints_needed": 8499,
+ "constraints_to_add": 6686,
+ "guardrail_hit": false,
+ "readback_mismatch": 0,
+ "skipped_count": 0,
+ "verdict": "WIRED",
+ "verdict_reasons": []
+}
