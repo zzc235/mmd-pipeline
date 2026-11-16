@@ -116,6 +116,16 @@ def normalize(obj: dict) -> dict:
     for row in obj.get("tests") or []:
         if not isinstance(row, dict) or not isinstance(row.get("cmd"), str):
             raise EvidenceError("tests 的每一项必须有 cmd")
+        # D-094（D0 2026-11-16 14:02）：`tests[]` 行是**重建**的，schema 外的字段会被
+        # 静默丢掉——于是"我声明了的字段"和"进了哈希的字段"不是同一个集合，而写记录的人
+        # 只能靠最后一步 `check` 打出的 exit 5 猜自己哪儿错了。**必须变成错误，不许沉默。**
+        extra = sorted(set(row) - set(TESTS_KEYS))
+        if extra:
+            raise EvidenceError(
+                "tests[%s] 有 schema 外的字段：%s（只允许 %s；这些字段不会进哈希，"
+                "要留说明请放 measurements）"
+                % (row["cmd"], "、".join(extra), "/".join(TESTS_KEYS)),
+                "WRONG_TESTS_FIELD")
         for field in ("exit", "passed", "failed", "skipped"):
             v = row.get(field, 0)
             if isinstance(v, bool) or not isinstance(v, int):
@@ -267,12 +277,13 @@ def explain_not_canonical(raw, obj, normal) -> list:
       1. **序列化本身不同**：连裸 `canonical_bytes(obj)`（不经过 normalize）都不等于
          磁盘字节 ⇒ 自建格式化（缩进、`", "` 分隔符、键序没排）。
          改法：落盘前就用 `canonical_bytes()`。
-      2. **有不进哈希的字段**：顶层多写了键，或 `tests[]` 行里多写了字段。
-         内容是对的，但"文件 sha256 == digest"这条等式不成立。
+      2. **顶层多写了不进哈希的键**（`summary` 这类）。内容是对的，但"文件 sha256 ==
+         digest"这条等式不成立。
       3. 都没命中 ⇒ 字段值被规范化改写过（`known_risks` 折叠、路径归一、`-0.0→0.0`、
          行重排）。这时磁盘那份是"人写的"而不是"算出来的"。
 
-    返回可读短语列表（空列表 = 三类都不像，如实说没查出来）。
+    `tests[]` 行多写字段**不在此列**：D-094 之后那是 `WRONG_TESTS_FIELD`（exit 3），
+    在 `normalize()` 里就抛了，走不到这里。
     """
     notes = []
     try:
@@ -284,13 +295,6 @@ def explain_not_canonical(raw, obj, normal) -> list:
     extra_top = sorted(set(obj) - set(normal))
     if extra_top:
         notes.append("顶层多了不进哈希的键：%s" % "、".join(extra_top))
-    tests_extra = set()
-    for row in obj.get("tests") or []:
-        if isinstance(row, dict):
-            tests_extra |= set(row) - set(TESTS_KEYS)
-    if tests_extra:
-        notes.append("tests[] 行里多了不进哈希的字段：%s（只保留 %s）"
-                     % ("、".join(sorted(tests_extra)), "/".join(TESTS_KEYS)))
     if not notes:
         notes.append("字段值被规范化改写过（known_risks 折叠、路径归一、行重排），"
                      "磁盘那份看着是手写/自建的而非算出来的")

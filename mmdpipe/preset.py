@@ -43,6 +43,19 @@ DEFAULT_PRESET: dict = {
         # 显式声明：强制不做物理 / 强制保留物理（按刚体名或骨名子串匹配）
         "force_static": [],
         "force_physics": [],
+        # PMX 每个刚体带一个「我只和哪几组碰」的掩码。mmd_tools 的 Model.build()
+        # 会把「被掩码排除」的刚体对建成 disable_collisions 约束，但**只给距离够近的对**建
+        # （distance < scale * (range_a + range_b) / 2）。远处被排除的对不建对象，
+        # 于是它们在 Bullet 里照样会撞——这是「掩码有没有真生效」的分水岭。
+        # 1.5 = mmd_tools 上游默认；调大 → 覆盖更多对、场景里约束更多、建场更慢。
+        # 要全对覆盖就给一个大到永远成立的值（例如 1e6），代价用 mask 报告里那个数衡量。
+        "non_collision_distance_scale": 1.5,
+        # 建场后按掩码报告的覆盖率判红/黄：低于这个比例就 WARN（0 = 关掉这条判据）
+        "mask_coverage_min": 0.0,
+        # 把 PMX 的组号/掩码真正接进 Blender（`coordination/mask_channel_spec.md`）。
+        # 关掉 = 回到「谁跟谁都碰」的老行为。**接上之后轨迹必然改变**，此前所有物理
+        # 数字作废（D-075），那是预期行为不是缺陷。
+        "apply_collision_masks": True,
     },
     "clearance": {
         "enabled": False,      # 是否在导入前修 PMX 的初始穿透
