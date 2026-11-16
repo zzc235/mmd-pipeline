@@ -1,0 +1,27 @@
+{
+  "_derivation": {
+    "DEFAULT_MAX_CONSTRAINTS": 20000,
+    "already_blocked": 1813,
+    "cap_from": "stage.constraint_limit(10111) -> (10111, guardrail_hit=False)",
+    "code_from": "E:\\code\\mmdpipe-ai\\A2\\mmdpipe\\stage.py",
+    "needed_pairs": 10111,
+    "note": "cap 不是手写的；needs/cap 由 mask_preflight_fields() 给出",
+    "to_add": 8298
+  },
+  "cap": 10111,
+  "guardrail_hit": false,
+  "lease": false,
+  "needs": 8298,
+  "outputs": [
+    "out/subai/M04/penetration/C_W1.meta.json",
+    "out/subai/M04/penetration/C_W2.meta.json",
+    "out/subai/M04/penetration/D.meta.json"
+  ],
+  "provenance": {
+    "mmdpipe/mask.py": "E:\\code\\mmdpipe-ai\\A2\\mmdpipe\\mask.py",
+    "mmdpipe/stage.py": "E:\\code\\mmdpipe-ai\\A2\\mmdpipe\\stage.py"
+  },
+  "skipped": 0,
+  "task_id": "M04_CD_measure",
+  "worktree": "E:\\code\\mmdpipe-ai\\A2"
+}
