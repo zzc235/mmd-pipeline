@@ -1,0 +1,2191 @@
+{
+ "blend": "E:\\code\\mmdpipe-ai\\A3\\out\\subai\\M05\\arms\\C_W1.blend",
+ "rigid_objects": 312,
+ "read_failures": [],
+ "rows": [
+  {
+   "object": "000_右肩1",
+   "bone": "肩1.R",
+   "group": 1,
+   "mask": 256,
+   "kinematic": true
+  },
+  {
+   "object": "001_右肩2",
+   "bone": "肩2.R",
+   "group": 1,
+   "mask": 256,
+   "kinematic": true
+  },
+  {
+   "object": "002_左肩1",
+   "bone": "肩1.L",
+   "group": 1,
+   "mask": 256,
+   "kinematic": true
+  },
+  {
+   "object": "003_左肩2",
+   "bone": "肩2.L",
+   "group": 1,
+   "mask": 256,
+   "kinematic": true
+  },
+  {
+   "object": "004_下半身",
+   "bone": "下半身",
+   "group": 1,
+   "mask": 0,
+   "kinematic": true
+  },
+  {
+   "object": "005_上半身1",
+   "bone": "上半身1",
+   "group": 1,
+   "mask": 128,
+   "kinematic": true
+  },
+  {
+   "object": "006_上半身2",
+   "bone": "上半身2",
+   "group": 1,
+   "mask": 8448,
+   "kinematic": true
+  },
+  {
+   "object": "007_上半身",
+   "bone": "上半身",
+   "group": 1,
+   "mask": 128,
+   "kinematic": true
+  },
+  {
+   "object": "008_首",
+   "bone": "首",
+   "group": 1,
+   "mask": 0,
+   "kinematic": true
+  },
+  {
+   "object": "009_頭",
+   "bone": "頭",
+   "group": 1,
+   "mask": 2,
+   "kinematic": true
+  },
+  {
+   "object": "010_右肩",
+   "bone": "肩.R",
+   "group": 1,
+   "mask": 8452,
+   "kinematic": true
+  },
+  {
+   "object": "011_右腕",
+   "bone": "腕.R",
+   "group": 1,
+   "mask": 20740,
+   "kinematic": true
+  },
+  {
+   "object": "012_右ひじ",
+   "bone": "ひじ.R",
+   "group": 1,
+   "mask": 20868,
+   "kinematic": true
+  },
+  {
+   "object": "013_右手首",
+   "bone": "手首.R",
+   "group": 2,
+   "mask": 22524,
+   "kinematic": true
+  },
+  {
+   "object": "014_左肩",
+   "bone": "肩.L",
+   "group": 1,
+   "mask": 8452,
+   "kinematic": true
+  },
+  {
+   "object": "015_左腕",
+   "bone": "腕.L",
+   "group": 1,
+   "mask": 20740,
+   "kinematic": true
+  },
+  {
+   "object": "016_左ひじ",
+   "bone": "ひじ.L",
+   "group": 1,
+   "mask": 20868,
+   "kinematic": true
+  },
+  {
+   "object": "017_左手首",
+   "bone": "手首.L",
+   "group": 2,
+   "mask": 22524,
+   "kinematic": true
+  },
+  {
+   "object": "018_右足",
+   "bone": "足D.R",
+   "group": 1,
+   "mask": 0,
+   "kinematic": true
+  },
+  {
+   "object": "019_右ひざ",
+   "bone": "ひざD.R",
+   "group": 1,
+   "mask": 0,
+   "kinematic": true
+  },
+  {
+   "object": "020_右足首",
+   "bone": "足首D.R",
+   "group": 1,
+   "mask": 0,
+   "kinematic": true
+  },
+  {
+   "object": "021_左足",
+   "bone": "足D.L",
+   "group": 1,
+   "mask": 0,
+   "kinematic": true
+  },
+  {
+   "object": "022_左ひざ",
+   "bone": "ひざD.L",
+   "group": 1,
+   "mask": 0,
+   "kinematic": true
+  },
+  {
+   "object": "023_左足首",
+   "bone": "足首D.L",
+   "group": 1,
+   "mask": 0,
+   "kinematic": true
+  },
+  {
+   "object": "024_右胸",
+   "bone": "胸.R",
+   "group": 1,
+   "mask": 32767,
+   "kinematic": false
+  },
+  {
+   "object": "025_右胸１",
+   "bone": "胸１.R",
+   "group": 1,
+   "mask": 32767,
+   "kinematic": false
+  },
+  {
+   "object": "026_右胸２",
+   "bone": "胸２.R",
+   "group": 1,
+   "mask": 32767,
+   "kinematic": false
+  },
+  {
+   "object": "027_左胸",
+   "bone": "胸.L",
+   "group": 1,
+   "mask": 32767,
+   "kinematic": false
+  },
+  {
+   "object": "028_左胸１",
+   "bone": "胸１.L",
+   "group": 1,
+   "mask": 32767,
+   "kinematic": false
+  },
+  {
+   "object": "029_左胸２",
+   "bone": "胸２.L",
+   "group": 1,
+   "mask": 32767,
+   "kinematic": false
+  },
+  {
+   "object": "030_M-上半身2",
+   "bone": "上半身2",
+   "group": 1,
+   "mask": 8192,
+   "kinematic": true
+  },
+  {
+   "object": "031_下擺_0_0",
+   "bone": "下擺_0_0",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "032_下擺_0_1",
+   "bone": "下擺_0_1",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "033_下擺_0_2",
+   "bone": "下擺_0_2",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "034_下擺_0_3",
+   "bone": "下擺_0_3",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "035_下擺_0_4",
+   "bone": "下擺_0_4",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "036_下擺_0_5",
+   "bone": "下擺_0_5",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "037_下擺_0_6",
+   "bone": "下擺_0_6",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "038_下擺_0_7",
+   "bone": "下擺_0_7",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "039_下擺_0_8",
+   "bone": "下擺_0_8",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "040_下擺_0_9",
+   "bone": "下擺_0_9",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "041_下擺_0_10",
+   "bone": "下擺_0_10",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "042_下擺_0_11",
+   "bone": "下擺_0_11",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "043_下擺_0_12",
+   "bone": "下擺_0_12",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "044_下擺_0_13",
+   "bone": "下擺_0_13",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "045_下擺_0_14",
+   "bone": "下擺_0_14",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "046_下擺_0_15",
+   "bone": "下擺_0_15",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "047_下擺_0_16",
+   "bone": "下擺_0_16",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "048_下擺_0_17",
+   "bone": "下擺_0_17",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "049_下擺_1_0",
+   "bone": "下擺_1_0",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "050_下擺_1_1",
+   "bone": "下擺_1_1",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "051_下擺_1_2",
+   "bone": "下擺_1_2",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "052_下擺_1_3",
+   "bone": "下擺_1_3",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "053_下擺_1_4",
+   "bone": "下擺_1_4",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "054_下擺_1_5",
+   "bone": "下擺_1_5",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "055_下擺_1_6",
+   "bone": "下擺_1_6",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "056_下擺_1_7",
+   "bone": "下擺_1_7",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "057_下擺_1_8",
+   "bone": "下擺_1_8",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "058_下擺_1_9",
+   "bone": "下擺_1_9",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "059_下擺_1_10",
+   "bone": "下擺_1_10",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "060_下擺_1_11",
+   "bone": "下擺_1_11",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "061_下擺_1_12",
+   "bone": "下擺_1_12",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "062_下擺_1_13",
+   "bone": "下擺_1_13",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "063_下擺_1_14",
+   "bone": "下擺_1_14",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "064_下擺_1_15",
+   "bone": "下擺_1_15",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "065_下擺_1_16",
+   "bone": "下擺_1_16",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "066_下擺_1_17",
+   "bone": "下擺_1_17",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "067_下擺_2_0",
+   "bone": "下擺_2_0",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "068_下擺_2_2",
+   "bone": "下擺_2_2",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "069_下擺_2_3",
+   "bone": "下擺_2_3",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "070_下擺_2_4",
+   "bone": "下擺_2_4",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "071_下擺_2_5",
+   "bone": "下擺_2_5",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "072_下擺_2_6",
+   "bone": "下擺_2_6",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "073_下擺_2_7",
+   "bone": "下擺_2_7",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "074_下擺_2_8",
+   "bone": "下擺_2_8",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "075_下擺_2_9",
+   "bone": "下擺_2_9",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "076_下擺_2_10",
+   "bone": "下擺_2_10",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "077_下擺_2_11",
+   "bone": "下擺_2_11",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "078_下擺_2_12",
+   "bone": "下擺_2_12",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "079_下擺_2_13",
+   "bone": "下擺_2_13",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "080_下擺_2_14",
+   "bone": "下擺_2_14",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "081_下擺_2_15",
+   "bone": "下擺_2_15",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "082_下擺_2_16",
+   "bone": "下擺_2_16",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "083_下擺_2_17",
+   "bone": "下擺_2_17",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "084_下擺_3_0",
+   "bone": "下擺_3_0",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "085_下擺_3_7",
+   "bone": "下擺_3_7",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "086_下擺_3_8",
+   "bone": "下擺_3_8",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "087_下擺_3_9",
+   "bone": "下擺_3_9",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "088_下擺_3_10",
+   "bone": "下擺_3_10",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "089_下擺_3_11",
+   "bone": "下擺_3_11",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "090_下擺_3_12",
+   "bone": "下擺_3_12",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "091_下擺_3_13",
+   "bone": "下擺_3_13",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "092_下擺_3_14",
+   "bone": "下擺_3_14",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "093_下擺_3_15",
+   "bone": "下擺_3_15",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "094_下擺_3_16",
+   "bone": "下擺_3_16",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "095_下擺_3_17",
+   "bone": "下擺_3_17",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "096_下擺_4_0",
+   "bone": "下擺_4_0",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "097_下擺_4_7",
+   "bone": "下擺_4_7",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "098_下擺_4_8",
+   "bone": "下擺_4_8",
+   "group": 8,
+   "mask": 160,
+   "kinematic": false
+  },
+  {
+   "object": "099_下擺_4_9",
+   "bone": "下擺_4_9",
+   "group": 8,
+   "mask": 160,
+   "kinematic": false
+  },
+  {
+   "object": "100_下擺_4_10",
+   "bone": "下擺_4_10",
+   "group": 8,
+   "mask": 160,
+   "kinematic": false
+  },
+  {
+   "object": "101_下擺_4_11",
+   "bone": "下擺_4_11",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "102_下擺_4_12",
+   "bone": "下擺_4_12",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "103_下擺_4_13",
+   "bone": "下擺_4_13",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "104_下擺_4_14",
+   "bone": "下擺_4_14",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "105_下擺_4_15",
+   "bone": "下擺_4_15",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "106_下擺_4_16",
+   "bone": "下擺_4_16",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "107_下擺_4_17",
+   "bone": "下擺_4_17",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "108_下擺_5_0",
+   "bone": "下擺_5_0",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "109_下擺_5_7",
+   "bone": "下擺_5_7",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "110_下擺_5_8",
+   "bone": "下擺_5_8",
+   "group": 8,
+   "mask": 160,
+   "kinematic": false
+  },
+  {
+   "object": "111_下擺_5_9",
+   "bone": "下擺_5_9",
+   "group": 8,
+   "mask": 160,
+   "kinematic": false
+  },
+  {
+   "object": "112_下擺_5_10",
+   "bone": "下擺_5_10",
+   "group": 6,
+   "mask": 32,
+   "kinematic": false
+  },
+  {
+   "object": "113_下擺_5_11",
+   "bone": "下擺_5_11",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "114_下擺_5_12",
+   "bone": "下擺_5_12",
+   "group": 8,
+   "mask": 192,
+   "kinematic": false
+  },
+  {
+   "object": "115_下擺_5_13",
+   "bone": "下擺_5_13",
+   "group": 8,
+   "mask": 192,
+   "kinematic": false
+  },
+  {
+   "object": "116_下擺_5_14",
+   "bone": "下擺_5_14",
+   "group": 8,
+   "mask": 192,
+   "kinematic": false
+  },
+  {
+   "object": "117_下擺_5_15",
+   "bone": "下擺_5_15",
+   "group": 8,
+   "mask": 192,
+   "kinematic": false
+  },
+  {
+   "object": "118_下擺_5_16",
+   "bone": "下擺_5_16",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "119_下擺_5_17",
+   "bone": "下擺_5_17",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "120_下擺_6_0",
+   "bone": "下擺_6_0",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "121_下擺_6_7",
+   "bone": "下擺_6_7",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "122_下擺_6_8",
+   "bone": "下擺_6_8",
+   "group": 8,
+   "mask": 160,
+   "kinematic": false
+  },
+  {
+   "object": "123_下擺_6_9",
+   "bone": "下擺_6_9",
+   "group": 8,
+   "mask": 160,
+   "kinematic": false
+  },
+  {
+   "object": "124_下擺_6_10",
+   "bone": "下擺_6_10",
+   "group": 6,
+   "mask": 32,
+   "kinematic": false
+  },
+  {
+   "object": "125_下擺_6_11",
+   "bone": "下擺_6_11",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "126_下擺_6_12",
+   "bone": "下擺_6_12",
+   "group": 8,
+   "mask": 192,
+   "kinematic": false
+  },
+  {
+   "object": "127_下擺_6_13",
+   "bone": "下擺_6_13",
+   "group": 8,
+   "mask": 192,
+   "kinematic": false
+  },
+  {
+   "object": "128_下擺_6_14",
+   "bone": "下擺_6_14",
+   "group": 7,
+   "mask": 64,
+   "kinematic": false
+  },
+  {
+   "object": "129_下擺_6_15",
+   "bone": "下擺_6_15",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "130_下擺_6_16",
+   "bone": "下擺_6_16",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "131_下擺_6_17",
+   "bone": "下擺_6_17",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "132_下擺_7_0",
+   "bone": "下擺_7_0",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "133_下擺_7_7",
+   "bone": "下擺_7_7",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "134_下擺_7_8",
+   "bone": "下擺_7_8",
+   "group": 8,
+   "mask": 160,
+   "kinematic": false
+  },
+  {
+   "object": "135_下擺_7_9",
+   "bone": "下擺_7_9",
+   "group": 8,
+   "mask": 160,
+   "kinematic": false
+  },
+  {
+   "object": "136_下擺_7_10",
+   "bone": "下擺_7_10",
+   "group": 6,
+   "mask": 32,
+   "kinematic": false
+  },
+  {
+   "object": "137_下擺_7_11",
+   "bone": "下擺_7_11",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "138_下擺_7_12",
+   "bone": "下擺_7_12",
+   "group": 8,
+   "mask": 192,
+   "kinematic": false
+  },
+  {
+   "object": "139_下擺_7_13",
+   "bone": "下擺_7_13",
+   "group": 8,
+   "mask": 192,
+   "kinematic": false
+  },
+  {
+   "object": "140_下擺_7_14",
+   "bone": "下擺_7_14",
+   "group": 7,
+   "mask": 64,
+   "kinematic": false
+  },
+  {
+   "object": "141_下擺_7_15",
+   "bone": "下擺_7_15",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "142_下擺_7_16",
+   "bone": "下擺_7_16",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "143_下擺_7_17",
+   "bone": "下擺_7_17",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "144_下擺_8_0",
+   "bone": "下擺_8_0",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "145_下擺_8_7",
+   "bone": "下擺_8_7",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "146_下擺_8_8",
+   "bone": "下擺_8_8",
+   "group": 8,
+   "mask": 160,
+   "kinematic": false
+  },
+  {
+   "object": "147_下擺_8_9",
+   "bone": "下擺_8_9",
+   "group": 8,
+   "mask": 160,
+   "kinematic": false
+  },
+  {
+   "object": "148_下擺_8_10",
+   "bone": "下擺_8_10",
+   "group": 6,
+   "mask": 32,
+   "kinematic": false
+  },
+  {
+   "object": "149_下擺_8_11",
+   "bone": "下擺_8_11",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "150_下擺_8_12",
+   "bone": "下擺_8_12",
+   "group": 8,
+   "mask": 192,
+   "kinematic": false
+  },
+  {
+   "object": "151_下擺_8_13",
+   "bone": "下擺_8_13",
+   "group": 8,
+   "mask": 192,
+   "kinematic": false
+  },
+  {
+   "object": "152_下擺_8_14",
+   "bone": "下擺_8_14",
+   "group": 7,
+   "mask": 64,
+   "kinematic": false
+  },
+  {
+   "object": "153_下擺_8_15",
+   "bone": "下擺_8_15",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "154_下擺_8_16",
+   "bone": "下擺_8_16",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "155_下擺_8_17",
+   "bone": "下擺_8_17",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "156_下擺_9_7",
+   "bone": "下擺_9_7",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "157_下擺_9_8",
+   "bone": "下擺_9_8",
+   "group": 8,
+   "mask": 160,
+   "kinematic": false
+  },
+  {
+   "object": "158_下擺_9_9",
+   "bone": "下擺_9_9",
+   "group": 8,
+   "mask": 160,
+   "kinematic": false
+  },
+  {
+   "object": "159_下擺_9_10",
+   "bone": "下擺_9_10",
+   "group": 6,
+   "mask": 32,
+   "kinematic": false
+  },
+  {
+   "object": "160_下擺_9_11",
+   "bone": "下擺_9_11",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "161_下擺_9_12",
+   "bone": "下擺_9_12",
+   "group": 8,
+   "mask": 192,
+   "kinematic": false
+  },
+  {
+   "object": "162_下擺_9_13",
+   "bone": "下擺_9_13",
+   "group": 8,
+   "mask": 192,
+   "kinematic": false
+  },
+  {
+   "object": "163_下擺_9_14",
+   "bone": "下擺_9_14",
+   "group": 7,
+   "mask": 64,
+   "kinematic": false
+  },
+  {
+   "object": "164_下擺_9_15",
+   "bone": "下擺_9_15",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "165_下擺_9_16",
+   "bone": "下擺_9_16",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "166_下擺_9_17",
+   "bone": "下擺_9_17",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "167_下擺_10_7",
+   "bone": "下擺_10_7",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "168_下擺_10_8",
+   "bone": "下擺_10_8",
+   "group": 8,
+   "mask": 160,
+   "kinematic": false
+  },
+  {
+   "object": "169_下擺_10_9",
+   "bone": "下擺_10_9",
+   "group": 8,
+   "mask": 160,
+   "kinematic": false
+  },
+  {
+   "object": "170_下擺_10_10",
+   "bone": "下擺_10_10",
+   "group": 6,
+   "mask": 32,
+   "kinematic": false
+  },
+  {
+   "object": "171_下擺_10_11",
+   "bone": "下擺_10_11",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "172_下擺_10_12",
+   "bone": "下擺_10_12",
+   "group": 8,
+   "mask": 192,
+   "kinematic": false
+  },
+  {
+   "object": "173_下擺_10_13",
+   "bone": "下擺_10_13",
+   "group": 8,
+   "mask": 192,
+   "kinematic": false
+  },
+  {
+   "object": "174_下擺_10_14",
+   "bone": "下擺_10_14",
+   "group": 7,
+   "mask": 64,
+   "kinematic": false
+  },
+  {
+   "object": "175_下擺_10_15",
+   "bone": "下擺_10_15",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "176_下擺_10_16",
+   "bone": "下擺_10_16",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "177_下擺_10_17",
+   "bone": "下擺_10_17",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "178_M-下半身",
+   "bone": "下半身",
+   "group": 1,
+   "mask": 0,
+   "kinematic": true
+  },
+  {
+   "object": "179_M-下半身",
+   "bone": "下半身",
+   "group": 1,
+   "mask": 0,
+   "kinematic": true
+  },
+  {
+   "object": "180_左足",
+   "bone": "足D.L",
+   "group": 1,
+   "mask": 0,
+   "kinematic": true
+  },
+  {
+   "object": "181_右足",
+   "bone": "足D.R",
+   "group": 1,
+   "mask": 0,
+   "kinematic": true
+  },
+  {
+   "object": "182_左ひざ",
+   "bone": "ひざD.L",
+   "group": 1,
+   "mask": 0,
+   "kinematic": true
+  },
+  {
+   "object": "183_右ひざ",
+   "bone": "ひざD.R",
+   "group": 1,
+   "mask": 0,
+   "kinematic": true
+  },
+  {
+   "object": "184_M-下半身",
+   "bone": "下半身",
+   "group": 1,
+   "mask": 192,
+   "kinematic": true
+  },
+  {
+   "object": "185_M-M-下半身",
+   "bone": "下半身",
+   "group": 1,
+   "mask": 192,
+   "kinematic": true
+  },
+  {
+   "object": "186_M-M-下半身",
+   "bone": "下半身",
+   "group": 1,
+   "mask": 192,
+   "kinematic": true
+  },
+  {
+   "object": "187_M-M-M-下半身",
+   "bone": "下半身",
+   "group": 1,
+   "mask": 192,
+   "kinematic": true
+  },
+  {
+   "object": "188_M-M-M-M-下半身",
+   "bone": "下半身",
+   "group": 1,
+   "mask": 192,
+   "kinematic": true
+  },
+  {
+   "object": "189_右足",
+   "bone": "足D.R",
+   "group": 1,
+   "mask": 0,
+   "kinematic": true
+  },
+  {
+   "object": "190_左足",
+   "bone": "足D.L",
+   "group": 1,
+   "mask": 0,
+   "kinematic": true
+  },
+  {
+   "object": "191_腰带_0_1",
+   "bone": "腰带_0_1",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "192_腰带_1_1",
+   "bone": "腰带_1_1",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "193_腰带_2_1",
+   "bone": "腰带_2_1",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "194_腰带_3_1",
+   "bone": "腰带_3_1",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "195_腰带_4_1",
+   "bone": "腰带_4_1",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "196_腰带_5_1",
+   "bone": "腰带_5_1",
+   "group": 8,
+   "mask": 128,
+   "kinematic": false
+  },
+  {
+   "object": "197_M-M-上半身2",
+   "bone": "上半身2",
+   "group": 1,
+   "mask": 8192,
+   "kinematic": true
+  },
+  {
+   "object": "198_左手首",
+   "bone": "手首.L",
+   "group": 2,
+   "mask": 388,
+   "kinematic": true
+  },
+  {
+   "object": "199_右手首",
+   "bone": "手首.R",
+   "group": 2,
+   "mask": 388,
+   "kinematic": true
+  },
+  {
+   "object": "200_右項鏈1",
+   "bone": "項鏈1.R",
+   "group": 3,
+   "mask": 8196,
+   "kinematic": false
+  },
+  {
+   "object": "201_右項鏈2",
+   "bone": "項鏈2.R",
+   "group": 3,
+   "mask": 8196,
+   "kinematic": false
+  },
+  {
+   "object": "202_右項鏈3",
+   "bone": "項鏈3.R",
+   "group": 3,
+   "mask": 8196,
+   "kinematic": false
+  },
+  {
+   "object": "203_右項鏈4",
+   "bone": "項鏈4.R",
+   "group": 3,
+   "mask": 8196,
+   "kinematic": false
+  },
+  {
+   "object": "204_左項鏈1",
+   "bone": "項鏈1.L",
+   "group": 3,
+   "mask": 8196,
+   "kinematic": false
+  },
+  {
+   "object": "205_左項鏈2",
+   "bone": "項鏈2.L",
+   "group": 3,
+   "mask": 8196,
+   "kinematic": false
+  },
+  {
+   "object": "206_左項鏈3",
+   "bone": "項鏈3.L",
+   "group": 3,
+   "mask": 8196,
+   "kinematic": false
+  },
+  {
+   "object": "207_左項鏈4",
+   "bone": "項鏈4.L",
+   "group": 3,
+   "mask": 8196,
+   "kinematic": false
+  },
+  {
+   "object": "208_左項鏈5",
+   "bone": "項鏈5.L",
+   "group": 3,
+   "mask": 8196,
+   "kinematic": false
+  },
+  {
+   "object": "209_項鏈穗1",
+   "bone": "項鏈穗1",
+   "group": 3,
+   "mask": 8196,
+   "kinematic": false
+  },
+  {
+   "object": "210_項鏈穗2",
+   "bone": "項鏈穗2",
+   "group": 3,
+   "mask": 8196,
+   "kinematic": false
+  },
+  {
+   "object": "211_項鏈穗3",
+   "bone": "項鏈穗3",
+   "group": 3,
+   "mask": 8196,
+   "kinematic": false
+  },
+  {
+   "object": "212_左項鏈穗1",
+   "bone": "項鏈穗1.L",
+   "group": 3,
+   "mask": 8196,
+   "kinematic": false
+  },
+  {
+   "object": "213_左項鏈穗2",
+   "bone": "項鏈穗2.L",
+   "group": 3,
+   "mask": 8196,
+   "kinematic": false
+  },
+  {
+   "object": "214_右項鏈穗1",
+   "bone": "項鏈穗1.R",
+   "group": 3,
+   "mask": 8196,
+   "kinematic": false
+  },
+  {
+   "object": "215_右項鏈穗2",
+   "bone": "項鏈穗2.R",
+   "group": 3,
+   "mask": 8196,
+   "kinematic": false
+  },
+  {
+   "object": "216_M-上半身2",
+   "bone": "上半身2",
+   "group": 1,
+   "mask": 28640,
+   "kinematic": true
+  },
+  {
+   "object": "217_M-M-M-上半身2",
+   "bone": "上半身2",
+   "group": 1,
+   "mask": 8448,
+   "kinematic": true
+  },
+  {
+   "object": "218_左立領",
+   "bone": "立領.L",
+   "group": 1,
+   "mask": 65535,
+   "kinematic": false
+  },
+  {
+   "object": "219_後立領",
+   "bone": "後立領",
+   "group": 1,
+   "mask": 65535,
+   "kinematic": false
+  },
+  {
+   "object": "220_右立領",
+   "bone": "立領.R",
+   "group": 1,
+   "mask": 65535,
+   "kinematic": false
+  },
+  {
+   "object": "221_頭",
+   "bone": "頭",
+   "group": 1,
+   "mask": 2,
+   "kinematic": true
+  },
+  {
+   "object": "222_馬尾飾",
+   "bone": "馬尾飾",
+   "group": 5,
+   "mask": 65521,
+   "kinematic": false
+  },
+  {
+   "object": "223_馬尾1",
+   "bone": "馬尾1",
+   "group": 5,
+   "mask": 16,
+   "kinematic": false
+  },
+  {
+   "object": "224_馬尾2",
+   "bone": "馬尾2",
+   "group": 5,
+   "mask": 16,
+   "kinematic": false
+  },
+  {
+   "object": "225_馬尾3",
+   "bone": "馬尾3",
+   "group": 5,
+   "mask": 16,
+   "kinematic": false
+  },
+  {
+   "object": "226_馬尾4",
+   "bone": "馬尾4",
+   "group": 5,
+   "mask": 16,
+   "kinematic": false
+  },
+  {
+   "object": "227_馬尾5",
+   "bone": "馬尾5",
+   "group": 5,
+   "mask": 16,
+   "kinematic": false
+  },
+  {
+   "object": "228_馬尾6",
+   "bone": "馬尾6",
+   "group": 5,
+   "mask": 16,
+   "kinematic": false
+  },
+  {
+   "object": "229_馬尾7",
+   "bone": "馬尾7",
+   "group": 5,
+   "mask": 16,
+   "kinematic": false
+  },
+  {
+   "object": "230_馬尾8",
+   "bone": "馬尾8",
+   "group": 5,
+   "mask": 16,
+   "kinematic": false
+  },
+  {
+   "object": "231_馬尾9",
+   "bone": "馬尾9",
+   "group": 5,
+   "mask": 16,
+   "kinematic": false
+  },
+  {
+   "object": "232_馬尾10",
+   "bone": "馬尾10",
+   "group": 5,
+   "mask": 16,
+   "kinematic": false
+  },
+  {
+   "object": "233_馬尾11",
+   "bone": "馬尾11",
+   "group": 5,
+   "mask": 16,
+   "kinematic": false
+  },
+  {
+   "object": "234_馬尾12",
+   "bone": "馬尾12",
+   "group": 5,
+   "mask": 16,
+   "kinematic": false
+  },
+  {
+   "object": "235_馬尾13",
+   "bone": "馬尾13",
+   "group": 5,
+   "mask": 16,
+   "kinematic": false
+  },
+  {
+   "object": "236_馬尾14",
+   "bone": "馬尾14",
+   "group": 5,
+   "mask": 16,
+   "kinematic": false
+  },
+  {
+   "object": "237_馬尾15",
+   "bone": "馬尾15",
+   "group": 5,
+   "mask": 16,
+   "kinematic": false
+  },
+  {
+   "object": "238_左馬尾1",
+   "bone": "馬尾1.L",
+   "group": 5,
+   "mask": 24,
+   "kinematic": false
+  },
+  {
+   "object": "239_左馬尾2",
+   "bone": "馬尾2.L",
+   "group": 5,
+   "mask": 24,
+   "kinematic": false
+  },
+  {
+   "object": "240_左馬尾3",
+   "bone": "馬尾3.L",
+   "group": 4,
+   "mask": 24,
+   "kinematic": false
+  },
+  {
+   "object": "241_左馬尾4",
+   "bone": "馬尾4.L",
+   "group": 4,
+   "mask": 8,
+   "kinematic": false
+  },
+  {
+   "object": "242_左馬尾5",
+   "bone": "馬尾5.L",
+   "group": 4,
+   "mask": 8,
+   "kinematic": false
+  },
+  {
+   "object": "243_左馬尾6",
+   "bone": "馬尾6.L",
+   "group": 4,
+   "mask": 8,
+   "kinematic": false
+  },
+  {
+   "object": "244_左馬尾7",
+   "bone": "馬尾7.L",
+   "group": 4,
+   "mask": 8,
+   "kinematic": false
+  },
+  {
+   "object": "245_左馬尾8",
+   "bone": "馬尾8.L",
+   "group": 4,
+   "mask": 8,
+   "kinematic": false
+  },
+  {
+   "object": "246_右馬尾1",
+   "bone": "馬尾1.R",
+   "group": 5,
+   "mask": 24,
+   "kinematic": false
+  },
+  {
+   "object": "247_右馬尾2",
+   "bone": "馬尾2.R",
+   "group": 5,
+   "mask": 24,
+   "kinematic": false
+  },
+  {
+   "object": "248_右馬尾3",
+   "bone": "馬尾3.R",
+   "group": 4,
+   "mask": 8,
+   "kinematic": false
+  },
+  {
+   "object": "249_右馬尾4",
+   "bone": "馬尾4.R",
+   "group": 4,
+   "mask": 8,
+   "kinematic": false
+  },
+  {
+   "object": "250_右馬尾5",
+   "bone": "馬尾5.R",
+   "group": 4,
+   "mask": 8,
+   "kinematic": false
+  },
+  {
+   "object": "251_右馬尾6",
+   "bone": "馬尾6.R",
+   "group": 4,
+   "mask": 8,
+   "kinematic": false
+  },
+  {
+   "object": "252_右馬尾7",
+   "bone": "馬尾7.R",
+   "group": 4,
+   "mask": 8,
+   "kinematic": false
+  },
+  {
+   "object": "253_右馬尾8",
+   "bone": "馬尾8.R",
+   "group": 4,
+   "mask": 8,
+   "kinematic": false
+  },
+  {
+   "object": "254_左耳1",
+   "bone": "耳1.L",
+   "group": 5,
+   "mask": 17,
+   "kinematic": false
+  },
+  {
+   "object": "255_左耳2",
+   "bone": "耳2.L",
+   "group": 5,
+   "mask": 17,
+   "kinematic": false
+  },
+  {
+   "object": "256_左耳3",
+   "bone": "耳3.L",
+   "group": 5,
+   "mask": 17,
+   "kinematic": false
+  },
+  {
+   "object": "257_左耳4",
+   "bone": "耳4.L",
+   "group": 5,
+   "mask": 17,
+   "kinematic": false
+  },
+  {
+   "object": "258_右耳1",
+   "bone": "耳1.R",
+   "group": 5,
+   "mask": 17,
+   "kinematic": false
+  },
+  {
+   "object": "259_右耳2",
+   "bone": "耳2.R",
+   "group": 5,
+   "mask": 17,
+   "kinematic": false
+  },
+  {
+   "object": "260_右耳3",
+   "bone": "耳3.R",
+   "group": 5,
+   "mask": 17,
+   "kinematic": false
+  },
+  {
+   "object": "261_右耳4",
+   "bone": "耳4.R",
+   "group": 5,
+   "mask": 17,
+   "kinematic": false
+  },
+  {
+   "object": "262_左劉海1",
+   "bone": "劉海1.L",
+   "group": 5,
+   "mask": 16,
+   "kinematic": false
+  },
+  {
+   "object": "263_左劉海2",
+   "bone": "劉海2.L",
+   "group": 5,
+   "mask": 16,
+   "kinematic": false
+  },
+  {
+   "object": "264_左劉海3",
+   "bone": "劉海3.L",
+   "group": 5,
+   "mask": 16,
+   "kinematic": false
+  },
+  {
+   "object": "265_左側髪1-1",
+   "bone": "側髪1-1.L",
+   "group": 5,
+   "mask": 16,
+   "kinematic": false
+  },
+  {
+   "object": "266_左側髪1-2",
+   "bone": "側髪1-2.L",
+   "group": 5,
+   "mask": 16,
+   "kinematic": false
+  },
+  {
+   "object": "267_左側髪1-3",
+   "bone": "側髪1-3.L",
+   "group": 5,
+   "mask": 16,
+   "kinematic": false
+  },
+  {
+   "object": "268_左側髪2-1",
+   "bone": "側髪2-1.L",
+   "group": 5,
+   "mask": 16,
+   "kinematic": false
+  },
+  {
+   "object": "269_左側髪2-2",
+   "bone": "側髪2-2.L",
+   "group": 5,
+   "mask": 16,
+   "kinematic": false
+  },
+  {
+   "object": "270_左側髪2-3",
+   "bone": "側髪2-3.L",
+   "group": 5,
+   "mask": 16,
+   "kinematic": false
+  },
+  {
+   "object": "271_左側髪3-1",
+   "bone": "側髪3-1.L",
+   "group": 5,
+   "mask": 16,
+   "kinematic": false
+  },
+  {
+   "object": "272_左長髪1",
+   "bone": "長髪1.L",
+   "group": 2,
+   "mask": 26,
+   "kinematic": false
+  },
+  {
+   "object": "273_左長髪2",
+   "bone": "長髪2.L",
+   "group": 2,
+   "mask": 26,
+   "kinematic": false
+  },
+  {
+   "object": "274_左長髪3",
+   "bone": "長髪3.L",
+   "group": 2,
+   "mask": 26,
+   "kinematic": false
+  },
+  {
+   "object": "275_左長髪4",
+   "bone": "長髪4.L",
+   "group": 2,
+   "mask": 26,
+   "kinematic": false
+  },
+  {
+   "object": "276_左長髪5",
+   "bone": "長髪5.L",
+   "group": 2,
+   "mask": 26,
+   "kinematic": false
+  },
+  {
+   "object": "277_左長髪6",
+   "bone": "長髪6.L",
+   "group": 2,
+   "mask": 26,
+   "kinematic": false
+  },
+  {
+   "object": "278_左長髪7",
+   "bone": "長髪7.L",
+   "group": 2,
+   "mask": 26,
+   "kinematic": false
+  },
+  {
+   "object": "279_左長髪8",
+   "bone": "長髪8.L",
+   "group": 2,
+   "mask": 26,
+   "kinematic": false
+  },
+  {
+   "object": "280_左側髪4-1",
+   "bone": "側髪4-1.L",
+   "group": 2,
+   "mask": 18,
+   "kinematic": false
+  },
+  {
+   "object": "281_左側髪4-2",
+   "bone": "側髪4-2.L",
+   "group": 2,
+   "mask": 18,
+   "kinematic": false
+  },
+  {
+   "object": "282_左側髪5-1",
+   "bone": "側髪5-1.L",
+   "group": 5,
+   "mask": 16,
+   "kinematic": false
+  },
+  {
+   "object": "283_左側髪5-2",
+   "bone": "側髪5-2.L",
+   "group": 5,
+   "mask": 16,
+   "kinematic": false
+  },
+  {
+   "object": "284_右劉海1",
+   "bone": "劉海1.R",
+   "group": 5,
+   "mask": 16,
+   "kinematic": false
+  },
+  {
+   "object": "285_右劉海2",
+   "bone": "劉海2.R",
+   "group": 5,
+   "mask": 16,
+   "kinematic": false
+  },
+  {
+   "object": "286_右劉海3",
+   "bone": "劉海3.R",
+   "group": 5,
+   "mask": 16,
+   "kinematic": false
+  },
+  {
+   "object": "287_右側髪1-1",
+   "bone": "側髪1-1.R",
+   "group": 5,
+   "mask": 16,
+   "kinematic": false
+  },
+  {
+   "object": "288_右側髪1-2",
+   "bone": "側髪1-2.R",
+   "group": 5,
+   "mask": 16,
+   "kinematic": false
+  },
+  {
+   "object": "289_右側髪1-3",
+   "bone": "側髪1-3.R",
+   "group": 5,
+   "mask": 16,
+   "kinematic": false
+  },
+  {
+   "object": "290_右側髪2-1",
+   "bone": "側髪2-1.R",
+   "group": 5,
+   "mask": 16,
+   "kinematic": false
+  },
+  {
+   "object": "291_右側髪2-2",
+   "bone": "側髪2-2.R",
+   "group": 5,
+   "mask": 16,
+   "kinematic": false
+  },
+  {
+   "object": "292_右側髪2-3",
+   "bone": "側髪2-3.R",
+   "group": 5,
+   "mask": 16,
+   "kinematic": false
+  },
+  {
+   "object": "293_右側髪3-1",
+   "bone": "側髪3-1.R",
+   "group": 5,
+   "mask": 16,
+   "kinematic": false
+  },
+  {
+   "object": "294_右側髪4-1",
+   "bone": "側髪4-1.R",
+   "group": 2,
+   "mask": 18,
+   "kinematic": false
+  },
+  {
+   "object": "295_右側髪4-2",
+   "bone": "側髪4-2.R",
+   "group": 2,
+   "mask": 18,
+   "kinematic": false
+  },
+  {
+   "object": "296_右側髪5-1",
+   "bone": "側髪5-1.R",
+   "group": 5,
+   "mask": 16,
+   "kinematic": false
+  },
+  {
+   "object": "297_右側髪5-2",
+   "bone": "側髪5-2.R",
+   "group": 5,
+   "mask": 16,
+   "kinematic": false
+  },
+  {
+   "object": "298_髪穗1",
+   "bone": "髪穗1",
+   "group": 5,
+   "mask": 16,
+   "kinematic": false
+  },
+  {
+   "object": "299_髪穗2",
+   "bone": "髪穗2",
+   "group": 5,
+   "mask": 16,
+   "kinematic": false
+  },
+  {
+   "object": "300_髪墜1",
+   "bone": "髪墜1",
+   "group": 2,
+   "mask": 18,
+   "kinematic": false
+  },
+  {
+   "object": "301_髪墜2",
+   "bone": "髪墜2",
+   "group": 2,
+   "mask": 26,
+   "kinematic": false
+  },
+  {
+   "object": "302_髪墜3",
+   "bone": "髪墜3",
+   "group": 2,
+   "mask": 26,
+   "kinematic": false
+  },
+  {
+   "object": "303_M-頭",
+   "bone": "頭",
+   "group": 1,
+   "mask": 0,
+   "kinematic": true
+  },
+  {
+   "object": "304_M-頭",
+   "bone": "頭",
+   "group": 1,
+   "mask": 2,
+   "kinematic": true
+  },
+  {
+   "object": "305_中結穗1",
+   "bone": "中結穗1",
+   "group": 15,
+   "mask": 16398,
+   "kinematic": false
+  },
+  {
+   "object": "306_中結穗2",
+   "bone": "中結穗2",
+   "group": 15,
+   "mask": 16398,
+   "kinematic": false
+  },
+  {
+   "object": "307_中結穗3",
+   "bone": "中結穗3",
+   "group": 15,
+   "mask": 16398,
+   "kinematic": false
+  },
+  {
+   "object": "308_左結",
+   "bone": "結.L",
+   "group": 15,
+   "mask": 16398,
+   "kinematic": false
+  },
+  {
+   "object": "309_右結",
+   "bone": "結.R",
+   "group": 15,
+   "mask": 16398,
+   "kinematic": false
+  },
+  {
+   "object": "310_M-M-M-M-下半身",
+   "bone": "下半身",
+   "group": 1,
+   "mask": 32752,
+   "kinematic": true
+  },
+  {
+   "object": "311_右足",
+   "bone": "足D.R",
+   "group": 1,
+   "mask": 0,
+   "kinematic": true
+  }
+ ]
+}

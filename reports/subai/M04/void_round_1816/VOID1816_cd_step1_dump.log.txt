@@ -1,0 +1,4 @@
+00:00.891  blend            | Read blend: "E:\code\mmdpipe-ai\A3\out\subai\M05\arms\C_W1.blend"
+COMBO_CONSOLE_REGISTERED
+[maskdump] rigid=312 failures=0 -> E:\dsh pr\woker2\out\subai\M04\penetration\rigid_mask_dump_cd.json
+Blender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:37:04)

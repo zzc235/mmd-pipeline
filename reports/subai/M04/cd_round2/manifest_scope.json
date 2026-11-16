@@ -1,0 +1,30 @@
+{
+  "spec": "manifest_scope/1",
+  "manifest": "manifest.json",
+  "path_field": "name",
+  "paths_are": "file name only, relative to `base` —— **不是**相对本目录",
+  "base": "E:/dsh pr/woker2/out/subai/M04/penetration/round2_324b",
+  "base_in_git": false,
+  "entries_declared": 35,
+  "entries_readonly": 35,
+  "snapshot_copies": [
+    "C_W1.meta.json",
+    "C_W2.meta.json",
+    "D.meta.json",
+    "baseline_C_W1.json",
+    "baseline_C_W2.json",
+    "baseline_D.json",
+    "cd_run_ledger.json",
+    "cmp_round2.json",
+    "compare.log",
+    "compare_selftest.log",
+    "_snapshot_index.json"
+  ],
+  "two_way_checked": false,
+  "why": "manifest 的 35 条目全部住在 `base`（out/ 的只读批次目录）；本目录只放 11 份副本（含 _snapshot_index.json）。按 `base` 解析是 35/35；按本目录双向枚举是 11 份副本，两者是不同宇宙，混着用会得到一堆假 only_on_disk —— 总控 19:50 的 artifact_audit 第一版就在这份上报过 46 条假 drift，改后记 two_way_checked=false。",
+  "how_to_audit": [
+    "核身份：读 manifest.json 的 files[]，每项有 bytes / sha256 / sha256_lf_normalized / readonly；按 base 逐条解析（reports/subai/M04/scripts/m04_snapshot_scope.py --dir <快照目录>，退出码 0=OK / 2=MISMATCH / 3=UNMEASURED）",
+    "base 不在本机（新克隆、别人的树）时结论是 UNMEASURED，不是 MISMATCH —— 量不了不等于不一致",
+    "要双向枚举（盘上每个在账上）时，枚举 `base` 而不是本目录；本目录的 11 份副本另见 _snapshot_index.json"
+  ]
+}

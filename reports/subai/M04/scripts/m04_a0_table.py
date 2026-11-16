@@ -28,11 +28,17 @@ SPEC = "m04_a0_table/1"
 
 # 产物在**主工作树**的 out/（不随 git），报告落**自己 worktree**的 reports/。
 # 所以两个路径都可显式给：`--pen <dir> --out <file>`，默认相对当前目录。
+# `--pair "<tag>=<臂A>,<臂B>"` 可重复：换一对臂来算同一套分布（C/D 组用）；
+# 不给就还是 A0 正控那三对（`--pair` 一旦给出，就**只**算给的那几对，且跳过对账——
+# 对账是拿 A0 那三对跟既有判词文件比，换了对就不该装作还在对账）。
+CUSTOM_PAIRS = []
 for _i, _a in enumerate(sys.argv):
     if _a == "--pen" and _i + 1 < len(sys.argv):
         PEN = sys.argv[_i + 1]
     elif _a == "--out" and _i + 1 < len(sys.argv):
         OUT_JSON = sys.argv[_i + 1]
+    elif _a == "--pair" and _i + 1 < len(sys.argv):
+        CUSTOM_PAIRS.append(sys.argv[_i + 1])
 QUANT = 6                      # 探针输出精度：6 位小数（D-143：先量化再比）
 
 # tag, 臂 A, 臂 B, A 的中文名, B 的中文名, 既有判词文件
@@ -207,28 +213,62 @@ def cross_check(table_rows, judges):
     return ok, rows
 
 
+def parse_custom_pair(spec):
+    """`--pair "tag=臂A,臂B"` → PAIRS 那一行的形状（不含既有判词文件）。"""
+    if "=" not in spec or spec.count(",") != 1:
+        raise ValueError("--pair 要写成 \"tag=臂A,臂B\"，收到 %r" % spec)
+    tag, arms = spec.split("=", 1)
+    a, b = arms.split(",")
+    tag, a, b = tag.strip(), a.strip(), b.strip()
+    if not (tag and a and b):
+        raise ValueError("--pair 的三个字段都不许空：%r" % spec)
+    return (tag, a, b, a, b, "")
+
+
 def main():
     print("spec=%s" % SPEC)
     ok_self, self_rows = selftest()
 
+    custom = bool(CUSTOM_PAIRS)
+    if custom:
+        try:
+            pairs = [parse_custom_pair(s) for s in CUSTOM_PAIRS]
+        except ValueError as exc:
+            print("[用法] %s" % exc)
+            return 2
+    else:
+        pairs = PAIRS
+
     metas, frames, hashes = {}, {}, {}
-    for _tag, a, b, _la, _lb, _judge in PAIRS:
+    for _tag, a, b, _la, _lb, _judge in pairs:
         for name in (a, b):
             if name in frames:
                 continue
             try:
                 meta, fr, path = load(name)
-            except FileNotFoundError as exc:
-                print("[算不出] 缺产物：%s" % exc)
+            except (FileNotFoundError, ValueError, KeyError) as exc:
+                print("[算不出] 读不出 %s：%s" % (name, exc))
                 return 2
-            if len(fr) != 240:
-                print("[算不出] %s 只有 %d 帧（要 240）" % (name, len(fr)))
+            # 内置三对固定 240 帧（A0 正控的窗口）；自定义对（C/D）不写死帧数，
+            # 但**两臂帧集合必须完全一致**——交集静默变小等于偷偷换了窗口。
+            if not custom and len(fr) != 240:
+                print("[算不出] %s 只有 %d 帧（内置对要 240）" % (name, len(fr)))
+                return 2
+            if not fr:
+                print("[算不出] %s 的 per_frame 是空的" % name)
                 return 2
             metas[name] = meta
             frames[name] = fr
             hashes[name] = {"path": path.replace("/", "\\"),
                             "sha256_lf_normalized": sha_set(path)["sha256_lf_normalized"],
                             "bytes": os.path.getsize(path)}
+
+    for tag, a, b, _la, _lb, _judge in pairs:
+        common = set(frames[a]) & set(frames[b])
+        if len(common) != len(frames[a]) or len(common) != len(frames[b]):
+            print("[算不出] %s 帧集合不一致：%s=%d %s=%d 交集=%d"
+                  % (tag, a, len(frames[a]), b, len(frames[b]), len(common)))
+            return 2
 
     print("\n[arms] 读数前提")
     for name in sorted(metas):
@@ -238,27 +278,31 @@ def main():
                  metas[name].get("frames_measured")))
 
     rows = []
-    for tag, a, b, a_label, b_label, _judge in PAIRS:
+    for tag, a, b, a_label, b_label, _judge in pairs:
         rows.append(pair_stats(tag, a, b, a_label, b_label, frames[a], frames[b]))
 
-    print("\n[table] 三对臂")
+    print("\n[table] %s" % ("自定义 %d 对" % len(pairs) if custom else "三对臂"))
     for r in rows:
         d = r["abs_delta_m"]["over_all_frames"]
-        print("  %-6s %-28s vs %-28s frames=%d 全等=%d 量化等=%d A深=%d B深=%d"
+        print("  %-10s %-28s vs %-28s frames=%d 全等=%d 量化等=%d A深=%d B深=%d"
               % (r["tag"], r["a"], r["b"], r["frames"], r["row_identical_frames"],
                  r["max_depth_equal_frames"], r["a_deeper_frames"], r["b_deeper_frames"]))
         print("         |Δ| 中位=%s m 均值=%s p90=%s 最大=%s m @f%s  (raw float %r)"
               % (d["median"], d["mean"], d["p90"], d["max"], d["max_frame"], r["abs_delta_m"]["max_raw_float"]))
 
     judges = {}
-    for _tag, _a, _b, _la, _lb, judge_file in PAIRS:
-        p = os.path.join(PEN, judge_file)
-        if os.path.exists(p):
-            with io.open(p, encoding="utf-8") as fh:
-                judges[{"a0_free_sensitivity.json": "sens",
-                        "a0_free_reproducibility.json": "repro",
-                        "a0_free_determinism.json": "determ"}[judge_file]] = json.load(fh)
-    ok_cross, cross_rows = cross_check(rows, judges)
+    if custom:
+        print("\n[cross-check] 跳过：对账是拿 A0 那三对与既有判词文件比，换了臂就不装作还在对账")
+        ok_cross, cross_rows = True, []
+    else:
+        for _tag, _a, _b, _la, _lb, judge_file in PAIRS:
+            p = os.path.join(PEN, judge_file)
+            if os.path.exists(p):
+                with io.open(p, encoding="utf-8") as fh:
+                    judges[{"a0_free_sensitivity.json": "sens",
+                            "a0_free_reproducibility.json": "repro",
+                            "a0_free_determinism.json": "determ"}[judge_file]] = json.load(fh)
+        ok_cross, cross_rows = cross_check(rows, judges)
 
     out = {
         "spec": SPEC,
@@ -279,6 +323,10 @@ def main():
         "selftest": {"ok": bool(ok_self), "rows": self_rows},
         "cross_check": {"ok": bool(ok_cross), "rows": cross_rows},
     }
+    if custom:
+        # 内置路径的输出**逐字节不变**（既有 artifact 的哈希还在被引用）；自定义才加这两个键。
+        out["pairs_source"] = "custom"
+        out["what"] = "自定义臂对的逐帧分布（C/D 组用；由 *_meta.json 只读重算，不开 Blender）"
     os.makedirs(os.path.dirname(OUT_JSON), exist_ok=True)
     with io.open(OUT_JSON, "w", encoding="utf-8", newline="\n") as fh:
         fh.write(json.dumps(out, ensure_ascii=False, indent=2, sort_keys=True) + "\n")

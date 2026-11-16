@@ -1,0 +1,272 @@
+{
+  "admission": {
+    "C_W1": {
+      "facts": {
+        "action": "B_aligned_bone",
+        "actions_all": 3,
+        "frame_end": 301,
+        "is_baked": false,
+        "mask": {
+          "constraints_capped": false,
+          "skipped_count": 0,
+          "verdict": "WIRED"
+        },
+        "rigids": 323
+      },
+      "failures": [],
+      "health": "E:/dsh pr/woker2/out/subai/M04/penetration/round2_324b/health_C_W1.json",
+      "ok": true
+    },
+    "C_W2": {
+      "facts": {
+        "action": "B_aligned_bone",
+        "actions_all": 3,
+        "frame_end": 832,
+        "is_baked": false,
+        "mask": {
+          "constraints_capped": false,
+          "skipped_count": 0,
+          "verdict": "WIRED"
+        },
+        "rigids": 323
+      },
+      "failures": [],
+      "health": "E:/dsh pr/woker2/out/subai/M04/penetration/round2_324b/health_C_W2.json",
+      "ok": true
+    },
+    "D": {
+      "facts": {
+        "action": "原神摇_merged_bone",
+        "actions_all": 2,
+        "frame_end": 833,
+        "is_baked": false,
+        "mask": {
+          "constraints_capped": false,
+          "skipped_count": 0,
+          "verdict": "WIRED"
+        },
+        "rigids": 323
+      },
+      "failures": [],
+      "health": "E:/dsh pr/woker2/out/subai/M04/penetration/round2_324b/health_D.json",
+      "ok": true
+    }
+  },
+  "arms": {
+    "C_W1": {
+      "baseline_pairs": 5076,
+      "baseline_path": "E:/dsh pr/woker2/out/subai/M04/penetration/round2_324b/baseline_C_W1.json",
+      "baseline_sha256": "54be168d18916e923b2ef7a1a953b9d73e8a1752a95d727833bdba532310bf47",
+      "baseline_zero_overlap": 5020,
+      "bytes": 6137030,
+      "eval_policy": "sequential_from_frame_start",
+      "meta_bytes": 76876,
+      "meta_sha256": "0ee4f06d1c7fd20e28034741d6a292045318adc39c2d739e20989956ca691782",
+      "path": "E:/code/mmdpipe-ai/A3/out/subai/M05/arms/20261116_324/C@W1.blend",
+      "pose_source_is_baked": false,
+      "sha256_after": "79862401ed1f1cdb1fc3afe5c85e95586d7606abcc6005943a747fd91e55f806",
+      "sha256_before": "79862401ed1f1cdb1fc3afe5c85e95586d7606abcc6005943a747fd91e55f806"
+    },
+    "C_W2": {
+      "baseline_pairs": 5076,
+      "baseline_path": "E:/dsh pr/woker2/out/subai/M04/penetration/round2_324b/baseline_C_W2.json",
+      "baseline_sha256": "4f33087b321b3a7d50bd38fc002e7fe5bd96574f67023a61577c12e3454d74fa",
+      "baseline_zero_overlap": 5020,
+      "bytes": 6139523,
+      "eval_policy": "sequential_from_frame_start",
+      "meta_bytes": 258696,
+      "meta_sha256": "1908a1162aed70c5148c88eb512e5f0e9fca9f38aa30a95076ecd39b01517c2e",
+      "path": "E:/code/mmdpipe-ai/A3/out/subai/M05/arms/20261116_324/C@W2.blend",
+      "pose_source_is_baked": false,
+      "sha256_after": "c3c5cdcb762b78144d75b02188e9361cce892eff76a0860465d8a7df95f22f04",
+      "sha256_before": "c3c5cdcb762b78144d75b02188e9361cce892eff76a0860465d8a7df95f22f04"
+    },
+    "D": {
+      "baseline_pairs": 5076,
+      "baseline_path": "E:/dsh pr/woker2/out/subai/M04/penetration/round2_324b/baseline_D.json",
+      "baseline_sha256": "3b2b021c78198ab176a60001d6efc8b4618753b9af04fb43368264dbb023703a",
+      "baseline_zero_overlap": 4970,
+      "bytes": 10230897,
+      "eval_policy": "sequential_from_frame_start",
+      "meta_bytes": 257851,
+      "meta_sha256": "191608454f44a6c07c0f37da949b5f028ae0f5d9852bafce03fc030f45b704af",
+      "path": "E:/code/mmdpipe-ai/A3/out/subai/M05/arms/20261116_324/D.blend",
+      "pose_source_is_baked": false,
+      "sha256_after": "b6e0545a7becd3d788c019434c30acc04cfaecbee650fbc60e9993fda2db0cc3",
+      "sha256_before": "b6e0545a7becd3d788c019434c30acc04cfaecbee650fbc60e9993fda2db0cc3"
+    }
+  },
+  "arms_dir": "E:/code/mmdpipe-ai/A3/out/subai/M05/arms/20261116_324",
+  "batch_created": true,
+  "batch_id": "round2_324b",
+  "compare": {
+    "exit": 0,
+    "json": "E:/dsh pr/woker2/out/subai/M04/penetration/round2_324b/cmp_round2.json",
+    "note": "0=无结论级变化 / 1=有 / 3=不可判 / 4=自检失败",
+    "selftest_exit": 0,
+    "selftest_log": "E:/dsh pr/woker2/out/subai/M04/penetration/round2_324b/compare_selftest.log",
+    "verdict": "JUDGED_NO_CHANGE"
+  },
+  "finished_at": "2026-11-16T19:26:00",
+  "gates": {
+    "C_W1": {
+      "complete": true,
+      "eval_policy": "sequential_from_frame_start",
+      "frames_got": 240,
+      "frames_measured": 240,
+      "frames_want": 240,
+      "is_baked": false,
+      "pairs_without_baseline": 0,
+      "roi_missing": []
+    },
+    "C_W2": {
+      "complete": true,
+      "eval_policy": "sequential_from_frame_start",
+      "frames_got": 832,
+      "frames_measured": 832,
+      "frames_want": 832,
+      "is_baked": false,
+      "pairs_without_baseline": 0,
+      "roi_missing": []
+    },
+    "D": {
+      "complete": true,
+      "eval_policy": "sequential_from_frame_start",
+      "frames_got": 832,
+      "frames_measured": 832,
+      "frames_want": 832,
+      "is_baked": false,
+      "pairs_without_baseline": 0,
+      "roi_missing": []
+    }
+  },
+  "input": "E:/code/mmdpipe-ai/A1/out/subai/M08/frozen/delivery_324_ffaa6780.blend",
+  "input_role": "provenance_only（基线改为逐臂自取窗口首帧，见预注册 §五）",
+  "input_sha256": "ffaa6780a2f7e765512201403a21e34848837b5f1c7486e91a70442762857761",
+  "roi_bones": [
+    "下擺_0_0",
+    "下擺_0_1",
+    "下擺_0_10",
+    "下擺_0_11",
+    "下擺_0_12",
+    "下擺_0_13",
+    "下擺_0_14",
+    "下擺_0_15",
+    "下擺_0_16",
+    "下擺_0_17",
+    "下擺_0_2",
+    "下擺_0_3",
+    "下擺_0_4",
+    "下擺_0_5",
+    "下擺_0_6",
+    "下擺_0_7",
+    "下擺_0_8",
+    "下擺_0_9"
+  ],
+  "spec": "m04_run_cd/2",
+  "started_at": "2026-11-16T19:14:13",
+  "steps": [
+    {
+      "arm": "C_W1",
+      "exit": 0,
+      "log": "E:/dsh pr/woker2/out/subai/M04/penetration/round2_324b/cd_step0_health_C_W1.log",
+      "ok_by_product": true,
+      "product": "E:/dsh pr/woker2/out/subai/M04/penetration/round2_324b/health_C_W1.json",
+      "product_bytes": 2675,
+      "seconds": 5.3,
+      "step": "0_health_C_W1"
+    },
+    {
+      "arm": "C_W2",
+      "exit": 0,
+      "log": "E:/dsh pr/woker2/out/subai/M04/penetration/round2_324b/cd_step0_health_C_W2.log",
+      "ok_by_product": true,
+      "product": "E:/dsh pr/woker2/out/subai/M04/penetration/round2_324b/health_C_W2.json",
+      "product_bytes": 2675,
+      "seconds": 4.2,
+      "step": "0_health_C_W2"
+    },
+    {
+      "arm": "D",
+      "exit": 0,
+      "log": "E:/dsh pr/woker2/out/subai/M04/penetration/round2_324b/cd_step0_health_D.log",
+      "ok_by_product": true,
+      "product": "E:/dsh pr/woker2/out/subai/M04/penetration/round2_324b/health_D.json",
+      "product_bytes": 2573,
+      "seconds": 3.8,
+      "step": "0_health_D"
+    },
+    {
+      "exit": 0,
+      "log": "E:/dsh pr/woker2/out/subai/M04/penetration/round2_324b/cd_step1_dump.log",
+      "ok_by_product": true,
+      "product": "E:/dsh pr/woker2/out/subai/M04/penetration/round2_324b/rigid_mask_dump_cd.json",
+      "product_bytes": 38078,
+      "seconds": 3.5,
+      "step": "1_dump"
+    },
+    {
+      "exit": 0,
+      "log": "E:/dsh pr/woker2/out/subai/M04/penetration/round2_324b/cd_step3_align.log",
+      "ok_by_product": true,
+      "product": "E:/dsh pr/woker2/out/subai/M04/penetration/round2_324b/roi_align_cd.json",
+      "product_bytes": 1808,
+      "seconds": 3.0,
+      "step": "3_align"
+    },
+    {
+      "exit": 0,
+      "log": "E:/dsh pr/woker2/out/subai/M04/penetration/round2_324b/cd_step5_C_W1_baseline.log",
+      "ok_by_product": true,
+      "product": "E:/dsh pr/woker2/out/subai/M04/penetration/round2_324b/baseline_C_W1.json",
+      "product_bytes": 173934,
+      "seconds": 3.8,
+      "step": "5_C_W1_baseline"
+    },
+    {
+      "exit": 0,
+      "log": "E:/dsh pr/woker2/out/subai/M04/penetration/round2_324b/cd_step5_C_W1.log",
+      "ok_by_product": true,
+      "product": "E:/dsh pr/woker2/out/subai/M04/penetration/round2_324b/C_W1.meta.json",
+      "product_bytes": 76876,
+      "seconds": 108.7,
+      "step": "5_C_W1"
+    },
+    {
+      "exit": 0,
+      "log": "E:/dsh pr/woker2/out/subai/M04/penetration/round2_324b/cd_step6_C_W2_baseline.log",
+      "ok_by_product": true,
+      "product": "E:/dsh pr/woker2/out/subai/M04/penetration/round2_324b/baseline_C_W2.json",
+      "product_bytes": 173934,
+      "seconds": 3.2,
+      "step": "6_C_W2_baseline"
+    },
+    {
+      "exit": 0,
+      "log": "E:/dsh pr/woker2/out/subai/M04/penetration/round2_324b/cd_step6_C_W2.log",
+      "ok_by_product": true,
+      "product": "E:/dsh pr/woker2/out/subai/M04/penetration/round2_324b/C_W2.meta.json",
+      "product_bytes": 258696,
+      "seconds": 310.1,
+      "step": "6_C_W2"
+    },
+    {
+      "exit": 0,
+      "log": "E:/dsh pr/woker2/out/subai/M04/penetration/round2_324b/cd_step7_D_baseline.log",
+      "ok_by_product": true,
+      "product": "E:/dsh pr/woker2/out/subai/M04/penetration/round2_324b/baseline_D.json",
+      "product_bytes": 174177,
+      "seconds": 3.3,
+      "step": "7_D_baseline"
+    },
+    {
+      "exit": 0,
+      "log": "E:/dsh pr/woker2/out/subai/M04/penetration/round2_324b/cd_step7_D.log",
+      "ok_by_product": true,
+      "product": "E:/dsh pr/woker2/out/subai/M04/penetration/round2_324b/D.meta.json",
+      "product_bytes": 257851,
+      "seconds": 257.3,
+      "step": "7_D"
+    }
+  ]
+}

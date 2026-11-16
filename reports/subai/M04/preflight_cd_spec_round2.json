@@ -1,0 +1,37 @@
+{
+  "_derivation": {
+    "DEFAULT_MAX_CONSTRAINTS": 20000,
+    "already_blocked": 1813,
+    "batch_id": "round2_324",
+    "cap_from": "stage.constraint_limit(10111) -> (10111, guardrail_hit=False)",
+    "code_from": "E:\\code\\mmdpipe-ai\\A2\\mmdpipe\\stage.py",
+    "needed_pairs": 10111,
+    "note": "cap 由建场同一函数现算；needs/cap 的输入全部来自**这份场景记录**，不跨树拼数",
+    "numbers_source": {
+      "bytes": 206080,
+      "path": "E:\\code\\mmdpipe-ai\\A1\\out\\subai\\M08\\run_20261116_1847\\readback_after_rebuild.json",
+      "sha256_lf_normalized": "bb06f01ff575d564378d58adcf237dcb8e3816e3bc87d029197288795d98625d",
+      "sha256_raw": "bb06f01ff575d564378d58adcf237dcb8e3816e3bc87d029197288795d98625d",
+      "shape": "mask_wired_record"
+    },
+    "scene_record_capped": false,
+    "scene_record_verdict": "WIRED",
+    "to_add": 8298
+  },
+  "cap": 10111,
+  "guardrail_hit": false,
+  "lease": false,
+  "needs": 8298,
+  "outputs": [
+    "out/subai/M04/penetration/round2_324/C_W1.meta.json",
+    "out/subai/M04/penetration/round2_324/C_W2.meta.json",
+    "out/subai/M04/penetration/round2_324/D.meta.json"
+  ],
+  "provenance": {
+    "mmdpipe/mask.py": "E:\\code\\mmdpipe-ai\\A2\\mmdpipe\\mask.py",
+    "mmdpipe/stage.py": "E:\\code\\mmdpipe-ai\\A2\\mmdpipe\\stage.py"
+  },
+  "skipped": 0,
+  "task_id": "M04_CD_measure",
+  "worktree": "E:\\code\\mmdpipe-ai\\A2"
+}

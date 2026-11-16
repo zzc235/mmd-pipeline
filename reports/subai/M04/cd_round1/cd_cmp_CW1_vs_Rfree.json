@@ -1,0 +1,127 @@
+{
+  "arm_state": {
+    "C_W1": {
+      "blend": "E:\\code\\mmdpipe-ai\\A3\\out\\subai\\M05\\arms\\C_W1.blend",
+      "eval_policy": "sequential_from_frame_start",
+      "frames_measured": 240,
+      "is_baked": false,
+      "is_outdated": true
+    },
+    "R_free": {
+      "blend": "out\\subai\\M04\\penetration\\R_free.blend",
+      "eval_policy": "sequential_from_frame_start",
+      "frames_measured": 240,
+      "is_baked": false,
+      "is_outdated": true
+    }
+  },
+  "arms": {
+    "C_W1": {
+      "bytes": 77306,
+      "path": "E:\\dsh pr\\woker2\\out\\subai\\M04\\penetration\\C_W1.meta.json",
+      "sha256_lf_normalized": "09f754e5bafa0db2c33f5d50afac226115914804536ff908d78fdf2105e73c8d"
+    },
+    "R_free": {
+      "bytes": 77309,
+      "path": "E:\\dsh pr\\woker2\\out\\subai\\M04\\penetration\\R_free.meta.json",
+      "sha256_lf_normalized": "2022b31f48c989cab7270ef5875b1bbef74d81e2e1bc008209f7f53c2c9d3b13"
+    }
+  },
+  "cross_check": {
+    "ok": true,
+    "rows": []
+  },
+  "judge_words_as_recorded": {},
+  "pairs": [
+    {
+      "a": "R_free",
+      "a_deeper_frames": 44,
+      "abs_delta_m": {
+        "max_raw_delta_signed": 0.0038509999999999994,
+        "max_raw_float": 0.0038509999999999994,
+        "over_all_frames": {
+          "count": 240,
+          "max": 0.003851,
+          "max_frame": 41,
+          "mean": 0.001034,
+          "median": 0.000889,
+          "p10": 0.000173,
+          "p25": 0.000411,
+          "p75": 0.001525,
+          "p90": 0.002188
+        },
+        "over_nonzero_frames": {
+          "count": 240,
+          "max": 0.003851,
+          "mean": 0.001034,
+          "median": 0.000889
+        },
+        "quantized_to": "1e-6"
+      },
+      "b": "C_W1",
+      "b_deeper_frames": 196,
+      "frame_range": [
+        1,
+        240
+      ],
+      "frames": 240,
+      "max_depth_equal_frames": 0,
+      "overlapping_pairs_sum": {
+        "C_W1": 11073,
+        "R_free": 41815
+      },
+      "raw_depth_min": {
+        "C_W1": -0.024921,
+        "R_free": -0.097323
+      },
+      "row_identical_frames": 0,
+      "tag": "C1_vs_Rfree"
+    }
+  ],
+  "pairs_source": "custom",
+  "quantized_to": "1e-6（探针输出精度，D-143 先量化再比）",
+  "selftest": {
+    "ok": true,
+    "rows": [
+      {
+        "check": "median(4 个)= (0.002+0.004)/2",
+        "got": 0.003,
+        "ok": true,
+        "want": 0.003
+      },
+      {
+        "check": "median(奇数个)",
+        "got": 0.003,
+        "ok": true,
+        "want": 0.003
+      },
+      {
+        "check": "量化 4e-7→0",
+        "got": 0.0,
+        "ok": true,
+        "want": 0.0
+      },
+      {
+        "check": "量化 6e-7→1e-6",
+        "got": 1e-06,
+        "ok": true,
+        "want": 1e-06
+      },
+      {
+        "check": "量化 0.0004 保留",
+        "got": 0.0004,
+        "ok": true,
+        "want": 0.0004
+      },
+      {
+        "check": "max 取真最大",
+        "got": 0.015544,
+        "ok": true,
+        "want": 0.015544
+      }
+    ]
+  },
+  "spec": "m04_a0_table/1",
+  "what": "自定义臂对的逐帧分布（C/D 组用；由 *_meta.json 只读重算，不开 Blender）",
+  "why": "旧 compare 只存 max，中位数只在 stdout；本表把分布与读数前提一起落盘"
+}
