@@ -17,13 +17,15 @@
 一个纯函数 + 一个可跑的探针，**不写实验脚本**（实验由 1号/2号 自己接）：
 
 ```python
-apply_collision_masks(scene, *, collection_index_of=None) -> dict
+apply_collision_masks(scene) -> dict
 # 逐刚体把 mmd_rigid 的组号与掩码翻成 Blender 的 collision_collections 位，
 # 并按互不碰撞语义补 DISABLE_COLLISIONS 约束。
-# 返回统计：bodies, groups_seen, mask_histogram, collections_set, constraints_added, skipped[]
+# 返回统计：bodies, groups_seen, mask_histogram, collection_patterns, separated,
+#           separated_symmetric, separated_asymmetric_unexpressible,
+#           constraints_added, skipped[], read_failures, blender_semantics
 ```
 
-`skipped[]` 必须逐条列出（刚体名 + 原因），**不许静默跳过**（`D-086`）。
+`skipped[]` 必须逐条列出（刚体名 + 原因），**不许静默跳过**（`D-086`）。`read_failures` 必须单独计数（`D-101`：读不到 ≠ 不存在）。`blender_semantics` 是本文件 §2 那次实测的结论（`intersection` / `oneway` / `membership`），**必须由实测填，不许写"未测"就交货**。
 
 ## 2. 语义映射（这是本文档的核心，实现前必须先认同）
 
