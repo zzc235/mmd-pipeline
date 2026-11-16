@@ -327,5 +327,49 @@ class TestExceptionRows(unittest.TestCase):
         self.assertEqual(mask_mod.exception_rows([a], []), [])
 
 
+class TestTwoZeroQuantities(unittest.TestCase):
+    """判「通道接上了」看**两个归零量**，不看约束总数（D0 `D-20261116-142`）。
+
+    `released` 降、`added` 升，总数不变恰恰可能是"又放又补"。所以要有两个各自能归零、
+    且能把"没测到"与"测到 0"分开的读数。
+    """
+
+    def test_wrong_block_counts_in_blocked_and_should_collide(self):
+        # A×B 该碰（同组共享 own 位），却被一条 DISABLE_COLLISIONS 挡住 ⇒ 挡错 1 对
+        a = Obj("A", 0, bits_for([0]))
+        b = Obj("B", 0, bits_for([0]))
+        report = mask_mod.mask_report([a, b], [a, b, NCC(a, b)])
+        self.assertEqual(report["blocked_and_should_collide"], 1)
+
+    def test_false_positive_pair_is_counted_then_cleared_by_constraint(self):
+        # X 允许组 3、Y 只允许组 3 ⇒ PMX 说不碰，但位在 bit3 上重叠（假碰）
+        x = Obj("X", 0, bits_for([0, 3]))
+        y = Obj("Y", 3, bits_for([3]))
+        before = mask_mod.mask_report([x, y], [x, y])
+        self.assertEqual(before["nocollide_pairs_still_colliding"], 1)
+        # 这一对里没有任何「该碰」的对 ⇒ 那一栏是 None（无从谈起），不是 0
+        self.assertIsNone(before["blocked_and_should_collide"])
+        after = mask_mod.mask_report([x, y], [x, y, NCC(x, y)])
+        self.assertEqual(after["nocollide_pairs_still_colliding"], 0)
+
+    def test_absent_kind_is_none_not_zero(self):
+        """"没有这类对"（None）与"有、但一条不剩"（0）不许同形。"""
+        a = Obj("A", 0, bits_for([0]))
+        report = mask_mod.mask_report([a], [a])
+        self.assertIsNone(report["blocked_and_should_collide"])
+        self.assertIsNone(report["nocollide_pairs_still_colliding"])
+
+    def test_both_zero_on_a_clean_wired_scene(self):
+        # X×Z 该碰（同组、双向允许）、X×Y 是假碰（用约束分开）、Y×Z 位本来就分开
+        x = Obj("X", 0, bits_for([0, 3]))
+        y = Obj("Y", 3, bits_for([3]))
+        z = Obj("Z", 0, bits_for([0]))
+        report = mask_mod.mask_report([x, y, z], [x, y, z, NCC(x, y)])
+        self.assertGreater(report["rigids"], 0)
+        self.assertEqual(report["blocked_and_should_collide"], 0)
+        self.assertEqual(report["nocollide_pairs_still_colliding"], 0)
+        self.assertEqual(report["unexpressible_pairs"], 0)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

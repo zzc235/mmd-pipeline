@@ -16,6 +16,7 @@
 import argparse
 import json
 import sys
+import time
 
 HERE = r"E:\code\mmdpipe-ai\A4"
 if HERE not in sys.path:
@@ -39,6 +40,26 @@ def enable_mmd_tools():
         except Exception:
             continue
     return None
+
+
+def provenance():
+    """用的是**哪棵树**的代码：打印实际加载的路径与 sha256。
+
+    任何 `sys.path.insert(0, <worktree>)` 都会静默压掉别的树（1号 15:16 抓到过一次：
+    重建脚本插了 A1 的路径，于是读出来的 `FAIL/patterns=1` 不是"通道没接上"，是
+    "通道那段代码根本不存在"）。日志里没有这一行，就分不清"验的是谁的代码"。
+    """
+    import hashlib
+    import os
+    out = {"blender": bpy.app.version_string}
+    for name in ("mmdpipe.stage", "mmdpipe.mask", "mmdpipe.pmx"):
+        path = getattr(sys.modules.get(name), "__file__", None)
+        digest = None
+        if path and os.path.exists(path):
+            with open(path, "rb") as fh:
+                digest = hashlib.sha256(fh.read()).hexdigest()
+        out[name] = {"file": path, "sha256": digest}
+    return out
 
 
 def build_scene(rigids, limit):
@@ -78,9 +99,11 @@ def main():
     ap.add_argument("--pmx", required=True)
     ap.add_argument("--bodies", type=int, default=60)
     ap.add_argument("--max-constraints", type=int, default=None)
+    ap.add_argument("--factory", choices=("auto", "template_copy", "ops"), default="auto",
+                    help="建约束走哪条路（auto = 有模板就复制，没有才逐条 ops）")
     args = ap.parse_args(argv)
 
-    out = {"addon": enable_mmd_tools(), "blender": bpy.app.version_string}
+    out = {"addon": enable_mmd_tools(), "provenance": provenance()}
     model = pmx_mod.load(args.pmx)
     bodies = build_scene(model.rigids, args.bodies)
     out["bodies"] = len(bodies)
@@ -115,18 +138,39 @@ def main():
     out["seeded_wrong_constraint"] = bool(wrong_pair)
     out["seeded_pair"] = [o.name for o in wrong_pair] if wrong_pair else None
 
+    # 复制路径要一个模板：种一条不指向任何一对的空 ncc（种的那条挡错的随后会被"放掉"，
+    # 放掉后 `disable_collisions=False` 就不该再当模板，所以要单独种一条）。
+    if args.factory == "template_copy":
+        tpl = bpy.data.objects.new("ncc_template", None)
+        bpy.context.scene.collection.objects.link(tpl)
+        tpl.mmd_type = mask_mod.NCC_MMD_TYPE
+        bpy.context.view_layer.objects.active = tpl
+        tpl.select_set(True)
+        bpy.ops.rigidbody.constraint_add(type="GENERIC")
+        tpl.rigid_body_constraint.disable_collisions = True
+        tpl.select_set(False)
+        out["template_seeded"] = True
+
     before = snapshot(bodies)
     kwargs = {}
     if args.max_constraints is not None:
         kwargs["max_constraints"] = args.max_constraints
+    if args.factory != "auto":
+        kwargs["constraint_creation"] = args.factory
+    t0 = time.perf_counter()
     first = stage.apply_collision_masks(**kwargs)
+    out["apply_seconds"] = round(time.perf_counter() - t0, 3)
     out["apply_first"] = {k: v for k, v in first.items()
                           if k in ("bodies", "collections_set", "collections_patterns",
                                    "readback_mismatch", "constraints_released",
-                                   "constraints_added", "objects_modified",
+                                   "constraints_added", "constraints_needed",
+                                   "constraints_already_blocked", "constraints_to_add",
+                                   "constraints_identity", "constraint_creation",
+                                   "constraints_capped", "guardrail_hit",
+                                   "objects_modified",
                                    "objects_touched_outside_mmd_rigid",
                                    "unexpressible", "asymmetric_pairs", "verdict",
-                                   "constraints_capped", "pmx_collide", "pmx_nocollide",
+                                   "verdict_reasons", "pmx_collide", "pmx_nocollide",
                                    "separated_by_bits", "blocked_before")}
     out["skipped_count"] = len(first.get("skipped") or [])
     out["skipped_examples"] = (first.get("skipped") or [])[:3]
@@ -171,4 +215,12 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    # Blender 会把脚本异常吞成 exit 0（1号 的 `D-135`）：这里自己接住并给非零退出码，
+    # 否则"脚本炸了"和"验完了"在日志里长得一样。
+    try:
+        main()
+    except BaseException:
+        import traceback
+        traceback.print_exc()
+        sys.stdout.flush()
+        sys.exit(3)
