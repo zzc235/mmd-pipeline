@@ -82,32 +82,48 @@ def build_commands(batch_id, in_blend, blender, allow_overwrite=False):
 
 
 def read_health(path):
-    """读交付件体检 JSON，回答「这份输入上有动作吗」。
+    """读交付件体检 JSON，判断这份场景**能不能当本步骤的输入**。
 
-    体检本身用 `2号` 的 `m04_delivery_health.py`（一次 Blender 会话 ~20 秒，给
-    actions / NLA / frame_end / 刚体数 / ROI / is_baked / 掩码三元组），本函数**只读它的输出**，
-    不重造一份体检。上一轮就是在最后一步才发现 `actions == []`，白占一个窗口。
+    一条我自己的教训（2026-11-16 18:51，写进代码前差点酿成误伤）：本步骤的输入**通常
+    `actions == []`** —— 那正是我要干的事（把动作装上去）。所以**不能拿「有没有动作」
+    当输入闸门**，那会把「我该修的件」判成「不许跑」。输入的闸门只有两条：
 
-    **看不清就当红**：字段名字找不到时不放行 —— 那说明体检输出换了形状，先把形状对齐再跑臂。
+    1. **有刚体世界**（物理先建好，见 `2号` 的准入 ②）；
+    2. 输入若已带动作 ⇒ **只警告不拦**：本步骤是「先清再装」，幂等性已在 `C_W1_rerun` 上验过。
+
+    真正该断言「有动作」的是**产物**，那由臂记录里的 `A1/A3/A6` 判据负责（见 `check_arm_record`）。
     """
     # `utf-8-sig`：别人家的工具在 Windows 上落 JSON 很可能带 BOM（PowerShell 的
     # `Set-Content -Encoding utf8` 就带），裸 `utf-8` 会直接 `Unexpected UTF-8 BOM` 崩掉。
     with open(path, encoding="utf-8-sig") as fh:
         doc = json.load(fh)
-    keys = ("actions", "action_names", "actions_all", "nla_tracks", "frame_end", "is_baked")
-    found = {k: doc[k] for k in keys if k in doc}
     actions = None
     for k in ("actions", "action_names", "actions_all"):
         if isinstance(doc.get(k), list):
             actions = doc[k]
             break
-    if actions is None:
-        return {"ok": False, "why": "体检 JSON 里找不到 actions 列表（现有键：%s）" % sorted(doc)[:12],
-                "fields": found}
-    if not actions:
-        return {"ok": False, "why": "输入场景 actions == []：不在这份上空跑（读数会是水平线）",
-                "fields": found}
-    return {"ok": True, "why": "%d 条动作" % len(actions), "fields": found}
+    has_physics = doc.get("has_physics", doc.get("rigidbody_world"))
+    warnings = []
+    if actions:
+        warnings.append("输入已带 %d 条动作：本步会先清再装（幂等），不是问题" % len(actions))
+    if has_physics is False:
+        return {"ok": False, "why": "输入没有刚体世界：物理还没建，本步骤不该在这份上跑",
+                "actions": actions, "warnings": warnings}
+    return {"ok": True,
+            "why": "有刚体世界" if has_physics else "体检未报 has_physics（不拦，但要核）",
+            "actions": actions, "warnings": warnings}
+
+
+def check_arm_record(path, expect_verdict):
+    """产物侧判据：**这里**才要求有动作。没有记录 / 判词不符 / 红项 ⇒ 记一笔。"""
+    if not os.path.exists(path):
+        return {"ok": False, "why": "没有臂记录（进程可能没跑完）"}
+    with open(path, encoding="utf-8-sig") as fh:
+        rec = json.load(fh)
+    reds = [c["id"] for c in (rec.get("checks") or []) if not c["ok"]]
+    verdict = rec.get("verdict")
+    ok = verdict == expect_verdict and (not reds if expect_verdict == "READY" else True)
+    return {"ok": ok, "verdict": verdict, "expect": expect_verdict, "red_checks": reds}
 
 
 def main(argv=None):
@@ -149,6 +165,8 @@ def main(argv=None):
                "ok": proc.returncode == c["expect_rc"],
                "seconds": round(time.time() - t0, 1),
                "record": c["record"],
+               "artefact_check": check_arm_record(
+                   c["record"], "BLOCKED" if c["arm"].startswith("CTRL_") else "READY"),
                "stdout_tail": out.strip().splitlines()[-2:],
                "stderr_tail": err.strip().splitlines()[-2:]}
         results.append(rec)
@@ -162,7 +180,7 @@ def main(argv=None):
     with open(path, "w", encoding="utf-8", newline="\n") as fh:
         json.dump(report, fh, ensure_ascii=False, indent=1, sort_keys=True)
         fh.write("\n")
-    bad = [r["arm"] for r in results if not r["ok"]]
+    bad = [r["arm"] for r in results if not r["ok"] or not r["artefact_check"]["ok"]]
     print("\n批次报告：%s" % path)
     print("不符期望的臂：%s" % (bad or "无"))
     return 0 if not bad else 1
