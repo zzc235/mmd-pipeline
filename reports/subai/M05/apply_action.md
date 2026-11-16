@@ -352,3 +352,45 @@ Blender 刚体解算的步长 `dt = 1/fps` ⇒ 改 fps 就是改物理。而 M04
    但「槽位选对 bag」这条目前只有哑对象证据。
 
 引用口径随之定死：`fcurves_via` / `how`（形状读数）可以引；**拼接结果对不对不许引**。
+
+## 十四、324 批次补冻结 manifest（`总控` 19:50 要的那次枚举）
+
+`总控` 用 `coordination.artifact_audit` 盘四棵树时，这一批报的是「**量不了**」：14 个文件里
+5 份 `.blend` 是 `0o444`、9 个 `.json` 是可写记录，**整批没有 manifest** ⇒「盘上每个在账上、
+账上每个在盘上」这一层没有账可对。按要求补一次枚举，**没有重跑批次、没有动任何字节**。
+
+- 生成器：`out/subai/M05/make_arms_manifest.py`（拒绝覆盖已有 manifest）
+- 账本：`out/subai/M05/arms/20261116_324/manifest.json`（14 项，sha 与 bytes 全部**今天重算**）
+- 条目写**裸文件名**：manifest 与产物同目录，`artifact_audit` 的双向枚举才成立
+  （它只在「条目都落在 manifest 自己这一层」时才查 `only_on_disk`）。
+- `0o444` 只覆盖 5 份 `.blend`（臂件是物证，`D-189`）；9 份 `.json` 是跑批与回读记录，
+  写一次但不冻结 —— 账本**如实记** `readonly=false`，不为好看去 chmod。
+
+### 读数（`artifact_audit` 自己给的，不是我自己说的）
+
+```
+state = OK      listed = 14    listed_ok = 14    two_way_checked = true
+only_on_disk = []   entries_outside_manifest_dir = []   drift = []   warnings = []
+manifest_sha256 = 66d4a5d7f3b91731…   manifest_bytes = 4301
+readonly 分布 = 5 / 14
+```
+
+### 红绿负控（`D-204/205`：校验类代码必须喂应当被拒的输入）
+
+`out/subai/M05/ctrl_arms_manifest_negative.py`，全部在**副本**上做，真批次一个字节不碰：
+
+| 构造 | 期望 | 实测 |
+|---|---|---|
+| 真批次原样 | 绿 | `exit 0` `AUDIT ok=True drift=0` |
+| 副本里多一个未登记文件 | `only_on_disk` | `exit 3` `drift=1` |
+| 副本里把一个 `.blend` 改一个字节 | `sha_drift` | `exit 3` `drift=1` |
+| 把那个字节还原 | 回绿 | `exit 0` `AUDIT ok=True drift=0` |
+
+「还原后回绿」这一步是必需的：否则红的来源说不清是那次改动还是副本本身。
+
+### 没做到的（写在明处）
+
+- 这份账本**没有把 9 份 `.json` 冻结**：它们是可写记录，冻结会让后续批次重写时失败。
+  所以这一批的「冻结」只覆盖臂件那一层，账本里 `readonly` 一列如实分列 5 true / 9 false。
+- 账本没有进 git（`out/` 是产物树，与 M08 的 `frozen/frozen_manifest.json` 同性质）；
+  进 git 的是审计结果 `reports/subai/M05/arms_audit_324.json`。
