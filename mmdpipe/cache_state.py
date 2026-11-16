@@ -86,6 +86,23 @@ def classify(*, has_physics: bool, is_baked: bool | None, is_outdated: bool | No
     return OK_BAKED_CONSISTENT if not is_outdated else DEFECT_BAKED_OUTDATED
 
 
+def plan(record: dict) -> dict:
+    """判据 → 修法。只给动作名，不执行（执行需要 bpy，见 `rebake_fix.md`）。
+
+    - `OK_*`       → `{"action": "none"}`
+    - `DEFECT_*`   → `{"action": "unbake"}`：产物保存前把 point cache 清空（`ptcache.free_bake_all()`），
+      于是默认路径（打开 + `frame_set`）首次就是重算，回放与重算不再分叉。
+    - `UNREADABLE` → `{"action": "inspect"}`：先能读到缓存状态再谈修法。
+    """
+    judged = evaluate(record)
+    action = {"OK_UNBAKED": "none", "OK_BAKED_CONSISTENT": "none", "OK_NO_PHYSICS": "none",
+              DEFECT_BAKED_OUTDATED: "unbake", UNREADABLE_VERDICT: "inspect"}[judged["verdict"]]
+    return {**judged, "action": action,
+            "note": ("重烘焙（is_baked=true && is_outdated=false）需要 `bpy.ops.ptcache.bake_all()`，"
+                     "而 10 §6 因 312 刚体段错误禁用它；因此可行修法是 unbake，"
+                     "并在 handoff 写明首次 frame_set 会重算") if action == "unbake" else ""}
+
+
 def exit_code(verdict: str) -> int:
     if verdict not in _EXIT:
         raise CacheStateError("未知判定词：%r" % (verdict,))

@@ -85,6 +85,26 @@ class TestEvaluate(unittest.TestCase):
         self.assertEqual((code, report), (0, {}))
 
 
+class TestPlan(unittest.TestCase):
+    """判据 → 修法动作：只回动作名，不执行。"""
+
+    def test_defect_plans_unbake(self):
+        out = cache_state.plan({"exists": True, "has_physics": True,
+                                "is_baked": True, "is_outdated": True})
+        self.assertEqual(out["action"], "unbake")
+        self.assertIn("bake_all", out["note"])
+
+    def test_ok_plans_none(self):
+        for rec in ({"exists": True, "has_physics": True, "is_baked": False},
+                    {"exists": True, "has_physics": True, "is_baked": True,
+                     "is_outdated": False},
+                    {"exists": True, "has_physics": False}):
+            self.assertEqual(cache_state.plan(rec)["action"], "none")
+
+    def test_unreadable_plans_inspect(self):
+        self.assertEqual(cache_state.plan({"exists": False})["action"], "inspect")
+
+
 class TestCli(unittest.TestCase):
     def test_cli_exit_code_follows_worst(self):
         records = {"x.blend": {"exists": True, "has_physics": True,
