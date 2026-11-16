@@ -1,28 +1,31 @@
 # -*- coding: utf-8 -*-
-"""带锁跑一次长作业（`m04_run_cd.py` 就是它的第一个使用者）。
+"""C/D 三臂的**启动器**：把 `m04_run_cd.py` 包进 `coordination.lock guard` 里跑。
 
-为什么要在驱动外层再包一层：`m04_run_cd.py` 一次跑几十分钟，而**没有心跳的长作业会被
-判成过期锁、下一个人回收它**（`D-188` 那套三步闸的反面）。所以这层只做三件事：
+## 为什么它这么薄（2026-11-16 19:06 改）
 
-1. `acquire`：取不到就**不跑**（exit 3），不排队、不抢；
-2. 心跳线程：每 `--touch-every` 秒 `touch` 一次，读数进日志（过期阈值默认 10 分钟，5 分钟一次留两倍余量）；
-3. `release`：**无论子进程怎么结束都放**（`finally`），包括 Ctrl-C 与崩溃 —— 留着一把「我崩了但锁还在」的锁，
-   比没拿到锁更糟。
+我原来在这层自己实现「取锁 → 心跳 → 必放锁」。`D-213` 之后 `coordination.lock guard` 已经
+把这三件事做成命令行的形状（**取不到锁，命令根本不执行**；跑期间自动刷心跳；跑完必放锁；
+锁中途丢了判 `EXIT_LOCK_LOST=5`）。两处实现同一件事就是两份规则，所以这里的锁逻辑**全删了**，
+只留下面两件它不提供的东西：
 
-跑法（`--` 之后原样传给驱动）：
+1. **owner 可以不写竖线**：`模块负责2|A2` 在某些启动路径（后台作业启动器）里竖线会被当管道吞掉，
+   owner 变成「模块负责2A2」⇒ 锁报「用法错」而真因是参数被改了。这里允许
+   `--owner-module 模块负责2 --owner-tree A2`，竖线在 Python 里拼，**不经命令行**；
+2. 默认值（驱动脚本路径、`out/` 所在的主工作树）。
+
+跑法：
 
     python reports/subai/M04/scripts/m04_run_cd_locked.py \
-        --owner '模块负责2|A2' --note 'M04 C/D 第二轮三臂' -- \
-        --arms-dir <...> --input <...> --out-dir <...> --batch-id round2_324 --freeze
+        --owner-module 模块负责2 --owner-tree A2 \
+        --note 'M04 C/D 第二轮三臂' --wait 1800 --heartbeat-every 240 -- \
+        --arms-dir <...> --input <...> --out-dir <...> --batch-id round2_324b --freeze
 
-`--driver` 只为自检用（换成别的脚本即可验「取锁→心跳→释放」这一圈），默认就是 `m04_run_cd.py`。
+`--driver` 只为自检用（换别的脚本即可验「取不到锁就不跑」这一圈）。
 """
 import argparse
 import os
 import subprocess
 import sys
-import threading
-import time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 DRIVER = os.path.join(HERE, "m04_run_cd.py")
@@ -36,37 +39,44 @@ except (AttributeError, ValueError):  # pragma: no cover
     pass
 
 
-def lock_cmd(kind, owner, cwd, extra=()):
-    cmd = [sys.executable, "-m", "coordination.lock", kind, "--owner", owner] + list(extra)
-    return subprocess.run(cmd, cwd=cwd, capture_output=True, text=True, encoding="utf-8")
+def resolve_owner(owner, owner_module, owner_tree):
+    """`a|b` 或两段写；都不成立就返回空串（由调用方以用法错停下）。"""
+    if owner:
+        return owner if "|" in owner else ""
+    if owner_module and owner_tree:
+        return owner_module + "|" + owner_tree
+    return ""
+
+
+def build_guard_cmd(owner, note, lock_cwd, driver, driver_args,
+                    wait_s=0, heartbeat_every=240):
+    """拼出 `python -m coordination.lock guard ... -- <driver> ...`（纯函数，可离屏测）。"""
+    cmd = [sys.executable, "-m", "coordination.lock", "guard",
+           "--owner", owner, "--note", note,
+           "--wait", str(wait_s), "--heartbeat-every", str(heartbeat_every),
+           "--", sys.executable, driver]
+    cmd.extend(driver_args)
+    return cmd
 
 
 def main(argv=None):
-    ap = argparse.ArgumentParser(description="取锁 → 跑驱动 → 心跳 → 释放")
-    ap.add_argument("--owner", default="", help="`模块|工作树`，如 '模块负责2|A2'")
-    ap.add_argument("--owner-module", default="",
-                    help="改用两段写：模块名。命令行里不必出现竖线（免被 shell 吞掉）")
-    ap.add_argument("--owner-tree", default="", help="改用两段写：工作树名，如 A2")
-    ap.add_argument("--note", required=True, help="一句话说明这次要跑什么")
+    ap = argparse.ArgumentParser(description="把驱动包进 coordination.lock guard")
+    ap.add_argument("--owner", default="", help="`模块|工作树`（命令行里有竖线时用下面两段写）")
+    ap.add_argument("--owner-module", default="", help="模块名，如 模块负责2")
+    ap.add_argument("--owner-tree", default="", help="工作树名，如 A2")
+    ap.add_argument("--note", required=True)
     ap.add_argument("--lock-cwd", default=LOCK_CWD)
-    ap.add_argument("--touch-every", type=int, default=300)
-    ap.add_argument("--acquire-wait", type=int, default=0,
-                    help="等锁秒数（0 = 不等，直接 exit 3；排队时用大一点，抢到才开始）")
+    ap.add_argument("--wait", type=float, default=0.0, help="等锁秒数（0＝不等，直接失败）")
+    ap.add_argument("--heartbeat-every", type=float, default=240.0)
     ap.add_argument("--driver", default=DRIVER)
-    ap.add_argument("driver_args", nargs=argparse.REMAINDER,
-                    help="`--` 之后原样传给驱动")
+    ap.add_argument("driver_args", nargs=argparse.REMAINDER, help="`--` 之后原样传给驱动")
     a = ap.parse_args(argv)
 
-    # 竖线在某些 shell/启动器里会被当成管道吞掉，于是 owner 变成「模块工作树」⇒ 锁报「用法错」。
-    # 所以也接受两段写：`--owner-module 模块负责2 --owner-tree A2`，竖线在这里拼，不经过命令行。
-    owner = a.owner
-    if not owner and a.owner_module and a.owner_tree:
-        owner = a.owner_module + "|" + a.owner_tree
-    if not owner or "|" not in owner:
-        print("[用法] 给 --owner '模块|工作树'，或 --owner-module 模块 --owner-tree 树"
-              "（命令行里不必出现竖线）", file=sys.stderr)
+    owner = resolve_owner(a.owner, a.owner_module, a.owner_tree)
+    if not owner:
+        print("[用法] 给 --owner '模块|工作树'，或 --owner-module 模块 --owner-tree 树",
+              file=sys.stderr)
         return 2
-
     args = list(a.driver_args)
     if args and args[0] == "--":
         args = args[1:]
@@ -74,35 +84,10 @@ def main(argv=None):
         print("[用法] `--` 之后要跟驱动参数", file=sys.stderr)
         return 2
 
-    got = lock_cmd("acquire", owner, a.lock_cwd,
-                   ["--note", a.note, "--wait", str(a.acquire_wait)])
-    print("[acquire] rc=%s %s" % (got.returncode, (got.stdout or got.stderr or "").strip()[:200]),
-          flush=True)
-    if got.returncode != 0:
-        return 3
-
-    stop = threading.Event()
-
-    def beater():
-        while not stop.wait(a.touch_every):
-            r = lock_cmd("touch", owner, a.lock_cwd)
-            print("[touch] rc=%s %s" % (r.returncode, (r.stdout or r.stderr or "").strip()[:160]),
-                  flush=True)
-
-    thread = threading.Thread(target=beater, daemon=True)
-    thread.start()
-    t0 = time.time()
-    rc = None
-    try:
-        rc = subprocess.call([sys.executable, a.driver] + args)
-        return rc
-    finally:
-        stop.set()
-        thread.join(timeout=5)
-        rel = lock_cmd("release", owner, a.lock_cwd)
-        print("[release] rc=%s %s  用时 %.1f s"
-              % (rel.returncode, (rel.stdout or rel.stderr or "").strip()[:160],
-                 time.time() - t0), flush=True)
+    cmd = build_guard_cmd(owner, a.note, a.lock_cwd, a.driver, args,
+                          wait_s=a.wait, heartbeat_every=a.heartbeat_every)
+    print("[guard] %s" % " ".join(cmd[3:8]), flush=True)
+    return subprocess.call(cmd, cwd=a.lock_cwd)
 
 
 if __name__ == "__main__":
