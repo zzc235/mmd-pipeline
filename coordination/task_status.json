@@ -8,10 +8,10 @@
   },
   "tasks": {
     "M00": {
-      "status": "PASS",
-      "reason": "调度层齐了：覆盖闸门三点式、证据哈希、锁、分流、task_status.json + coordination/status.py 派生视图（只读，退出码 0/2/3/4，两条应当被拒的输入验过）",
-      "next": "无",
-      "updated": "2026-11-16T13:31+08:00"
+      "status": "PARTIAL",
+      "reason": "调度层主要件已齐（覆盖闸门三点式、证据哈希 evidence/1 + hash_basis 枚举、coordination/lock.py fail-closed、status.py 视图）；但锁的 CLI 输出编码未钉，main 在默认环境下 6 个 error（test_lock），已判 RETURN_FIX",
+      "next": "A4：① lock.py main() 钉 UTF-8 输出 + 最坏环境（子进程 GBK）解码测试 + 护栏第三类判据 —— 阻塞 main 回绿 ② evidence/1 加可选 measurements ③ 再加可选 commit/scope ④ 护栏硬化：scanned/skipped 计数可见、git 不可用要判红而不是静默退回目录遍历、noqa 扫 lineno..end_lineno",
+      "updated": "2026-11-16T13:52+08:00"
     },
     "M01": {
       "status": "PASS",
@@ -21,9 +21,9 @@
     },
     "M02": {
       "status": "PARTIAL",
-      "reason": "S8 = EFFECTIVE（作用域＝碰撞总开关接线，约 2/3 来自管线自补的 11 个静态占位刚体）；S2 定稿；交付修复定为 B（烘焙），实测冷跳逐位等于顺序重算、bake_all 今天不复现段错误",
-      "next": "A1 走 attempt 7（判据四态 + 重建 artifacts + P11/P12/P13）；随后重建交付场景供 M04/M08 用",
-      "updated": "2026-11-16T13:31+08:00"
+      "reason": "判据七态（旗标只筛选、结论靠行为探针）、P12 负 / P13 正、重建三数、P9 拒绝路径、掩码结构性未接线都已实测；交付契约定为 B（烘焙），冷跳逐位等于顺序重算",
+      "next": "A1：attempt 7/8 记录已作废，等内容能进 measurements 后合并成一笔重出（预演 ba3f4364… 仅供参考）；S8 第三层挂掩码通道之后；重建交付场景待产线侧",
+      "updated": "2026-11-16T13:52+08:00"
     },
     "M03": {
       "status": "PASS",
@@ -33,9 +33,9 @@
     },
     "M04": {
       "status": "PARTIAL",
-      "reason": "门禁框架与口径字段已入基线（physics_gate/1；basis 必填；frames_measured 语义修复；胶囊口径改为相对基线，绝对口径在同一数据上误判 FAIL）",
-      "next": "等新交付物出来后用相对基线重取穿透数字；网格口径仍待重做（signed distance / manifold 子集）",
-      "updated": "2026-11-16T13:28+08:00"
+      "reason": "顺序求值改计划制（回退/冷跳在计划阶段拒）；胶囊口径改相对基线；网格口径 v2 在解析实体上自检通过（0.9933/0.9867/0.27 mm），真实网格 77.01% 不可计分、可计分区 0.9367/0.9067/−8.2 mm",
+      "next": "A2：等 measurements + commit/scope 落地后重出记录；网格数字必须四样同笔（可计分样本数/不可计分比例/合成实体三项读数/target_has_skirt_polys）；最终穿透数字等可重建的新交付物",
+      "updated": "2026-11-16T13:52+08:00"
     },
     "M05": {
       "status": "PARTIAL",
@@ -57,9 +57,9 @@
     },
     "M08": {
       "status": "NOT_STARTED",
-      "reason": "验收口径已起草（coordination/m08_acceptance.md），但硬前提未满足：交付场景用当前代码重建不出来（今天重建 312 刚体、无 $name_j，交付物 324 刚体、含 11 个模板命名的静态占位体）",
-      "next": "先用当前代码产出一版新的交付场景并通过 cache_gate，再以它为验收对象",
-      "updated": "2026-11-16T13:25+08:00"
+      "reason": "验收口径已起草（coordination/m08_acceptance.md），硬前提未满足：交付场景用当前代码重建不出来（今天重建 312 刚体、无 $name_j；交付物 324 刚体含 11 个模板命名的静态占位体）；另有新发现的 known_limitation：mmd_rigid 掩码没有进解算器的通道，物理跑在「谁跟谁都碰」上",
+      "next": "先用当前代码产出一版交付场景并通过 cache_gate（且掩码通道已接、否则物理数字要在新解算上重取），再以它为验收对象",
+      "updated": "2026-11-16T13:52+08:00"
     }
   }
 }
