@@ -80,9 +80,9 @@
   "447 帧原片版（027179ac…），非预注册素材，不进 D 的判词"
  ],
  "out_blend": {
-  "bytes": 8597621,
+  "bytes": 8597651,
   "path": "E:\\code\\mmdpipe-ai\\A3\\out\\subai\\M05\\arms\\D_ctrl_447.blend",
-  "sha256": "80a952a3d2bff71a6b269e2942da73780bb565b1382351e39b99086c52c16a35"
+  "sha256": "fa39c9b0c1f030a306a0b619167eaba7302281a302f8cec1b5b672c64eb15a41"
  },
  "plan": {
   "applied_first": 1,
@@ -100,6 +100,28 @@
  "profile": {
   "ensure_addons": {
    "mmd_tools": true
+  },
+  "lock_before_save": {
+   "heartbeat_age": 0.09015035629272461,
+   "held": true,
+   "ident": "模块负责3|A3",
+   "raw": "模块负责3|A3|PID=27456|2026-11-16T18:29:43+08:00|M05 干净窗口独占重跑四臂（带锁三步证据）+ 两条反控（D-188 补证）"
+  },
+  "lock_end": {
+   "heartbeat_age": 0.6515891551971436,
+   "held": true,
+   "ident": "模块负责3|A3",
+   "raw": "模块负责3|A3|PID=27456|2026-11-16T18:29:43+08:00|M05 干净窗口独占重跑四臂（带锁三步证据）+ 两条反控（D-188 补证）"
+  },
+  "lock_start": {
+   "heartbeat_age": 2.9484758377075195,
+   "held": true,
+   "ident": "模块负责3|A3",
+   "raw": "模块负责3|A3|PID=27456|2026-11-16T18:29:43+08:00|M05 干净窗口独占重跑四臂（带锁三步证据）+ 两条反控（D-188 补证）"
+  },
+  "lock_tail": {
+   "detail": "锁身份一致：'模块负责3|A3'（开局心跳 2.9484758377075195s / 收尾心跳 0.6515891551971436s）",
+   "ok": true
   },
   "preset_fps": 24,
   "update_scene_settings_forced_off": true

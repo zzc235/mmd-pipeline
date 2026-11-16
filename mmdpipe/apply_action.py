@@ -47,6 +47,24 @@ class PlanError(ValueError):
     """窗口参数自相矛盾 —— 此时一个字节都不该写进场景。"""
 
 
+def lock_tail_verdict(start, end):
+    """开局与收尾两处锁身份的对照（`D-188` 尾部闸，纯函数，离屏可测）。
+
+    开头 assert 只证明「**开始时**锁是你的」，不证明「结束时还是」：心跳过 10 分钟可能被别人
+    `reclaim`，也可能你先放了、别人 `acquire` 到你下一阶段 —— 那时的景象最坏：两边都觉得自己
+    在锁里，各写各的产物，事后查不出来谁越界。所以两处 ident 必须相同，不同即该臂作废。
+    """
+    sid = (start or {}).get("ident")
+    eid = (end or {}).get("ident")
+    if not sid or not eid:
+        return False, "锁身份缺失（start=%r end=%r），无法证明收尾时仍持锁 ⇒ 该臂作废" % (sid, eid)
+    if sid != eid:
+        return False, ("锁在中途易主：开局 %r → 收尾 %r ⇒ 该臂作废（读数不得使用）"
+                       % (sid, eid))
+    return True, "锁身份一致：%r（开局心跳 %ss / 收尾心跳 %ss）" % (
+        sid, (start or {}).get("heartbeat_age"), (end or {}).get("heartbeat_age"))
+
+
 def assert_lock_owner(owner, *, lock_dir=None, checker=None):
     """**跑 Blender 之前的第一句**：这把锁现在必须是自己的，否则立刻失败（`D-188`）。
 
@@ -304,6 +322,9 @@ def apply_action(preset, root, arm, vmd_path, *, frame_start=1, trim_end=None,
                  keep_scene_settings=True, verbose=True):
     """在一个已建好物理的场景里应用一条动作，回读读数并下判。
 
+    **本函数不校验锁**：`owner` 校验在 CLI 入口（`--owner` + `assert_lock_owner`），
+    库函数可能被离屏调用，强制它只会逼所有人编一个假身份。调用方须先 assert-owner。
+
     复用 `stage.stage_motion`（不复制第二份导入实现）。返回 `(record, ok)`。
     """
     import bpy
@@ -485,13 +506,14 @@ def main(argv=None):
     args = ap.parse_args(argv)
 
     # 第一句：这把锁不是我的就一个字节都不动（D-188）。放在 import bpy 之前。
-    lock_info = assert_lock_owner(args.owner)
+    lock_start = assert_lock_owner(args.owner)
 
     import bpy
     try:                       # 作为包的一部分
         from . import preset as preset_mod
     except ImportError:        # 作为独立脚本跑
         from mmdpipe import preset as preset_mod
+    from coordination import lock as lock_mod
 
     preset = preset_mod.load(args.preset)
     arm = _find_arm(args.arm)
@@ -503,7 +525,7 @@ def main(argv=None):
                            keep_scene_settings=not args.allow_scene_settings)
     rec["arm_role"] = args.arm_role
     rec["notes"] = list(args.note)
-    rec["profile"]["lock"] = lock_info
+    rec["profile"]["lock_start"] = lock_start          # 开局：ident + heartbeat_age 两个值
     src_blend = bpy.data.filepath            # ← 本进程打开的那份场景（不是我要写出的那份）
     if src_blend and os.path.exists(src_blend):
         with open(src_blend, "rb") as fh:
@@ -511,30 +533,58 @@ def main(argv=None):
                                "bytes": os.path.getsize(src_blend),
                                "sha256": hashlib.sha256(fh.read()).hexdigest()}
 
+    def _dump(tag, code):
+        with open(args.json, "w", encoding="utf-8", newline="\n") as fh:
+            # default=str：压不动的值（Vector/IDProperty 之类）落成字符串**留在记录里**，
+            # 不静默丢 —— 看不见就当红，这条与 `mask_wired_checks` 同脾气。
+            json.dump(rec, fh, ensure_ascii=False, indent=1, sort_keys=True, default=str)
+            fh.write("\n")
+        print("%s verdict=%s json=%s" % (tag, rec["verdict"], args.json))
+        sys.stdout.flush()
+        return code
+
     # 判红就**不写交付件**：一个注定不合格的 .blend 留在盘上，下一个人会当成已有交付。
     if not ok:
         rec["out_blend"] = None
-        with open(args.json, "w", encoding="utf-8", newline="\n") as fh:
-            json.dump(rec, fh, ensure_ascii=False, indent=1, sort_keys=True, default=str)
-            fh.write("\n")
-        print("REFUSED verdict=%s（未写交付件）json=%s" % (rec["verdict"], args.json))
-        sys.stdout.flush()
-        return 3
-    
+        return _dump("REFUSED", 3)
+
+    # 落盘**之前**再确认一次锁还是自己的（尾部闸第一步）：中途掉了就不落盘，
+    # 宁可少一份读数，不要一份「来源锁存疑」的读数。
+    lock_mod.touch(args.owner)                          # 长阶段之间刷心跳
+    try:
+        rec["profile"]["lock_before_save"] = lock_mod.assert_owner(args.owner)
+    except Exception as exc:
+        rec["verdict"] = "BLOCKED"
+        rec["out_blend"] = None
+        rec["known_risks"] = ["锁在保存前易主（%s）⇒ 不落盘" % (exc,)]
+        return _dump("REFUSED", 3)
+
     os.makedirs(os.path.dirname(os.path.abspath(args.out_blend)) or ".", exist_ok=True)
     bpy.ops.wm.save_as_mainfile(filepath=os.path.abspath(args.out_blend))
     with open(args.out_blend, "rb") as fh:
         rec["out_blend"] = {"path": os.path.abspath(args.out_blend),
                             "bytes": os.path.getsize(args.out_blend),
                             "sha256": hashlib.sha256(fh.read()).hexdigest()}
-    with open(args.json, "w", encoding="utf-8", newline="\n") as fh:
-        # default=str：压不动的值（Vector/IDProperty 之类）落成字符串**留在记录里**，
-        # 不静默丢 —— 看不见就当红，这条与 `mask_wired_checks` 同脾气。
-        json.dump(rec, fh, ensure_ascii=False, indent=1, sort_keys=True, default=str)
-        fh.write("\n")
-    print("DONE verdict=%s json=%s" % (rec["verdict"], args.json))
-    sys.stdout.flush()
-    return 0 if ok else 3
+
+    # 收尾再确认一次，并比对两处 ident（尾部闸第二步）：不同即该臂作废，产物删掉。
+    try:
+        lock_end = lock_mod.assert_owner(args.owner)
+    except Exception as exc:
+        lock_end = {"ident": None, "error": str(exc)}
+    rec["profile"]["lock_end"] = lock_end
+    tail_ok, tail_msg = lock_tail_verdict(lock_start, lock_end)
+    rec["profile"]["lock_tail"] = {"ok": tail_ok, "detail": tail_msg}
+    if not tail_ok:
+        try:
+            os.remove(os.path.abspath(args.out_blend))
+        except OSError:
+            pass
+        rec["out_blend"] = None
+        rec["verdict"] = "NOT_APPLICABLE"
+        rec.setdefault("known_risks", []).append(tail_msg)
+        return _dump("VOID", 3)
+
+    return _dump("DONE", 0 if ok else 3)
 
 
 if __name__ == "__main__":
