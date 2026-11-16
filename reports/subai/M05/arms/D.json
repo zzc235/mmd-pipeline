@@ -23,7 +23,7 @@
   "freed_bake": false,
   "has_rigidbody_world": true,
   "is_baked": false,
-  "is_outdated": null,
+  "is_outdated": true,
   "point_cache_range": [
    1,
    833
@@ -46,7 +46,7 @@
    "ok": true
   },
   {
-   "detail": "rigidbody_world=True is_baked=False is_outdated=None freed_bake=False",
+   "detail": "rigidbody_world=True is_baked=False is_outdated=True freed_bake=False",
    "id": "A3_is_baked_false",
    "ok": true
   },
@@ -58,6 +58,11 @@
   {
    "detail": "scene.frame_end=833，plan.final_last=833",
    "id": "A5_window_matches_plan",
+   "ok": true
+  },
+  {
+   "detail": "scene.fps_after=24，preset=24",
+   "id": "A6_fps_matches_preset",
    "ok": true
   }
  ],
@@ -75,9 +80,9 @@
   "预注册 D 臂：原神摇 832 帧全长（b872fda7…）；源第 832 帧落在 action 833，测量窗口 1..832 外，尾帧未测"
  ],
  "out_blend": {
-  "bytes": 10037694,
+  "bytes": 10037702,
   "path": "E:\\code\\mmdpipe-ai\\A3\\out\\subai\\M05\\arms\\D.blend",
-  "sha256": "32a41adcaef13bef8bf9c71736e9415b3d894f0fc818e2fe8084f7ad6a7f5da6"
+  "sha256": "be6c0a1c8875ea73677fcabba2cf12a3a9b2fee51258e85e2ebcb686a485998d"
  },
  "plan": {
   "applied_first": 1,
@@ -95,12 +100,14 @@
  "profile": {
   "ensure_addons": {
    "mmd_tools": true
-  }
+  },
+  "preset_fps": 24,
+  "update_scene_settings_forced_off": true
  },
  "scene": {
-  "fps_after": 30,
+  "fps_after": 24,
   "fps_before": 24,
-  "fps_changed": true,
+  "fps_changed": false,
   "name": "Scene"
  },
  "schema": "m05.apply_action/1",

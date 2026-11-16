@@ -23,6 +23,7 @@
 from __future__ import annotations
 
 import argparse
+import copy
 import hashlib
 import json
 import os
@@ -44,6 +45,44 @@ IMPORT_OFFSET = 1
 
 class PlanError(ValueError):
     """窗口参数自相矛盾 —— 此时一个字节都不该写进场景。"""
+
+
+def assert_lock_owner(owner, *, lock_dir=None, checker=None):
+    """**跑 Blender 之前的第一句**：这把锁现在必须是自己的，否则立刻失败（`D-188`）。
+
+    为什么：`coordination.lock acquire` 在锁被占时本来就 exit 3，但**退出码管不住不看的人** ——
+    我 11-16 18:18 拿到 `LOCK_HELD` 没看就起了 7 个 Blender 进程。这条检查把「没持锁跑」
+    变成「进程根本不往下走」，而不是「跑完了才发现」。
+
+    `checker` 可注入（离屏测试用），默认 `coordination.lock.assert_owner`（只读不写）。
+    """
+    if not owner or "|" not in str(owner):
+        raise SystemExit("用法错误：--owner 必须写成 `模块|工作树`（例如 `模块负责3|A3`）")
+    if checker is None:
+        root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        if root not in sys.path:
+            sys.path.insert(0, root)
+        try:
+            from coordination import lock as lock_mod
+        except Exception as exc:              # 校验不了就不许跑（fail-closed）
+            raise SystemExit("LOCK_CHECK_UNAVAILABLE 无法导入 coordination.lock（%s）⇒ 拒绝起 Blender"
+                             % (exc,))
+        checker = lock_mod.assert_owner
+    try:
+        return checker(owner, lock_dir=lock_dir) if lock_dir else checker(owner)
+    except SystemExit:
+        raise
+    except Exception as exc:                  # NotOwner / IncompleteLock / ValueError
+        raise _owner_refusal(exc)
+
+
+def _owner_refusal(exc):
+    # 只用 GBK 能编的字符：Windows 控制台默认 gbk，打印 `⇒` 会自己抛 UnicodeEncodeError，
+    # 那就变成「为了报一个错而先崩一次」。
+    msg = "NOT_OWNER %s -> 拒绝起 Blender（先 acquire，再跑）" % (exc,)
+    print(msg)
+    sys.stdout.flush()
+    return SystemExit(3)
 
 
 # --------------------------------------------------------------- 纯 Python 层
@@ -167,6 +206,16 @@ def check_record(rec):
         "scene.frame_end=%r，plan.final_last=%r"
         % (win.get("frame_end"), pl.get("final_last")))
 
+    # 物理步长 dt = 1/fps ⇒ fps 被导入动作改掉，等于把 `C vs B` 变成跨 dt 比较（D-104）。
+    # 这一条是新加的**红**判据，不是 warn：预设里的 fps 是仓库写死的场景身份。
+    preset_fps = (rec.get("profile") or {}).get("preset_fps")
+    scene_fps = (rec.get("scene") or {}).get("fps_after")
+    add("A6_fps_matches_preset",
+        preset_fps is not None and scene_fps == preset_fps,
+        "scene.fps_after=%r，preset=%r%s"
+        % (scene_fps, preset_fps,
+           "" if preset_fps is None else ("（导入动作改了容器 fps）" if scene_fps != preset_fps else "")))
+
     return {"checks": checks, "verdict": "READY" if all(c["ok"] for c in checks) else "BLOCKED"}
 
 
@@ -251,7 +300,8 @@ def _free_bake(rbw):
 
 
 def apply_action(preset, root, arm, vmd_path, *, frame_start=1, trim_end=None,
-                 hold_until=None, frame_end_hint=None, ensure=True, verbose=True):
+                 hold_until=None, frame_end_hint=None, ensure=True,
+                 keep_scene_settings=True, verbose=True):
     """在一个已建好物理的场景里应用一条动作，回读读数并下判。
 
     复用 `stage.stage_motion`（不复制第二份导入实现）。返回 `(record, ok)`。
@@ -272,6 +322,19 @@ def apply_action(preset, root, arm, vmd_path, *, frame_start=1, trim_end=None,
     scene.frame_current = 1                                  # stage_motion 里也会复位，这里先摆正
     fps_before = scene.render.fps
 
+    # **不让输入改环境**：`import_vmd(update_scene_settings=True)` 会按 VMD 的 30fps 基准
+    # 把场景 fps 改成 30。Blender 刚体步长 dt = 1/fps ⇒ 改 fps 就是改物理，
+    # 而 `C vs B` 的 A/B 组在老场景（24 fps）上 ⇒ 会变成跨 dt 比较（D-104）。
+    # preset 里的 fps 是仓库写死的场景身份，所以这里强制关掉，并让 A6 判它有没有被改。
+    preset = copy.deepcopy(preset)
+    forced = False
+    if keep_scene_settings:
+        motion_cfg = preset.setdefault("motion", {})
+        if motion_cfg.get("update_scene_settings"):
+            motion_cfg["update_scene_settings"] = False
+            forced = True
+    preset_fps = (preset.get("render") or {}).get("fps")
+
     # 插件先就位再导入：`-b <blend> -P 脚本` 是新进程，blend 里存的是数据不是已启用的插件。
     # 不先 ensure，`stage_motion` 只会拿到一句 `import_vmd ... could not be found`（E-14）。
     # `ensure=False` 只给反控用（证明这条闸门真的是它挡住的），正常调用不许关。
@@ -282,7 +345,9 @@ def apply_action(preset, root, arm, vmd_path, *, frame_start=1, trim_end=None,
     issues = [asdict(i) for i in (getattr(st, "issues", None) or [])]
     rec = _new_record(source, pl, arm_name=arm.name,
                       scene={"name": scene.name, "fps_before": fps_before},
-                      extra={"profile": {"ensure_addons": addons},
+                      extra={"profile": {"ensure_addons": addons,
+                                         "preset_fps": preset_fps,
+                                         "update_scene_settings_forced_off": forced},
                              "stage_motion": {"ok": getattr(st, "ok", None),
                                               "metrics": dict(getattr(st, "metrics", {}) or {}),
                                               "issues": issues},
@@ -333,13 +398,15 @@ def apply_action(preset, root, arm, vmd_path, *, frame_start=1, trim_end=None,
     if rbw is not None:
         pc = rbw.point_cache
         cache["is_baked"] = bool(pc.is_baked)
-        cache["is_outdated"] = bool(pc.is_outdated) if pc.is_baked else None
+        # `is_outdated` **无条件读**：上一版只在 is_baked 时才读，于是 D 臂留了个 null，
+        # 让人去猜「是没值还是没读」——沉默的缺就是缺。
+        cache["is_outdated"] = bool(pc.is_outdated)
         if pc.is_baked:                                     # 应用完必须是可 fresh_solve 的
             info = _free_bake(rbw)
             cache["bake_free"] = info
             cache["freed_bake"] = bool(info["ok"])
             cache["is_baked"] = bool(pc.is_baked)
-            cache["is_outdated"] = bool(pc.is_outdated) if pc.is_baked else None
+            cache["is_outdated"] = bool(pc.is_outdated)
         pc.frame_start = 1
         pc.frame_end = max(end_read, start_read)
         cache["point_cache_range"] = [int(pc.frame_start), int(pc.frame_end)]
@@ -409,9 +476,16 @@ def main(argv=None):
                     help="写进记录的附注（例如「尾帧未测」「对照行不进判词」），可重复")
     ap.add_argument("--arm-role", default=None,
                     help="本臂标签（C@W1 / C@W2 / D / 对照），只做记录用")
+    ap.add_argument("--owner", default=None,
+                    help="`模块|工作树`；**不给就不许起**：第一步校验这把锁是不是自己的（D-188）")
     ap.add_argument("--skip-ensure", action="store_true",
                     help="**只给反控用**：跳过插件闸门，用来证明「判红真的是这条闸门挡的」")
+    ap.add_argument("--allow-scene-settings", action="store_true",
+                    help="**只给反控用**：允许 import_vmd 改场景 fps（A6 会因此判红）")
     args = ap.parse_args(argv)
+
+    # 第一句：这把锁不是我的就一个字节都不动（D-188）。放在 import bpy 之前。
+    lock_info = assert_lock_owner(args.owner)
 
     import bpy
     try:                       # 作为包的一部分
@@ -425,9 +499,11 @@ def main(argv=None):
     rec, ok = apply_action(preset, root, arm, args.vmd, frame_start=args.frame_start,
                            trim_end=args.trim_end, hold_until=args.hold_until,
                            frame_end_hint=args.frame_end_hint,
-                           ensure=not args.skip_ensure)
+                           ensure=not args.skip_ensure,
+                           keep_scene_settings=not args.allow_scene_settings)
     rec["arm_role"] = args.arm_role
     rec["notes"] = list(args.note)
+    rec["profile"]["lock"] = lock_info
     src_blend = bpy.data.filepath            # ← 本进程打开的那份场景（不是我要写出的那份）
     if src_blend and os.path.exists(src_blend):
         with open(src_blend, "rb") as fh:

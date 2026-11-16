@@ -94,7 +94,10 @@ class DescribeSourceTest(unittest.TestCase):
 def good_record(**over):
     """一条全绿记录（三臂里真跑出来的形状）。反控都从这个底座上改动一处。"""
     rec = {
-        "profile": {"ensure_addons": {"mmd_tools": True}},
+        "profile": {"ensure_addons": {"mmd_tools": True}, "preset_fps": 24,
+                    "update_scene_settings_forced_off": True},
+        "scene": {"frame_start": 1, "frame_end": 833, "fps_before": 24, "fps_after": 24,
+                  "fps_changed": False},
         "source": {"path": "A.vmd", "sha256": "0" * 64, "frame_range": [0, 832],
                    "bones": 259, "bone_frames": 43962},
         "plan": AA.plan(832),
@@ -166,11 +169,47 @@ class CheckRecordTest(unittest.TestCase):
         rec["window"]["frame_end"] = 833
         self.assertEqual(failed(rec), ("BLOCKED", ["A5_window_matches_plan"]))
 
+    # --- 反控 4：导入动作把容器 fps 改了（物理步长 dt=1/fps 变了）→ 只红 A6
+    def test_reject_fps_changed_by_import_only_A6(self):
+        rec = good_record(scene={"fps_after": 30, "fps_changed": True})
+        self.assertEqual(failed(rec), ("BLOCKED", ["A6_fps_matches_preset"]))
+
+    def test_reject_missing_preset_fps_only_A6(self):
+        rec = good_record(profile={"preset_fps": None})
+        self.assertEqual(failed(rec), ("BLOCKED", ["A6_fps_matches_preset"]))
+
     def test_missing_fields_are_red_not_exception(self):
         verdict, bad = failed({})
         self.assertEqual(verdict, "BLOCKED")
         self.assertIn("A1_action_applied", bad)
         self.assertIn("A3_is_baked_false", bad)
+
+
+class LockOwnerGateTest(unittest.TestCase):
+    """`D-188`：跑 Blender 前第一句必须是 lock-owner 校验 —— 不持锁就不许往下走。"""
+
+    def test_missing_owner_is_usage_error(self):
+        with self.assertRaises(SystemExit):
+            AA.assert_lock_owner(None)
+
+    def test_bad_owner_format_is_usage_error(self):
+        with self.assertRaises(SystemExit):
+            AA.assert_lock_owner("模块负责3")          # 少了 |工作树
+
+    def test_not_owner_raises_exit_3(self):
+        def checker(owner):
+            raise RuntimeError("现在不是你的锁：持有者 '模块负责2|A2'")
+
+        with self.assertRaises(SystemExit) as ctx:
+            AA.assert_lock_owner("模块负责3|A3", checker=checker)
+        self.assertEqual(ctx.exception.code, 3)
+
+    def test_owner_ok_passes_through(self):
+        def checker(owner):
+            return {"held": True, "ident": owner}
+
+        got = AA.assert_lock_owner("模块负责3|A3", checker=checker)
+        self.assertEqual(got["ident"], "模块负责3|A3")
 
 
 class SourceOfTruthTest(unittest.TestCase):
