@@ -252,6 +252,39 @@ class DelegatedStabilityTest(unittest.TestCase):
         self.assertEqual(out["worst_frames_by_side"]["rest"], [347, 353, 646])
 
 
+class RootGuardTest(unittest.TestCase):
+    """先验根、再 import（`3号` 的写法）：根算错必须**喊出来并打印它算的根**，不许静默降级。"""
+
+    def test_real_root_passes(self):
+        root = SEG._ensure_repo_root_on_path()
+        self.assertTrue(os.path.isdir(os.path.join(root, "coordination")))
+
+    def test_bogus_root_exits_and_names_itself(self):
+        """负控：把根指到一个没有 coordination/ 的目录 ⇒ SystemExit，消息里带那个根。
+
+        注意消息用 `%r` ⇒ 反斜杠被转义，所以比的是路径的**末段**，不是原串
+        （这条是负控自己抓出来的：第一版 `assertIn(bogus, …)` 恒假）。
+        """
+        bogus = os.path.join(ROOT, "tests")
+        with self.assertRaises(SystemExit) as ctx:
+            SEG._check_root(bogus)
+        self.assertIn("ROOT 算错了", str(ctx.exception))
+        self.assertIn("tests", str(ctx.exception))
+        self.assertIn("coordination", str(ctx.exception))
+
+    def test_missing_mmdpipe_also_exits(self):
+        """负控：只有 coordination/ 没有 mmdpipe/ 也得拒（两个都要验）。"""
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            os.makedirs(os.path.join(tmp, "coordination"))
+            with self.assertRaises(SystemExit):
+                SEG._check_root(tmp)
+
+    def test_system_exit_is_not_swallowed_by_delegation_fallback(self):
+        """`SystemExit` 不是 `Exception` ⇒ `_delegated_stability` 的兜底兜不住它。"""
+        self.assertFalse(issubclass(SystemExit, Exception))
+
+
 class MainTest(unittest.TestCase):
     def test_cli_prints_rows_and_exits_zero(self):
         code = SEG.main(["--meta", SNAPSHOT, "--hold-from", "302", "--ratio", "0.10"])
