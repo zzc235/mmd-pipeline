@@ -31,6 +31,14 @@ import json
 import os
 import re
 import sys
+import time
+
+# GBK 控制台下 `⇒`/中文混排会让脚本崩在打印上（总控 18:18）：入口统一 UTF-8
+for _stream in (sys.stdout, sys.stderr):
+    try:
+        _stream.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:                                        # noqa: BLE001
+        pass
 
 
 def read(path):
@@ -60,8 +68,10 @@ def constraint_limit_source(tree_dir):
 def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--worktree", required=True)
-    ap.add_argument("--needs", type=int, default=8298,
-                    help="任务书的交付需求条数（旧数；与实测的 planned 一起进报告对账，不许当值用）")
+    ap.add_argument("--needs", type=int, default=None,
+                    help="本次要建的约束条数；默认从 --planned-from 的 constraints_to_add 取，"
+                         "手给必须配 --needs-source")
+    ap.add_argument("--needs-source", default=None, help="手给 --needs 时这数从哪来")
     ap.add_argument("--planned", type=int, default=None,
                     help="plan() 实测需求，必须同时给 --planned-source")
     ap.add_argument("--planned-source", default=None,
@@ -70,8 +80,17 @@ def main(argv=None):
                     help="从一份已有的场景记录里读 constraints_needed（如 m08_round1/stage_mask_*.json），"
                          "比手传数字更硬：数从产物来，不从记忆来")
     ap.add_argument("--out", required=True)
+    ap.add_argument("--extra-provenance", action="append", default=[], metavar="KEY=PATH",
+                    help="额外要记的模块/脚本（如 patch 格式层、v3、抽取脚本）；"
+                         "在树外的路径必须同时用 --external-root 声明，否则 preflight 判红")
+    ap.add_argument("--external-root", action="append", default=[], metavar="DIR",
+                    help="显式声明允许引用的外部根（主树的 preset/PMX/VMD/旧 blend 走这条）；"
+                         "逐项记进 spec 的 external_roots，不塞进 files[]")
+    ap.add_argument("--run-id", default=None,
+                    help="本次运行标识（默认时间戳）；带 run_id 的目标路径自带认领，不覆盖上一次")
     ap.add_argument("--lease", default="true", choices=("true", "false"))
     args = ap.parse_args(argv)
+    run_id = args.run_id or time.strftime("run_%Y%m%d_%H%M%S")
 
     # 需求条数不许来自记忆：要么给一份真产物让它读，要么给数字 + 来源。两者都不给 ⇒ 停。
     if args.planned_from:
@@ -82,9 +101,25 @@ def main(argv=None):
             raise SystemExit("%s 里没有 constraints_needed：不编数，停。" % args.planned_from)
         planned = int(rec["constraints_needed"])
         planned_source = "file:%s#constraints_needed" % os.path.abspath(args.planned_from)
+        # 同一棵树上的「本次要建多少」= constraints_to_add；拿另一棵树的数配这一棵的 cap 就是两树拼数
+        if args.needs is None:
+            if rec.get("constraints_to_add") is None:
+                raise SystemExit("%s 里没有 constraints_to_add：needs 没法同源，停。"
+                                 % args.planned_from)
+            needs = int(rec["constraints_to_add"])
+            needs_source = "file:%s#constraints_to_add" % os.path.abspath(args.planned_from)
+        else:
+            if not args.needs_source:
+                raise SystemExit("手给 --needs 必须同时给 --needs-source。")
+            needs = int(args.needs)
+            needs_source = str(args.needs_source)
     elif args.planned is not None and args.planned_source:
         planned = int(args.planned)
         planned_source = str(args.planned_source)
+        if args.needs is None or not args.needs_source:
+            raise SystemExit("手给 --planned 时，--needs 与 --needs-source 也必须给。")
+        needs = int(args.needs)
+        needs_source = str(args.needs_source)
     else:
         raise SystemExit("必须给 --planned-from，或 --planned 同时给 --planned-source。"
                          "（手抄一个数字、不写来源，就是今天反复出现的「凭记忆构造样例」。停。）")
@@ -110,7 +145,8 @@ def main(argv=None):
             "build_script": os.path.join(wtree, "reports", "subai", "M02", "scripts",
                                          "m02_build_delivery.py"),
         },
-        "needs": int(args.needs),
+        "needs": needs,
+        "needs_source": needs_source,
         "needs_planned": planned,
         "needs_planned_source": planned_source,
         "cap": cap,
@@ -123,13 +159,32 @@ def main(argv=None):
         "skipped": 0,
         "lease": args.lease == "true",
         "expect_owner": "模块负责1|A1",
+        "run_id": run_id,
+        # 目标写进 <root>/<run_id>/：新 run_id 自带认领，不需要 overwrite 裁决；
+        # 上一次的产物留在自己的 run 目录里，不会被静默覆盖。
         "outputs": [
-            os.path.join(wtree, "out", "subai", "M08", "delivery_v1.blend"),
-            os.path.join(wtree, "out", "subai", "M08"),
+            os.path.join(wtree, "out", "subai", "M08", run_id, "delivery_v1.blend"),
+            os.path.join(wtree, "out", "subai", "M08", run_id),
         ],
         "note": ("cap 由 constraint_limit() 的分支与护栏常量现算，不手写；"
                  "needs=任务书需求，needs_planned=plan() 实测，两者都要在报告里对账。"),
     }
+    for item in args.extra_provenance:
+        if "=" not in item:
+            raise SystemExit("--extra-provenance 要写成 KEY=PATH：%r" % item)
+        key, path = item.split("=", 1)
+        if not key or not path:
+            raise SystemExit("--extra-provenance 的键和路径都不能空：%r" % item)
+        spec["provenance"][key] = os.path.abspath(path)
+    if args.external_root:
+        roots = [os.path.abspath(r) for r in args.external_root]
+        for r in roots:
+            if os.path.abspath(r).startswith(wtree + os.sep) or os.path.abspath(r) == wtree:
+                raise SystemExit("--external-root %r 就在本树之内：外部根只用来声明树外的目录。" % r)
+        spec["external_roots"] = roots
+        spec["external_roots_note"] = ("外部根的引用逐项记 path + sha256，不塞进 files[]；"
+                                       "preflight 按 provenance.check(provenance, worktree, "
+                                       "external_roots) 判")
     if guardrail_hit:
         print("护栏咬住了：planned=%d > guardrail=%d ⇒ guardrail_hit=True" % (planned, guard))
         return 2

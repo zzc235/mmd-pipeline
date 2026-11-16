@@ -691,6 +691,50 @@ class TaxonomyTest(unittest.TestCase):
         self.assertEqual(len(report["bad_supersedes"]), 1)
         self.assertIn("更正后的 kind 仍不在闭集里", report["bad_supersedes"][0]["why"])
 
+    # 以下四条是 2号 / 3号 / 4号 在 18:49 各自独立撞出来的边角（H1–H4）。各修各的、
+    # 各自只红一条——不许并成一个大改，否则红了一条不知道是哪条。
+    def _decl(self, row_id, target, decision="REASSIGN", reason_code="RULING"):
+        return {"decision_id": row_id, "task_id": "SPEC",
+                "decision": "RETURN_FIX", "reason_code": "CORRECTION",
+                "supersedes": {target: {"decision": decision, "reason_code": reason_code}}}
+
+    def test_h1_disputed_target_keeps_both_claims_and_is_flagged(self):
+        first = self._decl("D-20261116-902", "D-20261116-901")
+        second = self._decl("D-20261116-903", "D-20261116-901",
+                            decision="RETURN_FIX", reason_code="GATE_FAILED")
+        for rows in ([self.BAD_ROW, first, second], [self.BAD_ROW, second, first]):
+            report = taxonomy_mod.check_history(self._history(rows))  # 换行序读数必须一样
+            self.assertEqual(report["missing_mapping"], [])
+            self.assertEqual(len(report["bad_supersedes"]), 1)
+            self.assertIn("两份声明", report["bad_supersedes"][0]["why"])
+            self.assertEqual(len(report["corrected_out_of_vocabulary"]), 1)
+            item = report["corrected_out_of_vocabulary"][0]
+            self.assertTrue(item["disputed"])
+            self.assertEqual(len(item["also_by"]), 1)
+
+    def test_h2_declaration_must_come_after_its_target(self):
+        fix = self._decl("D-20261116-902", "D-20261116-901")
+        report = taxonomy_mod.check_history(self._history([fix, self.BAD_ROW]))
+        self.assertEqual(report["missing_mapping"], ["D-20261116-901"])
+        self.assertEqual(len(report["bad_supersedes"]), 1)
+        self.assertIn("之前", report["bad_supersedes"][0]["why"])
+
+    def test_h3_correcting_a_compliant_row_goes_to_its_own_bucket(self):
+        good = {"decision_id": "D-20261116-901", "task_id": "M04",
+                "decision": "ACCEPT_MERGE", "reason_code": "EVIDENCE_COMPLETE"}
+        fix = self._decl("D-20261116-902", "D-20261116-901")
+        report = taxonomy_mod.check_history(self._history([good, fix]))
+        self.assertEqual(report["bad_supersedes"], [])
+        self.assertEqual(report["corrected_out_of_vocabulary"], [])
+        self.assertEqual(len(report["corrected_compliant"]), 1)
+        self.assertEqual(report["corrected_compliant"][0]["decision_id"], "D-20261116-901")
+
+    def test_h4_self_supersede_is_flagged(self):
+        report = taxonomy_mod.check_history(
+            self._history([self._decl("D-20261116-901", "D-20261116-901")]))
+        self.assertEqual(len(report["bad_supersedes"]), 1)
+        self.assertIn("自己更正自己", report["bad_supersedes"][0]["why"])
+
 
 # --------------------------------------------------------------- 阶段 D：派工
 class DispatcherP0Test(TempDirTest):
