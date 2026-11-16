@@ -152,9 +152,8 @@ Blender 刚体解算的步长 `dt = 1/fps` ⇒ 改 fps 就是改物理。而 M04
 3. `--freeze` 把写出的臂件设成只读（`0o444`），记录 `out_blend.frozen_mode`；
    收尾判定作废时会先解冻再删除，不留下「作废但仍可写」的文件。
 
-这三条目前只有纯 Python 部分被离屏测过（路径拼装 / 不覆盖 / 冻结后再写入抛 `PermissionError`）；
-**真 Blender 里的端到端冒烟还没跑**——18:33 那一刻 `1号` 拿了锁做 324 补丁窗口，我不抢，
-下一批（324 件 + 烘焙参数落地后）第一次跑就顺带把这条路径走通。
+这三条当时只有纯 Python 部分被离屏测过（路径拼装 / 不覆盖 / 冻结后再写入抛 `PermissionError`）。
+**2026-11-16 18:51–18:52 的 324 批次是第一次在真 Blender 里端到端走通**，读数见 §十一。
 
 **下一批是一条命令**：`reports/subai/M05/scripts/run_arms.py` 把七臂（四臂 + 对照 + 两条反控）
 的臂表、版本化路径、`--freeze`、以及「不是自己持锁就一个进程都不许起」全写死在里面；
@@ -162,9 +161,10 @@ Blender 刚体解算的步长 `dt = 1/fps` ⇒ 改 fps 就是改物理。而 M04
 脚本**不 acquire、不 release**：锁的取得与放回保持显式，留给人。
 反控臂的期望退出码在臂表里写死（`CTRL_*` = 3），跑完若不符会逐个点名而不是笼统判失败。
 
-**强内容摘要**（逐刚体 7 字段 `content_digest_v1`）安排在下一批：`bodies[]` 由 `1号` 的
-重建回读给出（`D-186` 明令不造第二份读刚体的实现），我这边只把它的输出喂进
-`m02_content_digest.py` 并把摘要记进臂记录，不自己造 reader。
+**强内容摘要**（逐刚体 7 字段 `content_digest_v1`）**没做，臂记录里连这个字段都还没有**：
+`bodies[]` 要 `1号` 的重建回读给出（`D-186` 明令不造第二份读刚体的实现），我这边只把它的输出
+喂进 `m02_content_digest.py`。这一条是「已知未做」，不是「留了 null」——`324` 批次的臂记录
+（`summary.json` 的 `arms[]`）里没有 `content_digest` 键，谁核这一项都会拿不到。
 
 ## 九、锁的三步闸（`D-188`）
 
@@ -188,3 +188,61 @@ Blender 刚体解算的步长 `dt = 1/fps` ⇒ 改 fps 就是改物理。而 M04
   一行调用 + 回读记录；CLI 形式
   `blender -b <blend> -P mmdpipe/apply_action.py -- --vmd A.vmd --preset P.json --out-blend B.blend --json R.json`
   （判红时 exit 3 且不写 B）。
+
+## 十一、324 批次：版本化 + 冻结的真 Blender 端到端（`D-189` 结账）
+
+输入 = `1号` 的 `run_20261116_1847/rebuild_built.blend`（`ffaa6780a2f7e765…`，6 102 478 B；
+与 `frozen/delivery_324_ffaa6780.blend` 同一条 sha ⇒ 输入身份有独立锚点）。
+臂表一条命令跑完七臂，**五份产物全部版本化落盘、全部 `0o444`、无一份被覆盖**：
+
+| 臂 | 产物 | 字节 | sha256 | fcurves（走哪条路） | 动作区间 | `frame_end` | fps | `is_baked` |
+|---|---|---|---|---|---|---|---|---|
+| `C@W1` | `C@W1.blend` | 6 137 030 | `79862401ed1f…` | 725（`channelbags`） | [1, 301] | 301 | 24→24 | `false` |
+| `C@W1` 重跑 | `C@W1-rerun.blend` | 6 136 986 | `2a2efb3e1073…` | 725 | [1, 301] | 301 | 24→24 | `false` |
+| `C@W2` | `C@W2.blend` | 6 139 523 | `c3c5cdcb762b…` | 725 | [1, 832] | 832 | 24→24 | `false` |
+| `D` | `D.blend` | 10 230 897 | `b6e0545a7bec…` | 700 | [1, 833] | 833 | 24→24 | `false` |
+| `D` 对照（447 源） | `D-_.blend` | 8 769 753 | `3669481c2d7c…` | 357 | [1, 447] | 447 | 24→24 | `false` |
+
+两条反控：`CTRL_fps_changed` 判红**且只红 `A6`**、`rc=3`、**一个字节都没写**；
+`CTRL_no_addon` 直接 `BLOCKED`、不落盘。`lock_tail.ok` 五臂全 `true`。
+
+**产物回读（只读，一个 Blender 进程循环 `open_mainfile`，不 save）**——把「臂件还是 324 件」
+从结构性推断抬成实测：
+
+| 项 | 五臂读数 |
+|---|---|
+| `rigid_body is not None` 的对象数（`u324`） | **324 / 324 / 324 / 324 / 324** |
+| `scene["mask_wired"]` 四条 | `needed=10111 / added=8298 / already=1813 / capped=False / skipped=0 / readback_mismatch=0`（五臂逐项相同） |
+| `is_baked` / `is_outdated` | `false` / `true`（五臂） |
+| `point_cache_range` | 跟随场景窗口：`[1,301] / [1,301] / [1,832] / [1,833] / [1,447]` |
+
+⇒ 加动作这一步**没有动刚体和掩码通道**，且五臂都可以 fresh_solve。原始记录：
+`arms/20261116_324/summary.json`（`artifact_readback.status = "measured"`）。
+
+**字节复现性（第二次实测）**：同一输入、同一脚本跑两遍，`C@W1` 与 `C@W1-rerun`
+`sha256` **不同**（`79862401…` vs `2a2efb3e…`），而六个回读字段
+（`frame_end / fcurves / frame_range / fps_after / is_baked / is_outdated`）**逐项相同**。
+⇒ 「字节变了 = 有人改过」永远不成立；幂等与身份只能建在回读内容上。
+
+**没能给下游的一份**：烘过的件。`apply_action` 只到「未烘」为止，烘焙是 `4号` 的
+`stage_bake()`；本批不涉及，也不拿「另存一次」冒充烘焙。
+
+## 十二、Blender 5.2：`Action.fcurves` 在**读回来的件**上不存在
+
+产物回读时撞上：`C@W1.blend` 里的 `B_aligned_bone` 只有
+`layers[].strips[].channelbags[].fcurves`，直接 `.fcurves` 抛 `AttributeError`。
+同一份代码在**同一会话里刚导入的动作**上却读得到（`324` 批次七臂全绿就是靠这个）。
+
+后果不是「少一个数」：`mmdpipe/apply_action.py` 的 `_trim_action` / `_hold_action` /
+`A1_action_applied` 三处都走 `.fcurves`，所以**「幂等 / 可重复运行」此前只在一个会话内成立**，
+拿一件已经存过盘的件再跑一次会直接崩——而「可重复运行」正是 `D-186` 对这一步的硬要求。
+
+修法：新增 `fcurves_of(action)`（先试 `.fcurves`，再退到 `layers/strips/channelbags`，
+返回 `(列表, 走哪条路)`），三处调用点全部改走它，记录里多一个 `action.fcurves_via` 字段
+说明这个数从哪条路读出来的。离屏 5 条（含「`fcurves` 一碰就抛」「`strip` 没有
+`channelbags`」两个形状）+ 一条反控：把 `fcurves_of` 退回旧写法，新测试红 3 条、还原后 41 条全绿
+（`out/subai/M05/ctrl_fcurves_shape.py`，控制脚本自带还原）。
+
+**没验的仍然写着**：这条修法只在离屏哑对象上验过形状；**「拿一件存过盘的臂件再跑一次
+`apply_action`」这件事仍然没跑过**——它要拿窗口，而 324 批次之后窗口一直在别人手里
+（2号 的 C/D 三臂、1号 的烘焙）。下一批第一次真跑时补。
