@@ -52,8 +52,14 @@ separated_by_constraint 待测（原报「disable_collisions 约束 0 条」是�
 324 个刚体共 52 326 对，其中 **40 418 对按 PMX 掩码不该互撞，而按碰撞位看一对都没被分开**。
 
 **注意措辞**：能说的是「**按 `collision_collections` 位看，separated = 0**」；不能说的是「掩码完全没进解算」——
-场景里 4040 条 `GENERIC*` 约束中可能有一部分是 mmd_tools 的 ncc（`disable_collisions=True`）物体，
-它们**部分地**在挡碰撞，只是不按 PMX 掩码挡。这一点待 1号 的探头 v3 按布尔复测（三桶：`separated_by_bits` / `separated_by_constraint` / `unseparated`）。
+场景里存在大量 `disable_collisions = True` 的约束（mmd_tools 的 ncc 物体，`type="GENERIC"`），
+它们**部分地**在挡碰撞，只是不按 PMX 掩码挡。
+
+**已知的双向错配（待 1号 探头 v3 复测后定稿）**：
+
+- **漏挡**：40 418 对按 PMX 该互不碰撞的刚体对，按碰撞位看一对都没被分开；
+- **错挡**：旧场景 `J_baked.blend` 约 **4009** 条 `disable_collisions` 约束中，约 **2196** 条挡的是**本该互碰**的对（`4号 mask.py` 的实现注释与 2号 的读数；`D-115`）。
+  ⇒ 交付场景的碰撞是**既漏挡又错挡**，不是单向的「谁跟谁都碰」。凡引用「按全互撞解算」这句话的地方，都要改成「按碰撞位未接、且被 2196 条错挡约束过度限制的解算」。
 
 **双路交叉校验（1号 的探头 / 2号 的导出表，两条路径互不依赖）：`52326 / 40418` 逐位相同。**
 2号 的分层对账（同一份交付物）：
@@ -104,7 +110,7 @@ Blender 语义（`rigid_body.collision_collections`，20 位布尔）——**以
 |---|---|---|
 | 1 | 逐刚体回读：`collision_collections` 与源掩码一致 | **全 0 掩码与全 1 掩码必须给出不同的位**（4号 自己提的那种单元级判据） |
 | 1b | **场景级**：`reports/subai/M02/scripts/m02_mask_channel_probe.py`（1号 交，三态 0 WIRED / 2 UNWIRED PENDING / 1 CANNOT） | 通道落地后必须从 `UNWIRED separated=0` 变成 `WIRED`，且 `separated` 相对 40418 的差能被解释 |
-| 1c | **差额分三桶报**（`D-114` 修正）：`separated_by_bits` / `separated_by_constraint`（既有 ncc 约束挡住的）/ `unseparated` | **三桶相加 == 40 418**，否则这个数永远说不清是「没接上」「表达不了」还是「早就被 ncc 挡住」。差值原因的归属用**集合**表达（`disabled_pairs()`），不用计数推断 |
+| 1c | **差额分三桶报**（`D-114`/`D-115` 修正）：`separated_by_bits` / `separated_by_constraint` / `unseparated` | **三桶相加 == 40 418**，否则这个数说不清是「没接上」「表达不了」还是「早就被 ncc 挡住」。另须**分开归因**：`separated_by_constraint` 里哪些来自**通道新增**的约束、哪些是**落地前就存在**的——否则会把 2196 条被放掉的旧约束与新增的混成同一件事 |
 | 2 | 源数据未被改动 | 跑前跑后 `mmd_rigid.collision_group`/`collision_group_mask` 逐刚体快照相同；源 `.blend` sha256 前后一致 |
 | 3 | 非对称掩码被报出 | 合成场景里放一对非对称掩码，返回值 `asymmetric_pairs > 0` 且 `skipped[]` 非空 |
 | 4 | 约束/通道数量可核 | `constraints_added` 与 `collections_set` 都是具体数，不是布尔；`skipped[]` 为空（除非有非对称对） |
