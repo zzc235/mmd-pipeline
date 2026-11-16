@@ -1,0 +1,37 @@
+{
+ "cap": 10111,
+ "cap_source": {
+  "function_sha256": "8e8fb0427fa1d38c7e6ec2587651537e7d3ecbbb4a2f1e0856a9805e6ced534d",
+  "guardrail_constant": "mmdpipe.mask.DEFAULT_MAX_CONSTRAINTS = 20000",
+  "guardrail_hit": false,
+  "rule": "mmdpipe.stage.constraint_limit(needed, max_constraints=None) -> (needed, False)"
+ },
+ "expect_owner": "模块负责1|A1",
+ "external_roots": [
+  "E:\\code\\mmdpipe-ai\\A3",
+  "E:\\dsh pr\\woker2"
+ ],
+ "external_roots_note": "外部根的引用逐项记 path + sha256，不塞进 files[]；preflight 按 provenance.check(provenance, worktree, external_roots) 判",
+ "lease": true,
+ "needs": 10111,
+ "needs_planned": 10111,
+ "needs_planned_source": "file:E:\\code\\mmdpipe-ai\\A4\\out\\subai\\M00\\plan_324.json#constraints_needed",
+ "needs_source": "file:E:\\code\\mmdpipe-ai\\A1\\out\\subai\\M08\\frozen\\readback_frozen_ffaa6780.json#mask_wired.constraints_needed",
+ "note": "cap 由 constraint_limit() 的分支与护栏常量现算，不手写；needs=任务书需求，needs_planned=plan() 实测，两者都要在报告里对账。",
+ "outputs": [
+  "E:\\code\\mmdpipe-ai\\A1\\out\\subai\\M08\\run_20261116_1900\\delivery_v1.blend",
+  "E:\\code\\mmdpipe-ai\\A1\\out\\subai\\M08\\run_20261116_1900"
+ ],
+ "provenance": {
+  "arm_input": "E:\\code\\mmdpipe-ai\\A3\\out\\subai\\M05\\arms\\20261116_324\\D.blend",
+  "arm_record": "E:\\code\\mmdpipe-ai\\A3\\out\\subai\\M05\\arms\\20261116_324\\D.json",
+  "bake_script": "E:\\code\\mmdpipe-ai\\A1\\reports\\subai\\M02\\scripts\\m02_bake_delivery.py",
+  "build_script": "E:\\code\\mmdpipe-ai\\A1\\reports\\subai\\M02\\scripts\\m02_build_delivery.py",
+  "mask_file": "E:\\code\\mmdpipe-ai\\A1\\mmdpipe\\mask.py",
+  "preset_file": "E:\\code\\mmdpipe-ai\\A1\\presets\\feiying.json",
+  "stage_file": "E:\\code\\mmdpipe-ai\\A1\\mmdpipe\\stage.py"
+ },
+ "run_id": "run_20261116_1900",
+ "skipped": 0,
+ "task_id": "M08"
+}

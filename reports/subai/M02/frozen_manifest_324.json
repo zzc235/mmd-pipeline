@@ -1,0 +1,47 @@
+{
+ "assertions": {
+  "bidirectional_ok": true,
+  "listed_count": 4,
+  "on_disk_count": 4,
+  "only_in_manifest": [],
+  "only_on_disk": []
+ },
+ "commit_at_freeze": "eb6e82e",
+ "freeze_order": "freeze 文件 → 枚举 frozen/ 写 manifest → freeze manifest",
+ "frozen_at_run": "run_20261116_1847",
+ "items": [
+  {
+   "bytes": 6102478,
+   "frozen_path": "E:\\code\\mmdpipe-ai\\A1\\out\\subai\\M08\\frozen\\delivery_324_ffaa6780.blend",
+   "readonly": true,
+   "role": "delivery_324_ffaa6780.blend",
+   "sha256": "ffaa6780a2f7e765512201403a21e34848837b5f1c7486e91a70442762857761"
+  },
+  {
+   "bytes": 33680,
+   "frozen_path": "E:\\code\\mmdpipe-ai\\A1\\out\\subai\\M08\\frozen\\extra_bodies_patch_60d8c64e.json",
+   "readonly": true,
+   "role": "extra_bodies_patch_60d8c64e.json",
+   "sha256": "6d61a3649c5d116322aa0c915180e8b6ec95a938af74a745d0bc0bea2a282351",
+   "sha256_lf_normalized": "6d61a3649c5d116322aa0c915180e8b6ec95a938af74a745d0bc0bea2a282351"
+  },
+  {
+   "bytes": 206289,
+   "frozen_path": "E:\\code\\mmdpipe-ai\\A1\\out\\subai\\M08\\frozen\\readback_frozen_ffaa6780.json",
+   "readonly": true,
+   "role": "readback_frozen_ffaa6780.json",
+   "sha256": "2cc761f1ccb356dc9e95582ade180b3bd1ef6582653a82c429c597b6d5a97ac6",
+   "sha256_lf_normalized": "2cc761f1ccb356dc9e95582ade180b3bd1ef6582653a82c429c597b6d5a97ac6"
+  },
+  {
+   "bytes": 11101,
+   "frozen_path": "E:\\code\\mmdpipe-ai\\A1\\out\\subai\\M08\\frozen\\rebuild_report_ffaa6780.json",
+   "readonly": true,
+   "role": "rebuild_report_ffaa6780.json",
+   "sha256": "5536fc84e900dfc2550eb6b9b493b6ce241979ae07452f96cfb49145416eb641",
+   "sha256_lf_normalized": "5536fc84e900dfc2550eb6b9b493b6ce241979ae07452f96cfb49145416eb641"
+  }
+ ],
+ "manifest_name": "frozen_manifest.json",
+ "purpose": "M08 324 交付件冻结副本：账本由**枚举冻结目录本身**生成，不手写、不从 run 目录抄"
+}

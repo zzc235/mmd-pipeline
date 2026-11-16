@@ -64,6 +64,14 @@ if _HERE not in sys.path:
 import m02_patch_bpy as pb                            # noqa: E402
 
 
+def _pick(primary, fallback, key):
+    """取一个数：先看 `stage_mask()`，没有再退回 `scene['mask_wired']`（同一次读取，不算第二遍）。"""
+    for src in (primary, fallback):
+        if isinstance(src, dict) and src.get(key) is not None:
+            return src[key]
+    return None
+
+
 def enable_mmd_tools():
     """扩展注册的 RNA 属性（`mmd_type` / `mmd_rigid`）**只有在 enable 之后才存在**。
 
@@ -192,14 +200,45 @@ def collect(blend_path):
         except Exception as exc:                       # noqa: BLE001
             body_errors.append({"name": o.name, "error": "%s: %s" % (type(exc).__name__, exc)})
 
+    # 场景里到底有多少个**刚体约束对象**（总控 `D-207③`：`added=8298` 是掩码自己的账，
+    # 不算独立计数；而下面的 `constraints_by_type` 数的是**骨骼约束**，两者不是一回事）。
+    rb_con = {"total": 0, "in_scene": 0, "disable_collisions_true": 0,
+              "disable_collisions_false": 0, "by_type": {}}
+    for obj in bpy.data.objects:
+        rbc = getattr(obj, "rigid_body_constraint", None)
+        if rbc is None:
+            # **不要**按 `obj.type == 'RIGID_BODY_CONSTRAINT'` 数：5.2 的对象类型枚举里没有
+            # 这一项，按名字数恒为 0（19:10 实测：属性口径 12 338，类型名口径 0）。
+            continue
+        kind = getattr(rbc, "type", None)
+        rb_con["total"] += 1
+        rb_con["by_type"][kind] = rb_con["by_type"].get(kind, 0) + 1
+        if getattr(rbc, "disable_collisions", False):
+            rb_con["disable_collisions_true"] += 1
+        else:
+            rb_con["disable_collisions_false"] += 1
+    rb_con["in_scene"] = sum(1 for obj in bpy.context.scene.objects
+                             if getattr(obj, "rigid_body_constraint", None) is not None)
+
     return {
         "blend": os.path.abspath(blend_path),
         "blend_sha256": sha256_file(blend_path),
+        # 总控 `D-223` ①：任何「开件后立刻读」的读数都要带这个标注。
+        # 本回读确实在任何 `frame_set` 之前取数，但它的载荷是**数据层**：
+        # `bodies[]` 走 `digest_body()` 的 7 个字段（`name/parent_bone/mass/kinematic/
+        # collision_shape/collision_collections/friction`，**不含 `matrix_world`**）。
+        # 实测（`digest_warmup.json`）：冷读与热身后的 `bodies_sha` 相同（`6c555bcc…`），
+        # 而同一批对象的 `matrix_world` 323/323 不同、最大差 1.9923 m ⇒ 回读不受影响，
+        # 但**任何读 `matrix_world` 的判据必须先顺序热身**。
+        "first_eval_after_open": True,
+        "first_eval_note": ("载荷为数据层字段（digest_body 不含 matrix_world）；"
+                            "pose/matrix_world 类判据必须先从 frame_start 顺序步进再读"),
         "addon_enabled": addon,
         "rigids_u323_rigid_bodies": len(rigids_u323) if rigids_u323 is not None else None,
         "rigids_u324_rigid_body_attr": len(rigids_u324),
         "bodies": bodies,
         "body_read_errors": body_errors,
+        "rigid_body_constraints": rb_con,
         "constraints_by_type": by_type,
         "actions": actions,
         "active_action": active_action,
@@ -207,10 +246,18 @@ def collect(blend_path):
             "verdict": mask.get("verdict"),
             "constraints_capped": mask.get("constraints_capped"),
             "skipped_count": mask.get("skipped_count"),
-            "constraints_needed": mask.get("constraints_needed"),
-            "constraints_added": mask.get("constraints_added"),
-            "constraints_already_blocked": mask.get("constraints_already_blocked"),
+            # `stage_mask()` 只给判词与 capped/skipped，**不返回**这三个数（2号 18:50 指出：
+            # 否则形状是「WIRED + 三个 null」，判词有了、数字没算，还伪装成三元组齐全）。
+            # 真正的数在同一个函数刚读过的 `scene["mask_wired"]` 里，直接取，不再算第二遍。
+            "constraints_needed": _pick(mask, stored, "constraints_needed"),
+            "constraints_added": _pick(mask, stored, "constraints_added"),
+            "constraints_already_blocked": _pick(mask, stored, "constraints_already_blocked"),
+            "readback_mismatch": _pick(mask, stored, "readback_mismatch"),
             "verdict_reasons": mask.get("verdict_reasons"),
+            "source": {"verdict": "stage_mask()",
+                       "constraints_needed/constraints_added/"
+                       "constraints_already_blocked/readback_mismatch":
+                           "scene['mask_wired']（= mask_wired_record）"},
         },
         "mask_report": mask,
         "mask_wired_record": stored,
