@@ -15,6 +15,11 @@ from mathutils import Vector
 from . import preset as preset_mod
 from . import mask as mask_mod
 from .report import BLOCK, INFO, WARN, StageResult
+# 取 fcurve 只走 `apply_action.fcurves_of()`：Blender 4.4+ 的动作随 `.blend` 存盘再读回来
+# 就是分层/槽位动作，`action.fcurves` 直接 `AttributeError`（3号 2026-11-16 在 324 批次真件上撞出）。
+# 本文件原来那处 `len(action.fcurves)` 只看得到同会话刚导入的动作，所以从没崩过——
+# 但「从没崩过」不等于「这条路对」，拿存过盘的件再进 `stage_motion` 就会崩。**一份实现，两个调用方。**
+from .apply_action import fcurves_of
 
 # HSR 插件暴露的场景级光照/着色滑杆（卡通渲染路线，替代通用三点光）
 HSR_LOOK_KEYS = ("cool", "shadow", "brightness", "skin_brightness", "skin_warmth",
@@ -692,22 +697,31 @@ def apply_collision_masks(scene=None, *, collection_index_of=None,
 
     # 建场事实写进**场景自身**（D-142「意图写进产物」）：`stage_mask()` 事后读它。
     # 不写的话，"这次 cap 过"只活在本次运行的返回值里，场景一存盘就看不见了。
+    #
+    # **键清单只此一份**：这里原来是手抄的 11 个键，而 `MASK_WIRED_KEYS` 有 18 个——
+    # 手抄那份在 400 行后就漂了，`constraints_released` / `bodies` / `collections_patterns` /
+    # `constraints_identity` / `collections_set` / `unexpressible` / `asymmetric_pairs`
+    # **从来没进过产物**。后果不是"少几个数"：1号 2026-11-16 19:08 在冻结件回读里只能数到
+    # `10111 = 8298 + 1813`，而那 2196 条被放掉的约束在件里查不到出处，他只能把 `4009` 记成
+    # "4号 那边的读数"。**判据要看的数与进产物的数必须是同一批**（这条注释本来就写着这句话）。
+    store = {key: result[key] for key in MASK_WIRED_KEYS if key in result}
     try:
-        bpy.context.scene["mask_wired"] = {
-            "verdict": result["verdict"],
-            "verdict_reasons": list(result["verdict_reasons"]),
-            "constraints_needed": result["constraints_needed"],
-            "constraints_already_blocked": result["constraints_already_blocked"],
-            "constraints_to_add": result["constraints_to_add"],
-            "constraints_added": result["constraints_added"],
-            "constraints_capped": bool(result["constraints_capped"]),
-            "guardrail_hit": bool(result["guardrail_hit"]),
-            "skipped_count": int(result["skipped_count"]),
-            "readback_mismatch": int(result["readback_mismatch"]),
-            "constraint_creation": result["constraint_creation"],
-        }
-    except (AttributeError, TypeError, KeyError):
-        pass          # 没有场景上下文（单测替身/离屏）时不影响返回值
+        bpy.context.scene["mask_wired"] = store
+    except (AttributeError, TypeError, KeyError) as exc:
+        # 一个值 IDProperty 存不下，整条记录就全写不进去 —— 那正是「PARTIAL 时反而没证据」。
+        # 退成「只留标量」并把被丢掉的键记进返回值，缺口不许消失在场景里。
+        omitted, fallback = [], {}
+        for key, value in store.items():
+            if isinstance(value, (bool, int, float, str)):
+                fallback[key] = value
+            else:
+                omitted.append(key)
+        result["mask_wired_omitted"] = omitted
+        result["mask_wired_error"] = str(exc)
+        try:
+            bpy.context.scene["mask_wired"] = fallback
+        except (AttributeError, TypeError, KeyError):
+            pass      # 没有场景上下文（单测替身/离屏）时不影响返回值
     return result
 
 
@@ -854,6 +868,27 @@ def stage_import(preset, pmx_path: str):
 #   **本进程烘焙前**逐帧步进得到的那批指纹。
 BAKE_FIELDS = ("requested", "applied", "frame_start", "frame_end", "fps")
 BAKE_EXTRA_FIELDS = ("pose_source", "is_baked", "is_outdated")
+
+# 判据分两层，**每层都是一个元组、一层建在另一层上**（不合成一个 `and`，也不留两份规则）。
+#
+# `D-067`/`D-173` 的六条说的是「**这一步**烘成功了吗」——它们在**同一个进程里**量，全绿也只
+# 证明进程内成立。`D-217`/`D-218` 把它判死了：内存缓存**不随 `.blend` 带出门**，而
+# `use_disk_cache=True` 那一句赋值直接把 Blender 打死（两次 `EXCEPTION_ACCESS_VIOLATION`），
+# 所以「这件能不能宣称烘过」只能靠**重开那份字节再量**。三种红必须能分开：
+#
+#   没烘                ⇒ `applied` 假
+#   烘了但没持久化      ⇒ `applied` 真、`cache_usable_after_reopen` 假（重开就 `is_outdated`）
+#   持久化但重放不一致  ⇒ 缓存可用，冷跳读回来的姿态与顺序重算差 > tol
+#
+# `1号` 19:15 那份冻结件是**第二种**：`is_baked=true / is_outdated=true /
+# use_disk_cache=false / info="833 frames in memory (7.3 MiB), cache is outdated!"`——
+# 那 1.86 m 的差是「拿一份无效缓存读出来的姿态」对「顺序重算」，不是「持久化了的缓存重放错了」。
+# 形状由 `bake_failure_shape()` 一次说清，谁都不用自己拼。
+BAKE_CRITERIA = ("requested", "applied", "not_outdated", "probe_matched",
+                 "probe_informative", "fields_complete")
+BAKE_PERSIST_CRITERIA = ("reopen_measured", "cache_usable_after_reopen",
+                         "replay_matched_after_reopen")
+BAKE_ARTIFACT_CRITERIA = BAKE_CRITERIA + BAKE_PERSIST_CRITERIA
 BAKE_TOL = 1e-6
 BAKE_KEYS = ("frame_start", "frame_end", "fps")
 
@@ -900,6 +935,16 @@ def pose_snapshot(objects) -> dict:
     return snap
 
 
+def _snapshots_differ(frames_snapshots) -> bool:
+    """采样帧之间的姿态有没有**真的不同**（同一帧不算；空输入算 False）。"""
+    seen = set()
+    for snapshot in (frames_snapshots or {}).values():
+        seen.add(tuple(sorted((name, tuple(values)) for name, values in snapshot.items())))
+        if len(seen) > 1:
+            return True
+    return False
+
+
 def bake_probe(fresh, cached, tol=BAKE_TOL) -> dict:
     """纯函数：`fresh`（烘焙前顺序解算）对比 `cached`（烘焙后冷跳）逐帧逐值。
 
@@ -935,6 +980,9 @@ def bake_probe(fresh, cached, tol=BAKE_TOL) -> dict:
     return {
         "matched": not (mismatches or missing_objects or missing_frames or extra_frames)
                    and bool(compared_bodies),
+        # 参照姿态若在采样帧之间**完全相同**，「一致」只证明了「两次读到同一个静态值」——
+        # 那不是"缓存忠实"，是"没东西可忠实"。静态场景照样会给出 max_delta=0。
+        "reference_moved": _snapshots_differ(fresh),
         "tol": tol,
         "frames": sorted(set(fresh) & set(cached)),
         "bodies": len(compared_bodies),
@@ -948,24 +996,83 @@ def bake_probe(fresh, cached, tol=BAKE_TOL) -> dict:
 
 
 def bake_checks(record) -> dict:
-    """「这件算按契约 B 烘过吗」——五条**分开给**，不合成一个 `and`（一位坏就看不见）。"""
+    """「这件算按契约 B 烘过吗」——每一条**分开给**，不合成一个 `and`（一位坏就看不见）。
+
+    前六条（`BAKE_CRITERIA`）量的是**进程内**；后两条（`BAKE_PERSIST_CRITERIA`）量的是
+    **重开之后**。`bake.applied=true` 不足判「交付件已烘」——`D-214` 那次是今晚最像成功的一次
+    fail-open：`applied`/`probe.matched`/`max_delta=0.0` 全漂亮，只有重开文件那一下露出来。
+    """
     record = record or {}
     probe = record.get("probe") or {}
+    persist = record.get("persist") or {}
+    replay = persist.get("replay_probe") or {}
     return {
         "requested": record.get("requested") is not None,
         "applied": record.get("applied") is True,
         "not_outdated": record.get("is_outdated") is False,
         "probe_matched": probe.get("matched") is True,
+        # 「一致」只有在参照姿态真的动过时才算证据：静态场景逐位相同是必然的
+        "probe_informative": probe.get("reference_moved") is True,
         "fields_complete": all(key in record for key in BAKE_FIELDS + BAKE_EXTRA_FIELDS),
+        # ①「在**重开的那份字节**上量过」——不是看标志位，是在重开的文件上取姿态
+        "reopen_measured": persist.get("reopened") is True,
+        # ② 重开之后缓存本身还能用：`is_baked` 真、`is_outdated` 假。
+        #    `use_disk_cache` **不进判据**：`D-218` 实测那一句赋值直接把 Blender 打死
+        #    （`EXCEPTION_ACCESS_VIOLATION`，两次复现）—— 这条路不存在，判据也不能建在它上面。
+        "cache_usable_after_reopen": (persist.get("is_baked_after_reopen") is True
+                                      and persist.get("is_outdated_after_reopen") is False),
+        # ③ 重放一致：冷跳读回来的姿态 == 顺序重算的姿态（tol 见 `BAKE_TOL`）
+        "replay_matched_after_reopen": replay.get("matched") is True,
     }
 
 
 def bake_missing(record) -> list:
-    return [key for key, ok in bake_checks(record).items() if not ok]
+    """进程内那六条里没过的（`stage_build` 的闸门只用这一层）。"""
+    checks = bake_checks(record)
+    return [name for name in BAKE_CRITERIA if not checks[name]]
+
+
+def bake_artifact_missing(record) -> list:
+    """「**这件**能不能宣称烘过」缺的判据（含重开后的三条）。空列表才算交付件已烘。"""
+    checks = bake_checks(record)
+    return [name for name in BAKE_ARTIFACT_CRITERIA if not checks[name]]
+
+
+def bake_failure_shape(record) -> str:
+    """把「红在哪一层」压成一句人能直接用的判词（`D-214` / `D-217` / `D-219` 要的分开打红）。
+
+    * `ok` —— 重开之后缓存可用且重放一致；
+    * `not_baked` —— 根本没烘（`applied` 假）；
+    * `baked_not_persisted` —— 进程内烘好了，但**重开之后缓存不可用**
+      （`is_outdated_after_reopen` 真 / `is_baked_after_reopen` 假）。`D-217` 那份冻结件
+      就是这一种：`is_baked=true / is_outdated=true / use_disk_cache=false`，
+      `info="833 frames in memory (7.3 MiB), cache is outdated!"`；
+    * `replay_mismatch` —— 缓存**可用**、也**真的量过**重放，冷跳读回来的姿态与顺序重算不一致；
+    * `replay_unmeasured` —— **没有料，不是做错了**：没在重开件上量过，或缓存可用但没做重放对照。
+
+    `replay_unmeasured` 单独存在是 `D-219` 的直接后果：把「我方缺料」写成
+    「缓存会算错」（`UNMEASURED` 当 `FAIL` 用），读者会去找一个不存在的正确性 bug——而
+    「第三种形状到底成不成立」现在**量不了**（要造一份重开后 `is_baked=true` 且
+    `is_outdated=false` 的件，需要持久化通道，`D-218` 已确认引擎层不存在）。
+    所以缺料就得说缺料，不许借 `replay_mismatch` 顶替。
+    """
+    checks = bake_checks(record)
+    if checks["applied"] is not True:
+        return "not_baked"
+    if not checks["reopen_measured"]:
+        return "replay_unmeasured"
+    if not checks["cache_usable_after_reopen"]:
+        return "baked_not_persisted"
+    replay = ((record or {}).get("persist") or {}).get("replay_probe")
+    if not replay:
+        return "replay_unmeasured"
+    if not checks["replay_matched_after_reopen"]:
+        return "replay_mismatch"
+    return "ok"
 
 
 def bake_gate_reason(record) -> str | None:
-    """五条全绿才算「烘过」。返回 None 或一句能直接进 BLOCK 的理由。"""
+    """进程内五条全绿才算「这一步烘好了」。返回 None 或一句能直接进 BLOCK 的理由。"""
     missing = bake_missing(record)
     if not missing:
         return None
@@ -976,6 +1083,48 @@ def bake_gate_reason(record) -> str | None:
             probe.get("mismatch_count", 0), probe.get("max_delta"),
             probe.get("frames"))
     return "烘焙不合格：%s%s" % ("、".join(missing), detail)
+
+
+def bake_artifact_gate_reason(record) -> str | None:
+    """「**这件**能不能当已烘的交付件」——比 `bake_gate_reason()` 多三条重开后的判据。
+
+    两个闸问的不是一件事：前者问"这一步烘成功了吗"（进程内），后者问"这件出门之后缓存还能用吗"。
+    **后者的判据包含前者**（`BAKE_ARTIFACT_CRITERIA` 建在 `BAKE_CRITERIA` 上），
+    所以不存在两份互相打架的规则。
+    """
+    missing = bake_artifact_missing(record)
+    if not missing:
+        return None
+    return "交付件没烘到能出门：%s（形状 %s）" % (
+        "、".join(missing), bake_failure_shape(record))
+
+
+def bake_persist_block(scene) -> dict:
+    """「重开之后缓存还在不在」——**不猜路径、不碰 `use_disk_cache`**。
+
+    `D-218` 实测：给 `use_disk_cache` 赋值直接把 Blender 打死（`EXCEPTION_ACCESS_VIOLATION`，
+    两次复现，最小的那次只有「open → 打印 RNA 字段 → 赋值」三行，崩在赋值那行），而 5.2 的
+    `PointCache` 里连 `directory` 都没有。所以这里只**读**开关、把「重开后的读数」留给
+    `bake_artifact_record()` 补，绝不在这条路上写 `use_disk_cache`。
+    """
+    rbw = getattr(scene, "rigidbody_world", None) if scene is not None else None
+    cache = getattr(rbw, "point_cache", None)
+    if cache is None:
+        # 没有 point_cache ⇒ 量不到。`None` 不许写成 False：「没开」与「量不到」混成一个值，
+        # 就是今天第五个「按名字数东西」的同类形状。
+        return {"use_disk_cache": None, "disk_cache_bake": None, "cache_info": None,
+                "reopened": False, "is_baked_after_reopen": None,
+                "is_outdated_after_reopen": None, "replay_probe": None}
+    return {"use_disk_cache": bool(getattr(cache, "use_disk_cache", False)),
+            "disk_cache_bake": bool(getattr(cache, "disk_cache_bake", False)),
+            # Blender 自己那句话（`'833 frames in memory (7.3 MiB), cache is outdated!'`）——
+            # 比我们转述可信：它是引擎在说「这份缓存不能用了」。
+            "cache_info": (None if getattr(cache, "info", None) is None
+                           else str(getattr(cache, "info"))),
+            "reopened": False,
+            "is_baked_after_reopen": None,
+            "is_outdated_after_reopen": None,
+            "replay_probe": None}
 
 
 def bake_record(scene, req, probe, applied, is_baked, is_outdated) -> dict:
@@ -996,8 +1145,31 @@ def bake_record(scene, req, probe, applied, is_baked, is_outdated) -> dict:
         "pose_source": "cache_replay" if applied else "fresh_solve",
         "is_baked": bool(is_baked),
         "is_outdated": bool(is_outdated),
+        # 进程内那一刻的缓存去向；重开之后的读数由 `bake_artifact_record()` 补（`D-214`）
+        "persist": bake_persist_block(scene),
         "probe": probe,
     }
+
+
+def bake_artifact_record(record, *, reopened, replay_probe,
+                         is_baked_after_reopen, is_outdated_after_reopen) -> dict:
+    """在**重开的那份字节**上量完之后，把读数补进记录（`D-214` 的契约 B 验收形式）。
+
+    只补 `persist` 块，不动进程内那六条的证据 —— 两个时刻的读数要能分开读，
+    否则「进程内成立」和「文件上成立」又会被压成一句话。
+    """
+    out = dict(record or {})
+    persist = dict(out.get("persist") or {})
+    persist.update({
+        "reopened": bool(reopened),
+        "is_baked_after_reopen": (None if is_baked_after_reopen is None
+                                  else bool(is_baked_after_reopen)),
+        "is_outdated_after_reopen": (None if is_outdated_after_reopen is None
+                                     else bool(is_outdated_after_reopen)),
+        "replay_probe": replay_probe,
+    })
+    out["persist"] = persist
+    return out
 
 
 def stage_bake(scene, bake, objects=None, bake_call=None) -> dict:
@@ -1261,13 +1433,16 @@ def stage_motion(preset, root, arm, vmd_path: str, frame_end_hint: int):
         res.elapsed = _now() - t0
         return res, None
 
-    fcurves = len(action.fcurves)
+    curves, fcurves_via = fcurves_of(action)
+    fcurves = len(curves)
     fr = action.frame_range
     action_end = int(fr[1])
     res.metrics.update({
         "action": action.name[:40],
         "frame_range": [int(fr[0]), action_end],
         "fcurves": fcurves,
+        # 读数从哪条路来（`action.fcurves` / `layers.strips.channelbags`），别让下一个人猜
+        "fcurves_via": fcurves_via,
     })
     if fcurves <= 100:
         res.add("G3", BLOCK, "只有 %d 条曲线，不像有效动作" % fcurves)

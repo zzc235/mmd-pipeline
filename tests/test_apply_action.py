@@ -286,5 +286,233 @@ class SourceOfTruthTest(unittest.TestCase):
         self.assertEqual(pl["ops"][0]["from"] + 1, 302)
 
 
+class FcurvesShapeTest(unittest.TestCase):
+    """`Action` 的两种形状：动作 `.blend` 存盘再读回来就换成**分层/槽位**那种。
+
+    2026-11-16 在 324 批次产物回读里实测到：`C@W1.blend` 的 `B_aligned_bone` 只有
+    `layers[].strips[].channelbags[].fcurves`，`action.fcurves` 直接 `AttributeError`。
+    ⇒ 「可重复运行」之前只在**同一个会话**里成立过，这个类补的就是那一段。
+    """
+
+    class _Fake:
+        """够用的哑对象：`layers/strips/channelbags/fcurves` 自己按需挂。"""
+
+        def __init__(self, **kw):
+            for k, v in kw.items():
+                setattr(self, k, v)
+
+    def _fcu(self, n):
+        return [object() for _ in range(n)]
+
+    def test_legacy_shape_reads_action_fcurves(self):
+        act = self._Fake(fcurves=self._fcu(725))
+        got, how = AA.fcurves_of(act)
+        self.assertEqual(len(got), 725)
+        self.assertEqual(how, "action.fcurves")
+
+    def test_layered_shape_sums_channelbags(self):
+        act = self._Fake(layers=[self._Fake(strips=[
+            self._Fake(channelbags=[self._Fake(fcurves=self._fcu(700)),
+                                    self._Fake(fcurves=self._fcu(25))]),
+        ])])
+        got, how = AA.fcurves_of(act)
+        self.assertEqual(len(got), 725)
+        self.assertEqual(how, "layers.strips.channelbags")
+
+    def test_layered_set_attribute_that_raises_is_not_fatal(self):
+        """`fcurves` 存在但一碰就抛（不是 `AttributeError`）也不许把整条链掀翻。"""
+
+        class Boom:
+            @property
+            def fcurves(self):
+                raise AttributeError("no such attribute")
+
+        got, how = AA.fcurves_of(Boom())
+        self.assertEqual((len(got), how), (0, "layers.strips.channelbags"))
+
+    def test_strip_without_channelbags_is_skipped(self):
+        act = self._Fake(layers=[self._Fake(strips=[object(), self._Fake()])])
+        got, how = AA.fcurves_of(act)
+        self.assertEqual((len(got), how), (0, "layers.strips.channelbags"))
+
+    def test_zero_fcurves_still_goes_red_at_A1(self):
+        """空不是沉默：形状读不出来时是 0，`A1`（> 门槛）必须判红。"""
+        self.assertEqual(failed(good_record(action={"fcurves": 0})),
+                         ("BLOCKED", ["A1_action_applied"]))
+
+
+class FcurveWriteShapeTest(unittest.TestCase):
+    """写侧（`ensure_fcurve` / `fcurve_container`）：读能拼列表，写必须挑定一个容器。
+
+    为什么单独一块：`chain_nla._shift_b_action` 在**写** B 的 action —— `.new()` 在分层
+    动作上一样没有，所以「拼」在存过盘的件上崩的方式和「读」不同（`D-213` 派工）。
+    上游接口 `Action.fcurve_ensure_for_datablock` 是**待验假设**，这里同时钉住
+    「有就用、抛就退、退了要写在 `how` 里」三件事，真机量到的结论才有地方对。
+    """
+
+    class _Fake:
+        def __init__(self, **kw):
+            for k, v in kw.items():
+                setattr(self, k, v)
+
+    class _Coll:
+        """够用的 `fcurves` 集合：`find` / `new` / `len` / 迭代。"""
+
+        def __init__(self, curves=None):
+            self.curves = list(curves or [])
+
+        def find(self, path, index=0):
+            for c in self.curves:
+                if c.data_path == path and c.array_index == index:
+                    return c
+            return None
+
+        def new(self, path, index=0, action_group=""):
+            c = FcurveWriteShapeTest._Fake(data_path=path, array_index=index,
+                                          group=action_group, keyframe_points=[])
+            self.curves.append(c)
+            return c
+
+        def __len__(self):
+            return len(self.curves)
+
+        def __iter__(self):
+            return iter(self.curves)
+
+    def _layered(self, bags, slots=None):
+        """分层动作：`.fcurves` 一碰就抛，只有 `layers[].strips[].channelbags[]`。"""
+        for bag, slot in zip(bags, slots or [None] * len(bags)):
+            if slot is not None:
+                bag.slot = slot
+
+        class Layer:
+            pass
+
+        class Strip:
+            pass
+
+        act = self._Fake(layers=[])
+        layer = Layer()
+        strip = Strip()
+        strip.channelbags = bags
+        layer.strips = [strip]
+        act.layers = [layer]
+        return act
+
+    def test_legacy_write_uses_action_fcurves(self):
+        coll = self._Coll()
+        fc, how = AA.ensure_fcurve(self._Fake(fcurves=coll), None,
+                                   'pose.bones["センター"].location', index=1)
+        self.assertEqual(how, "action.fcurves")
+        self.assertEqual((fc.array_index, len(coll)), (1, 1))
+
+    def test_legacy_write_finds_existing_instead_of_duplicating(self):
+        coll = self._Coll()
+        first, _ = AA.ensure_fcurve(self._Fake(fcurves=coll), None,
+                                    'pose.bones["センター"].location', index=0)
+        second, _ = AA.ensure_fcurve(self._Fake(fcurves=coll), None,
+                                     'pose.bones["センター"].location', index=0)
+        self.assertIs(first, second)
+        self.assertEqual(len(coll), 1)
+
+    def test_layered_single_bag_is_used(self):
+        bag = self._Fake(fcurves=self._Coll())
+        fc, how = AA.ensure_fcurve(self._layered([bag]), self._Fake(),
+                                   'pose.bones["センター"].location', index=2)
+        self.assertEqual((how, fc.array_index), ("channelbags[0](new)", 2))
+        self.assertEqual(len(bag.fcurves), 1)
+
+    def test_layered_slot_match_wins_over_position(self):
+        slot = object()
+        a, b = self._Fake(fcurves=self._Coll()), self._Fake(fcurves=self._Coll())
+        act = self._layered([a, b], slots=[object(), slot])
+        arm = self._Fake(animation_data=self._Fake(action_slot=slot))
+        _fc, how = AA.ensure_fcurve(act, arm, 'pose.bones["センター"].location', index=0)
+        self.assertEqual(how, "channelbags[slot](new)")
+        self.assertEqual((len(a.fcurves), len(b.fcurves)), (0, 1))
+
+    def test_layered_two_bags_without_slot_match_is_refused(self):
+        """挑一个等于往别人的动作上改键 —— 看不清就当红。"""
+        act = self._layered([self._Fake(fcurves=self._Coll()),
+                             self._Fake(fcurves=self._Coll())])
+        with self.assertRaises(AA.FcurveShapeError):
+            AA.ensure_fcurve(act, self._Fake(animation_data=self._Fake(action_slot=None)),
+                             'pose.bones["センター"].location', index=0)
+
+    def test_no_container_at_all_is_refused(self):
+        with self.assertRaises(AA.FcurveShapeError):
+            AA.ensure_fcurve(self._Fake(layers=[]), self._Fake(animation_data=None), "x")
+
+    def test_upstream_api_is_preferred_when_action_is_assigned(self):
+        """上游接口存在、且**动作确实挂在这个 ID 上**时才用（`D-213` 的假设，真机已量）。"""
+        seen = {}
+
+        class Layered:
+            def fcurve_ensure_for_datablock(self, block, path, index=0, group_name=""):
+                seen.update(block=block, path=path, index=index, group=group_name)
+                return "UPSTREAM_FC"
+
+        act = Layered()
+        arm = self._Fake(animation_data=self._Fake(action=act))
+        fc, how = AA.ensure_fcurve(act, arm, 'pose.bones["センター"].location',
+                                   index=1, group="センター")
+        self.assertEqual((fc, how), ("UPSTREAM_FC", "fcurve_ensure_for_datablock"))
+        self.assertEqual(seen, {"block": arm, "path": 'pose.bones["センター"].location',
+                                "index": 1, "group": "センター"})
+
+    def test_upstream_not_called_when_action_is_not_assigned(self):
+        """前置条件不成立就别调：真机上它 `RuntimeError`，每次拼接都会背一条假故障。"""
+        called = []
+
+        class Layered:
+            def fcurve_ensure_for_datablock(self, *a, **kw):
+                called.append(1)
+                raise RuntimeError("动作没有挂到 data-block 上")
+
+        bag = self._Fake(fcurves=self._Coll())
+        act = Layered()
+        act.layers = self._layered([bag]).layers
+        arm = self._Fake(animation_data=self._Fake(action=None))
+        _fc, how = AA.ensure_fcurve(act, arm, 'pose.bones["B"].location', index=0)
+        self.assertEqual(called, [])
+        self.assertEqual(how, "channelbags[0](new); upstream_skipped:action_not_assigned")
+
+    def test_upstream_skipped_without_datablock(self):
+        bag = self._Fake(fcurves=self._Coll())
+        act = self._layered([bag])
+        act.fcurve_ensure_for_datablock = lambda *a, **kw: "SHOULD_NOT_BE_USED"
+        _fc, how = AA.ensure_fcurve(act, None, 'pose.bones["B"].location', index=0)
+        self.assertEqual(how, "channelbags[0](new); upstream_skipped:no_datablock")
+
+    def test_upstream_raising_falls_back_and_records_the_reason(self):
+        class Layered:
+            layers = []
+
+            def fcurve_ensure_for_datablock(self, *a, **kw):
+                raise RuntimeError("signature is not what you guessed")
+
+        act = Layered()
+        with self.assertRaises(AA.FcurveShapeError):
+            # 上游抛了、手里又没有 channelbag ⇒ 结果仍是红，但红的地方能看出上游试过
+            AA.ensure_fcurve(act, self._Fake(animation_data=self._Fake(action=act)), "x")
+
+    def test_upstream_raising_but_bag_usable_reports_it(self):
+        bag = self._Fake(fcurves=self._Coll())
+        holder = {}
+
+        class Layered:
+            def __init__(self):
+                self.layers = []
+
+            def fcurve_ensure_for_datablock(self, *a, **kw):
+                raise TypeError("unexpected keyword argument 'group_name'")
+
+        act = Layered()
+        act.layers = self._layered([bag]).layers
+        holder["arm"] = self._Fake(animation_data=self._Fake(action=act))
+        _fc, how = AA.ensure_fcurve(act, holder["arm"], 'pose.bones["B"].location', index=0)
+        self.assertEqual(how, "channelbags[0](new); upstream_raised:TypeError")
+
+
 if __name__ == "__main__":
     unittest.main()

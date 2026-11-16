@@ -106,14 +106,23 @@ def supersede_map(rows: list, decisions: set, reasons: set) -> tuple:
     一条词表外的记录（典型：D0 手写 JSON 追加、绕过了 `append()`）只有被
     **后面一条合规记录显式点名更正**，才算有了交代；而不许被静默放行。
 
-    三条 fail-closed（少一条这套机制就成了洗白通道）：
+    七条 fail-closed（少一条这套机制就成了洗白通道；2号/3号/4号 在 2026-11-16 18:49
+    各自独立把后四条撞了出来）：
     1. 声明行自身必须落在闭集里 —— 不许用一条词表外的行去更正另一条；
     2. 被更正的 id 必须在历史里真实存在 —— 否则凭空写个 id 就想「已被交代」；
-    3. 更正后的 kind 也必须在闭集里 —— 否则等于换个位置写词表外的词。
+    3. 更正后的 kind 也必须在闭集里 —— 否则等于换个位置写词表外的词；
+    4. （H2）声明必须写在被更正记录**之后**（pos 更大）—— 否则「后面一条」只是文档里的字；
+    5. （H4）不许自己更正自己 —— 自己给自己签收据不是交代；
+    6. （H1）同一条被两处点名 ⇒ 记问题，并且**两份都留痕**（`disputed` + `also_by`）：
+       只留胜者的话，调换两行顺序就能把「曾有两份矛盾更正」抹成干净的单条，账本被排序操纵；
+    7. （H3）桶的口径：只有**目标确实越界**的才进 `corrected_out_of_vocabulary`，
+       更正一条本来合规的记录另记 —— 否则桶名承诺「词表外」，装的却是「生效的声明条目」。
 
     声明形状：`"supersedes": {"D-…-199": {"decision": "REASSIGN", "reason_code": "RULING"}}`
     """
-    present = {row.get("decision_id") for row in rows}
+    pos = {}
+    for i, row in enumerate(rows):
+        pos.setdefault(row.get("decision_id"), i)
     index, problems = {}, []
     for row in rows:
         decl = row.get("supersedes")
@@ -127,8 +136,16 @@ def supersede_map(rows: list, decisions: set, reasons: set) -> tuple:
             problems.append({"by": by, "why": "supersedes 必须是 {id: {decision, reason_code}}"})
             continue
         for target, intent in decl.items():
-            if target not in present:
+            if target not in pos:
                 problems.append({"by": by, "decision_id": target, "why": "被更正的 id 不在历史里"})
+                continue
+            if target == by:
+                problems.append({"by": by, "decision_id": target,
+                                 "why": "自己更正自己（by == decision_id）不是交代"})
+                continue
+            if pos[by] <= pos[target]:
+                problems.append({"by": by, "decision_id": target,
+                                 "why": "声明写在被更正记录之前（要求声明者 pos 更大）"})
                 continue
             if not isinstance(intent, dict):
                 problems.append({"by": by, "decision_id": target, "why": "更正意图必须是对象"})
@@ -139,7 +156,16 @@ def supersede_map(rows: list, decisions: set, reasons: set) -> tuple:
                 problems.append({"by": by, "decision_id": target,
                                  "why": "更正后的 kind 仍不在闭集里"})
                 continue
-            index[target] = {"by": by, "decision": decision, "reason_code": reason}
+            prior = index.get(target)
+            if prior is not None:
+                prior["disputed"] = True
+                prior.setdefault("also_by", []).append(by)
+                problems.append({"by": by, "decision_id": target,
+                                 "why": "已被 %s 更正过，又被 %s 更正（同一目标两份声明）"
+                                        % (prior["by"], by)})
+                continue
+            index[target] = {"by": by, "decision": decision, "reason_code": reason,
+                             "disputed": False}
     return index, problems
 
 
@@ -178,17 +204,22 @@ def check_history(path: str = DECISIONS_PATH, doc: dict | None = None) -> dict:
     supersede_index, supersede_problems = supersede_map(rows, decisions, reasons)
     by_id = {row.get("decision_id"): row for row in rows}
     missing = [row.get("decision_id") for row in rows if not accounted(row)]
-    corrected = [{"decision_id": target,
-                  "was": {"decision": by_id[target].get("decision"),
-                          "reason_code": by_id[target].get("reason_code")},
-                  **intent}
-                 for target, intent in supersede_index.items()]
+    corrected, compliant = [], []
+    for target, intent in supersede_index.items():
+        item = {"decision_id": target,
+                "was": {"decision": by_id[target].get("decision"),
+                        "reason_code": by_id[target].get("reason_code")},
+                **intent}
+        # H3：桶名承诺「词表外」，就只装词表外的目标；更正一条本来合规的记录另记一桶，
+        # 否则「越界事实还剩几条」这个数会被污染（4号 撞出来、2号/3号 复核同读数）
+        (compliant if kind_ok(by_id[target], decisions, reasons) else corrected).append(item)
     unknown_decisions = sorted({row.get("decision") for row in rows
                                 if row.get("decision") not in doc["state_decisions"]
                                 and row.get("decision") not in doc["non_state_decisions"]
                                 and row.get("decision") not in decisions})
     return {"records": len(rows), "missing_mapping": missing,
             "corrected_out_of_vocabulary": corrected,
+            "corrected_compliant": compliant,
             "bad_supersedes": supersede_problems,
             "unknown_decision_kinds": unknown_decisions}
 

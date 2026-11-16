@@ -1,4 +1,4 @@
-﻿# M05 · 交付链「应用动作」这一步（`D-186` 插单）
+# M05 · 交付链「应用动作」这一步（`D-186` 插单）
 
 交付物是一个**函数 + 一条 CLI**，不是一段新流水线：下层实现是 `mmdpipe/stage.py:1009`
 的 `stage_motion`（`runner.py:661` 一直在用），这一步只在它外面补三件事——**幂等、窗口、回读**。
@@ -152,13 +152,19 @@ Blender 刚体解算的步长 `dt = 1/fps` ⇒ 改 fps 就是改物理。而 M04
 3. `--freeze` 把写出的臂件设成只读（`0o444`），记录 `out_blend.frozen_mode`；
    收尾判定作废时会先解冻再删除，不留下「作废但仍可写」的文件。
 
-这三条目前只有纯 Python 部分被离屏测过（路径拼装 / 不覆盖 / 冻结后再写入抛 `PermissionError`）；
-**真 Blender 里的端到端冒烟还没跑**——18:33 那一刻 `1号` 拿了锁做 324 补丁窗口，我不抢，
-下一批（324 件 + 烘焙参数落地后）第一次跑就顺带把这条路径走通。
+这三条当时只有纯 Python 部分被离屏测过（路径拼装 / 不覆盖 / 冻结后再写入抛 `PermissionError`）。
+**2026-11-16 18:51–18:52 的 324 批次是第一次在真 Blender 里端到端走通**，读数见 §十一。
 
-**强内容摘要**（逐刚体 7 字段 `content_digest_v1`）安排在下一批：`bodies[]` 由 `1号` 的
-重建回读给出（`D-186` 明令不造第二份读刚体的实现），我这边只把它的输出喂进
-`m02_content_digest.py` 并把摘要记进臂记录，不自己造 reader。
+**下一批是一条命令**：`reports/subai/M05/scripts/run_arms.py` 把七臂（四臂 + 对照 + 两条反控）
+的臂表、版本化路径、`--freeze`、以及「不是自己持锁就一个进程都不许起」全写死在里面；
+`--dry-run` 只打印将执行的命令与目标路径（不起 Blender、不要锁）。
+脚本**不 acquire、不 release**：锁的取得与放回保持显式，留给人。
+反控臂的期望退出码在臂表里写死（`CTRL_*` = 3），跑完若不符会逐个点名而不是笼统判失败。
+
+**强内容摘要**（逐刚体 7 字段 `content_digest_v1`）**没做，臂记录里连这个字段都还没有**：
+`bodies[]` 要 `1号` 的重建回读给出（`D-186` 明令不造第二份读刚体的实现），我这边只把它的输出
+喂进 `m02_content_digest.py`。这一条是「已知未做」，不是「留了 null」——`324` 批次的臂记录
+（`summary.json` 的 `arms[]`）里没有 `content_digest` 键，谁核这一项都会拿不到。
 
 ## 九、锁的三步闸（`D-188`）
 
@@ -182,3 +188,149 @@ Blender 刚体解算的步长 `dt = 1/fps` ⇒ 改 fps 就是改物理。而 M04
   一行调用 + 回读记录；CLI 形式
   `blender -b <blend> -P mmdpipe/apply_action.py -- --vmd A.vmd --preset P.json --out-blend B.blend --json R.json`
   （判红时 exit 3 且不写 B）。
+
+## 十一、324 批次：版本化 + 冻结的真 Blender 端到端（`D-189` 结账）
+
+输入 = `1号` 的 `run_20261116_1847/rebuild_built.blend`（`ffaa6780a2f7e765…`，6 102 478 B；
+与 `frozen/delivery_324_ffaa6780.blend` 同一条 sha ⇒ 输入身份有独立锚点）。
+臂表一条命令跑完七臂，**五份产物全部版本化落盘、全部 `0o444`、无一份被覆盖**：
+
+| 臂 | 产物 | 字节 | sha256 | fcurves（走哪条路） | 动作区间 | `frame_end` | fps | `is_baked` |
+|---|---|---|---|---|---|---|---|---|
+| `C@W1` | `C@W1.blend` | 6 137 030 | `79862401ed1f…` | 725（`channelbags`） | [1, 301] | 301 | 24→24 | `false` |
+| `C@W1` 重跑 | `C@W1-rerun.blend` | 6 136 986 | `2a2efb3e1073…` | 725 | [1, 301] | 301 | 24→24 | `false` |
+| `C@W2` | `C@W2.blend` | 6 139 523 | `c3c5cdcb762b…` | 725 | [1, 832] | 832 | 24→24 | `false` |
+| `D` | `D.blend` | 10 230 897 | `b6e0545a7bec…` | 700 | [1, 833] | 833 | 24→24 | `false` |
+| `D` 对照（447 源） | `D-_.blend` | 8 769 753 | `3669481c2d7c…` | 357 | [1, 447] | 447 | 24→24 | `false` |
+
+两条反控：`CTRL_fps_changed` 判红**且只红 `A6`**、`rc=3`、**一个字节都没写**；
+`CTRL_no_addon` 直接 `BLOCKED`、不落盘。`lock_tail.ok` 五臂全 `true`。
+
+**产物回读（只读，一个 Blender 进程循环 `open_mainfile`，不 save）**——把「臂件还是 324 件」
+从结构性推断抬成实测：
+
+| 项 | 五臂读数 |
+|---|---|
+| `rigid_body is not None` 的对象数（`u324`） | **324 / 324 / 324 / 324 / 324** |
+| `scene["mask_wired"]` 四条 | `needed=10111 / added=8298 / already=1813 / capped=False / skipped=0 / readback_mismatch=0`（五臂逐项相同） |
+| `is_baked` / `is_outdated` | `false` / `true`（五臂） |
+| `point_cache_range` | 跟随场景窗口：`[1,301] / [1,301] / [1,832] / [1,833] / [1,447]` |
+
+⇒ 加动作这一步**没有动刚体和掩码通道**，且五臂都可以 fresh_solve。原始记录：
+`arms/20261116_324/summary.json`（`artifact_readback.status = "measured"`）。
+
+**字节复现性（第二次实测）**：同一输入、同一脚本跑两遍，`C@W1` 与 `C@W1-rerun`
+`sha256` **不同**（`79862401…` vs `2a2efb3e…`），而六个回读字段
+（`frame_end / fcurves / frame_range / fps_after / is_baked / is_outdated`）**逐项相同**。
+⇒ 「字节变了 = 有人改过」永远不成立；幂等与身份只能建在回读内容上。
+
+**没能给下游的一份**：烘过的件。`apply_action` 只到「未烘」为止，烘焙是 `4号` 的
+`stage_bake()`；本批不涉及，也不拿「另存一次」冒充烘焙。
+
+## 十二、Blender 5.2：`Action.fcurves` 在**读回来的件**上不存在
+
+产物回读时撞上：`C@W1.blend` 里的 `B_aligned_bone` 只有
+`layers[].strips[].channelbags[].fcurves`，直接 `.fcurves` 抛 `AttributeError`。
+同一份代码在**同一会话里刚导入的动作**上却读得到（`324` 批次七臂全绿就是靠这个）。
+
+后果不是「少一个数」：`mmdpipe/apply_action.py` 的 `_trim_action` / `_hold_action` /
+`A1_action_applied` 三处都走 `.fcurves`，所以**「幂等 / 可重复运行」此前只在一个会话内成立**，
+拿一件已经存过盘的件再跑一次会直接崩——而「可重复运行」正是 `D-186` 对这一步的硬要求。
+
+修法：新增 `fcurves_of(action)`（先试 `.fcurves`，再退到 `layers/strips/channelbags`，
+返回 `(列表, 走哪条路)`），三处调用点全部改走它，记录里多一个 `action.fcurves_via` 字段
+说明这个数从哪条路读出来的。离屏 5 条（含「`fcurves` 一碰就抛」「`strip` 没有
+`channelbags`」两个形状）+ 一条反控：把 `fcurves_of` 退回旧写法，新测试红 3 条、还原后 41 条全绿
+（`out/subai/M05/ctrl_fcurves_shape.py`，控制脚本自带还原）。
+
+**没验的仍然写着**：这条修法只在离屏哑对象上验过形状；**「拿一件存过盘的臂件再跑一次
+`apply_action`」这件事仍然没跑过**——它要拿窗口，而 324 批次之后窗口一直在别人手里
+（2号 的 C/D 三臂、1号 的烘焙）。下一批第一次真跑时补。
+
+## 十三、写侧：`chain_nla` 拼 B 的位置曲线（`D-213` 派工）
+
+`4号` 盘库时发现同一个形状还有一处更硬的：`mmdpipe/chain_nla.py:106/108` 是
+`_shift_b_action`，它拿 `action.fcurves.find(...)` / `.new(...)` **往 B 的 action 上改/建**曲线。
+分层动作上 `.fcurves` 连读都不给，写更没有 —— 所以这个文件在存过盘的件上崩的是**「拼」**，
+不是「读」；而「拿存了盘的件再拼一次」正是 `D-210` 记下的那两处未做之一（NLA 三面）。
+
+修法：写侧也走同一个地方，不另留实现（`D-186`：两份实现就是两个真值）。
+`apply_action.py` 新增两件：
+
+- `fcurve_container(action, datablock)` —— 返回**可写**容器（有 `.find/.new`）：
+  ① `action.fcurves`（同会话刚造的动作，今天在用的那条）
+  ② 分层动作里槽位正好是 `datablock.animation_data.action_slot` 的那个 channelbag
+  ③ 只有一个 channelbag 时就是它
+  ④ 多个又对不上槽位 ⇒ 抛 `FcurveShapeError`。**不挑**：挑一个等于往别人的动作上改键，
+  而且写到一半才发现会留下半个拼接结果，比崩更难查。
+- `ensure_fcurve(action, datablock, path, index, group)` —— 拿到（必要时新建）一条曲线，返回
+  `(fcurve, how)`。顺序：老形状 → 上游接口 → 自己走 channelbag。
+
+**上游接口这件事按 `D-213` 的处理方式来写**：`Action.fcurve_ensure_for_datablock()` 是
+**待验假设，不是事实**。所以代码里它只是第二档候选：存在且调用不抛就用，`how` 记
+`fcurve_ensure_for_datablock`；抛了就退到 channelbag 那条路，并把异常类名留在 `how` 里
+（`channelbags[0](new); upstream_raised:TypeError`）——**它试过、什么时候抛的，读记录的人看得见**。
+`_shift_b_action` 现在返回 `(改写到几个键, 曲线从哪条路拿到的)`，`concat_via_nla` 的
+`align.fcurves_via` 与 `fcurves_via`（烘焙后那条读回）都落进报告。
+
+### 离屏 15 条 + 反向控制
+
+`tests/test_apply_action.py::FcurveWriteShapeTest` 9 条（老形状 find/new、分层单 bag、
+槽位优先于位置、两个 bag 不猜就红、连容器都没有也红、上游被用上、上游抛了退回去且留痕）；
+`tests/test_chain_nla_fcurves.py` 6 条（真的调 `_shift_b_action`：老形状建三条曲线两个键、
+分层动作位移既有键、槽位选对 bag、两个 bag 拒写且**一个字节都没写进去**、
+`action.fcurves.find` 那种旧写法在分层动作上确实 `AttributeError`）。
+
+反向控制 `out/subai/M05/ctrl_nla_write_shape.py`：把 `_shift_b_action` 退回旧写法 ⇒ **红 4 条**
+（其中两条是「拒写」变「崩」，说明旧写法连拒都做不到）；还原 ⇒ 6 条全绿。
+脚本自带还原，跑完 `git status` 只剩本次要提交的文件。
+
+全量 **690 tests × 默认/utf-8/gbk 三环境 OK（skipped 1）**，`status --check` OK。
+
+### 上游接口：`D-213` 那条「待验假设」现在有实测了
+
+派工原话是「先确认 5.2 的 `Action.fcurve_ensure_for_datablock()` 能不能直接用；我说的这句是
+待验假设，不是事实」。只读探针（`out/subai/M05/probe_fcurve_write_shape.py`，打开臂件
+`C@W1.blend`、在 `action.copy()` 上试、不存盘，前后 sha `79862401…` 同值）量到：
+
+| 项 | 读数 |
+|---|---|
+| `hasattr(bpy.types.Action, 'fcurve_ensure_for_datablock')` | **false** |
+| `getattr(action, 'fcurve_ensure_for_datablock')` | **true** |
+| `__doc__` 里的签名 | `(datablock, data_path, index=0, group_name="")` |
+| `__doc__` 里的前置条件 | "**This action must already be assigned to the data-block**"（并会顺手建 layer/strip/slot 再赋槽位） |
+| 对一份没挂到 ID 上的 `action.copy()` 真调 | `RuntimeError` |
+| 臂件本体 sha（前后） | `79862401ed1f…` 同值，`blend_untouched=true` |
+
+三件事因此定下来：
+
+1. **只能从动作实例上拿这个函数** —— 类上没有。`hasattr(bpy.types.Action, ...)` 会回答
+   「不存在」，跟今天那几个「按名字数东西，名字错了给 0」是同一族：**看不见不等于没有**。
+2. 签名和我猜的一致（`(datablock, data_path, index=, group_name=)`），不是「碰巧能跑」。
+3. **它有前置条件**，而 `chain_nla` 要写的那条曲线恰恰挂在 NLA 条带上、不挂在
+   `animation_data.action` 上 ⇒ 真机上调它必 `RuntimeError`。所以代码改成**先判前置条件**
+   （`datablock.animation_data.action is action` 才调），不成立就记
+   `upstream_skipped:action_not_assigned` 走 channelbag —— 拿异常当流程控制会让每一次正常
+   拼接都在记录里背一条假故障，读的人分不清「真出事」和「本来就走这条」。
+
+同一次探针还量到一处**很容易被误判的命名差**：`arm.animation_data.action_slot` 的标识是
+`OBB_aligned_bone`，而那个 channelbag 自己槽位的标识是 `B_aligned_bone` —— **是同一个槽位的
+两种叫法**（一个带 ID 前缀、一个是动作名）。代码里按**对象身份**比对（`bag.slot is slot`），
+若按名字比，会得出「对不上」然后拒写，而实际上唯一候选就摆在那里。
+
+### 一处去重（`4号` 复审提的，已改）
+
+第一版里读侧 `fcurves_of()` 与写侧 `fcurve_container()` 各写了一遍
+`layers[].strips[].channelbags[]` 的遍历 —— **同一形状的两份实现**，正是今天已经付过三次
+代价的那个形状（`mask_wired` 手抄 11 键 vs 清单 18 键、两份锁逻辑、`use_disk_cache` 差点
+被「好心打开」）。现在两侧共用 `_channelbags_of()`，层级一变只改一处，行为与顺序不变
+（`fcurves_of` 的两条控制仍然成立：退回旧写法红 3 条、还原全绿）。
+
+### 没验的（写在这里，别去别处找）
+
+1. **上游接口成功那条路没走过**：它要求动作已挂到 data-block 上，`chain_nla` 的场景里不成立，
+   所以真机只验到了「`RuntimeError` → 退 channelbag → `find` 到既有曲线」。
+2. **真的拿一份存过盘的件重跑 NLA 拼接，仍然没跑过**。离屏证明的是「形状能过」，
+   不是「拼出来的动作对」——对齐量、烘焙窗口、导出这些还得窗口里跑。
+3. 探针没量「多 bag 多槽位」的真实件：手上五份臂件都只有一个 channelbag，
+   所以 `FcurveShapeError` 那条拒写分支只有哑对象验过，**真件没验**。
