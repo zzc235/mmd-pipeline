@@ -75,6 +75,13 @@ def main(argv=None):
                  "max_delta": (b.get("compare") or {}).get("max_delta")},
     }
     rec["problems"] = problems
+    rec["caveats"] = [
+        ("leg B（`pass_b_cold_reread`）的冷跳读的是**本会话顺序重算刚刚填进去的缓存**，"
+         "所以 A 与 B 相同是构造出来的，**不构成对缓存回放的测量**，不能拿来翻案 "
+         "`D-218`/`D-219`（重开件里那份缓存被引擎判为 outdated、且 `use_disk_cache=false`）。"),
+        ("这条判据只证明「场景可确定性重建」；跨会话一致性来自两次独立会话的 "
+         "`pass_a_sequential` pose sha 相同，与缓存无关。"),
+    ]
     rec["verdict"] = "RECOMPUTE_CONSISTENT" if not diff_frames and not problems \
         else "RECOMPUTE_INCONSISTENT"
     rec["scope"] = ("通过 = 场景可在任意新会话里确定性重建到同一姿态（`T2` 的立足点）。"
