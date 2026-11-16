@@ -147,6 +147,33 @@ def collect(blend_path):
     }
     cache_rec["verdict"] = cache_mod.evaluate(dict(cache_rec))
 
+    # 约束类型条数 + 动作名与帧范围：`content_digest_v1` 的 included 字段，缺了强摘要就缺料
+    by_type = {}
+    try:
+        holders = [o for o in bpy.data.objects]
+        for o in holders:
+            for c in getattr(o, "constraints", []):
+                by_type[c.type] = by_type.get(c.type, 0) + 1
+        if arm is not None:
+            for pbone in arm.pose.bones:
+                for c in pbone.constraints:
+                    by_type[c.type] = by_type.get(c.type, 0) + 1
+    except Exception as exc:                           # noqa: BLE001
+        by_type = {"__error__": "%s: %s" % (type(exc).__name__, exc)}
+    actions = []
+    for act in bpy.data.actions:
+        try:
+            actions.append({"name": act.name,
+                            "frame_range": [round(float(v), 6) for v in act.frame_range]})
+        except Exception:                              # noqa: BLE001
+            actions.append({"name": act.name, "frame_range": None})
+    active_action = None
+    if arm is not None and getattr(arm, "animation_data", None) is not None:
+        cur = arm.animation_data.action
+        if cur is not None:
+            active_action = {"name": cur.name,
+                             "frame_range": [round(float(v), 6) for v in cur.frame_range]}
+
     # 逐刚体（`content_digest_v1` 强摘要的原料）：以前只回读掩码与缓存，强摘要因此算不出来。
     # 任何一个刚体读失败都抛，不用空列表冒充「0 个刚体」。
     bodies, body_errors = [], []
@@ -164,6 +191,9 @@ def collect(blend_path):
         "rigids_u324_rigid_body_attr": len(rigids_u324),
         "bodies": bodies,
         "body_read_errors": body_errors,
+        "constraints_by_type": by_type,
+        "actions": actions,
+        "active_action": active_action,
         "mask_triple": {
             "verdict": mask.get("verdict"),
             "constraints_capped": mask.get("constraints_capped"),
