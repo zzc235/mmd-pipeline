@@ -168,6 +168,11 @@ def main():
 
     doc = {
         "status": "MEASURED",
+        # `D-225` 规则第九条②：求值层读数必须声明层、并带 `first_eval_after_open` 与
+        # `warmup_frames`。本探针**故意的**不热身（A 就是「开件后第一次求值」），所以
+        # 它是一份判别用读数，不是可交付的姿态读数。
+        "layer": "eval",
+        "layer_note": "数据层字段（rigid_body/mask/is_baked…）与姿态/深度无关；本条读的是求值层",
         "purpose": "开件后第一次求值对每臂基线（f1 的 5076 对）有没有偏差",
         "blend": a.blend,
         "frames": [f0, f1],
@@ -179,7 +184,10 @@ def main():
         "other_objs": len(others),
         "cache_state": cache_state,
         "passes": {k: {"pairs": len(v), "zero_overlap": sum(1 for x in v.values() if x == 0.0),
-                       "sha256": _sha_pairs(v)} for k, v in passes.items()},
+                       "sha256": _sha_pairs(v),
+                       "warmup_frames": 0 if k in ("A", "A2", "A3") else (f1 - int(sc.frame_start) + 1),
+                       "first_eval_after_open": k == "A"}
+                   for k, v in passes.items()},
         "compare": {
             "A_vs_A3": _compare(passes["A"], passes["A3"]),
             "A_vs_A2": _compare(passes["A"], passes["A2"]),

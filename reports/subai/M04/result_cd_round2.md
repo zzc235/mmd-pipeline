@@ -199,7 +199,9 @@ python reports/subai/M04/scripts/m04_run_cd_locked.py \
 
 与冻结批次那份真基线（`baseline_C_W1.json`，本轮所有穿透数字的零点）逐对比较：`5076` 对里 `56` 对数值不同，最大 `4.965374e-7 m`；这 56 对**逐条满足 `round(A, 6) == frozen`**（`Δ` 中位 `2.279e-7 m`），因为 `baseline_payload()` 把基线存 6 位小数 ⇒ **差异是存储取整，不是测量漂移**。按判据 `ε = 0.020 m` 算，`5e-7 m` 是它的 `2.5e-5`。
 
-跑了两遍同值（第一遍在收尾释放物理场景时撞 `0xC0000005`，产物已落盘；第二遍 `rc=0`）；`is_baked=false / is_outdated=true / use_disk_cache=false`，胶囊自检四项全过。产物 `reports/subai/M04/firstread/firstread_C_W1.json`（25 232 B，sha256 `7a655df4…`）。
+跑了三遍同值（第一遍在收尾释放物理场景时撞 `0xC0000005`，产物已落盘；后两遍 `rc=0`）；`is_baked=false / is_outdated=true / use_disk_cache=false`，胶囊自检四项全过。产物 `reports/subai/M04/firstread/firstread_C_W1.json`（25 625 B，sha256 `09f1c64e…`）。
+
+按 `D-225` 规则第九条②，这条读数**声明它的层**：`layer = eval`（求值层，不是数据层），四次读数各自带 `warmup_frames`（`A/A2/A3 = 0`、`B = 240`）与 `first_eval_after_open`（只有 `A` 为真）。它**故意不热身**——要量的就是开件后第一次求值，所以这是一份**判别用**读数，不是可交付的姿态读数。
 
 **限定**：只在 `C@W1` 上量（`总控` 指定的廉价判别），`C@W2` / `D` 未单独测；这条证明的是「`f1` 的深度表首读 = 重读」，**不是**「`f417` 的姿态差不存在」——后者是引擎行为，仍按 `D-219` 记。
 

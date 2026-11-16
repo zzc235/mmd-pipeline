@@ -53,7 +53,7 @@
       "top": []
     }
   },
-  "elapsed_s": 66.0,
+  "elapsed_s": 44.4,
   "frame_start": 1,
   "frames": [
     1,
@@ -857,26 +857,36 @@
     "path": "E:\\dsh pr\\woker2\\out\\subai\\M04\\penetration\\round2_324b\\baseline_C_W1.json",
     "sha256_file": "54be168d18916e923b2ef7a1a953b9d73e8a1752a95d727833bdba532310bf47"
   },
+  "layer": "eval",
+  "layer_note": "数据层字段（rigid_body/mask/is_baked…）与姿态/深度无关；本条读的是求值层",
   "other_objs": 306,
   "passes": {
     "A": {
+      "first_eval_after_open": true,
       "pairs": 5076,
       "sha256": "b0038d7afd86ac61497472eb103aabb08eee790475ff5ef474cf747101882c12",
+      "warmup_frames": 0,
       "zero_overlap": 5020
     },
     "A2": {
+      "first_eval_after_open": false,
       "pairs": 5076,
       "sha256": "b0038d7afd86ac61497472eb103aabb08eee790475ff5ef474cf747101882c12",
+      "warmup_frames": 0,
       "zero_overlap": 5020
     },
     "A3": {
+      "first_eval_after_open": false,
       "pairs": 5076,
       "sha256": "b0038d7afd86ac61497472eb103aabb08eee790475ff5ef474cf747101882c12",
+      "warmup_frames": 0,
       "zero_overlap": 5020
     },
     "B": {
+      "first_eval_after_open": false,
       "pairs": 5076,
       "sha256": "b0038d7afd86ac61497472eb103aabb08eee790475ff5ef474cf747101882c12",
+      "warmup_frames": 240,
       "zero_overlap": 5020
     }
   },
