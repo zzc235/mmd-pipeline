@@ -113,3 +113,20 @@ git diff --name-only main...HEAD      # 等价于 从 merge-base 算到 HEAD
 - `scheduler` 拒收 `spec != "evidence/1"` 的提交。
 - 改本规范 = 升版本（`evidence/2`），存量 hash **不重算**，旧提交仍按 v1 校验。
 - 任何人不得为了通过验证而重算 hash、重排字段或重新序列化——那是 W3。
+
+## 5. 哈希基数（2026-11-16 13:24 追加，D-060）
+
+本机 `core.autocrlf=true`，同一份文本内容在不同检出下磁盘字节不同（CRLF / LF），导致同一个文件有两个 sha256。今天已出现两次「看起来造假、其实是换行」：
+
+- M07 attempt 2 的 `tests_bpy/smoke.py`：工作树 135 处 CRLF，按磁盘哈希 `f57b95da…`，按 git blob `1d016956…`；
+- 同一份证据里其余三个文件是 LF，两种算法结果相同——**一份证据里混了两种基数**。
+
+**规定**：
+
+1. 文本文件（`.py` / `.md` / `.json` / `.jsonl` / `.txt` / `.toml` / `.cfg`）先把 `\r\n` 规范化为 `\n`，再算 sha256；
+2. 二进制文件（`.blend` / `.png` / `.zip` / `.pmx` / `.vmd`）按原始字节算，不做规范化；
+3. 证据里记 `hash_basis: "lf_normalized_v1"`；缺该字段的按旧基数（磁盘字节）解释；
+4. 已提交的旧证据**不追溯**，但 `result` 里要注明当时用的是哪种基数；
+5. 核验方（D0）复核时，**先试 LF 规范化**，只有规范化后仍不等才算内容不一致。
+
+**为什么不是「一律用 git blob」**：`reports/` 与 `out/` 全在 gitignore 里，不进版本库，没有 blob 可比；规范化对两者都适用。
