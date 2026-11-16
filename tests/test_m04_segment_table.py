@@ -291,8 +291,16 @@ class MainTest(unittest.TestCase):
         self.assertEqual(code, 0)
 
     def test_cli_refuses_degenerate_ratio_with_exit_2(self):
-        code = SEG.main(["--meta", SNAPSHOT, "--hold-from", "302", "--ratio", "1.0"])
+        """拒算要**说清是哪一档**：`REFUSED:` 恰好一行，且不是早期崩溃（`3号` 20:29 的判据）。"""
+        import contextlib
+        import io
+        err = io.StringIO()
+        with contextlib.redirect_stderr(err):
+            code = SEG.main(["--meta", SNAPSHOT, "--hold-from", "302", "--ratio", "1.0"])
         self.assertEqual(code, 2)
+        text = err.getvalue()
+        self.assertEqual(text.count("REFUSED:"), 1, text)
+        self.assertNotIn("Traceback", text)
 
     def test_cli_refuses_hold_from_outside_the_readings(self):
         code = SEG.main(["--meta", SNAPSHOT, "--hold-from", "900", "--ratio", "0.10"])

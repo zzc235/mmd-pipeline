@@ -54,6 +54,12 @@ class GuardPrecedesBpyTest(unittest.TestCase):
         # ② 拒绝理由 + 目标路径
         self.assertIn("REFUSE", r.stderr)
         self.assertIn(self.target, r.stderr)
+        # ⑥ 拒绝**恰好一条**、且指向被测目标（`3号` 20:29 / `4号` 的同一条）：
+        #    只看退出码会把「读到断言之前就崩了」读成「拦截成功」——早期崩溃也是非 0。
+        self.assertEqual(r.stderr.count("REFUSE"), 1, r.stderr)
+        refuse_lines = [ln for ln in r.stderr.splitlines() if "REFUSE" in ln]
+        self.assertEqual(len(refuse_lines), 1, r.stderr)
+        self.assertIn(self.target, refuse_lines[0])
         # ④⑤ sha / size / mtime 三样同值
         self.assertEqual(before["sha256"], after["sha256"])
         self.assertEqual(before["size"], after["size"])
