@@ -297,6 +297,21 @@ def _clear_previous(arm):
     return removed
 
 
+def _channelbags_of(action):
+    """分层动作里的 `channelbag` 列表（`layers[].strips[].channelbags[]`）。
+
+    读侧（`fcurves_of`）与写侧（`fcurve_container`）**共用这一处遍历**：层级一变只改这里。
+    今天已经为「同一形状两份实现」付过三次代价（`mask_wired` 手抄 11 键 vs 清单 18 键、
+    两份锁逻辑、`use_disk_cache` 差点被「好心打开」）——`4号` 在 `b300c5c` 之后复审时点的。
+    """
+    out = []
+    for layer in getattr(action, "layers", []) or []:
+        for strip in getattr(layer, "strips", []) or []:
+            for bag in getattr(strip, "channelbags", None) or []:
+                out.append(bag)
+    return out
+
+
 def fcurves_of(action):
     """取一个 `Action` 的全部 fcurve —— **Blender 4.4+ 的分层/槽位动作没有 `.fcurves`**。
 
@@ -312,12 +327,8 @@ def fcurves_of(action):
         pass
     except TypeError:                       # 某些版本给 None，同样按「没有」处理
         pass
-    out = []
-    for layer in getattr(action, "layers", []) or []:
-        for strip in getattr(layer, "strips", []) or []:
-            for bag in getattr(strip, "channelbags", None) or []:
-                out.extend(bag.fcurves)
-    return out, "layers.strips.channelbags"
+    return [fc for bag in _channelbags_of(action) for fc in bag.fcurves], \
+        "layers.strips.channelbags"
 
 
 class FcurveShapeError(RuntimeError):
@@ -326,16 +337,6 @@ class FcurveShapeError(RuntimeError):
     读可以全部拼成一个列表，写不行：写要 `find()/new()` 这对方法，得先挑定
     哪一个容器。挑不准的时候宁可红，也不许随手挑一个 —— 那是往别人的动作上改键。
     """
-
-
-def _channelbags_of(action):
-    """分层动作里的 `channelbag` 列表（`layers[].strips[].channelbags[]`）。"""
-    out = []
-    for layer in getattr(action, "layers", []) or []:
-        for strip in getattr(layer, "strips", []) or []:
-            for bag in getattr(strip, "channelbags", None) or []:
-                out.append(bag)
-    return out
 
 
 def fcurve_container(action, datablock=None):
