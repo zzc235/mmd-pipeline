@@ -46,5 +46,19 @@
     }
   },
   "hash_basis": "lf_normalized_v1",
+  "later_additions": {
+    "compare.log.txt": {
+      "bytes": 1096,
+      "sha256_lf_normalized": "7757340c6ef8dbd87c7a70456dc757841ccaa39cea1ae31b1359be7bcbcaf16f",
+      "source_name_in_base": "compare.log",
+      "why": "原件名被 .gitignore:39 的 *.log 吞掉、从未进 git；快照里以 .txt 落地，内容逐字节相同（只有文件名变了）"
+    },
+    "compare_selftest.log.txt": {
+      "bytes": 1833,
+      "sha256_lf_normalized": "9fbcefb0b99ca87f1c122f317a5d4072c07f9be1748bd5a8c0b4c10c58a5017d",
+      "source_name_in_base": "compare_selftest.log",
+      "why": "原件名被 .gitignore:39 的 *.log 吞掉、从未进 git；快照里以 .txt 落地，内容逐字节相同（只有文件名变了）"
+    }
+  },
   "source": "E:/dsh pr/woker2/out/subai/M04/penetration/round2_324b"
 }

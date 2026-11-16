@@ -67,11 +67,14 @@ class RealSnapshotTest(unittest.TestCase):
         self.assertFalse(self.scope["two_way_checked"])
         self.assertIn("out/", self.scope["why"])
 
-    def test_ignored_logs_are_declared_not_asserted_present(self):
+    def test_renamed_logs_are_declared_in_git(self):
         copies = {c["name"]: c for c in self.scope["snapshot_copies"]}
-        self.assertFalse(copies["compare.log"]["in_git"])
-        self.assertFalse(copies["compare_selftest.log"]["in_git"])
-        self.assertIn(".gitignore", copies["compare.log"]["why_not"])
+        for new, old in (("compare.log.txt", "compare.log"),
+                         ("compare_selftest.log.txt", "compare_selftest.log")):
+            self.assertTrue(copies[new]["in_git"], new)
+            self.assertEqual(copies[new]["source_name_in_base"], old)
+            self.assertIn(".gitignore", copies[new]["why_renamed"])
+        self.assertNotIn("compare.log", copies)  # 原名不能留在「入 git」清单里
 
 
 class NegativeControlTest(unittest.TestCase):

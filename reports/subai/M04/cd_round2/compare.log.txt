@@ -1,0 +1,14 @@
+[C_W1] frames=240 over_eps=3 deepest=f231 -0.034219 (下擺_0_9↔馬尾11) ovl_median=49.0 base=54be168d18916e92 policy=sequential_from_frame_start
+      raw@deepest=-0.034219  pairs_without_baseline=0  judgeable=True 
+[C_W2] frames=832 over_eps=48 deepest=f304 -0.083250 (下擺_0_10↔馬尾11) ovl_median=47.0 base=4f33087b321b3a7d policy=sequential_from_frame_start
+      raw@deepest=-0.08325  pairs_without_baseline=0  judgeable=True 
+[D] frames=832 over_eps=309 deepest=f287 -0.081814 (下擺_0_12↔馬尾10) ovl_median=127.0 base=3b2b021c78198ab1 policy=sequential_from_frame_start
+      raw@deepest=-0.081814  pairs_without_baseline=0  judgeable=True 
+
+D vs C_W2 → 数值变化、结论不变
+   两组都是 非 0（越判据）；**增量不同源（各自相对自己窗口首帧的基线），不比数值差**
+
+C_W1 vs C_W2 → 数值变化、结论不变
+   两组都是 非 0（越判据）；同一动作故可比数值：deepest -0.034219 vs -0.083250（Δ=0.049031 m）
+
+[compare] written E:\dsh pr\woker2\out\subai\M04\penetration\round2_324b\cmp_round2.json

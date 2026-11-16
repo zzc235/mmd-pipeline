@@ -1,34 +1,70 @@
 {
-  "spec": "manifest_scope/2",
-  "manifest": "manifest.json",
-  "path_field": "name",
-  "paths_are": "file name only, relative to `base` —— **不是**相对本目录",
   "base": "E:/dsh pr/woker2/out/subai/M04/penetration/round2_324b",
   "base_in_git": false,
   "entries_declared": 35,
   "entries_readonly": 35,
-  "snapshot_copies": [
-    {"name": "C_W1.meta.json", "in_git": true},
-    {"name": "C_W2.meta.json", "in_git": true},
-    {"name": "D.meta.json", "in_git": true},
-    {"name": "baseline_C_W1.json", "in_git": true},
-    {"name": "baseline_C_W2.json", "in_git": true},
-    {"name": "baseline_D.json", "in_git": true},
-    {"name": "cd_run_ledger.json", "in_git": true},
-    {"name": "cmp_round2.json", "in_git": true},
-    {"name": "_snapshot_index.json", "in_git": true},
-    {"name": "compare.log", "in_git": false,
-     "why_not": "`.gitignore:39` 的 `*.log` 吞掉 —— 它在 `base`（out/ 批次目录）里存在、也被 manifest 收录，但没进 git"},
-    {"name": "compare_selftest.log", "in_git": false,
-     "why_not": "同上（`.gitignore:39` `*.log`）"}
-  ],
-  "two_way_checked": false,
-  "why": "manifest 的 35 条目全部住在 `base`（out/ 的只读批次目录）；本目录只放副本。按 `base` 解析是 35/35；按本目录双向枚举是副本，两者是不同宇宙，混着用会得到一堆假 only_on_disk —— 总控 19:50 的 artifact_audit 第一版就在这份上报过 46 条假 drift，改后记 two_way_checked=false。",
-  "why_v2": "19:55 main 红了一条：原版把 11 份副本一律声明成「在快照里」，而 compare.log / compare_selftest.log 被 `.gitignore:39` 的 `*.log` 吞掉、**从来没进过 git**。本机看着齐、别人的检出就缺 —— 一个靠本机状态的绿灯。现在每份副本带 `in_git`，false 的必须给出 `why_not`。",
   "how_to_audit": [
     "核身份：读 manifest.json 的 files[]，每项有 bytes / sha256 / sha256_lf_normalized / readonly；按 base 逐条解析（reports/subai/M04/scripts/m04_snapshot_scope.py --dir <快照目录>，退出码 0=OK / 2=MISMATCH / 3=UNMEASURED）",
     "base 不在本机（新克隆、别人的树）时结论是 UNMEASURED，不是 MISMATCH —— 量不了不等于不一致",
     "核副本：snapshot_copies 里 in_git=true 的用 `git ls-files` 判（不看 os.path.exists，那个只看本机）；in_git=false 的只看它有没有 why_not",
     "要双向枚举（盘上每个在账上）时，枚举 `base` 而不是本目录"
-  ]
+  ],
+  "manifest": "manifest.json",
+  "path_field": "name",
+  "paths_are": "file name only, relative to `base` —— **不是**相对本目录",
+  "snapshot_copies": [
+    {
+      "in_git": true,
+      "name": "C_W1.meta.json"
+    },
+    {
+      "in_git": true,
+      "name": "C_W2.meta.json"
+    },
+    {
+      "in_git": true,
+      "name": "D.meta.json"
+    },
+    {
+      "in_git": true,
+      "name": "baseline_C_W1.json"
+    },
+    {
+      "in_git": true,
+      "name": "baseline_C_W2.json"
+    },
+    {
+      "in_git": true,
+      "name": "baseline_D.json"
+    },
+    {
+      "in_git": true,
+      "name": "cd_run_ledger.json"
+    },
+    {
+      "in_git": true,
+      "name": "cmp_round2.json"
+    },
+    {
+      "in_git": true,
+      "name": "_snapshot_index.json"
+    },
+    {
+      "in_git": true,
+      "name": "compare.log.txt",
+      "source_name_in_base": "compare.log",
+      "why_renamed": ".gitignore:39 的 *.log 吞掉原名 ⇒ 快照里以 .txt 落地，内容逐字节相同"
+    },
+    {
+      "in_git": true,
+      "name": "compare_selftest.log.txt",
+      "source_name_in_base": "compare_selftest.log",
+      "why_renamed": ".gitignore:39 的 *.log 吞掉原名 ⇒ 快照里以 .txt 落地，内容逐字节相同"
+    }
+  ],
+  "spec": "manifest_scope/3",
+  "two_way_checked": false,
+  "why": "manifest 的 35 条目全部住在 `base`（out/ 的只读批次目录）；本目录只放副本。按 `base` 解析是 35/35；按本目录双向枚举是副本，两者是不同宇宙，混着用会得到一堆假 only_on_disk —— 总控 19:50 的 artifact_audit 第一版就在这份上报过 46 条假 drift，改后记 two_way_checked=false。",
+  "why_v2": "19:55 main 红了一条：原版把 11 份副本一律声明成「在快照里」，而 compare.log / compare_selftest.log 被 `.gitignore:39` 的 `*.log` 吞掉、**从来没进过 git**。本机看着齐、别人的检出就缺 —— 一个靠本机状态的绿灯。现在每份副本带 `in_git`，false 的必须给出 `why_not`。",
+  "why_v3": "19:58 按 总控 建议改选「改名入 git」：两份 .log 以 .log.txt 落在快照里（内容逐字节相同），原件名留在 base；文件名是唯一障碍，不为此破形。"
 }
