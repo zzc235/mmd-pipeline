@@ -22,6 +22,8 @@
 
 冻结件旁 `readback_frozen_ffaa6780.json`（206 289 B，`2cc761f1…`）是重新跑过的只读回读：`mask_triple` 现在四个数齐全且逐项等于 `mask_wired_record`，并带 `source` 逐键说明来源。**本报告的读数取自这份回读 + 我对冻结件的直接 sha 核对**，不采信任何口头转述。
 
+> **一条已知缺陷（2026-11-16 18:53，已报 `1号`）**：`frozen/frozen_manifest.json` 列的 5 项里有 2 项（`readback_after_rebuild.json` `bb06f01f…`、`facts.json` `64bfedac…`）**在 `run_20261116_1847/` 里、不在 `frozen/` 里**；而 `frozen/` 里真正的回读件 `readback_frozen_ffaa6780.json`（206 289 B）**没进账**。⇒ **本报告不引用那份 manifest**，只用「盘上逐文件实测的 `bytes` + `sha256` + 只读位」。教训与 `D-189` 同族：manifest 必须由**被冻结的那个目录**枚举生成，且要有双向断言（盘上每个文件都在账上、账上每个文件都在盘上）——「单向枚举」正是这次错误的形状。
+
 ## 二、准入四件
 
 | 准入项 | 状态 | 依据 |
