@@ -23,6 +23,14 @@ import os
 import sys
 import traceback
 
+# GBK 控制台下中文/符号会让脚本崩在打印上（总控 18:18）：入口统一 UTF-8
+for _stream in (sys.stdout, sys.stderr):
+    try:
+        _stream.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:  # noqa: BLE001
+        pass
+
+
 def find_tree(start):
     """往上找到含 `mmdpipe/` 的那一层——脚本住在 reports/subai/M02/scripts/ 下，
     树根不是 dirname(dirname(__file__))。找不到就报错，别让 import 撞运气。"""
@@ -48,6 +56,12 @@ import bpy                                            # noqa: E402
 import addon_utils                                    # noqa: E402
 from mmdpipe import cache_state as cache_mod          # noqa: E402
 from mmdpipe import stage                             # noqa: E402
+
+# 逐刚体字段的读取只许一份实现（`m02_patch_bpy.digest_body`），这里复用，不另写一套
+_HERE = os.path.dirname(os.path.abspath(__file__))
+if _HERE not in sys.path:
+    sys.path.insert(0, _HERE)
+import m02_patch_bpy as pb                            # noqa: E402
 
 
 def enable_mmd_tools():
@@ -133,12 +147,23 @@ def collect(blend_path):
     }
     cache_rec["verdict"] = cache_mod.evaluate(dict(cache_rec))
 
+    # 逐刚体（`content_digest_v1` 强摘要的原料）：以前只回读掩码与缓存，强摘要因此算不出来。
+    # 任何一个刚体读失败都抛，不用空列表冒充「0 个刚体」。
+    bodies, body_errors = [], []
+    for o in sorted(rigids_u324, key=lambda x: x.name):
+        try:
+            bodies.append(pb.digest_body(o))
+        except Exception as exc:                       # noqa: BLE001
+            body_errors.append({"name": o.name, "error": "%s: %s" % (type(exc).__name__, exc)})
+
     return {
         "blend": os.path.abspath(blend_path),
         "blend_sha256": sha256_file(blend_path),
         "addon_enabled": addon,
         "rigids_u323_rigid_bodies": len(rigids_u323) if rigids_u323 is not None else None,
         "rigids_u324_rigid_body_attr": len(rigids_u324),
+        "bodies": bodies,
+        "body_read_errors": body_errors,
         "mask_triple": {
             "verdict": mask.get("verdict"),
             "constraints_capped": mask.get("constraints_capped"),
@@ -151,6 +176,10 @@ def collect(blend_path):
         "mask_report": mask,
         "mask_wired_record": stored,
         "cache": cache_rec,
+        "scene_now": {"fps": int(scene.render.fps),
+                      "fps_base": round(float(scene.render.fps_base), 6),
+                      "frame_start": int(scene.frame_start),
+                      "frame_end": int(scene.frame_end)},
         "provenance": module_provenance(),
     }
 

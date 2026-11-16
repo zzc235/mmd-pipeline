@@ -22,6 +22,13 @@ import sys
 
 import bpy
 
+# GBK 控制台下中文/符号会让脚本崩在打印上（总控 18:18）：入口统一 UTF-8
+for _stream in (sys.stdout, sys.stderr):
+    try:
+        _stream.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:  # noqa: BLE001
+        pass
+
 _HERE = os.path.dirname(os.path.abspath(__file__))
 _TREE = os.path.abspath(os.path.join(_HERE, "..", "..", "..", ".."))
 if _TREE not in sys.path:
@@ -122,6 +129,14 @@ def apply_input_patch(patch_path, arm):
     return rec
 
 
+def scene_snapshot():
+    """场景时间口径。`D-192`：`import_vmd(update_scene_settings=True)` 会把 24 fps 改 30 fps，
+    等于换 `dt`，跨 `dt` 的两组读数不可比 —— 所以每换一步都记一次，别让「帧号相同」掩盖「速度口径变了」。"""
+    scene = bpy.context.scene
+    return {"fps": int(scene.render.fps), "fps_base": round(float(scene.render.fps_base), 6),
+            "frame_start": int(scene.frame_start), "frame_end": int(scene.frame_end)}
+
+
 def main():
     argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
     do_build = "--build" in argv
@@ -146,7 +161,8 @@ def main():
               "operator_available": ok, "addon_trace": trace,
               "preset_has_import": "import" in preset, "import_cfg": preset.get("import"),
               "objects_reset": stage.reset_scene(),
-              "input_patch_requested": patch_path}
+              "input_patch_requested": patch_path,
+              "scene": {"after_reset": scene_snapshot()}}
     if not ok:
         report["status"] = "NOT_MEASURED"
         report["reason"] = ("mmd_tools 的 import_model 算子在本会话里注册不上；"
@@ -160,6 +176,7 @@ def main():
         os._exit(NOT_MEASURED)
 
     res, root, arm, mesh = stage.stage_import(preset, pmx_path)
+    report["scene"]["after_import"] = scene_snapshot()
     report["import"] = {"ok": root is not None and arm is not None,
                         "root": getattr(root, "name", None),
                         "armature": getattr(arm, "name", None),
@@ -216,6 +233,14 @@ def main():
 
     if do_build and arm is not None and root is not None:
         res2 = stage.stage_build(preset, root, arm)
+        report["scene"]["after_build"] = scene_snapshot()
+        base = report["scene"]["after_import"]
+        now = report["scene"]["after_build"]
+        report["scene"]["fps_changed_during_build"] = (now["fps"], now["fps_base"]) != (
+            base["fps"], base["fps_base"])
+        if report["scene"]["fps_changed_during_build"]:
+            print("WARN 场景 fps 在 stage_build 里变了：%r → %r（跨 dt 的读数不可比，D-192）"
+                  % ((base["fps"], base["fps_base"]), (now["fps"], now["fps_base"])))
         report["build"] = {"issues": issues_of(res2),
                            "metrics": dict(getattr(res2, "metrics", {}))}
         dump2 = os.path.join(out_dir, "rebuild_built.blend")

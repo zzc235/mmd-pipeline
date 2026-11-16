@@ -80,6 +80,13 @@ import io
 import json
 import sys
 
+# GBK 控制台下 `⇒`/中文混排会让脚本崩在打印上（总控 18:18）：入口统一 UTF-8
+for _stream in (sys.stdout, sys.stderr):
+    try:
+        _stream.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:                                        # noqa: BLE001
+        pass
+
 VERSION = "content_digest_v1"
 VERSION_PARTIAL = VERSION + "_partial"
 

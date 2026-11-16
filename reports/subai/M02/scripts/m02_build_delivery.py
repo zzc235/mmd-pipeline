@@ -30,6 +30,13 @@ import runpy
 import sys
 import time
 
+# GBK 控制台下中文/符号会让脚本崩在打印上（总控 18:18）：入口统一 UTF-8
+for _stream in (sys.stdout, sys.stderr):
+    try:
+        _stream.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:  # noqa: BLE001
+        pass
+
 TREE = os.environ.get("MMDPIPE_TREE") or r"E:\dsh pr\woker2"
 # v3 从**本树**解析：跨树引用会让 identity 记录指向别的树，进闸门时 provenance 判 PROVENANCE_INVALID
 # （那是闸门在正常工作）。真要跨树必须显式 `MMDPIPE_V3=<绝对路径>`，并被记成「跨树」可见于记录。

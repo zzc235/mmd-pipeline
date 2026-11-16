@@ -76,6 +76,33 @@ def mmd_rigid_of(obj):
         return None
 
 
+DIGEST_BODY_FIELDS = ("name", "parent_bone", "mass", "kinematic", "collision_shape",
+                      "collision_collections", "friction")
+
+
+def digest_body(obj):
+    """`content_digest_v1` 要的那 7 个逐刚体字段（强摘要的原料）。
+
+    与 `body_spec()` 分开是**故意**的：摘要只要物理字段，不要网格和矩阵（那两者是补丁/身份层的事），
+    而且这里绝不能因为「读不到」就填默认值——读不到就抛，交给调用方判。
+    """
+    rb = getattr(obj, "rigid_body", None)
+    if rb is None:
+        raise PatchApplyError("DIGEST_BODY_NO_RIGID_BODY", "%s 没有 rigid_body" % obj.name)
+    try:
+        return {
+            "name": obj.name,
+            "parent_bone": obj.parent_bone or None,
+            "mass": _r(rb.mass),
+            "kinematic": bool(rb.kinematic),
+            "collision_shape": _enum(rb.collision_shape),
+            "collision_collections": [int(b) for b in rb.collision_collections],
+            "friction": _r(rb.friction),
+        }
+    except Exception as exc:                                 # noqa: BLE001
+        raise PatchApplyError("DIGEST_BODY_FAILED", "%s 逐刚体字段读失败：%s" % (obj.name, exc))
+
+
 def body_spec(obj):
     """把一个对象读成补丁里的一条（12 个属性全部实测，不填默认值）。"""
     spec = {

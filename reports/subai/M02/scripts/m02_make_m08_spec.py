@@ -33,6 +33,13 @@ import re
 import sys
 import time
 
+# GBK 控制台下 `⇒`/中文混排会让脚本崩在打印上（总控 18:18）：入口统一 UTF-8
+for _stream in (sys.stdout, sys.stderr):
+    try:
+        _stream.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:                                        # noqa: BLE001
+        pass
+
 
 def read(path):
     with io.open(path, encoding="utf-8") as fh:
@@ -73,6 +80,12 @@ def main(argv=None):
                     help="从一份已有的场景记录里读 constraints_needed（如 m08_round1/stage_mask_*.json），"
                          "比手传数字更硬：数从产物来，不从记忆来")
     ap.add_argument("--out", required=True)
+    ap.add_argument("--extra-provenance", action="append", default=[], metavar="KEY=PATH",
+                    help="额外要记的模块/脚本（如 patch 格式层、v3、抽取脚本）；"
+                         "在树外的路径必须同时用 --external-root 声明，否则 preflight 判红")
+    ap.add_argument("--external-root", action="append", default=[], metavar="DIR",
+                    help="显式声明允许引用的外部根（主树的 preset/PMX/VMD/旧 blend 走这条）；"
+                         "逐项记进 spec 的 external_roots，不塞进 files[]")
     ap.add_argument("--run-id", default=None,
                     help="本次运行标识（默认时间戳）；带 run_id 的目标路径自带认领，不覆盖上一次")
     ap.add_argument("--lease", default="true", choices=("true", "false"))
@@ -156,6 +169,22 @@ def main(argv=None):
         "note": ("cap 由 constraint_limit() 的分支与护栏常量现算，不手写；"
                  "needs=任务书需求，needs_planned=plan() 实测，两者都要在报告里对账。"),
     }
+    for item in args.extra_provenance:
+        if "=" not in item:
+            raise SystemExit("--extra-provenance 要写成 KEY=PATH：%r" % item)
+        key, path = item.split("=", 1)
+        if not key or not path:
+            raise SystemExit("--extra-provenance 的键和路径都不能空：%r" % item)
+        spec["provenance"][key] = os.path.abspath(path)
+    if args.external_root:
+        roots = [os.path.abspath(r) for r in args.external_root]
+        for r in roots:
+            if os.path.abspath(r).startswith(wtree + os.sep) or os.path.abspath(r) == wtree:
+                raise SystemExit("--external-root %r 就在本树之内：外部根只用来声明树外的目录。" % r)
+        spec["external_roots"] = roots
+        spec["external_roots_note"] = ("外部根的引用逐项记 path + sha256，不塞进 files[]；"
+                                       "preflight 按 provenance.check(provenance, worktree, "
+                                       "external_roots) 判")
     if guardrail_hit:
         print("护栏咬住了：planned=%d > guardrail=%d ⇒ guardrail_hit=True" % (planned, guard))
         return 2

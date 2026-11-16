@@ -39,6 +39,14 @@ import io
 import json
 import sys
 
+# 控制台可能不是 UTF-8（总控 18:18 实测：GBK 控制台下 `⇒` 让脚本崩在打印上，退出码非 0、
+# 判据等于没发生）。入口处统一改成 UTF-8，输出不做 ASCII 折衷。
+for _stream in (sys.stdout, sys.stderr):
+    try:
+        _stream.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:                                        # noqa: BLE001
+        pass
+
 PATCH_VERSION = "m08_extra_bodies_patch_v1"
 
 WANT_NAMES = ["$name_j"] + ["$name_j.%03d" % i for i in range(1, 11)] + ["地面_物理"]
@@ -235,6 +243,10 @@ STRICT_BODY_FIELDS = ("name", "name_stripped", "type", "mmd_type", "parent", "pa
 # 一致更好，不一致要写进报告并人工看，但不因此判补丁没装上——判定物理等价的是 matrix_world + mesh。
 SOFT_BODY_FIELDS = ("matrix_parent_inverse", "location", "rotation_mode",
                     "rotation_quaternion", "scale", "dimensions")
+# **可为空白名单**（总控 18:18 §一）：只有语义上「本来就没有」的字段才可以两边都是 null。
+# 其余字段任一侧 null 一律判差异——否则「补丁里 matrix_world=null、回读也给 null」会被判一致，
+# 等于「把刚体装到没有位置的地方，而账面上合格」。白名单必须窄，不许顺手整类放行。
+NULLABLE_BODY_FIELDS = ("parent", "parent_type", "parent_bone", "mmd_rigid")
 
 
 def _quat_close(a, b):
@@ -271,7 +283,12 @@ def diff_value(expected, actual, label, out):
 
 
 def diff_body(expected, actual, keys=None):
-    """把「补丁里写的」与「场景里读回来的」逐字段比，返回不一致项（空列表 = 一致）。"""
+    """把「补丁里写的」与「场景里读回来的」逐字段比，返回不一致项（空列表 = 一致）。
+
+    **空值规则**（总控 18:18 §一）：只有 `NULLABLE_BODY_FIELDS` 里的字段允许两边都是 `null`；
+    其余字段任一侧 `null` 一律记差异，理由写「字段为空」而不是「不一致」——
+    「没读到」与「读到空」必须分开，否则补丁把刚体装到没有位置的地方也会判合格。
+    """
     out = []
     for key in (keys or BODY_FIELDS):
         if key not in expected:
@@ -280,9 +297,13 @@ def diff_body(expected, actual, keys=None):
             out.append("%s：读回来没有这个键" % key)
             continue
         exp, act = expected[key], actual[key]
-        if key == "mmd_rigid" and exp is None:
-            if act is not None:
-                out.append("mmd_rigid：补丁说没有，读回来有 %r" % (act,))
+        if exp is None or act is None:
+            if key in NULLABLE_BODY_FIELDS:
+                if not (exp is None and act is None):
+                    out.append("%s：一边是 null、一边不是（期望 %r / 实际 %r）" % (key, exp, act))
+                continue
+            out.append("%s：字段为空（%s）—— 空值不许当一致"
+                       % (key, "补丁侧 null" if exp is None else "回读侧 null"))
             continue
         if key == "rotation_quaternion":
             same = _quat_close(exp, act)
@@ -402,6 +423,24 @@ def selftest():
     q["rotation_quaternion"] = [-v for v in body["rotation_quaternion"]]
     cases.append(("四元数 q 与 -q 视为同一个旋转",
                   len(diff_body(body, q, ("rotation_quaternion",))), 0))
+
+    # 空值控制（总控 18:18 §一）：非白名单字段两边都 null 必须判红；白名单字段两边 null 才算一致
+    nul = json.loads(json.dumps(body))
+    nul["matrix_world"] = None
+    nul_strict, _ = split_diff(nul, json.loads(json.dumps(nul)))
+    cases.append(("空值①：matrix_world 两边都 null ⇒ strict 非空", len(nul_strict) > 0, True))
+    nul2 = json.loads(json.dumps(body))
+    nul2["rigid_body"] = None
+    nul2_strict, _ = split_diff(nul2, json.loads(json.dumps(nul2)))
+    cases.append(("空值②：rigid_body 两边都 null ⇒ strict 非空", len(nul2_strict) > 0, True))
+    wl = json.loads(json.dumps(body))
+    wl["parent_bone"] = None
+    cases.append(("空值③：白名单 parent_bone 两边 null ⇒ strict 为空",
+                  len(diff_body(wl, json.loads(json.dumps(wl)), ("parent_bone",))), 0))
+    half = json.loads(json.dumps(body))
+    half["parent_bone"] = None
+    cases.append(("空值④：白名单字段一边 null ⇒ strict 非空",
+                  len(diff_body(body, half, ("parent_bone",))) > 0, True))
 
     bad = 0
     for label, got, want in cases:

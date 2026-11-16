@@ -24,6 +24,15 @@
 `rotation_quaternion` / `scale` / `dimensions` —— 它们与 `matrix_world` 是同一个变换的不同写法，
 判物理等价的是 `matrix_world` + `mesh` + `rigid_body`。四元数 `q` 与 `-q` 视为同一个旋转（实测控制覆盖）。
 
+**空值规则（总控 18:18 §一 的口子，已补）**：只有**可为空白名单**
+`NULLABLE_BODY_FIELDS = (parent, parent_type, parent_bone, mmd_rigid)` 允许两边都是 `null`；
+其余字段**任一侧 `null` 一律判差异**，理由写「字段为空」而不是「不一致」。
+
+为什么必须这样：v1 的 `diff_body` 里 `None == None` 为真 ⇒ 若补丁把 `matrix_world` / `mesh` /
+`rigid_body` 之一写成 `null`、回读那边也是 `null`，strict 会判**一致** —— 等于「把刚体装到没有位置
+的地方，而账面上合格」。这与 `mask_wired_checks` 缺 `skipped_count` 就要判红是同一件事：
+**「没读到」与「读到空」必须分开**。白名单必须窄，不许顺手整类放行（有控制证明它是窄的）。
+
 ## 二、文件格式
 
 ```jsonc
@@ -82,7 +91,8 @@
 
 ## 四、控制（哪些已跑、哪些还没跑）
 
-**已跑（纯 Python，`python reports/subai/M02/scripts/m02_patch_format.py --selftest`，15 条 / 失败 0 / exit 0）**：
+**已跑（纯 Python，`python reports/subai/M02/scripts/m02_patch_format.py --selftest`，19 条 / 失败 0 / exit 0；
+GBK 控制台下同样 exit 0 —— 入口已 `sys.stdout.reconfigure(encoding="utf-8")`，不会再崩在打印上）**：
 
 | # | 项 | 实测 |
 |---|---|---|
@@ -97,6 +107,10 @@
 | 10–12 | 一致性：kinematic 翻一位 ⇒ diff 非空；同一份 ⇒ 空；改过内容 ⇒ sha 变 | 对 |
 | 13–14 | 分层：只改 `location` ⇒ 硬空/软非空；改质量 ⇒ 硬非空 | 对 |
 | 15 | 四元数 `q` 与 `-q` 视为同一旋转 | 0 处差异 |
+| 16 | 空值①：`matrix_world` 两边都 `null` ⇒ **strict 非空** | 非空 |
+| 17 | 空值②：`rigid_body` 两边都 `null` ⇒ **strict 非空** | 非空 |
+| 18 | 空值③：白名单 `parent_bone` 两边 `null` ⇒ strict 为空（证明白名单是窄的） | 空 |
+| 19 | 空值④：白名单字段一边 `null` ⇒ strict 非空 | 非空 |
 
 **反向控制**（证明自检会红）：把 `compute_patch_sha` 改成「只盖 source、不盖 bodies」
 （回到「补丁被改过也看不出来」的形状）⇒ **2 条红**（第 3 条与第 12 条），exit 1。
