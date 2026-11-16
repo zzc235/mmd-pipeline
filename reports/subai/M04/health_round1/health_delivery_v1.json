@@ -1,0 +1,107 @@
+{
+  "actions_all": [],
+  "addon": "enabled",
+  "armature_action": {
+    "action": null,
+    "drivers": 0,
+    "frame_range": null,
+    "nla_tracks": []
+  },
+  "armatures": [
+    "星穹铁道—飞霄（无外套）_arm"
+  ],
+  "blend": "E:\\code\\mmdpipe-ai\\A1\\out\\subai\\M08\\rebuild_built.blend",
+  "cache": {
+    "evaluate": null,
+    "frame_end": 2400,
+    "frame_start": 1,
+    "is_baked": false,
+    "is_outdated": true,
+    "use_disk_cache": false
+  },
+  "mask_wired": {
+    "constraint_creation": "template_copy",
+    "constraints_added": 6686,
+    "constraints_already_blocked": 1813,
+    "constraints_capped": false,
+    "constraints_needed": 8499,
+    "constraints_to_add": 6686,
+    "guardrail_hit": false,
+    "readback_mismatch": 0,
+    "skipped_count": 0,
+    "verdict": "WIRED",
+    "verdict_reasons": []
+  },
+  "mask_wired_keys": [
+    "constraint_creation",
+    "constraints_added",
+    "constraints_already_blocked",
+    "constraints_capped",
+    "constraints_needed",
+    "constraints_to_add",
+    "guardrail_hit",
+    "readback_mismatch",
+    "skipped_count",
+    "verdict",
+    "verdict_reasons"
+  ],
+  "objects": {},
+  "rigids": {
+    "count": 312,
+    "placeholders": [],
+    "sample": [
+      "000_右肩1",
+      "001_右肩2",
+      "002_左肩1",
+      "003_左肩2",
+      "004_下半身",
+      "005_上半身1",
+      "006_上半身2",
+      "007_上半身"
+    ]
+  },
+  "roi": {
+    "bones_total": 482,
+    "label": "18_skirt_rigid",
+    "skirt_bones": [
+      "下擺_0_0",
+      "下擺_1_0",
+      "下擺_2_0",
+      "下擺_3_0",
+      "下擺_4_0",
+      "下擺_5_0",
+      "下擺_6_0",
+      "下擺_7_0",
+      "下擺_8_0",
+      "下擺_9_0",
+      "下擺_0_1",
+      "下擺_1_1",
+      "下擺_2_1",
+      "下擺_3_1",
+      "下擺_0_2",
+      "下擺_1_2",
+      "下擺_2_2",
+      "下擺_3_2",
+      "下擺_0_3",
+      "下擺_1_3",
+      "下擺_2_3",
+      "下擺_3_3",
+      "下擺_0_4",
+      "下擺_1_4",
+      "下擺_2_4",
+      "下擺_3_4",
+      "下擺_0_5",
+      "下擺_1_5",
+      "下擺_2_5",
+      "下擺_3_5"
+    ],
+    "skirt_count": 166
+  },
+  "scene": {
+    "fps": 24,
+    "frame_end": 250,
+    "frame_start": 1,
+    "name": "Scene"
+  },
+  "spec": "m04_delivery_health/1"
+}

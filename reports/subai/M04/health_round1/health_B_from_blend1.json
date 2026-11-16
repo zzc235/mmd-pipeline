@@ -1,0 +1,104 @@
+{
+  "actions_all": [
+    {
+      "frame_range": [
+        1.0,
+        326.0
+      ],
+      "name": "('E:\\\\blender模型\\\\躺姿', '和胡桃睡觉",
+      "users": 1
+    },
+    {
+      "frame_range": [
+        1.0,
+        301.0
+      ],
+      "name": "和胡桃睡觉_bone",
+      "users": 1
+    }
+  ],
+  "addon": "enabled",
+  "armature_action": {
+    "action": "和胡桃睡觉_bone",
+    "drivers": 0,
+    "frame_range": [
+      1.0,
+      301.0
+    ],
+    "nla_tracks": []
+  },
+  "armatures": [
+    "星穹铁道—飞霄（无外套）_arm",
+    "星穹铁道—飞霄（无外套）_arm_rig"
+  ],
+  "blend": "E:\\dsh pr\\woker2\\out\\subai\\M02\\blend\\B_from_blend1.blend",
+  "cache": {
+    "evaluate": null,
+    "frame_end": 326,
+    "frame_start": 1,
+    "is_baked": true,
+    "is_outdated": true,
+    "use_disk_cache": false
+  },
+  "mask_wired": {},
+  "mask_wired_keys": [],
+  "objects": {},
+  "rigids": {
+    "count": 323,
+    "placeholders": [],
+    "sample": [
+      "011_右肩1",
+      "012_右肩2",
+      "013_左肩1",
+      "014_左肩2",
+      "015_下半身",
+      "016_上半身1",
+      "017_上半身2",
+      "018_上半身"
+    ]
+  },
+  "roi": {
+    "bones_total": 482,
+    "label": "18_skirt_rigid",
+    "skirt_bones": [
+      "下擺_0_0",
+      "下擺_1_0",
+      "下擺_2_0",
+      "下擺_3_0",
+      "下擺_4_0",
+      "下擺_5_0",
+      "下擺_6_0",
+      "下擺_7_0",
+      "下擺_8_0",
+      "下擺_9_0",
+      "下擺_0_1",
+      "下擺_1_1",
+      "下擺_2_1",
+      "下擺_3_1",
+      "下擺_0_2",
+      "下擺_1_2",
+      "下擺_2_2",
+      "下擺_3_2",
+      "下擺_0_3",
+      "下擺_1_3",
+      "下擺_2_3",
+      "下擺_3_3",
+      "下擺_0_4",
+      "下擺_1_4",
+      "下擺_2_4",
+      "下擺_3_4",
+      "下擺_0_5",
+      "下擺_1_5",
+      "下擺_2_5",
+      "下擺_3_5"
+    ],
+    "skirt_count": 166
+  },
+  "scene": {
+    "fps": 30,
+    "frame_end": 240,
+    "frame_start": 1,
+    "name": "Scene"
+  },
+  "spec": "m04_delivery_health/1"
+}
