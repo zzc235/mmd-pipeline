@@ -1013,7 +1013,7 @@ def stage_render(preset, out_dir: str, frame_start: int, frame_end: int, encode_
            "-i", os.path.join(out_dir, "s_%04d.png"),
            "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", str(rcfg["crf"]),
            "-movflags", "+faststart", mp4]
-    proc = subprocess.run(cmd, capture_output=True, text=True)
+    proc = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="replace")
     if proc.returncode != 0:
         res.add("E-21", BLOCK, "ffmpeg 编码失败", proc.stderr[-300:])
     if not os.path.exists(mp4):
@@ -1165,7 +1165,7 @@ def stage_verify(preset, png_dir: str, mp4: str, frame_start: int, frame_end: in
         cmd = [rcfg["ffprobe"], "-v", "error", "-count_frames", "-select_streams", "v:0",
                "-show_entries", "stream=nb_read_frames,avg_frame_rate,duration",
                "-of", "default=nw=1", mp4]
-        proc = subprocess.run(cmd, capture_output=True, text=True)
+        proc = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="replace")
         info = {}
         for line in proc.stdout.splitlines():
             if "=" in line:
@@ -1234,7 +1234,7 @@ def stage_verify(preset, png_dir: str, mp4: str, frame_start: int, frame_end: in
                "-i", os.path.join(png_dir, "s_%04d.png"),
                "-vf", r"select='not(mod(n\,%d))',scale=320:-1,tile=4x3" % step,
                "-frames:v", "1", "-update", "1", sheet]
-        r = subprocess.run(cmd, capture_output=True, timeout=180)
+        r = subprocess.run(cmd, capture_output=True, timeout=180, encoding="utf-8", errors="replace")
         if os.path.exists(sheet):
             res.artifacts.append(sheet)
             res.metrics["contact_sheet"] = sheet
