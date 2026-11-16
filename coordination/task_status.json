@@ -40,14 +40,14 @@
     "M05": {
       "status": "PARTIAL",
       "reason": "接口 chain/junctions+frames+nla_guard@1 已验收；丢段 PASS（§6 四条 4/4，本轮又加真跑）；NLA 姿态 1 绿 / 1 部分 / 2 没有；D4 第一处交接已补（像素步差 4.3 倍支持 E-16），第二处待补",
-      "next": "A3：第二处交接 pair[1,2] 同四样（gap=0 步差/常态/gap=22 步差/图）；NLA 三面（导出重导入、blend>gap、悬空坐姿视觉）未验；--chain-gap 默认保持 0（D-112）",
-      "updated": "2026-11-16T14:16+08:00"
+      "next": "**插单（D-186，最优先）**：交付构建链缺「应用动作」这一段，M08 因此卡住 —— 写 apply_action 步进 git（幂等可重跑、进构建链，不许手搓 blend 交付），产出 C@W1/C@W2/D 三臂：C@W1=B_aligned 1..240、C@W2=B_aligned 1..832（301..832 末帧定格，进 known_risks）、D=原神摇 1..832；scene.frame_end 等于动作末帧且为回读值；应用动作后 is_baked 必须仍为 false（应用≠烘焙）；每臂交 sha256+frame_end+action 来源(路径/树/sha256)+is_baked 回读。动作素材在 main 的 out/（B_aligned.vmd 5d391f1a… / 原神摇_merged.vmd 027179ac…），四棵树内均无 ⇒ 自建或显式声明外部根。之后：第二处交接 pair[1,2] 同四样（gap=0 步差/常态/gap=22 步差/图）；NLA 三面（导出重导入、blend>gap、悬空坐姿视觉）未验；--chain-gap 默认保持 0（D-112）",
+      "updated": "2026-11-16T18:03+08:00"
     },
     "M06": {
-      "status": "PARTIAL",
-      "reason": "台账验收通过（action_library/manifest@2，27 个资产，known_restriction 25 / unknown 2 / 已知商用 0），离 120 个的目标差 93",
-      "next": "A3：ACCAD 授权已下（Human 2026-11-16 17:04，D-20261116-168/169）：**只进基础少量动作，覆盖六类——跑 / 跳 / 走 / 蹲 / 站 / 待机**；ACCAD 仅用于这六类的基础条目，其余动作由 Human 用自己的视频动捕补全。扩容只照这张清单建，不得自行扩大类别或数量级；清单建满并逐条验收前模块保持 PARTIAL",
-      "updated": "2026-11-16T17:10+08:00"
+      "status": "PASS",
+      "reason": "按 Human 授权范围（六类基础少量，D-168/169）验收通过：manifest 30 行、sha 链 46b9564b → 9abefe5e → 7926980e → 56aa17c8 → ba9698e0 → 3d4eb23a 连续，verify --strict 30/30 + rebuild 30/30；新增走/蹲/跳三行（跳 atomic=false），站/待机由 POS_Stand_Idle_Once_F 显式 shared 共享；机器口径覆盖 5/6（缺 跑），事实 6/6 由未标注老记录 LOC_Run_Normal_Once_F 承载且按纪律不回填。D0 独立核：evidence/1:85052c53… 文件 sha==digest、14 条 files/artifacts 逐条对得上（文本按 lf_normalized_v1、manifest raw 3d4eb23a… / lf 21d7f91e…）；class_coverage.py 四条反控（临时打标转绿 6/6、词表外值拒绝、撤共享标注红 跑+站+待机、只改 category 仍算未覆盖）全按预期",
+      "next": "A3：等 1号 的 M08 重建窗口，配合核取用链（manifest → evidence → 场景引用）。遗留两条限定随 PASS 一起记：①跳非原子，M08 按 known_risks 单列、不当完整动作；②跑靠未标注老记录承载，机读数永久 5/6。口径待办（下一轮触点落）：measurements 里 manifest_sha_before/after 是 raw 口径，须与记录的 hash_basis: lf_normalized_v1 分列 raw/lf 两个字段，避免下游拿错基准",
+      "updated": "2026-11-16T17:56+08:00"
     },
     "M07": {
       "status": "PASS",
@@ -56,10 +56,10 @@
       "updated": "2026-11-16T17:48+08:00"
     },
     "M08": {
-      "status": "NOT_STARTED",
-      "reason": "验收口径已起草（coordination/m08_acceptance.md），硬前提未满足：交付场景用当前代码重建不出来（今天重建 312 刚体、无 $name_j；交付物 324 刚体含 11 个模板命名的静态占位体）；另有新发现的 known_limitation：mmd_rigid 掩码没有进解算器的通道，物理跑在「谁跟谁都碰」上",
-      "next": "A1：在 main 上重建 delivery_v1.blend（sha 即身份）→ 自跑 --expect wired → S8 第三层 + S2 A/B/C；并回答「重建后的场景里有没有 地面_物理」（有则说明重建路径引入手工对象，当缺陷报）",
-      "updated": "2026-11-16T15:15+08:00"
+      "status": "PARTIAL",
+      "reason": "第一轮重建已跑（D-186）：rebuild_built.blend 5 929 823 B / e77851ab…，312 刚体尺度上掩码通道判 WIRED，恒等式 6 686 + 1 813 = 8 499 成立、capped=false、skipped_count=0、readback_mismatch=0，负控 import_only 判 UNWIRED、缺 --stage-json 时判 PARTIAL —— 判据能绿能红且缺料不装懂。但交付件缺两件：①没有「应用动作」这一段（actions == []，C/D 判 UNMEASURED，缺料非缺陷）；②312/324，12 个刚体（11 个 $name_j 占位体 + 第 11 行）建不出来 ⇒ 硬前置「交付场景可由当前代码重建」未满足",
+      "next": "3号（M05）：写 apply_action 步进 git（幂等、进构建链），产出三臂文件；四条验收单同时成立——动作显式应用（C@W1=B_aligned 1..240 / C@W2=1..832 且 301..832 末帧定格进 known_risks / D=原神摇 1..832）、frame_end 等于动作末帧且为回读值、应用后 is_baked 仍为 false、每臂交 sha256+frame_end+action 来源+is_baked 回读。动作素材在 main 的 out/（B_aligned.vmd 5d391f1a… / 原神摇_merged.vmd 027179ac…），四棵树内均无 ⇒ 自建或显式声明外部根。1号（M02）：324 缺口清单 → out_dir fail-open 修+负控 → os._exit 身份终态 → identity 跨树指向。2号（M04）：3号 交出任一臂后按七条前置跑 C/D，只报 T2、标题写「312 刚体尺度」、机读字段不许出现 8298；324 修好后重跑，不得升 T3",
+      "updated": "2026-11-16T18:03+08:00"
     }
   }
 }
