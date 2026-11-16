@@ -141,6 +141,7 @@ def scene_snapshot():
 def main():
     argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
     do_build = "--build" in argv
+    do_bake = "--bake" in argv
     patch_path = None
     if "--patch" in argv:
         idx = argv.index("--patch")
@@ -236,7 +237,16 @@ def main():
                               "rigids": rigid_report()}
 
     if do_build and arm is not None and root is not None:
-        res2 = stage.stage_build(preset, root, arm)
+        # 显式烘焙（`D-199`：`stage.py` 归 4号，这里只做调用点）。
+        # `--bake` 才传 bake，不传就是 `bake=None` —— 旧路径逐字节不变（4号 的测试断言这点）。
+        bake_req = None
+        if do_bake:
+            snap = report["scene"]["after_import"]
+            bake_req = {"frame_start": int(snap["frame_start"]),
+                        "frame_end": int(snap["frame_end"]),
+                        "fps": int(snap["fps"])}
+            report["bake_requested"] = bake_req
+        res2 = stage.stage_build(preset, root, arm, bake=bake_req)
         report["scene"]["after_build"] = scene_snapshot()
         base = report["scene"]["after_import"]
         now = report["scene"]["after_build"]
@@ -247,6 +257,8 @@ def main():
                   % ((base["fps"], base["fps_base"]), (now["fps"], now["fps_base"])))
         report["build"] = {"issues": issues_of(res2),
                            "metrics": dict(getattr(res2, "metrics", {}))}
+        # `metrics["bake"]` 整块保留（含 probe）：它是唯一能证明「烘的是这次解算」的东西
+        report["build"]["bake"] = (getattr(res2, "metrics", {}) or {}).get("bake")
         dump2 = os.path.join(out_dir, "rebuild_built.blend")
         bpy.ops.wm.save_as_mainfile(filepath=dump2)
         report["built_blend"] = {"path": dump2, "sha256": sha256_file(dump2),
