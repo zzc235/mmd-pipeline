@@ -1,66 +1,178 @@
 {
- "_note": "任务级状态的唯一权威表（D0 维护）。coordination/decisions.jsonl 是历史与证据，这张表是「现在是什么状态」。任何一次裁决改变某任务状态时，D0 必须同时更新此文件并提交，二者不一致以本文件为准并追查原因。",
- "_schema": {
-  "status": "PASS | PARTIAL | BLOCKED | NOT_STARTED",
-  "reason": "一句话，说清为什么是这个状态",
-  "next": "下一步动作与责任人席位",
-  "updated": "YYYY-MM-DDTHH:MM+08:00"
- },
- "tasks": {
-  "M00": {
-   "status": "PASS",
-   "reason": "调度层齐了：覆盖闸门三点式、证据哈希 evidence/1（hash_basis 枚举 + measurements + commit/scope + 不动点 + check 退出码 0/3/4/5）、coordination/lock.py fail-closed、status 视图待批项全量聚合、全仓 subprocess 解码护栏（scanned/skipped 可见）",
-   "next": "A4：D-144③ 已收口并合入 main（mask_wired_checks 四条判据分开给且逐条可红、mask_gate_reason 在 stage_build 调用点 fail-closed、constraint_limit 为唯一上限来源）；D0 独立复算八条红样本各红对应一条。Task accepted（D-20261116-181）。剩余已知限制：fail-closed 未在真建场上触发过、真 Blender 装扩展未复测 —— 随 1号 重建窗口一并验",
-   "updated": "2026-11-16T17:48+08:00"
+  "_note": "任务级状态的唯一权威表（D0 维护）。coordination/decisions.jsonl 是历史与证据，这张表是「现在是什么状态」。任何一次裁决改变某任务状态时，D0 必须同时更新此文件并提交，二者不一致以本文件为准并追查原因。 2026-11-16 收尾（D-229 关账 + D-230 最后两笔合并与退出码分带）：main 6d657bd，902 tests × 默认/utf-8/gbk 三环境 exit 0（skipped 1），裁决 230 条，status --check 与 taxonomy --check 双 OK，ai/a1..a4 ahead 全 0（封版）。四棵树账本审计全绿。本日报告 reports/subai/coordination/task_report_20261116.md（§12 收尾补记含终局读数）；明日次序见其 §10。",
+  "_schema": {
+    "status": "PASS | PARTIAL | BLOCKED | NOT_STARTED",
+    "reason": "一句话，说清为什么是这个状态",
+    "next": "下一步动作与责任人席位",
+    "updated": "YYYY-MM-DDTHH:MM+08:00"
   },
-  "M01": {
-   "status": "PASS",
-   "reason": "接口验收通过并入基线（13f0910），patch_save 含字节级守卫与 11 条测试",
-   "next": "无（M02 的前置已完成）",
-   "updated": "2026-11-16T13:25+08:00"
-  },
-  "M02": {
-   "status": "PARTIAL",
-   "reason": "判据七态（旗标只筛选、结论靠行为探针）、P12 负 / P13 正、重建三数、P9 拒绝路径、掩码结构性未接线都已实测；交付契约定为 B（烘焙），冷跳逐位等于顺序重算",
-   "next": "A1：①烘焙按文件所有权切分（D-199）—— 4号 写 mmdpipe/stage.py 的实现（bake=None 保持现状、bake.{requested,applied,frame_start,frame_end,fps}+pose_source+is_baked/is_outdated 落盘、行为探针冷跳==顺序重算 1e-6、能红的反控、不传 bake 路径逐字节不变的测试），1号 只写调用点与重建链，4号 合进 main 前 1号 不写调用点；②当前锁窗口（A1 18:33:42 起）做「抽补丁 → 重建 324 → 逐刚体回读 → 强摘要」，产物落版本化路径并冻结（D-198），强摘要与烘焙的时序按 D-200（最终只留一份算在烘后字节上的 strict 摘要，烘前那份标 stage=pre_bake 且永不与之比较，负控只在临时副本上改）；③preflight spec 快照（2 555 B / 79b19f75…）进 git，needs 只是进窗口的门、窗口内用重建件自己的 already 重算（D-201）。仍欠：S2 预注册 §四.1 改成交付逐臂表并把结论收窄为「三轴峰值逐位相同」；P2（limit 回读 ⇒ AXIS_FRAME_MISMATCH）为强制前置",
-   "updated": "2026-11-16T18:45+08:00"
-  },
-  "M03": {
-   "status": "PASS",
-   "reason": "缺口表与诊断接口验收通过（d54f3c8/546dc5b），接口 diagnose/1 冻结",
-   "next": "无",
-   "updated": "2026-11-16T13:25+08:00"
-  },
-  "M04": {
-   "status": "PARTIAL",
-   "reason": "顺序求值改计划制（回退/冷跳在计划阶段拒）；胶囊口径改相对基线；网格口径 v2 在解析实体上自检通过（0.9933/0.9867/0.27 mm），真实网格 77.01% 不可计分、可计分区 0.9367/0.9067/−8.2 mm；**C/D 第二轮（324 批次）已判得出来**：`JUDGED_NO_CHANGE`（exit 0），三臂准入全绿、`pairs_without_baseline=0/0/0`、`4号` 三处更正经 D0 从 `per_frame` 独立复算确认",
-   "next": "第二轮受理（D-221）：`JUDGED_NO_CHANGE` 是「有没有越判据帧」的答案，**不是 PASS**。D0 复算后可引用的数：同域 f1..240 —— `C@W1` 3 帧 / 最坏 f231 −0.034219 m，`C@W2` 17 帧 / 最坏 f95 −0.080417 m，差 **0.046198 m**；跨域 0.049031 **作废**。`C@W2` 带段标签：动画段 1..301 = 20 帧 / 中位 −1.324 mm / 最深 −80.417@f95；保持段 302..832 = 28 帧 / 中位 −1.556 mm / 最深 −83.250@f304；**保持段整体比动画段深 0.232 mm（方向：更负即更深，2号 原句读反）**；段内不均质：302..351 五十帧里 15 帧、均值 −15.791 mm，352..832 四百八十一帧里 13 帧、均值 −2.951 mm，最深 6 帧有 5 帧落在 302..353 ⇒ 最深帧是**交接尖峰**（±12 帧内只有它自己达到半量级），标 `TRANSIENT`，不许当整段属性引用。口径：**不把交接窗口写进预注册段**（窗口来自观测到的深度 = 把结论写进前提）；改用「极值引用三件套」= 值 + 帧号 + 邻域计数，只放行分布量整段引用。**本轮没有 A0 臂**（steps 只有 health×3/dump/align/基线×3/三臂/compare）⇒ 「仪器有效性在同场景自证」本轮不成立，仍是继承的；那句话留给「A0 与三臂同一份冻结字节」的那一轮。状态仍 PARTIAL：`T2`、`D` 第 833 帧未测（窗口 1..832）、`over_eps` 不说明网格穿入。上一轮遗留不变：第一轮三臂读数钉的实例 sha 已不存在 ⇒ `T3` 第③条回溯性不可满足，永久封顶 `T2`。 【D-224】窗口径裁定：保持段 `302..354`（覆盖 `{f347,f353}` 的最短前缀）与任何比例阈值（含 9.70% / 9.79%）都是**事后窗口**（那两帧是从数据里挑出来的）⇒ 标 `post_hoc`，只能作解释、不许作判据。本轮唯一可当判据引用的对比是 `C@W1 vs C@W2` 同域 f1..240：`3 : 17`、最深 `-34.219 : -80.417`、差 `0.046198 m`；`D` 引分布量。`JUDGED_NO_CHANGE` 不依赖保持段切分，判词不受影响。 基线裁决：先做廉价判别（`C@W1` 上两次 f1 读数逐对比较：开件后立刻读 vs 先顺序步进到 f1 再读），相同则不重测（省 12 分钟），不同则三份基线全重取并重跑比较——用 5 分钟的量定 12 分钟的事。",
-   "updated": "2026-11-16T19:46+08:00"
-  },
-  "M05": {
-   "status": "PARTIAL",
-   "reason": "接口 chain/junctions+frames+nla_guard@1 已验收；丢段 PASS（§6 四条 4/4，本轮又加真跑）；NLA 姿态 1 绿 / 1 部分 / 2 没有；D4 第一处交接已补（像素步差 4.3 倍支持 E-16），第二处待补",
-   "next": "**Task 已由 Human accepted（18:50:33），但那只覆盖 `D-186` 插单范围（apply_action + 闸门 + 版本化 + 七臂读数 + 两反控）—— 不等于整条 M05 车道验过（D-210）。** 本轮新并（D-222，main `787962f`/`52c354e`）：`fcurve_ensure_for_datablock` 量成事实（只在实例上、有前置条件「动作必须已挂到 data-block」、对未挂的 copy 真调即 RuntimeError）⇒ 改成先判前置条件再调、记 `upstream_skipped`，不拿异常当流程控制；读侧写侧共用 `_channelbags_of()`；两处控制脚本自带作用域自检（否则红条数失真）。**范围**：读侧（`apply_action` 打开存盘件）是**现行**缺陷，真机崩过、已修已验；写侧（`chain_nla`）是**防御性**修复 —— `concat_via_nla()` 每次 `_fresh_scene()` 重导，动作永远是本会话的，**「打开存盘件再拼」这个入口目前不存在**，故状态写「形状已修（防御性），入口未建」。**四条未验（`UNMEASURED`，不许写成已可用）**：①上游成功分支没走过；②真件重跑整条 NLA 拼接没跑过；③多 bag 拒写在真件上没量过；④第二档（`bag.slot is slot` 槽位身份比较）从未在真件执行 —— `how` 显示走的是第三档（唯一 channelbag）。**引用口径**：`fcurves_via`、`how` 这类形状读数可以引；**拼接结果对不对不许引**。仍未做、一次没跑过的两块（不变）：①第二处交接 `pair[1,2]` 同四样（gap=0 步差 / 常态 / gap=22 步差 / 图，D-112）；②NLA 三面（导出重导入、blend>gap、悬空坐姿视觉）。今晚不新开 Task。",
-   "updated": "2026-11-16T19:40+08:00"
-  },
-  "M06": {
-   "status": "PASS",
-   "reason": "按 Human 授权范围（六类基础少量，D-168/169）验收通过：manifest 30 行、sha 链 46b9564b → 9abefe5e → 7926980e → 56aa17c8 → ba9698e0 → 3d4eb23a 连续，verify --strict 30/30 + rebuild 30/30；新增走/蹲/跳三行（跳 atomic=false），站/待机由 POS_Stand_Idle_Once_F 显式 shared 共享；机器口径覆盖 5/6（缺 跑），事实 6/6 由未标注老记录 LOC_Run_Normal_Once_F 承载且按纪律不回填。D0 独立核：evidence/1:85052c53… 文件 sha==digest、14 条 files/artifacts 逐条对得上（文本按 lf_normalized_v1、manifest raw 3d4eb23a… / lf 21d7f91e…）；class_coverage.py 四条反控（临时打标转绿 6/6、词表外值拒绝、撤共享标注红 跑+站+待机、只改 category 仍算未覆盖）全按预期",
-   "next": "A3：等 1号 的 M08 重建窗口，配合核取用链（manifest → evidence → 场景引用）。遗留两条限定随 PASS 一起记：①跳非原子，M08 按 known_risks 单列、不当完整动作；②跑靠未标注老记录承载，机读数永久 5/6。口径待办（下一轮触点落）：measurements 里 manifest_sha_before/after 是 raw 口径，须与记录的 hash_basis: lf_normalized_v1 分列 raw/lf 两个字段，避免下游拿错基准",
-   "updated": "2026-11-16T17:56+08:00"
-  },
-  "M07": {
-   "status": "PASS",
-   "reason": "D/E/F 三段全通（validate/build、真隔离安装 + smoke 8/8、12 帧 E2E 两入口各 15 项 PASS、受控失败 exit 1）；两条产品路径缺陷已修并验过；stage.py 两处静默失败已派 A4 并在修",
-   "next": "A4：两条 stage.py 假成功缺陷的代码已在 0321505 修、离屏正控/反控已补并合入 main（ensure_addons 正控断言到调用层、反控两条用真实候选名、preset 反控用 stub 退化 section() 证明旧行为判红）。全局安装按 Human 决定保留 1.3.0。Task accepted（D-20261116-181）。剩余：真 Blender 里装/不装扩展的复测搭 1号 重建窗口做",
-   "updated": "2026-11-16T17:48+08:00"
-  },
-  "M08": {
-   "status": "PARTIAL",
-   "reason": "第一轮重建已跑（D-186）：rebuild_built.blend 5 929 823 B / e77851ab…，312 刚体尺度上掩码通道判 WIRED，恒等式 6 686 + 1 813 = 8 499 成立、capped=false、skipped_count=0、readback_mismatch=0，负控 import_only 判 UNWIRED、缺 --stage-json 时判 PARTIAL —— 判据能绿能红且缺料不装懂。但交付件缺两件：①没有「应用动作」这一段（actions == []，C/D 判 UNMEASURED，缺料非缺陷）；②312/324，12 个刚体（11 个 $name_j 占位体 + 第 11 行）建不出来 ⇒ 硬前置「交付场景可由当前代码重建」未满足。（D-198 更正口径：通道作用域 U323=323、盘上 U324=324，差的那一个是 地面_物理、例外单列；10111/1813/8298 都是 U323 口径，already 是场景状态量，已取消「to_add 必回 8298」的预承诺）。第二轮 324 补丁窗口已跑通（D-206，2026-11-16 18:43）：rebuild_built.blend 6 102 478 B / ffaa6780…，U323=323 / U324=324 / bodies 324、WIRED、capped=false、skipped=0、nocollide 与 blocked_and_should_collide 皆 0，交叉点 needed=10111 / already=1813 / to_add=8298 / added=8298（恒等式成立），且 4号 与 1号 两台仪器在两份不同的件上四个数字逐个对上（10111/40095/29984/8859）；强摘要 strict 8cc694a3…（D0 独立复算一致，kinematic/mass 两负控红、只改路径时间戳不变）。但**这是物理场景不是交付场景**：actions=[]、frame_end=250、未烘、未冻结。第三窗（烘，run_20261116_1900）成绩：闸门五条全绿、探针 3 帧 × 323 刚体 max_delta=0.0、约束独立计数 disable_collisions_true=10111 == needed 且烘前烘后相等（12338 = 4009+31+8298、2227 = 2196+31 两式闭合）、烘后 strict 摘要 55da0ec7…（只留这一份）。**但 (a) 持久化路在引擎层关闭**：`use_disk_cache = True` 赋值即 `EXCEPTION_ACCESS_VIOLATION`（两次复现），5.2 的 PointCache 无 `directory` 字段；重开冻结件的缓存回放读数与顺序重算差 `max_delta = 1.85651505 m`、`over_tol = 275/323`，但**该读数取样自一份被引擎判为无效的缓存**（重开 `is_baked=true / is_outdated=true / info='cache is outdated!'`）⇒ 形状是「**烘了但没持久化**」，不是「持久化但重放不一致」（D-219 更正 D-217 的分类）；第三种形状今晚一次没量过、且现在量不了（要量它得先造出重开后 `is_outdated=false` 的件，而那需要持久化通道）⇒ 「缓存准不准」目前是 **UNMEASURED**，不是 FAIL⇒ **T3 ② = 进程内成立、持久化不成立**，M08 永久以 T2 交付，交付件 = 可确定性重建的场景 + 烘焙规程 + 冻结 manifest（D-214/217/218）",
-   "next": "①**[已完成]** 1号 重建 324 + 强摘要 pre_bake `8cc694a3…`；②**[已完成]** 3号 应用动作五臂（`20261116_324`，全 0o444、`u324=324`、`mask_wired` 五臂逐项相同）→ 1号 烘 1..833（`run_20261116_1900`）→ 探针 0.0 → 约束独立计数 → 烘后摘要 `55da0ec7…` → 冻结 manifest；③**[进行中]** 1号 在**同一份冻结字节**上做最小版「重算后再验」：顺序重算到 417/833 再冷跳对照（3 帧、不重出件、不存盘、用 `guard` 代持锁）——这条验「可确定性重建」这句话本身；**不通过则 T2 的立足点要重查并立刻报 D0**；④2号 在未烘臂件上跑 A0 仪器正控 + 三臂（标题「T2，但仪器有效性在同场景自证」，`pairs_without_baseline` 必须为 0 才可判）；⑤3号 在版本化路径上重跑四臂 + 强摘要；⑥4号 把「重放差」判据进 `bake_checks()`（没烘 / 没持久化 / 重放不一致，三红可分）。**T3 已确认不可达**：第②条要求在交付字节上证明缓存可回放，而 5.2 的 `use_disk_cache` 赋值即崩 ⇒ 永久 T2，不再为它排窗口。判据纪律：`is_baked` 只是运行时标志，判决只能读**重开件的重放差**。",
-   "updated": "2026-11-16T19:46+08:00",
-   "known_risks": "①缓存不随文件走：`use_disk_cache` 在 5.2 赋值即 `EXCEPTION_ACCESS_VIOLATION`（D-218），`out/subai/M08` 全树无 `blendcache*`，重开件 `is_outdated=true`；②**开件后第一次求值 ≠ 顺序重算**：同一份件、323 刚体、f417、tol 1e-6 的实测四簇 `1.856515`（陈旧 is_baked）/`1.863228`（首次求值）/`1.994664`/`1.994782`（先清 is_baked 再首次求值，差反而更大）⇒ 与标志位无关，是引擎首次求值行为（D-223 更正 D-219 的理由；1.86 m 不是「缓存算错」）；③因此「需重算一次才得到与读数一致的姿态」是**使用条件**、不是小提示，且适用于任何重开的文件，不只烘过的件。三样一起写，不许拆。"
+  "tasks": {
+    "M00": {
+      "status": "PASS",
+      "reason": "调度层齐了：覆盖闸门三点式、证据哈希 evidence/1（hash_basis 枚举 + measurements + commit/scope + 不动点 + check 退出码 0/3/4/5）、coordination/lock.py fail-closed、status 视图待批项全量聚合、全仓 subprocess 解码护栏（scanned/skipped 可见）",
+      "next": "A4：D-144③ 已收口并合入 main（mask_wired_checks 四条判据分开给且逐条可红、mask_gate_reason 在 stage_build 调用点 fail-closed、constraint_limit 为唯一上限来源）；D0 独立复算八条红样本各红对应一条。Task accepted（D-20261116-181）。剩余已知限制：fail-closed 未在真建场上触发过、真 Blender 装扩展未复测 —— 随 1号 重建窗口一并验",
+      "updated": "2026-11-16T17:48+08:00"
+    },
+    "M01": {
+      "status": "PASS",
+      "reason": "接口验收通过并入基线（13f0910），patch_save 含字节级守卫与 11 条测试",
+      "next": "无（M02 的前置已完成）",
+      "updated": "2026-11-16T13:25+08:00"
+    },
+    "M02": {
+      "status": "PARTIAL",
+      "reason": "判据七态（旗标只筛选、结论靠行为探针）、P12 负 / P13 正、重建三数、P9 拒绝路径、掩码结构性未接线都已实测；交付契约定为 B（烘焙），冷跳逐位等于顺序重算",
+      "next": "A1：①烘焙按文件所有权切分（D-199）—— 4号 写 mmdpipe/stage.py 的实现（bake=None 保持现状、bake.{requested,applied,frame_start,frame_end,fps}+pose_source+is_baked/is_outdated 落盘、行为探针冷跳==顺序重算 1e-6、能红的反控、不传 bake 路径逐字节不变的测试），1号 只写调用点与重建链，4号 合进 main 前 1号 不写调用点；②当前锁窗口（A1 18:33:42 起）做「抽补丁 → 重建 324 → 逐刚体回读 → 强摘要」，产物落版本化路径并冻结（D-198），强摘要与烘焙的时序按 D-200（最终只留一份算在烘后字节上的 strict 摘要，烘前那份标 stage=pre_bake 且永不与之比较，负控只在临时副本上改）；③preflight spec 快照（2 555 B / 79b19f75…）进 git，needs 只是进窗口的门、窗口内用重建件自己的 already 重算（D-201）。仍欠：S2 预注册 §四.1 改成交付逐臂表并把结论收窄为「三轴峰值逐位相同」；P2（limit 回读 ⇒ AXIS_FRAME_MISMATCH）为强制前置 【D-225】分层结论：`digest_body()` 的原料是 7 个数据层字段、不含 `matrix_world` ⇒ 「同件同摘要」不受求值顺序影响（实测 `matrix_world` 323/323 条不同、`max_delta 1.992 m`，`body_digest` 0 条不同），`55da0ec7…` 不用重算。反过来 `pose_snapshot()` 与 `diff_body()` 属求值层，必须热身才能读。裁定：`diff_body()` **不加硬前置断言**（会让现有 12 条补丁读数失去可比性），改成把 `warmed_up` 与 `first_eval_after_open` 记进记录；`warmed_up=false` 的单条标 `UNMEASURED` 重跑，其余不动。",
+      "updated": "2026-11-16T20:02+08:00"
+    },
+    "M03": {
+      "status": "PASS",
+      "reason": "缺口表与诊断接口验收通过（d54f3c8/546dc5b），接口 diagnose/1 冻结",
+      "next": "无",
+      "updated": "2026-11-16T13:25+08:00"
+    },
+    "M04": {
+      "status": "PARTIAL",
+      "reason": "顺序求值改计划制（回退/冷跳在计划阶段拒）；胶囊口径改相对基线；网格口径 v2 在解析实体上自检通过（0.9933/0.9867/0.27 mm），真实网格 77.01% 不可计分、可计分区 0.9367/0.9067/−8.2 mm；**C/D 第二轮（324 批次）已判得出来**：`JUDGED_NO_CHANGE`（exit 0），三臂准入全绿、`pairs_without_baseline=0/0/0`、`4号` 三处更正经 D0 从 `per_frame` 独立复算确认",
+      "next": "第二轮受理（D-221）：`JUDGED_NO_CHANGE` 是「有没有越判据帧」的答案，**不是 PASS**。D0 复算后可引用的数：同域 f1..240 —— `C@W1` 3 帧 / 最坏 f231 −0.034219 m，`C@W2` 17 帧 / 最坏 f95 −0.080417 m，差 **0.046198 m**；跨域 0.049031 **作废**。`C@W2` 带段标签：动画段 1..301 = 20 帧 / 中位 −1.324 mm / 最深 −80.417@f95；保持段 302..832 = 28 帧 / 中位 −1.556 mm / 最深 −83.250@f304；**保持段整体比动画段深 0.232 mm（方向：更负即更深，2号 原句读反）**；段内不均质：302..351 五十帧里 15 帧、均值 −15.791 mm，352..832 四百八十一帧里 13 帧、均值 −2.951 mm，最深 6 帧有 5 帧落在 302..353 ⇒ 最深帧是**交接尖峰**（±12 帧内只有它自己达到半量级），标 `TRANSIENT`，不许当整段属性引用。口径：**不把交接窗口写进预注册段**（窗口来自观测到的深度 = 把结论写进前提）；改用「极值引用三件套」= 值 + 帧号 + 邻域计数，只放行分布量整段引用。**本轮没有 A0 臂**（steps 只有 health×3/dump/align/基线×3/三臂/compare）⇒ 「仪器有效性在同场景自证」本轮不成立，仍是继承的；那句话留给「A0 与三臂同一份冻结字节」的那一轮。状态仍 PARTIAL：`T2`、`D` 第 833 帧未测（窗口 1..832）、`over_eps` 不说明网格穿入。上一轮遗留不变：第一轮三臂读数钉的实例 sha 已不存在 ⇒ `T3` 第③条回溯性不可满足，永久封顶 `T2`。 【D-224】窗口径裁定：保持段 `302..354`（覆盖 `{f347,f353}` 的最短前缀）与任何比例阈值（含 9.70% / 9.79%）都是**事后窗口**（那两帧是从数据里挑出来的）⇒ 标 `post_hoc`，只能作解释、不许作判据。本轮唯一可当判据引用的对比是 `C@W1 vs C@W2` 同域 f1..240：`3 : 17`、最深 `-34.219 : -80.417`、差 `0.046198 m`；`D` 引分布量。`JUDGED_NO_CHANGE` 不依赖保持段切分，判词不受影响。 基线裁决：先做廉价判别（`C@W1` 上两次 f1 读数逐对比较：开件后立刻读 vs 先顺序步进到 f1 再读），相同则不重测（省 12 分钟），不同则三份基线全重取并重跑比较——用 5 分钟的量定 12 分钟的事。",
+      "updated": "2026-11-16T20:02+08:00",
+      "artifacts": {
+        "audit_tool": "python -m coordination.artifact_audit --manifest/--root [--base <目录>] [--json <出>]",
+        "audit_report": "reports/subai/coordination\\artifact_audit_20261116.json",
+        "audited_at": "2026-11-16T19:56+08:00",
+        "verdict": "批次 manifest 35 项（等 35 项）逐项重算一致；条目指向 `out/` 批次目录（gitignored），须 `--base` 解析；该形状下双向枚举不适用（two_way_checked=false），已如实记",
+        "manifests": [
+          {
+            "manifest": "A2/reports/subai/M04/cd_round2/manifest.json",
+            "manifest_bytes": 10720,
+            "manifest_sha256": "59a503c963cf446579dbeeabe991536d9e046696a248bbb5dff7444617498dc8",
+            "manifest_sha256_lf_normalized": "59a503c963cf446579dbeeabe991536d9e046696a248bbb5dff7444617498dc8",
+            "base": "out/subai/M04/penetration/round2_324b（gitignored，须用 --base 解析）",
+            "items": 35,
+            "items_ok": 35,
+            "two_way_checked": false,
+            "entries_outside_manifest_dir": [
+              "e:\\dsh pr\\woker2\\out\\subai\\m04\\penetration\\round2_324b"
+            ],
+            "drift": []
+          }
+        ]
+      }
+    },
+    "M05": {
+      "status": "PARTIAL",
+      "reason": "接口 chain/junctions+frames+nla_guard@1 已验收；丢段 PASS（§6 四条 4/4，本轮又加真跑）；NLA 姿态 1 绿 / 1 部分 / 2 没有；D4 第一处交接已补（像素步差 4.3 倍支持 E-16），第二处待补。**读数分层（D-225）**：`is_baked=false`、`mask_wired.needed=10111 / added=8298 / already=1813`、`rigid_body is not None` 计数 324 —— 这些都是**数据层：成立**；**姿态：未验**（判据是全互撞解算下的穿不穿）。`apply_action.py` 全文无 `view_layer`/`depsgraph`/`frame_set`/`pose.bones`/`matrix`，证据是缺席而非自述。",
+      "next": "**Task 已由 Human accepted（18:50:33），但那只覆盖 `D-186` 插单范围（apply_action + 闸门 + 版本化 + 七臂读数 + 两反控）—— 不等于整条 M05 车道验过（D-210）。** 本轮新并（D-222，main `787962f`/`52c354e`）：`fcurve_ensure_for_datablock` 量成事实（只在实例上、有前置条件「动作必须已挂到 data-block」、对未挂的 copy 真调即 RuntimeError）⇒ 改成先判前置条件再调、记 `upstream_skipped`，不拿异常当流程控制；读侧写侧共用 `_channelbags_of()`；两处控制脚本自带作用域自检（否则红条数失真）。**范围**：读侧（`apply_action` 打开存盘件）是**现行**缺陷，真机崩过、已修已验；写侧（`chain_nla`）是**防御性**修复 —— `concat_via_nla()` 每次 `_fresh_scene()` 重导，动作永远是本会话的，**「打开存盘件再拼」这个入口目前不存在**，故状态写「形状已修（防御性），入口未建」。**四条未验（`UNMEASURED`，不许写成已可用）**：①上游成功分支没走过；②真件重跑整条 NLA 拼接没跑过；③多 bag 拒写在真件上没量过；④第二档（`bag.slot is slot` 槽位身份比较）从未在真件执行 —— `how` 显示走的是第三档（唯一 channelbag）。**引用口径**：`fcurves_via`、`how` 这类形状读数可以引；**拼接结果对不对不许引**。仍未做、一次没跑过的两块（不变）：①第二处交接 `pair[1,2]` 同四样（gap=0 步差 / 常态 / gap=22 步差 / 图，D-112）；②NLA 三面（导出重导入、blend>gap、悬空坐姿视觉）。今晚不新开 Task。 【D-225】新增前置约束：**建「打开存盘件再拼」入口前必须先解决首读偏差** —— `chain_nla._world_head()` 是 `frame_set` + `view_layer.update()` + 读 `pose.bones[].matrix`，属纯求值读数；开件后第一次求值 ≠ 顺序重算（实测 1.86–1.99 m，相对对齐量 1e-3 m 是致命的），且会有 `keys_touched` 正数与 `fcurves_via`、全绿。入口规格必须：先做一次预热求值并丢弃，记录带 `warmup_frames` 与 `first_eval_after_open`。另：今晚四条读数经 `3号` 逐条核过属**数据层**（`apply_action.py` 全文无 `view_layer`/`depsgraph`/`frame_set`/`pose.bones`/`matrix`），首读偏差对它们没有落点 —— 但反过来它们也证明不了任何姿态。",
+      "updated": "2026-11-16T20:02+08:00",
+      "artifacts": {
+        "audit_tool": "python -m coordination.artifact_audit --manifest/--root [--base <目录>] [--json <出>]",
+        "audit_report": "reports/subai/coordination\\artifact_audit_20261116.json",
+        "audited_at": "2026-11-16T19:56+08:00",
+        "verdict": "批次 `20261116_324` 共 14 个文件，其中**只有 5 份 `.blend` 是 0o444**（版本化 + 不覆盖成立），9 个 `.json` 可写，且**整批没有冻结 manifest** ⇒ 「盘上每个在账上、账上每个在盘上」在这批上**量不了**（不是量了不一致）。被 `2号` 实际用到的五份 `.blend` 的实例 sha 另有出处：`cd_run_ledger.arms.*.sha256_before / sha256_after`，跑前跑后各一次相同。要补的话是给批次补一份 manifest（A3 的车道），不必重跑。",
+        "gap": {
+          "batch": "A3/out/subai/M05/arms/20261116_324",
+          "files": 14,
+          "readonly_files": 5,
+          "manifest_present": false,
+          "verdict": "批次 `20261116_324` 共 14 个文件，其中**只有 5 份 `.blend` 是 0o444**（版本化 + 不覆盖成立），9 个 `.json` 可写，且**整批没有冻结 manifest** ⇒ 「盘上每个在账上、账上每个在盘上」在这批上**量不了**（不是量了不一致）。被 `2号` 实际用到的五份 `.blend` 的实例 sha 另有出处：`cd_run_ledger.arms.*.sha256_before / sha256_after`，跑前跑后各一次相同。要补的话是给批次补一份 manifest（A3 的车道），不必重跑。",
+          "readonly_only_blend": true,
+          "writable_others": 9
+        }
+      }
+    },
+    "M06": {
+      "status": "PASS",
+      "reason": "按 Human 授权范围（六类基础少量，D-168/169）验收通过：manifest 30 行、sha 链 46b9564b → 9abefe5e → 7926980e → 56aa17c8 → ba9698e0 → 3d4eb23a 连续，verify --strict 30/30 + rebuild 30/30；新增走/蹲/跳三行（跳 atomic=false），站/待机由 POS_Stand_Idle_Once_F 显式 shared 共享；机器口径覆盖 5/6（缺 跑），事实 6/6 由未标注老记录 LOC_Run_Normal_Once_F 承载且按纪律不回填。D0 独立核：evidence/1:85052c53… 文件 sha==digest、14 条 files/artifacts 逐条对得上（文本按 lf_normalized_v1、manifest raw 3d4eb23a… / lf 21d7f91e…）；class_coverage.py 四条反控（临时打标转绿 6/6、词表外值拒绝、撤共享标注红 跑+站+待机、只改 category 仍算未覆盖）全按预期",
+      "next": "A3：等 1号 的 M08 重建窗口，配合核取用链（manifest → evidence → 场景引用）。遗留两条限定随 PASS 一起记：①跳非原子，M08 按 known_risks 单列、不当完整动作；②跑靠未标注老记录承载，机读数永久 5/6。口径待办（下一轮触点落）：measurements 里 manifest_sha_before/after 是 raw 口径，须与记录的 hash_basis: lf_normalized_v1 分列 raw/lf 两个字段，避免下游拿错基准",
+      "updated": "2026-11-16T17:56+08:00"
+    },
+    "M07": {
+      "status": "PASS",
+      "reason": "D/E/F 三段全通（validate/build、真隔离安装 + smoke 8/8、12 帧 E2E 两入口各 15 项 PASS、受控失败 exit 1）；两条产品路径缺陷已修并验过；stage.py 两处静默失败已派 A4 并在修",
+      "next": "A4：两条 stage.py 假成功缺陷的代码已在 0321505 修、离屏正控/反控已补并合入 main（ensure_addons 正控断言到调用层、反控两条用真实候选名、preset 反控用 stub 退化 section() 证明旧行为判红）。全局安装按 Human 决定保留 1.3.0。Task accepted（D-20261116-181）。剩余：真 Blender 里装/不装扩展的复测搭 1号 重建窗口做",
+      "updated": "2026-11-16T17:48+08:00"
+    },
+    "M08": {
+      "status": "PARTIAL",
+      "reason": "交付链真机跑通一次（build→apply_action→stage_bake→判→计数→烘后摘要→冻结），但**交付件不携带可用缓存**：`use_disk_cache` 在 5.2 赋值即 `EXCEPTION_ACCESS_VIOLATION`（`D-218`），无 `blendcache*`，重开件 `is_outdated=true`。`T3` ② 引擎层不可达，永久 `T2`。**缓存可重放性 = 引擎层不可达（`replay_unmeasurable_engine`，`D-228`）**，不是「没做」，也不是「不一致」；而**场景可确定性重建 = 已测**（`RECOMPUTE_CONSISTENT`：两遍独立会话 pose sha 逐帧相同、两份记录逐字节相同）。两句分开写、不许合并。",
+      "next": "4号：按 `D-228` 拆 `replay_unmeasurable_engine` / `replay_unmeasured_not_run`（判据侧不动，哨兵测试保留）；明天补 `replay_probe.frames ⊆ [frame_start, frame_end]`（越界 ⇒ `replay_unmeasured`，口径归 2号）。1号：`diff_body()` 只加 `warmed_up` / `first_eval_after_open` 记录字段（不加断言，`D-225`）；明天 S8 第三层；**不必再开窗口量「互斥」—— 19:14 的 `cache_probe.json` 就是该读数**（冷读 `795ec30b…` vs 顺序 `adf78ad2…`）。交付件 manifest 两句分开写：场景可重建（已测）/ 缓存可重放性（引擎不可达）。",
+      "updated": "2026-11-16T20:02+08:00",
+      "known_risks": "①缓存不随文件走：`use_disk_cache` 在 5.2 赋值即 `EXCEPTION_ACCESS_VIOLATION`（D-218），`out/subai/M08` 全树无 `blendcache*`，重开件 `is_outdated=true`；②**开件后第一次求值 ≠ 顺序重算**：同一份件、323 刚体、f417、tol 1e-6 的实测四簇 `1.856515`（陈旧 is_baked）/`1.863228`（首次求值）/`1.994664`/`1.994782`（先清 is_baked 再首次求值，差反而更大）⇒ 与标志位无关，是引擎首次求值行为（D-223 更正 D-219 的理由；1.86 m 不是「缓存算错」）；③因此「需重算一次才得到与读数一致的姿态」是**使用条件**、不是小提示，且适用于任何重开的文件，不只烘过的件。三样一起写，不许拆。",
+      "artifacts": {
+        "audit_tool": "python -m coordination.artifact_audit --manifest/--root [--base <目录>] [--json <出>]",
+        "audit_report": "reports/subai/coordination\\artifact_audit_20261116.json",
+        "audited_at": "2026-11-16T19:56+08:00",
+        "audited_root": "A1/out/subai/M08（1号 工作树；不进版本库，只进账本）",
+        "verdict": "6 份 manifest / 18 项逐项重算一致；无缺件、无哈希漂移、无未登记文件（双向枚举含 only_on_disk）",
+        "manifests": [
+          {
+            "manifest": "A1/out/subai/M08/frozen/frozen_manifest.json",
+            "manifest_bytes": 1870,
+            "manifest_sha256": "6eca6add7c647d678bf29af00aa1eb61f1cc6c37486256bad4c4e5903e89dc4f",
+            "manifest_sha256_lf_normalized": "6eca6add7c647d678bf29af00aa1eb61f1cc6c37486256bad4c4e5903e89dc4f",
+            "items": 4,
+            "items_ok": 4,
+            "only_on_disk": [],
+            "two_way_checked": true,
+            "drift": []
+          },
+          {
+            "manifest": "A1/out/subai/M08/run_20261116_1900/digestwarm_frozen/frozen_manifest.json",
+            "manifest_bytes": 860,
+            "manifest_sha256": "b5547c6ef73d7f6362cf7827a90a93500e0fc6d33707e3e3d77f0dcf800f3d77",
+            "manifest_sha256_lf_normalized": "b5547c6ef73d7f6362cf7827a90a93500e0fc6d33707e3e3d77f0dcf800f3d77",
+            "items": 1,
+            "items_ok": 1,
+            "only_on_disk": [],
+            "two_way_checked": true,
+            "drift": []
+          },
+          {
+            "manifest": "A1/out/subai/M08/run_20261116_1900/firsteval_frozen/frozen_manifest.json",
+            "manifest_bytes": 1236,
+            "manifest_sha256": "2e705758ab256d299accb40381c4c04a822c392e60865d83766d76355a6918f8",
+            "manifest_sha256_lf_normalized": "2e705758ab256d299accb40381c4c04a822c392e60865d83766d76355a6918f8",
+            "items": 2,
+            "items_ok": 2,
+            "only_on_disk": [],
+            "two_way_checked": true,
+            "drift": []
+          },
+          {
+            "manifest": "A1/out/subai/M08/run_20261116_1900/frozen/frozen_manifest.json",
+            "manifest_bytes": 2337,
+            "manifest_sha256": "49d5bfae9f80d8b03cb425acd03487dbc7d93fdff525d888a9748eee9d794ef8",
+            "manifest_sha256_lf_normalized": "49d5bfae9f80d8b03cb425acd03487dbc7d93fdff525d888a9748eee9d794ef8",
+            "items": 5,
+            "items_ok": 5,
+            "only_on_disk": [],
+            "two_way_checked": true,
+            "drift": []
+          },
+          {
+            "manifest": "A1/out/subai/M08/run_20261116_1900/recompute_frozen/frozen_manifest.json",
+            "manifest_bytes": 1615,
+            "manifest_sha256": "eb7406e5100f3f57f471223a8eaa66128a4d648810760894bca1af9bdad46d47",
+            "manifest_sha256_lf_normalized": "eb7406e5100f3f57f471223a8eaa66128a4d648810760894bca1af9bdad46d47",
+            "items": 3,
+            "items_ok": 3,
+            "only_on_disk": [],
+            "two_way_checked": true,
+            "drift": []
+          },
+          {
+            "manifest": "A1/out/subai/M08/run_20261116_1900/recompute_frozen_v2/frozen_manifest.json",
+            "manifest_bytes": 1626,
+            "manifest_sha256": "4439ac4291ca3a1237c99b5e8e0bbf34c5dce0ccda52a7e83d9a7d199a41f79e",
+            "manifest_sha256_lf_normalized": "4439ac4291ca3a1237c99b5e8e0bbf34c5dce0ccda52a7e83d9a7d199a41f79e",
+            "items": 3,
+            "items_ok": 3,
+            "only_on_disk": [],
+            "two_way_checked": true,
+            "drift": []
+          }
+        ]
+      }
+    }
   }
- }
 }

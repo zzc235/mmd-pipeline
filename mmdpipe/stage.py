@@ -886,9 +886,14 @@ BAKE_EXTRA_FIELDS = ("pose_source", "is_baked", "is_outdated")
 # 形状由 `bake_failure_shape()` 一次说清，谁都不用自己拼。
 BAKE_CRITERIA = ("requested", "applied", "not_outdated", "probe_matched",
                  "probe_informative", "fields_complete")
+# 重开之后的三条，外加一条**量的方式**——`D-223`/`D-224`：引擎开件后**第一次求值**就与顺序重算
+# 差 1.86–1.99 m（与 `is_baked` 无关，先清标志再首次求值差得更大）。所以「冷跳读回来和顺序重算
+# 一致」只有在**开件后第一次求值就是那一次冷跳**时才算证据；若先顺序走完 1..833 再冷跳，读的是
+# 本会话自己刚算出来的东西 ⇒ `matched=true / max_delta=0.0` 是**自证循环**（1号 19:20 那支就是）。
 BAKE_PERSIST_CRITERIA = ("reopen_measured", "cache_usable_after_reopen",
-                         "replay_matched_after_reopen")
+                         "replay_first_eval_after_open", "replay_matched_after_reopen")
 BAKE_ARTIFACT_CRITERIA = BAKE_CRITERIA + BAKE_PERSIST_CRITERIA
+BAKE_REPLAY_FIELDS = ("matched", "first_eval_after_open", "max_delta", "frames")
 BAKE_TOL = 1e-6
 BAKE_KEYS = ("frame_start", "frame_end", "fps")
 
@@ -1006,6 +1011,7 @@ def bake_checks(record) -> dict:
     probe = record.get("probe") or {}
     persist = record.get("persist") or {}
     replay = persist.get("replay_probe") or {}
+    first_eval = replay.get("first_eval_after_open") is True
     return {
         "requested": record.get("requested") is not None,
         "applied": record.get("applied") is True,
@@ -1021,8 +1027,11 @@ def bake_checks(record) -> dict:
         #    （`EXCEPTION_ACCESS_VIOLATION`，两次复现）—— 这条路不存在，判据也不能建在它上面。
         "cache_usable_after_reopen": (persist.get("is_baked_after_reopen") is True
                                       and persist.get("is_outdated_after_reopen") is False),
-        # ③ 重放一致：冷跳读回来的姿态 == 顺序重算的姿态（tol 见 `BAKE_TOL`）
-        "replay_matched_after_reopen": replay.get("matched") is True,
+        # ③ **量的方式对**：重放探针必须是开件后第一次求值（`D-223`/`D-224`）
+        "replay_first_eval_after_open": first_eval,
+        # ④ 重放一致：冷跳读回来的姿态 == 顺序重算的姿态（tol 见 `BAKE_TOL`）。
+        #    **同时要求方式对**——自证循环里的 `matched=true` 不算一致，否则这面旗会被单独引用。
+        "replay_matched_after_reopen": (first_eval and replay.get("matched") is True),
     }
 
 
@@ -1048,24 +1057,36 @@ def bake_failure_shape(record) -> str:
       就是这一种：`is_baked=true / is_outdated=true / use_disk_cache=false`，
       `info="833 frames in memory (7.3 MiB), cache is outdated!"`；
     * `replay_mismatch` —— 缓存**可用**、也**真的量过**重放，冷跳读回来的姿态与顺序重算不一致；
-    * `replay_unmeasured` —— **没有料，不是做错了**：没在重开件上量过，或缓存可用但没做重放对照。
+    * `replay_unmeasured_not_run` —— **没做**：没在重开件上量过、没有重放探针、或探针没记
+      `first_eval_after_open`（记录缺一位，补一次就够）；
+    * `replay_unmeasurable_engine` —— **做了，但引擎不让它成为证据**：探针跑在热身之后
+      （`first_eval_after_open=false`），量的是本会话自己算的东西，自证循环。
 
-    `replay_unmeasured` 单独存在是 `D-219` 的直接后果：把「我方缺料」写成
-    「缓存会算错」（`UNMEASURED` 当 `FAIL` 用），读者会去找一个不存在的正确性 bug——而
-    「第三种形状到底成不成立」现在**量不了**（要造一份重开后 `is_baked=true` 且
-    `is_outdated=false` 的件，需要持久化通道，`D-218` 已确认引擎层不存在）。
-    所以缺料就得说缺料，不许借 `replay_mismatch` 顶替。
+    `D-228` 的两处措辞按以下写，别省：
+
+    ① **依据**：`replay_unmeasurable_engine` 的根据是「重开件的缓存被引擎判为不可用
+      （`is_outdated=true`）且没有持久化通道（`D-218`）」**共同**成立；**不是**「首读偏差」本身。
+      首读偏差解释的是「为什么即使缓存可用，冷读也拿不到我们那次姿态」——两件事一起成立才让这条
+      性质不可测。写成「因为首读偏差所以量不了」，一旦偏差被绕过（预热）判词就悬空了。
+    ② **区分力来自判词分档，不来自「有时能绿」**。拆分之后这个闸门能区分 **没做 / 引擎做不到 /
+      真的不一致** 三件事；恒绿（永远满意）与恒红且不分档（淹掉别的判据）才是危险的。
     """
     checks = bake_checks(record)
     if checks["applied"] is not True:
         return "not_baked"
     if not checks["reopen_measured"]:
-        return "replay_unmeasured"
-    if not checks["cache_usable_after_reopen"]:
-        return "baked_not_persisted"
+        return "replay_unmeasured_not_run"
     replay = ((record or {}).get("persist") or {}).get("replay_probe")
     if not replay:
-        return "replay_unmeasured"
+        return "replay_unmeasured_not_run"
+    if "first_eval_after_open" not in replay:
+        # 记录缺一位（没说这次探针是不是开件后第一次求值）⇒ 没做，补一次就够（`D-225`：能补记，不拒）
+        return "replay_unmeasured_not_run"
+    if not checks["cache_usable_after_reopen"]:
+        return "baked_not_persisted"
+    if not checks["replay_first_eval_after_open"]:
+        # 做了，但量的是热身后的自证循环 ⇒ 引擎不允许它成为证据（`D-228` 的分档）
+        return "replay_unmeasurable_engine"
     if not checks["replay_matched_after_reopen"]:
         return "replay_mismatch"
     return "ok"
@@ -1148,6 +1169,27 @@ def bake_record(scene, req, probe, applied, is_baked, is_outdated) -> dict:
         # 进程内那一刻的缓存去向；重开之后的读数由 `bake_artifact_record()` 补（`D-214`）
         "persist": bake_persist_block(scene),
         "probe": probe,
+    }
+
+
+def bake_replay_probe(*, matched, first_eval_after_open=False, max_delta, frames) -> dict:
+    """构造「重开后的重放探针」记录。`first_eval_after_open` 不给就落 `False`。
+
+    为什么不抛：`D-225` 的裁定是「**能靠记录解决的事，不要用拒绝解决**」——漏写这个键属于
+    「可补」那一类（单条重跑就补上、历史不用动），所以它落成 `false` ⇒ `bake_failure_shape()`
+    判 `replay_unmeasurable_engine`（做了、但量的是热身后的自证循环；键缺了才是
+    `replay_unmeasured_not_run`），红在记录里、理由看得见、补得回来。抛 `TypeError` 会让
+    一次 6–12 分钟的构建因为一个可以补的字段当场死掉，而且崩掉之后连"该补什么"都没留在盘上。
+
+    为什么必须有这个布尔：自证循环（先顺序走完 1..833 再冷跳）与正确的量法**只差这一位**，
+    而它决定 `matched` 算不算证据（`D-223`/`D-224`）。`1号` 19:20 那支 `max_delta=0.0`
+    就是自证循环——缓存里装的是本会话自己刚算出来的东西。
+    """
+    return {
+        "matched": bool(matched),
+        "first_eval_after_open": bool(first_eval_after_open),
+        "max_delta": max_delta,
+        "frames": list(frames or []),
     }
 
 

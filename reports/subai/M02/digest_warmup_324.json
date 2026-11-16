@@ -1,0 +1,51 @@
+{
+ "blend": {
+  "path": "E:\\code\\mmdpipe-ai\\A1\\out\\subai\\M08\\run_20261116_1900\\frozen\\delivery_324_action_baked_5bc1581e.blend",
+  "sha256": "5bc1581ec75dea36795ffb44b76740ef92da6fcd815084db8d75f0ecff5d2cb0"
+ },
+ "bodies": 323,
+ "cold": {
+  "bodies_sha": "6c555bcc9a5990a62bc2cea80288a1f7605e3db9d726c8c13b6c7f2deeea5675",
+  "first_eval_after_open": true,
+  "matrices_sha": "afae455a34cf0aba1afb66be2f0deccd45ce1b422d2cd88e2468c0223857ab1d"
+ },
+ "compare": {
+  "bodies": 323,
+  "body_digest_diff": 0,
+  "matrix_max_delta": 1.992333203,
+  "matrix_over_tol": 323,
+  "sample": [
+   {
+    "max_delta": 1.26668477,
+    "name": "000_$name_j"
+   },
+   {
+    "max_delta": 1.809743226,
+    "name": "000_右肩1"
+   },
+   {
+    "max_delta": 1.277756989,
+    "name": "001_$name_j.001"
+   },
+   {
+    "max_delta": 1.718542814,
+    "name": "001_右肩2"
+   },
+   {
+    "max_delta": 1.288987666,
+    "name": "002_$name_j.002"
+   }
+  ]
+ },
+ "first_eval_after_open": true,
+ "scene_frame": 833,
+ "stage": "digest-warmup-probe-v1",
+ "tol": 1e-06,
+ "verdict": "DIGEST_INPUT_DEPENDS_ON_EVAL",
+ "warm": {
+  "bodies_sha": "6c555bcc9a5990a62bc2cea80288a1f7605e3db9d726c8c13b6c7f2deeea5675",
+  "first_eval_after_open": false,
+  "frame": 417,
+  "matrices_sha": "795ec30bcd7f7e2133221a09f8e6c1638589235cdcdaa077b2e83eb6d58d8615"
+ }
+}

@@ -1,0 +1,182 @@
+{
+ "drift": [],
+ "entries_outside_manifest_dir": [],
+ "items": [
+  {
+   "bytes": 6136986,
+   "path": "E:\\code\\mmdpipe-ai\\A3\\out\\subai\\M05\\arms\\20261116_324\\C@W1-rerun.blend",
+   "readonly": true,
+   "recorded_bytes": 6136986,
+   "recorded_sha256": "2a2efb3e1073923387a006bc07a32ad44702637c18aad0ae1b178803a4447d41",
+   "role": "C@W1-rerun.blend",
+   "sha256": "2a2efb3e1073923387a006bc07a32ad44702637c18aad0ae1b178803a4447d41",
+   "sha256_lf_normalized": "29d5c3918f812ecb4c32ef4fec12c25f9c6ef58eb76daac7a3f9fefc0c568562",
+   "state": "ok"
+  },
+  {
+   "bytes": 6137030,
+   "path": "E:\\code\\mmdpipe-ai\\A3\\out\\subai\\M05\\arms\\20261116_324\\C@W1.blend",
+   "readonly": true,
+   "recorded_bytes": 6137030,
+   "recorded_sha256": "79862401ed1f1cdb1fc3afe5c85e95586d7606abcc6005943a747fd91e55f806",
+   "role": "C@W1.blend",
+   "sha256": "79862401ed1f1cdb1fc3afe5c85e95586d7606abcc6005943a747fd91e55f806",
+   "sha256_lf_normalized": "d40631184d9faa7de02dbbf747a7920b6be72321d4f13dc5bb4a44bb4be66158",
+   "state": "ok"
+  },
+  {
+   "bytes": 6139523,
+   "path": "E:\\code\\mmdpipe-ai\\A3\\out\\subai\\M05\\arms\\20261116_324\\C@W2.blend",
+   "readonly": true,
+   "recorded_bytes": 6139523,
+   "recorded_sha256": "c3c5cdcb762b78144d75b02188e9361cce892eff76a0860465d8a7df95f22f04",
+   "role": "C@W2.blend",
+   "sha256": "c3c5cdcb762b78144d75b02188e9361cce892eff76a0860465d8a7df95f22f04",
+   "sha256_lf_normalized": "94947088b16912fd2dceda1cb01ba6ad637b106e290eb5948c9ebe13b7e22404",
+   "state": "ok"
+  },
+  {
+   "bytes": 3528,
+   "path": "E:\\code\\mmdpipe-ai\\A3\\out\\subai\\M05\\arms\\20261116_324\\CTRL_fps_changed.json",
+   "readonly": false,
+   "recorded_bytes": 3528,
+   "recorded_sha256": "9af594133abf13f55bb2292ae3885202379afc3f0be619e3b95d5e12cfd967a8",
+   "role": "CTRL_fps_changed.json",
+   "sha256": "9af594133abf13f55bb2292ae3885202379afc3f0be619e3b95d5e12cfd967a8",
+   "sha256_lf_normalized": "9af594133abf13f55bb2292ae3885202379afc3f0be619e3b95d5e12cfd967a8",
+   "state": "ok"
+  },
+  {
+   "bytes": 3034,
+   "path": "E:\\code\\mmdpipe-ai\\A3\\out\\subai\\M05\\arms\\20261116_324\\CTRL_no_addon.json",
+   "readonly": false,
+   "recorded_bytes": 3034,
+   "recorded_sha256": "62ae6073c68253a17048573c134e5ada93eee344bdd39ecd34d61ca34c31104e",
+   "role": "CTRL_no_addon.json",
+   "sha256": "62ae6073c68253a17048573c134e5ada93eee344bdd39ecd34d61ca34c31104e",
+   "sha256_lf_normalized": "62ae6073c68253a17048573c134e5ada93eee344bdd39ecd34d61ca34c31104e",
+   "state": "ok"
+  },
+  {
+   "bytes": 4345,
+   "path": "E:\\code\\mmdpipe-ai\\A3\\out\\subai\\M05\\arms\\20261116_324\\C_W1.json",
+   "readonly": false,
+   "recorded_bytes": 4345,
+   "recorded_sha256": "c214ca93db565a7cdc6045e11b7c84b8365c97cdb3f943049fef837a844eb9af",
+   "role": "C_W1.json",
+   "sha256": "c214ca93db565a7cdc6045e11b7c84b8365c97cdb3f943049fef837a844eb9af",
+   "sha256_lf_normalized": "c214ca93db565a7cdc6045e11b7c84b8365c97cdb3f943049fef837a844eb9af",
+   "state": "ok"
+  },
+  {
+   "bytes": 4429,
+   "path": "E:\\code\\mmdpipe-ai\\A3\\out\\subai\\M05\\arms\\20261116_324\\C_W1_rerun.json",
+   "readonly": false,
+   "recorded_bytes": 4429,
+   "recorded_sha256": "441e269b1dfa0f53aafba8d55af59583118edf8bf64b03881c245816e040da4a",
+   "role": "C_W1_rerun.json",
+   "sha256": "441e269b1dfa0f53aafba8d55af59583118edf8bf64b03881c245816e040da4a",
+   "sha256_lf_normalized": "441e269b1dfa0f53aafba8d55af59583118edf8bf64b03881c245816e040da4a",
+   "state": "ok"
+  },
+  {
+   "bytes": 4650,
+   "path": "E:\\code\\mmdpipe-ai\\A3\\out\\subai\\M05\\arms\\20261116_324\\C_W2.json",
+   "readonly": false,
+   "recorded_bytes": 4650,
+   "recorded_sha256": "cdc30f506b066cff985c44941475d87aff4b7c2e097b3b21219bd2bda0f48839",
+   "role": "C_W2.json",
+   "sha256": "cdc30f506b066cff985c44941475d87aff4b7c2e097b3b21219bd2bda0f48839",
+   "sha256_lf_normalized": "cdc30f506b066cff985c44941475d87aff4b7c2e097b3b21219bd2bda0f48839",
+   "state": "ok"
+  },
+  {
+   "bytes": 8769753,
+   "path": "E:\\code\\mmdpipe-ai\\A3\\out\\subai\\M05\\arms\\20261116_324\\D-_.blend",
+   "readonly": true,
+   "recorded_bytes": 8769753,
+   "recorded_sha256": "3669481c2d7cb21649326b4792bb0d31cfaa82cd3a391ce412d76c702e8a5b6d",
+   "role": "D-_.blend",
+   "sha256": "3669481c2d7cb21649326b4792bb0d31cfaa82cd3a391ce412d76c702e8a5b6d",
+   "sha256_lf_normalized": "3dec5bf78a9cd63ceb8c734fe5333dccc537a52ebff9aab03f8daf48dd8e6924",
+   "state": "ok"
+  },
+  {
+   "bytes": 10230897,
+   "path": "E:\\code\\mmdpipe-ai\\A3\\out\\subai\\M05\\arms\\20261116_324\\D.blend",
+   "readonly": true,
+   "recorded_bytes": 10230897,
+   "recorded_sha256": "b6e0545a7becd3d788c019434c30acc04cfaecbee650fbc60e9993fda2db0cc3",
+   "role": "D.blend",
+   "sha256": "b6e0545a7becd3d788c019434c30acc04cfaecbee650fbc60e9993fda2db0cc3",
+   "sha256_lf_normalized": "7c137a609df1a1c89fdc40b4d77ed88579ec7c1f388da9a48068ec757ab2c3ad",
+   "state": "ok"
+  },
+  {
+   "bytes": 4524,
+   "path": "E:\\code\\mmdpipe-ai\\A3\\out\\subai\\M05\\arms\\20261116_324\\D.json",
+   "readonly": false,
+   "recorded_bytes": 4524,
+   "recorded_sha256": "92dd6bbfa5aef6417383204f845fda3a17671b4f0d699209b2f3902a8db40e86",
+   "role": "D.json",
+   "sha256": "92dd6bbfa5aef6417383204f845fda3a17671b4f0d699209b2f3902a8db40e86",
+   "sha256_lf_normalized": "92dd6bbfa5aef6417383204f845fda3a17671b4f0d699209b2f3902a8db40e86",
+   "state": "ok"
+  },
+  {
+   "bytes": 4446,
+   "path": "E:\\code\\mmdpipe-ai\\A3\\out\\subai\\M05\\arms\\20261116_324\\D_ctrl_447.json",
+   "readonly": false,
+   "recorded_bytes": 4446,
+   "recorded_sha256": "0ddeabfb4bb6b99ccdaa73ba69148af8c06c384b96480188241309a309a3eb7f",
+   "role": "D_ctrl_447.json",
+   "sha256": "0ddeabfb4bb6b99ccdaa73ba69148af8c06c384b96480188241309a309a3eb7f",
+   "sha256_lf_normalized": "0ddeabfb4bb6b99ccdaa73ba69148af8c06c384b96480188241309a309a3eb7f",
+   "state": "ok"
+  },
+  {
+   "bytes": 5230,
+   "path": "E:\\code\\mmdpipe-ai\\A3\\out\\subai\\M05\\arms\\20261116_324\\batch_report.json",
+   "readonly": false,
+   "recorded_bytes": 5230,
+   "recorded_sha256": "0800d38aa40b6d59a4faf8a983d938524ee309792a294e12ddd41d0e9858d9d8",
+   "role": "batch_report.json",
+   "sha256": "0800d38aa40b6d59a4faf8a983d938524ee309792a294e12ddd41d0e9858d9d8",
+   "sha256_lf_normalized": "0800d38aa40b6d59a4faf8a983d938524ee309792a294e12ddd41d0e9858d9d8",
+   "state": "ok"
+  },
+  {
+   "bytes": 10588,
+   "path": "E:\\code\\mmdpipe-ai\\A3\\out\\subai\\M05\\arms\\20261116_324\\readback_arms.json",
+   "readonly": false,
+   "recorded_bytes": 10588,
+   "recorded_sha256": "eaf8220441d04db2d8bc2394bad68d6609d97b94c867ecfbc9bc30207556239a",
+   "role": "readback_arms.json",
+   "sha256": "eaf8220441d04db2d8bc2394bad68d6609d97b94c867ecfbc9bc30207556239a",
+   "sha256_lf_normalized": "1d9fa8796216b595ec09e2b03c72bef0f39629a701dde174eba68fa0abe88921",
+   "state": "ok"
+  }
+ ],
+ "listed": 14,
+ "listed_ok": 14,
+ "manifest": "E:\\code\\mmdpipe-ai\\A3\\out\\subai\\M05\\arms\\20261116_324\\manifest.json",
+ "manifest_bytes": 4301,
+ "manifest_sha256": "66d4a5d7f3b91731d61b7358010310bcb4a9245d557f691ad3f30dc566149bef",
+ "manifest_sha256_lf_normalized": "66d4a5d7f3b91731d61b7358010310bcb4a9245d557f691ad3f30dc566149bef",
+ "ok": true,
+ "only_on_disk": [],
+ "recorded_assertions": {
+  "batch_id": "20261116_324",
+  "blend_frozen_readonly": 5,
+  "files_total": 14,
+  "input_sha256": "ffaa6780a2f7e765512201403a21e34848837b5f1c7486e91a70442762857761",
+  "note": "`0o444` 只覆盖 5 份 .blend（臂件是物证，`D-189`）；9 份 .json 是跑批与回读记录，写一次但不冻结 —— 本文件如实记 `readonly` 现状，不为了好看去 chmod。条目用裸文件名，manifest 与产物同目录，`artifact_audit` 的双向枚举才成立。",
+  "readonly_files": 5,
+  "records_writable": 9,
+  "two_way_expected": true
+ },
+ "state": "OK",
+ "two_way_checked": true,
+ "unresolved": [],
+ "warnings": []
+}

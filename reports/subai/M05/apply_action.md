@@ -241,7 +241,7 @@ Blender 刚体解算的步长 `dt = 1/fps` ⇒ 改 fps 就是改物理。而 M04
 返回 `(列表, 走哪条路)`），三处调用点全部改走它，记录里多一个 `action.fcurves_via` 字段
 说明这个数从哪条路读出来的。离屏 5 条（含「`fcurves` 一碰就抛」「`strip` 没有
 `channelbags`」两个形状）+ 一条反控：把 `fcurves_of` 退回旧写法，新测试红 3 条、还原后 41 条全绿
-（`out/subai/M05/ctrl_fcurves_shape.py`，控制脚本自带还原）。
+（`reports/subai/M05/scripts/ctrl_fcurves_shape.py`，控制脚本自带还原）。
 
 **没验的仍然写着**：这条修法只在离屏哑对象上验过形状；**「拿一件存过盘的臂件再跑一次
 `apply_action`」这件事仍然没跑过**——它要拿窗口，而 324 批次之后窗口一直在别人手里
@@ -291,7 +291,7 @@ Blender 刚体解算的步长 `dt = 1/fps` ⇒ 改 fps 就是改物理。而 M04
 分层动作位移既有键、槽位选对 bag、两个 bag 拒写且**一个字节都没写进去**、
 `action.fcurves.find` 那种旧写法在分层动作上确实 `AttributeError`）。
 
-反向控制 `out/subai/M05/ctrl_nla_write_shape.py`：把 `_shift_b_action` 退回旧写法 ⇒ **红 4 条**
+反向控制 `reports/subai/M05/scripts/ctrl_nla_write_shape.py`：把 `_shift_b_action` 退回旧写法 ⇒ **红 4 条**
 （其中两条是「拒写」变「崩」，说明旧写法连拒都做不到）；还原 ⇒ 6 条全绿。
 脚本自带还原，跑完 `git status` 只剩本次要提交的文件。
 
@@ -300,7 +300,7 @@ Blender 刚体解算的步长 `dt = 1/fps` ⇒ 改 fps 就是改物理。而 M04
 ### 上游接口：`D-213` 那条「待验假设」现在有实测了
 
 派工原话是「先确认 5.2 的 `Action.fcurve_ensure_for_datablock()` 能不能直接用；我说的这句是
-待验假设，不是事实」。只读探针（`out/subai/M05/probe_fcurve_write_shape.py`，打开臂件
+待验假设，不是事实」。只读探针（`reports/subai/M05/scripts/probe_fcurve_write_shape.py`，打开臂件
 `C@W1.blend`、在 `action.copy()` 上试、不存盘，前后 sha `79862401…` 同值）量到：
 
 | 项 | 读数 |
@@ -352,3 +352,171 @@ Blender 刚体解算的步长 `dt = 1/fps` ⇒ 改 fps 就是改物理。而 M04
    但「槽位选对 bag」这条目前只有哑对象证据。
 
 引用口径随之定死：`fcurves_via` / `how`（形状读数）可以引；**拼接结果对不对不许引**。
+
+## 十四、324 批次补冻结 manifest（`总控` 19:50 要的那次枚举）
+
+`总控` 用 `coordination.artifact_audit` 盘四棵树时，这一批报的是「**量不了**」：14 个文件里
+5 份 `.blend` 是 `0o444`、9 个 `.json` 是可写记录，**整批没有 manifest** ⇒「盘上每个在账上、
+账上每个在盘上」这一层没有账可对。按要求补一次枚举，**没有重跑批次、没有动任何字节**。
+
+- 生成器：`reports/subai/M05/scripts/make_arms_manifest.py`（拒绝覆盖已有 manifest）
+- 账本：`out/subai/M05/arms/20261116_324/manifest.json`（14 项，sha 与 bytes 全部**今天重算**）
+- 条目写**裸文件名**：manifest 与产物同目录，`artifact_audit` 的双向枚举才成立
+  （它只在「条目都落在 manifest 自己这一层」时才查 `only_on_disk`）。
+- `0o444` 只覆盖 5 份 `.blend`（臂件是物证，`D-189`）；9 份 `.json` 是跑批与回读记录，
+  写一次但不冻结 —— 账本**如实记** `readonly=false`，不为好看去 chmod。
+
+### 读数（`artifact_audit` 自己给的，不是我自己说的）
+
+```
+state = OK      listed = 14    listed_ok = 14    two_way_checked = true
+only_on_disk = []   entries_outside_manifest_dir = []   drift = []   warnings = []
+manifest_sha256 = 66d4a5d7f3b91731…   manifest_bytes = 4301
+readonly 分布 = 5 / 14
+```
+
+### 红绿负控（`D-204/205`：校验类代码必须喂应当被拒的输入）
+
+`reports/subai/M05/scripts/ctrl_arms_manifest_negative.py`，全部在**副本**上做，真批次一个字节不碰：
+
+| 构造 | 期望 | 实测 |
+|---|---|---|
+| 真批次原样 | 绿 | `exit 0` `AUDIT ok=True drift=0` |
+| 副本里多一个未登记文件 | `only_on_disk` | `exit 3` `drift=1` |
+| 副本里把一个 `.blend` 改一个字节 | `sha_drift` | `exit 3` `drift=1` |
+| 把那个字节还原 | 回绿 | `exit 0` `AUDIT ok=True drift=0` |
+
+「还原后回绿」这一步是必需的：否则红的来源说不清是那次改动还是副本本身。
+
+### 没做到的（写在明处）
+
+- 这份账本**没有把 9 份 `.json` 冻结**：它们是可写记录，冻结会让后续批次重写时失败。
+  所以这一批的「冻结」只覆盖臂件那一层，账本里 `readonly` 一列如实分列 5 true / 9 false。
+- 账本没有进 git（`out/` 是产物树，与 M08 的 `frozen/frozen_manifest.json` 同性质）；
+  进 git 的是审计结果 `reports/subai/M05/arms_audit_324.json`。
+
+### 脚本搬进仓库（同一晚的第二处同类缺陷，`D-228` 第十三条）
+
+报告引用了六个脚本，它们原先都在 `out/subai/M05/` 下 —— 而 `out/` 被 `.gitignore:38` 吞掉。
+也就是说**干净 checkout 上这些控制脚本根本不存在**，报告里「红 3 条 / 绿 6 条」「绿能绿、红能红」
+在别人机器上无法复跑。这跟 `2号` 那处 `compare.log` 是同一个形状：**账本/证据对着工作树成立，
+对着仓库不成立**。
+
+现在六个都搬到 `reports/subai/M05/scripts/` 并进了 git（`out/` 里的旧副本已删：两份实现就是两个真值）：
+
+`make_arms_manifest.py` / `ctrl_arms_manifest_negative.py` / `ctrl_fcurves_shape.py` /
+`ctrl_nla_write_shape.py` / `probe_fcurve_write_shape.py` / `readback_324_arms.py`
+
+搬动时顺手把「算根」改成**自定位**（往上走到有 `coordination/` 与 `mmdpipe/` 的那层）：
+产物树与仓库深度不同，写死 `dirname` 次数必然有一边算错，而算错的形状是 `ImportError`
+——看起来像「这个模块不存在」。走不到就把起点打出来再死。
+
+搬完的实测（从**新位置**跑）：
+
+| 脚本 | 结果 |
+|---|---|
+| `ctrl_fcurves_shape.py` | 旧写法红 **3** 条 / 还原绿 |
+| `ctrl_nla_write_shape.py` | 旧写法红 **4** 条 / 还原绿 **6** 条 |
+| `ctrl_arms_manifest_negative.py` | 绿 / `only_on_disk` 红 / `sha_drift` 红 / 还原绿 |
+| `make_arms_manifest.py` | 仍认 14 项（并补上「任何 `*manifest*.json` 不入账」的排除规则，与 `artifact_audit` 对齐） |
+| `probe_/readback_` | 根均解析到仓库根；`probe` 的守卫负控（拷到别处）仍报「ROOT 算错了」 |
+
+**仍然留在 `out/` 的**：`arms/20261116_324/` 那 14 个产物（含 `manifest.json` 账本本身）——
+6–10 MB 的 `.blend` 不进 git 是对的。所以「这批的字节」在干净 checkout 上依然量不了，
+能复跑的是**控制逻辑**；枚举的 sha 结论由进 git 的 `reports/subai/M05/arms_audit_324.json` 承载。
+
+### 证据/摘要生成器也镜像进仓，并且**默认拒绝覆盖**
+
+同一条第十三条继续往下一层查：报告里的证据不是凭空写的，它有两条生成链，原先也都只在 `out/`：
+
+- `reports/subai/M05/scripts/build_arms_summary_324.py`：七臂记录 → `arms/20261116_324/summary.json`
+- `reports/subai/M05/scripts/build_evidence_attempt11.py`：→ `evidence_m05_attempt11.json` + 闸门包
+
+照 `D-225` 的「能补的用记录、不可逆的用拒绝」分了一下：**这两支的默认输出是已提交的交付证据**，
+重跑一次就会静默改写它 ⇒ 默认路径已存在就 `exit 2`，要覆盖必须显式 `--force`；
+新增 `--out` 只为**验证**（写到临时目录，产物树不留东西）。
+
+验证不是「应该能跑」：
+
+| 项 | 读数 |
+|---|---|
+| `summary.json` 重建（`--out` 到临时路径） | **与已提交件逐字节相同**：30 965 B / sha `ca3afd87…` |
+| `evidence_m05_attempt11.json` 重建 | `evidence/1:5a46a74d…`，`evidence check` **exit 0**；与已提交的 `0d66add0…` **不同** |
+| 已提交证据与闸门包 | 未被改动（`0d66add0…` / `3ae49f68…`） |
+
+digest 不同是**对的**：证据的输入里有 `apply_action.py`、`tests/test_apply_action.py`、本报告、`summary.json`，
+而这四份在 attempt 11 之后都改过。它说明**证据是「那个 HEAD 的读数」，不是永久真相** ——
+所以更不能让它被随手重跑覆盖。
+
+#### 镜像过程中撞出来的两处，都是我自己埋的
+
+1. **账本混进了输入**：批次目录里放了 `manifest.json`（冻结账本），而 summary 生成器把目录里每个
+   `.json` 都当臂记录 ⇒ 重跑会多一条 `{"arm": "manifest", 全 None}` 的假记录，把物证摘要从
+   30 965 静默改成 31 580 字节。已加 `*manifest*.json` 排除（与 `artifact_audit` 同一条规则）。
+2. **`--out` 只重定向了证据、没重定向闸门包**：第一次验证就把已提交的 `gate_m05_attempt11.json`
+   改了一个 snapshot 路径，被 `git status` 抓到、已 `git checkout --` 还原。现在闸门包跟着 `--out` 走
+   —— **验证性运行必须能完全落在临时目录里**，否则「只验证一次」就是一次改写。
+
+### 第十三条的另一面：`git status` 看不见 `out/` 里的东西（`4号` 点的）
+
+我给 `4号` 的验收断言是「验证性运行之后 `git status --porcelain` 必须为空」。他指出这条**只覆盖仓库内的文件** ——
+而产物树里的读数不在 git 视野里，被覆盖了也不会红。他说得对，而且这条正好咬我：**报告引用的两份读数就住在 `out/`**：
+
+| 脚本 | 输出 | 原状态 | 现在 |
+|---|---|---|---|
+| `readback_324_arms.py` | `out/subai/M05/arms/20261116_324/readback_arms.json` | 重跑**静默覆盖** | 目标存在即拒绝，`--force` 才覆盖 |
+| `probe_fcurve_write_shape.py` | `out/subai/M05/probe_fcurve_write_shape.json`（默认） | 重跑**静默覆盖** | 同上 |
+
+之所以要拒：这两份是**报告 §十一/§十三 的数字出处**，而它们在 `out/` 里没有第二份 —— 覆盖掉就只剩「记忆」。
+`D-225` 的判据在这里同样适用：**不可逆的用拒绝，可补的用记录**（生成器那两支写的是 git 里的交付件，一样拒）。
+
+### 真机负控（不是「应该会拒」）
+
+`guard` 代持锁、`blender -b --factory-startup --python-exit-code 3`、目标文件已存在：
+
+```
+REFUSE 已有读数：…\readback_arms.json（确需重测加 --force）
+GUARD_DONE rc=10
+readback_arms.json sha256 前后同为 eaf82204…（一个字节没写）
+```
+
+**这里我先写错一次，被 `4号` 用七种形状的真机读数纠正**：第一版守卫写 `return 2`，跑出来是 `rc=0`，
+我当时记成「`blender -b` 把 `SystemExit` 吞了」。**不成立。** 他实测（Blender 5.2.2 LTS `d13f752e3b9c`）：
+`--python-expr "raise SystemExit(3)"` → 3、`sys.exit(7)` → 7、模块级 `sys.exit(main())` 里 `main()` 抛
+`SystemExit(4)` → 4；而**同一个 `main()` 只写 `main()`、返回值没人接** → 0。所以 `rc=0` 的真因是
+**返回值被丢掉**，不是码被吞。本文件末尾原本就是裸 `main()` —— 正是这一种。
+
+同时采纳他一条更要紧的：**语义码不要用 3**。`3` 是 `coordination.lock` 自己的「冲突/拒绝回收」码，
+而 `guard` 透传子进程 rc ⇒「脚本拒绝覆盖」和「锁被占着」会撞成同一个数。现在这两个脚本用
+**10 = 拒绝覆盖**（11 / 12 留给「输入或身份对不上」「断言不成立」），`--python-exit-code 3` 只兜意外异常。
+
+还有一处是我自己发现的、比退出码更要紧的：守卫原先排在**测量之后**——先花 20 秒开臂件做完读数，
+再告诉你能不能落盘。已挪到 `main()` 最前面，先判目标再干活；负控因此不再需要一份 `.blend` 也能验
+（实测无 `.blend` 时照样 `rc=10`，目标 sha 不变）。真正保证「没写」的仍是文件 sha 前后同值，
+退出码只负责让调用方停下。
+
+### 报告头条数**只用仓内文件**重算（`2号` 20:15 那把尺）
+
+`2号` 给 M04 立的同一把尺，我这边也做成了机器核：`reports/subai/M05/scripts/verify_report_numbers.py`
+只读 git 里的 `summary.json` 与 `arms_audit_324.json`，**不碰 `out/`**，逐条断言：
+
+```
+臂数量 / 回读臂数 / 回读状态(status=measured)
+五臂 × {u324=324、mask_wired needed 10111 / added 8298 / already 1813 / capped false /
+        readback_mismatch 0 / skipped 0、is_baked false、frame_end 301/301/832/833/447、fps 24、产物 0o444}
+审计 {state OK、two_way_checked true、listed 14、drift []、only_on_disk []}
+报告引用的每个路径 in-git
+⇒ 退出码 0，0 条对不上
+```
+
+它当场抓出我两处**没进 git 的引用**（`readback_arms.json`、`probe_fcurve_write_shape.json`）——
+处理方式不是加豁免了事，而是**每条豁免必须写清「那个数由仓里哪一份承载」**：
+
+| 不入仓的路径 | 为什么 | 那个数在仓里哪儿 |
+|---|---|---|
+| `arms/…/manifest.json` | 冻结账本本身 | `arms_audit_324.json`（本脚本断言 state/listed/drift） |
+| `arms/…/readback_arms.json` | 回读原件 | `summary.json.artifact_readback`（本脚本逐臂断言） |
+| `probe_fcurve_write_shape.json` | 探针原件 | 报告 §十三 表格 + `evidence_m05_attempt11.json` |
+
+所以现在的口径是：**报告头条的每一个数都能在干净 checkout 上重算**；不能重算的只有「那批字节本身」，
+而它们不是头条数，是产物。

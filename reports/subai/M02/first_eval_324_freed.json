@@ -1,0 +1,59 @@
+{
+ "blend": {
+  "bytes": 17186243,
+  "path": "E:\\code\\mmdpipe-ai\\A1\\out\\subai\\M08\\run_20261116_1900\\probe_copy_5bc1581e.blend",
+  "sha256": "5bc1581ec75dea36795ffb44b76740ef92da6fcd815084db8d75f0ecff5d2cb0"
+ },
+ "bodies": 323,
+ "cache_after_free_pre_eval": {
+  "info": "833 frames in memory (7.3 MiB), cache is outdated!",
+  "is_baked": false
+ },
+ "cache_at_open": {
+  "info": "833 frames in memory (7.3 MiB), cache is outdated!",
+  "is_baked": true,
+  "is_outdated": true,
+  "use_disk_cache": false
+ },
+ "compare": {
+  "p0_vs_p1": null,
+  "p0_vs_p2": {
+   "bodies": 323,
+   "max_delta": 1.994782209,
+   "over_tol": 275,
+   "sample": [
+    {
+     "max_delta": 1.776467443,
+     "name": "000_$name_j"
+    },
+    {
+     "max_delta": 1.818581581,
+     "name": "001_$name_j.001"
+    },
+    {
+     "max_delta": 1.853384852,
+     "name": "002_$name_j.002"
+    },
+    {
+     "max_delta": 1.894622863,
+     "name": "003_$name_j.003"
+    },
+    {
+     "max_delta": 1.764080704,
+     "name": "004_$name_j.005"
+    }
+   ],
+   "tol": 1e-06
+  },
+  "p1_vs_p2": null
+ },
+ "frame": 417,
+ "frame_start": 1,
+ "freed_before_first_eval": true,
+ "p0_first_eval_sha": "bf1c55e11c31ff1f01c6bf9f576c089342b119c6700da8e5057bc4ceac76b143",
+ "p1_cold_after_free_sha": null,
+ "p2_sequential_sha": "adf78ad2dc13f2d2a8efb121ed6c8c9d94bc94d3dc11e23ad38c96d8e8b065de",
+ "reading": "COLD_VS_SEQUENTIAL",
+ "stage": "first-eval-probe-v1",
+ "tol": 1e-06
+}

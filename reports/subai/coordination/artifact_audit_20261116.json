@@ -1,0 +1,119 @@
+{
+ "audited_at": "2026-11-16T19:56+08:00",
+ "details": {
+  "M04": [
+   {
+    "base": "out/subai/M04/penetration/round2_324b（gitignored，须用 --base 解析）",
+    "drift": [],
+    "entries_outside_manifest_dir": [
+     "e:\\dsh pr\\woker2\\out\\subai\\m04\\penetration\\round2_324b"
+    ],
+    "items": 35,
+    "items_ok": 35,
+    "manifest": "A2/reports/subai/M04/cd_round2/manifest.json",
+    "manifest_bytes": 10720,
+    "manifest_sha256": "59a503c963cf446579dbeeabe991536d9e046696a248bbb5dff7444617498dc8",
+    "manifest_sha256_lf_normalized": "59a503c963cf446579dbeeabe991536d9e046696a248bbb5dff7444617498dc8",
+    "two_way_checked": false
+   }
+  ],
+  "M08": [
+   {
+    "drift": [],
+    "items": 4,
+    "items_ok": 4,
+    "manifest": "A1/out/subai/M08/frozen/frozen_manifest.json",
+    "manifest_bytes": 1870,
+    "manifest_sha256": "6eca6add7c647d678bf29af00aa1eb61f1cc6c37486256bad4c4e5903e89dc4f",
+    "manifest_sha256_lf_normalized": "6eca6add7c647d678bf29af00aa1eb61f1cc6c37486256bad4c4e5903e89dc4f",
+    "only_on_disk": [],
+    "two_way_checked": true
+   },
+   {
+    "drift": [],
+    "items": 1,
+    "items_ok": 1,
+    "manifest": "A1/out/subai/M08/run_20261116_1900/digestwarm_frozen/frozen_manifest.json",
+    "manifest_bytes": 860,
+    "manifest_sha256": "b5547c6ef73d7f6362cf7827a90a93500e0fc6d33707e3e3d77f0dcf800f3d77",
+    "manifest_sha256_lf_normalized": "b5547c6ef73d7f6362cf7827a90a93500e0fc6d33707e3e3d77f0dcf800f3d77",
+    "only_on_disk": [],
+    "two_way_checked": true
+   },
+   {
+    "drift": [],
+    "items": 2,
+    "items_ok": 2,
+    "manifest": "A1/out/subai/M08/run_20261116_1900/firsteval_frozen/frozen_manifest.json",
+    "manifest_bytes": 1236,
+    "manifest_sha256": "2e705758ab256d299accb40381c4c04a822c392e60865d83766d76355a6918f8",
+    "manifest_sha256_lf_normalized": "2e705758ab256d299accb40381c4c04a822c392e60865d83766d76355a6918f8",
+    "only_on_disk": [],
+    "two_way_checked": true
+   },
+   {
+    "drift": [],
+    "items": 5,
+    "items_ok": 5,
+    "manifest": "A1/out/subai/M08/run_20261116_1900/frozen/frozen_manifest.json",
+    "manifest_bytes": 2337,
+    "manifest_sha256": "49d5bfae9f80d8b03cb425acd03487dbc7d93fdff525d888a9748eee9d794ef8",
+    "manifest_sha256_lf_normalized": "49d5bfae9f80d8b03cb425acd03487dbc7d93fdff525d888a9748eee9d794ef8",
+    "only_on_disk": [],
+    "two_way_checked": true
+   },
+   {
+    "drift": [],
+    "items": 3,
+    "items_ok": 3,
+    "manifest": "A1/out/subai/M08/run_20261116_1900/recompute_frozen/frozen_manifest.json",
+    "manifest_bytes": 1615,
+    "manifest_sha256": "eb7406e5100f3f57f471223a8eaa66128a4d648810760894bca1af9bdad46d47",
+    "manifest_sha256_lf_normalized": "eb7406e5100f3f57f471223a8eaa66128a4d648810760894bca1af9bdad46d47",
+    "only_on_disk": [],
+    "two_way_checked": true
+   },
+   {
+    "drift": [],
+    "items": 3,
+    "items_ok": 3,
+    "manifest": "A1/out/subai/M08/run_20261116_1900/recompute_frozen_v2/frozen_manifest.json",
+    "manifest_bytes": 1626,
+    "manifest_sha256": "4439ac4291ca3a1237c99b5e8e0bbf34c5dce0ccda52a7e83d9a7d199a41f79e",
+    "manifest_sha256_lf_normalized": "4439ac4291ca3a1237c99b5e8e0bbf34c5dce0ccda52a7e83d9a7d199a41f79e",
+    "only_on_disk": [],
+    "two_way_checked": true
+   }
+  ]
+ },
+ "schema": "artifact_audit_v1",
+ "tool": "python -m coordination.artifact_audit",
+ "trees": {
+  "M04": {
+   "items": 35,
+   "items_ok": 35,
+   "manifest": "A2/reports/subai/M04/cd_round2/manifest.json",
+   "two_way_checked": false
+  },
+  "M05": {
+   "batch": "A3/out/subai/M05/arms/20261116_324",
+   "files": 14,
+   "manifest_present": false,
+   "readonly_files": 5,
+   "readonly_only_blend": true,
+   "verdict": "批次 `20261116_324` 共 14 个文件，其中**只有 5 份 `.blend` 是 0o444**（版本化 + 不覆盖成立），9 个 `.json` 可写，且**整批没有冻结 manifest** ⇒ 「盘上每个在账上、账上每个在盘上」在这批上**量不了**（不是量了不一致）。被 `2号` 实际用到的五份 `.blend` 的实例 sha 另有出处：`cd_run_ledger.arms.*.sha256_before / sha256_after`，跑前跑后各一次相同。要补的话是给批次补一份 manifest（A3 的车道），不必重跑。",
+   "writable_others": 9
+  },
+  "M07": {
+   "manifests": 0,
+   "note": "4号 的件在 run/ 下无冻结 manifest；不进账本",
+   "root": "A4/out/subai"
+  },
+  "M08": {
+   "failures": 0,
+   "items": 18,
+   "manifests": 6,
+   "root": "A1/out/subai/M08"
+  }
+ }
+}

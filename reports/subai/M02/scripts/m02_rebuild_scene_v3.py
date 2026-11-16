@@ -44,6 +44,7 @@ import m02_patch_bpy as pb  # noqa: E402
 MMD_CANDIDATES = ("bl_ext.user_default.mmd_tools", "mmd_tools")
 NOT_MEASURED = 3
 PATCH_REFUSED = 4
+BAKE_AT_BUILD_REMOVED = 5
 
 
 def sha256_file(path):
@@ -105,6 +106,16 @@ def apply_input_patch(patch_path, arm):
         rec["source"]["reverified_note"] = "来源件不在盘上，只复验补丁自身 sha（不假装验过来源）"
 
     rec["rigidbody_world_before"] = pb.rigidbody_world_snapshot()
+    # `D-223②`/`D-226`：`body_spec()` 里含 `matrix_world`，而「开件后第一次求值」与
+    # 顺序重算能差到 1.99 m（实测 323/323 条）。这里**先顺序热身再读**，并把前置状态
+    # 作为两个独立字段记进记录（`warmed_up` ≠ `first_eval_after_open`），不加硬断言：
+    # 拒绝只对将来的读数生效，已有读数会整体变成「不可比」。
+    try:
+        rec["warm"] = pb.warm_scene()
+    except Exception as exc:                                    # noqa: BLE001
+        rec["warm"] = pf.warm_record(evidence="热身失败：%s: %s" % (type(exc).__name__, exc))
+    rec["warmed_up"] = rec["warm"]["warmed_up"]
+    rec["first_eval_after_open"] = rec["warm"]["first_eval_after_open"]
     for spec in patch["bodies"]:
         obj = pb.create_body_from_spec(spec, arm_obj=arm)
         actual = pb.body_spec(obj)
@@ -141,6 +152,7 @@ def scene_snapshot():
 def main():
     argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
     do_build = "--build" in argv
+    do_bake = "--bake" in argv
     patch_path = None
     if "--patch" in argv:
         idx = argv.index("--patch")
@@ -154,6 +166,21 @@ def main():
                          "[--build] [--patch patch.json]")
     preset_path, pmx_path, out_dir = argv[0], argv[1], argv[2]
     os.makedirs(out_dir, exist_ok=True)
+
+    if do_bake:
+        # 只拒跑、不静默降级：把烘焙塞回 build 里正是 `D-207` 点名的那条「假绿」。
+        with open(os.path.join(out_dir, "rebuild_report.json"), "w", encoding="utf-8",
+                  newline="\n") as fh:
+            json.dump({"stage": "rebuild-v3.2", "status": "NOT_MEASURED",
+                       "reason_code": "BAKE_AT_BUILD_REMOVED",
+                       "reason": ("D-207：烘焙必须在动作应用之后单独调 `stage.stage_bake`"
+                                  "（见 scripts/m02_bake_delivery.py），`frame_end` 取 "
+                                  "`action.frame_range[1]` 的回读值。在 stage_build 里烘的是静止姿态，"
+                                  "探针会假绿。")}, fh, ensure_ascii=False, indent=1, sort_keys=True)
+            fh.write("\n")
+        print("REBUILD NOT_MEASURED reason_code=BAKE_AT_BUILD_REMOVED")
+        sys.stdout.flush()
+        os._exit(BAKE_AT_BUILD_REMOVED)
 
     preset = preset_mod.load(preset_path)
     ok, trace = enable_mmd_tools()
@@ -236,6 +263,11 @@ def main():
                               "rigids": rigid_report()}
 
     if do_build and arm is not None and root is not None:
+        # **烘焙不在这里**（`D-207`）：`runner.py` 是 627 import → 635 build → 661 motion，动作在 build
+        # 之后才应用。在 build 里烘 = 烘静止姿态，而探针比的是「烘进去的姿态」与「顺序重算的姿态」——
+        # 两个静止姿态必然一致 ⇒ `applied/not_outdated/probe_matched` 全绿，是今天最像成功的 fail-open。
+        # 调用点改到 `m02_bake_delivery.py`：动作应用之后单独调 `stage.stage_bake`，
+        # `frame_end` 用 `action.frame_range[1]` 的**回读值**，不是导入后的场景值。
         res2 = stage.stage_build(preset, root, arm)
         report["scene"]["after_build"] = scene_snapshot()
         base = report["scene"]["after_import"]
@@ -247,6 +279,10 @@ def main():
                   % ((base["fps"], base["fps_base"]), (now["fps"], now["fps_base"])))
         report["build"] = {"issues": issues_of(res2),
                            "metrics": dict(getattr(res2, "metrics", {}))}
+        # 这里**不该**有 `bake`：`stage_build` 只建场景（`D-207`）。烘焙记录在
+        # `m02_bake_delivery.py` 的 `bake_report.json` 里、跟着动作走；留显式 `None`
+        # 让「这次没烘」在报告里也看得见，不给读者一个可以误读的空块。
+        report["build"]["bake"] = None
         dump2 = os.path.join(out_dir, "rebuild_built.blend")
         bpy.ops.wm.save_as_mainfile(filepath=dump2)
         report["built_blend"] = {"path": dump2, "sha256": sha256_file(dump2),
