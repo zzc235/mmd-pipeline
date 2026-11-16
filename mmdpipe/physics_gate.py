@@ -235,18 +235,37 @@ def load_profile(path):
 
 
 def evaluate(measurement, profile, diagnosis=None, evidence_paths=None):
-    """对一条测量求值；diagnosis 只作附注，不参与门禁（M04 不改 M03 判据）。"""
+    """对一条测量求值；diagnosis 只作附注，不参与门禁（M04 不改 M03 判据）。
+
+    `measurement["out_of_scope"]` 可以列出**本模块口径之外**的门禁，例如 S1/S6 的 Bullet
+    初始穿透 R0 不属于过冲/冻结/穿透三类——按 M04 §6.F.1 必须标 `OUT_OF_SCOPE`，不能
+    因为「它这一条没数据」就整条样本判 UNKNOWN，更不能算 PASS。
+    """
     if not isinstance(profile, dict) or "gates" not in profile:
         raise GateInputError("profile 不可用")
+    scope = measurement.get("out_of_scope") or []
+    if isinstance(scope, str):
+        scope = [scope]
+    unknown_scope = [g for g in scope if g not in GATES]
+    if unknown_scope:
+        raise GateInputError("out_of_scope 里有未知门禁：%s" % ", ".join(unknown_scope))
+
     results = {}
     for name, fn in GATES.items():
-        cfg = profile["gates"][name]
-        results[name] = fn(measurement, cfg)
+        if name in scope:
+            results[name] = _result(name, "OUT_OF_SCOPE",
+                                    "该样本的这一类不在本模块口径内（R0 等）",
+                                    missing=[])
+            continue
+        results[name] = fn(measurement, profile["gates"][name])
 
-    statuses = [r["status"] for r in results.values()]
+    statuses = [r["status"] for r in results.values() if r["status"] != "OUT_OF_SCOPE"]
     if FAIL in statuses:
         status = FAIL
     elif UNKNOWN in statuses:
+        status = UNKNOWN
+    elif not statuses:
+        # 三类门禁全被声明为范围外：没有任何一条门禁支持 PASS
         status = UNKNOWN
     else:
         status = PASS
@@ -261,6 +280,8 @@ def evaluate(measurement, profile, diagnosis=None, evidence_paths=None):
         "status": status,
         "failed_gates": sorted(k for k, r in results.items() if r["status"] == FAIL),
         "unknown_gates": sorted(k for k, r in results.items() if r["status"] == UNKNOWN),
+        "out_of_scope_gates": sorted(k for k, r in results.items()
+                                     if r["status"] == "OUT_OF_SCOPE"),
         "gate_results": results,
         "evidence_paths": list(evidence_paths or []),
         "warnings": [],
