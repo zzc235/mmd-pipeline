@@ -60,12 +60,34 @@ def constraint_limit_source(tree_dir):
 def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--worktree", required=True)
-    ap.add_argument("--needs", type=int, default=8298, help="任务书的交付需求条数")
-    ap.add_argument("--planned", type=int, default=10111,
-                    help="plan() 实测需求（4号 在 A4 上量的读数，报告里要与建成后的 constraints_needed 对账）")
+    ap.add_argument("--needs", type=int, default=8298,
+                    help="任务书的交付需求条数（旧数；与实测的 planned 一起进报告对账，不许当值用）")
+    ap.add_argument("--planned", type=int, default=None,
+                    help="plan() 实测需求，必须同时给 --planned-source")
+    ap.add_argument("--planned-source", default=None,
+                    help="这个 planned 从哪来（人/文件/命令），写进 spec，供复核者判断值不值")
+    ap.add_argument("--planned-from", default=None,
+                    help="从一份已有的场景记录里读 constraints_needed（如 m08_round1/stage_mask_*.json），"
+                         "比手传数字更硬：数从产物来，不从记忆来")
     ap.add_argument("--out", required=True)
     ap.add_argument("--lease", default="true", choices=("true", "false"))
     args = ap.parse_args(argv)
+
+    # 需求条数不许来自记忆：要么给一份真产物让它读，要么给数字 + 来源。两者都不给 ⇒ 停。
+    if args.planned_from:
+        with io.open(args.planned_from, encoding="utf-8-sig") as fh:
+            rec = json.load(fh)
+        rec = rec.get("mask_wired_record") or rec
+        if "constraints_needed" not in rec or rec["constraints_needed"] is None:
+            raise SystemExit("%s 里没有 constraints_needed：不编数，停。" % args.planned_from)
+        planned = int(rec["constraints_needed"])
+        planned_source = "file:%s#constraints_needed" % os.path.abspath(args.planned_from)
+    elif args.planned is not None and args.planned_source:
+        planned = int(args.planned)
+        planned_source = str(args.planned_source)
+    else:
+        raise SystemExit("必须给 --planned-from，或 --planned 同时给 --planned-source。"
+                         "（手抄一个数字、不写来源，就是今天反复出现的「凭记忆构造样例」。停。）")
 
     wtree = os.path.abspath(args.worktree)
     guard = guardrail_constant(wtree)
@@ -75,7 +97,7 @@ def main(argv=None):
     if "max_constraints is not None" not in body:
         raise SystemExit("constraint_limit() 的「未显式给上限」分支找不到：口径变了，停。")
 
-    planned = int(args.planned)
+    planned = int(planned)
     cap = planned if planned <= guard else guard
     guardrail_hit = planned > guard
 
@@ -90,6 +112,7 @@ def main(argv=None):
         },
         "needs": int(args.needs),
         "needs_planned": planned,
+        "needs_planned_source": planned_source,
         "cap": cap,
         "cap_source": {
             "rule": "mmdpipe.stage.constraint_limit(needed, max_constraints=None) -> (needed, False)",
