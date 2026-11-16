@@ -43,7 +43,10 @@ def lock_cmd(kind, owner, cwd, extra=()):
 
 def main(argv=None):
     ap = argparse.ArgumentParser(description="取锁 → 跑驱动 → 心跳 → 释放")
-    ap.add_argument("--owner", required=True, help="`模块|工作树`，如 '模块负责2|A2'")
+    ap.add_argument("--owner", default="", help="`模块|工作树`，如 '模块负责2|A2'")
+    ap.add_argument("--owner-module", default="",
+                    help="改用两段写：模块名。命令行里不必出现竖线（免被 shell 吞掉）")
+    ap.add_argument("--owner-tree", default="", help="改用两段写：工作树名，如 A2")
     ap.add_argument("--note", required=True, help="一句话说明这次要跑什么")
     ap.add_argument("--lock-cwd", default=LOCK_CWD)
     ap.add_argument("--touch-every", type=int, default=300)
@@ -54,6 +57,16 @@ def main(argv=None):
                     help="`--` 之后原样传给驱动")
     a = ap.parse_args(argv)
 
+    # 竖线在某些 shell/启动器里会被当成管道吞掉，于是 owner 变成「模块工作树」⇒ 锁报「用法错」。
+    # 所以也接受两段写：`--owner-module 模块负责2 --owner-tree A2`，竖线在这里拼，不经过命令行。
+    owner = a.owner
+    if not owner and a.owner_module and a.owner_tree:
+        owner = a.owner_module + "|" + a.owner_tree
+    if not owner or "|" not in owner:
+        print("[用法] 给 --owner '模块|工作树'，或 --owner-module 模块 --owner-tree 树"
+              "（命令行里不必出现竖线）", file=sys.stderr)
+        return 2
+
     args = list(a.driver_args)
     if args and args[0] == "--":
         args = args[1:]
@@ -61,7 +74,7 @@ def main(argv=None):
         print("[用法] `--` 之后要跟驱动参数", file=sys.stderr)
         return 2
 
-    got = lock_cmd("acquire", a.owner, a.lock_cwd,
+    got = lock_cmd("acquire", owner, a.lock_cwd,
                    ["--note", a.note, "--wait", str(a.acquire_wait)])
     print("[acquire] rc=%s %s" % (got.returncode, (got.stdout or got.stderr or "").strip()[:200]),
           flush=True)
@@ -72,7 +85,7 @@ def main(argv=None):
 
     def beater():
         while not stop.wait(a.touch_every):
-            r = lock_cmd("touch", a.owner, a.lock_cwd)
+            r = lock_cmd("touch", owner, a.lock_cwd)
             print("[touch] rc=%s %s" % (r.returncode, (r.stdout or r.stderr or "").strip()[:160]),
                   flush=True)
 
@@ -86,7 +99,7 @@ def main(argv=None):
     finally:
         stop.set()
         thread.join(timeout=5)
-        rel = lock_cmd("release", a.owner, a.lock_cwd)
+        rel = lock_cmd("release", owner, a.lock_cwd)
         print("[release] rc=%s %s  用时 %.1f s"
               % (rel.returncode, (rel.stdout or rel.stderr or "").strip()[:160],
                  time.time() - t0), flush=True)
