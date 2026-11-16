@@ -198,6 +198,26 @@ def check_frames(meta_path, f0, f1):
 # `C@W1.blend` 上实测 = 323，按 324 去判会把这批臂全挡在门外。
 EXPECT_RIGIDS_DEFAULT = 323
 
+# 臂件的**文件名**不是判据，别在代码里写死：`3号` 的批次叫 `C@W1.blend` / `C@W2.blend` / `D.blend`，
+# 我第一版写死 `C_W1.blend`，19:56 那次一开跑就 `FileNotFoundError`（好在带锁外壳把锁正确释放了）。
+DEFAULT_ARM_FILES = {"C_W1": "C_W1.blend", "C_W2": "C_W2.blend", "D": "D.blend"}
+
+
+def parse_arm_files(pairs):
+    """把 `--arm-file KEY=文件名` 叠到默认文件名上；键不认识就拒（不猜）。"""
+    files = dict(DEFAULT_ARM_FILES)
+    for item in pairs or []:
+        if not isinstance(item, str) or "=" not in item:
+            raise ValueError("--arm-file 要写成 KEY=文件名，收到 %r" % (item,))
+        key, name = item.split("=", 1)
+        key, name = key.strip(), name.strip()
+        if key not in files:
+            raise ValueError("--arm-file 的键只能是 %s，收到 %r" % (sorted(files), key))
+        if not name:
+            raise ValueError("--arm-file %s= 没给文件名" % key)
+        files[key] = name
+    return files
+
 
 def admission_checks(health, window_end, expect_rigids=EXPECT_RIGIDS_DEFAULT):
     """一条臂的准入判据（纯函数，离屏可测）。
@@ -295,7 +315,15 @@ def main():
     ap.add_argument("--allow-overwrite", action="store_true",
                     help="允许覆盖**未冻结**的非空批次（默认拒绝）")
     ap.add_argument("--freeze", action="store_true", help="收尾把这些产物设成只读")
+    ap.add_argument("--arm-file", action="append", default=[], metavar="KEY=NAME",
+                    help="臂件文件名（KEY ∈ C_W1/C_W2/D），可重复；默认 C_W1.blend/C_W2.blend/D.blend")
     a = ap.parse_args()
+
+    try:
+        arm_files = parse_arm_files(a.arm_file)
+    except ValueError as exc:
+        print("[refused] %s" % exc, flush=True)
+        return 2
 
     try:
         batch_id = sanitize_batch_id(a.batch_id)
@@ -313,25 +341,19 @@ def main():
     align = os.path.join(pen, "roi_align_cd.json")
     base = os.path.join(pen, "baseline_delivery_v1.json")
 
-    arms = {"C_W1": ("C_W1.blend", 1, 240),
-            "C_W2": ("C_W2.blend", 1, 832),
-            "D": ("D.blend", 1, 832)}
+    arms = {"C_W1": (arm_files["C_W1"], 1, 240),
+            "C_W2": (arm_files["C_W2"], 1, 832),
+            "D": (arm_files["D"], 1, 832)}
 
     ledger = {"spec": "m04_run_cd/2", "batch_id": batch_id, "batch_created": created,
               "started_at": time.strftime("%Y-%m-%dT%H:%M:%S"),
               "arms_dir": a.arms_dir.replace("\\", "/"), "input": a.input.replace("\\", "/"),
               "input_sha256": sha256(a.input), "arms": {}, "steps": [], "gates": {}}
 
-    # 输入臂的 sha（跑前核，第七条）
-    for key, (fname, _f0, _f1) in arms.items():
-        p = os.path.join(a.arms_dir, fname)
-        ledger["arms"][key] = {"path": p.replace("\\", "/"), "sha256_before": sha256(p),
-                               "bytes": os.path.getsize(p)}
-
-    cw1 = os.path.join(a.arms_dir, arms["C_W1"][0])
-
     def finish():
-        """落台账 → （可选）冻结 → 写清单。两条出口共用，免得半路失败时批次里没有清单。"""
+        """落台账 → （可选）冻结 → 写清单。**所有出口共用**（含「臂件不存在」这种早退），
+        免得半路失败时批次里没有清单。定义必须在第一个使用者之前 —— 第一版放在下面，
+        「缺臂件」那条早退路径直接 `UnboundLocalError`（负控抓到的，不是自己看出来的）。"""
         ledger["finished_at"] = time.strftime("%Y-%m-%dT%H:%M:%S")
         with io.open(os.path.join(pen, "cd_run_ledger.json"), "w",
                      encoding="utf-8", newline="\n") as fh:
@@ -341,6 +363,21 @@ def main():
                                          "frozen_files": frozen,
                                          "blocked": ledger.get("blocked")})
         print("[manifest] %d files, frozen=%s" % (man["count"], bool(a.freeze)), flush=True)
+
+    # 输入臂的 sha（跑前核，第七条）；文件不在就**带着目录清单停下**，别抛 traceback
+    for key, (fname, _f0, _f1) in arms.items():
+        p = os.path.join(a.arms_dir, fname)
+        if not os.path.exists(p):
+            have = sorted(os.listdir(a.arms_dir)) if os.path.isdir(a.arms_dir) else []
+            ledger["blocked"] = "臂件不存在：%s（目录里现有 %d 项：%s）" % (
+                p, len(have), ", ".join(have[:12]))
+            print("[blocked] %s" % ledger["blocked"], flush=True)
+            finish()
+            return 3
+        ledger["arms"][key] = {"path": p.replace("\\", "/"), "sha256_before": sha256(p),
+                               "bytes": os.path.getsize(p)}
+
+    cw1 = os.path.join(a.arms_dir, arms["C_W1"][0])
 
     # 0) 准入体检：**在要测的那些场景上**回读（D-162 / 七条前置的第 1、2 条）。
     #    别人的回读、别人的「结构性推断」都不算 —— 缺记录就判 UNMEASURED，不许当 OK。

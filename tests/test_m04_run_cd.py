@@ -286,5 +286,28 @@ class AdmissionTest(unittest.TestCase):
         self.assertGreaterEqual(len(v["failures"]), 5)  # 逐项报出，不是「第一个就返回」
 
 
+class ArmFilesTest(unittest.TestCase):
+    """臂件文件名不许写死：3号 的批次叫 `C@W1.blend`，我第一版写死 `C_W1.blend` 就崩在开跑第一步。"""
+
+    def test_defaults(self):
+        self.assertEqual(DRV.parse_arm_files([]),
+                         {"C_W1": "C_W1.blend", "C_W2": "C_W2.blend", "D": "D.blend"})
+
+    def test_override_keeps_others(self):
+        got = DRV.parse_arm_files(["C_W1=C@W1.blend", "C_W2=C@W2.blend", "D=D.blend"])
+        self.assertEqual(got["C_W1"], "C@W1.blend")
+        self.assertEqual(got["C_W2"], "C@W2.blend")
+        self.assertEqual(got["D"], "D.blend")
+
+    def test_unknown_key_refused(self):
+        with self.assertRaises(ValueError):
+            DRV.parse_arm_files(["D_CTRL=x.blend"])
+
+    def test_bad_form_refused(self):
+        for bad in ("C_W1", "=x.blend", "C_W1="):
+            with self.assertRaises(ValueError, msg=repr(bad)):
+                DRV.parse_arm_files([bad])
+
+
 if __name__ == "__main__":
     unittest.main()
