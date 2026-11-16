@@ -112,8 +112,16 @@ class TestLockFS(_TmpLock, unittest.TestCase):
     """CLI 退出码：0 正常 / 3 冲突 / 4 状态不可判定。"""
 
     def run_cli(self, *args):
+        """子进程环境钉成**最坏情况** `PYTHONIOENCODING=gbk`，父进程按 UTF-8 严格解码。
+
+        这是 2026-11-16 那次 main 变红的教训：只钉测试侧会把红搬到默认环境。
+        钉最坏环境 + 严格解码，才能一条测试同时管住「产品侧有没有 `reconfigure`」。
+        """
+        env = dict(os.environ)
+        env.pop("PYTHONIOENCODING", None)
+        env["PYTHONIOENCODING"] = "gbk"
         return subprocess.run([sys.executable, "-m", "coordination.lock", *args],
-                              cwd=ROOT, capture_output=True,
+                              cwd=ROOT, capture_output=True, env=env,
                               text=True, encoding="utf-8", timeout=60)
 
     def test_cli_acquire_status_release(self):
@@ -122,6 +130,7 @@ class TestLockFS(_TmpLock, unittest.TestCase):
         self.assertIn("ACQUIRED", out.stdout)
         st = self.run_cli("status", "--lock", self.dir)
         self.assertEqual(st.returncode, 0)
+        self.assertTrue(st.stdout.strip(), "CLI 没有任何输出（None 与空串同一类坑）")
         self.assertIn("持有", st.stdout)
         rel = self.run_cli("release", "--lock", self.dir, "--owner", MINE)
         self.assertEqual(rel.returncode, 0)

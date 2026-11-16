@@ -116,18 +116,40 @@ def reconcile(status_doc: dict, decisions: list) -> dict:
     return {"last": last, "history": in_history, "non_task_ids": non_task_ids}
 
 
-def pending_human(decisions: list, history: dict) -> list:
-    """待 Human 批项：带 human_approval_required 且其后没有针对同一任务的新裁决。"""
+def _mentions(row: dict, decision_id: str) -> bool:
+    """这条裁决有没有**显式**提到某条待批项（任何字符串字段/列表里出现它的 id）。"""
+    if not decision_id:
+        return False
+    for key, value in row.items():
+        if key == "decision_id":
+            continue
+        if isinstance(value, str) and decision_id in value:
+            return True
+        if isinstance(value, (list, tuple)):
+            for item in value:
+                if isinstance(item, str) and decision_id in item:
+                    return True
+    return False
+
+
+def pending_human(decisions: list, history: dict | None = None) -> list:
+    """待 Human 批项：**全量聚合**，跨任务、跨时间，不靠"取最后一条"。
+
+    2026-11-16 修的真缺陷：旧实现按「同一任务后续任意裁决即清账」，于是
+    `D-20261116-075`（掩码结构性未接线，等 Owner 批）被后来的 `D-083` **挤掉**了——
+    没有任何人回答过它，它只是不再是最新一条。**这是最坏的一类状态载体说谎：消失得没有痕迹。**
+
+    现在的规矩：一条待批项只有在**后续裁决显式提到它**（`resolves` / `answers` / 正文里出现它的
+    decision_id）时才算关闭。时间顺序本身不构成回答。
+    """
     pending = []
     for idx, row in enumerate(decisions):
         if not row.get("human_approval_required"):
             continue
-        task = row.get("task_id")
-        later = [r for r in decisions[idx + 1:]
-                 if (r.get("task_id") or None) == (task or None)]
-        if later:
-            continue
-        pending.append(row)
+        did = row.get("decision_id") or ""
+        closed = any(_mentions(later, did) for later in decisions[idx + 1:])
+        if not closed:
+            pending.append(row)
     return pending
 
 
@@ -191,6 +213,8 @@ def build(parser, argv=None) -> int:
 
 
 def main(argv=None) -> int:
+    from .cli import ensure_utf8_stdio
+    ensure_utf8_stdio()
     ap = argparse.ArgumentParser(prog="coordination.status",
                                  description="任务级状态派生视图（只读，不写文件）")
     ap.add_argument("--status", default=DEFAULT_STATUS, help="权威状态表（缺省 coordination/task_status.json）")
