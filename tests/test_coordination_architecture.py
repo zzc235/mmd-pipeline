@@ -883,6 +883,25 @@ class LockGuardTest(TempDirTest):
         self.assertEqual(lock_mod.main(["guard", "--lock", self.lease, "--owner", self.OWNER]), 2)
         self.assertFalse(lock_mod.status(self.lease)["held"])   # 用法错时也不许留下锁
 
+    def test_two_part_owner_syntax_avoids_the_pipe_char(self):
+        # 竖线在 cmd / 后台作业启动器里会被当管道吞掉（2号 19:07 实测：
+        # `模块负责2|A2` 到程序里只剩半截）。所以给一条不含竖线的入口。
+        argv = ["guard", "--lock", self.lease, "--owner-module", "模块负责1",
+                "--owner-tree", "A1", "--heartbeat-every", "0",
+                "--", sys.executable, "-c", "pass"]
+        self.assertEqual(lock_mod.main(argv), 0)
+        self.assertFalse(lock_mod.status(self.lease)["held"])
+
+    def test_owner_forms_are_mutually_exclusive_and_half_a_pair_is_a_usage_error(self):
+        both = ["guard", "--lock", self.lease, "--owner", self.OWNER,
+                "--owner-module", "模块负责1", "--owner-tree", "A1",
+                "--", sys.executable, "-c", "pass"]
+        half = ["guard", "--lock", self.lease, "--owner-module", "模块负责1",
+                "--", sys.executable, "-c", "pass"]
+        self.assertEqual(lock_mod.main(both), 2)
+        self.assertEqual(lock_mod.main(half), 2)
+        self.assertFalse(lock_mod.status(self.lease)["held"])
+
 
 if __name__ == "__main__":
     unittest.main()
