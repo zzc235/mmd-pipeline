@@ -21,9 +21,9 @@
     },
     "M02": {
       "status": "PARTIAL",
-      "reason": "S8 已重判为 EFFECTIVE（作用域＝碰撞总开关接线，约 2/3 来自管线自补的 11 个静态占位刚体）；S2 已定稿（限位活着但 0.7 rad 未被触及）；但交付 .blend 仍不自洽，且该场景用今天的代码重建不出来",
-      "next": "A1 跑 P12（顺序步进后存盘）定修法；重建路径待补 stage.py 两处缺陷（A4）",
-      "updated": "2026-11-16T13:25+08:00"
+      "reason": "S8 = EFFECTIVE（作用域＝碰撞总开关接线，约 2/3 来自管线自补的 11 个静态占位刚体）；S2 定稿（限位活着但 0.7 rad 未被触及）。交付修复走 A 路：不烘焙 + 顺序求值契约（P12 已证伪「顺序跑一遍再存盘」，内存缓存不进 .blend）",
+      "next": "A1 做 §6 一次性豁免的 bake_all 受控实测；A4 修 stage.py 两处静默失败后重建交付场景",
+      "updated": "2026-11-16T13:28+08:00"
     },
     "M03": {
       "status": "PASS",
@@ -33,9 +33,9 @@
     },
     "M04": {
       "status": "PARTIAL",
-      "reason": "门禁框架与口径字段已入基线（physics_gate/1，basis 必填、frames_measured 语义修复），但穿透两个口径都没有能站住的场景数字：网格口径自检不过（偏置 1.7 cm），胶囊口径的常态叠合与穿入分不开",
-      "next": "A2 实现胶囊相对基线（按刚体对、基线落盘、判增量）；网格口径重做 signed distance / manifold 子集",
-      "updated": "2026-11-16T13:25+08:00"
+      "reason": "门禁框架与口径字段已入基线（physics_gate/1；basis 必填；frames_measured 语义修复；胶囊口径改为相对基线，绝对口径在同一数据上误判 FAIL）",
+      "next": "等新交付物出来后用相对基线重取穿透数字；网格口径仍待重做（signed distance / manifold 子集）",
+      "updated": "2026-11-16T13:28+08:00"
     },
     "M05": {
       "status": "PARTIAL",
@@ -51,9 +51,9 @@
     },
     "M07": {
       "status": "PASS",
-      "reason": "D/E/F 三段全通：validate/build（拒绝例 exit 1 且不产物）、真隔离安装 + smoke 8/8、12 帧 E2E + ffprobe 两入口各 15 项 PASS、受控失败进程 exit 1；两条产品路径缺陷已修并用应当失败的输入验过",
+      "reason": "D/E/F 三段全通（validate/build、真隔离安装 + smoke 8/8、12 帧 E2E 两入口各 15 项 PASS、受控失败 exit 1）；两条产品路径缺陷已修并验过；stage.py 两处静默失败已派 A4 并在修",
       "next": "两条 stage.py 缺陷（ensure_addons 假成功、preset 差分须走 preset.load）派 A4；全局安装去留待 Human",
-      "updated": "2026-11-16T13:25+08:00"
+      "updated": "2026-11-16T13:28+08:00"
     },
     "M08": {
       "status": "NOT_STARTED",
