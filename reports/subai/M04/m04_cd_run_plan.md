@@ -39,6 +39,17 @@
 - 每臂必记：`PID`、`cache_state`（`is_baked`/`is_outdated`）、`eval_policy`（必须 `sequential_from_frame_start`）、`visited_frames`、`warmup_frames`、**真实退出码**（Blender 5.2.2 在 `--background` 退出清理阶段会 `0xC0000005`，实测 `-1073741819` 而产物完整 ⇒ 判成功看**产物完整性**，退出码原样记、不折算）。
 - `plan_sequential_eval` 抛 `SequentialEvalError` ⇒ 本臂作废（不许冷跳凑）。
 
+## 二之一、`delivery_v1` 的基线：**先建一次，三个臂复用**（`D-056`）
+
+探针的判据是**增量**（`max_depth_m = −max(0, depth − baseline)`），所以基线必须是**这个场景**的，不能借用 `B_from_blend1` 的：
+
+1. **第一臂之前**用 `--baseline-write out/subai/M04/penetration/baseline_delivery_v1.json` 跑一次（探针在 `baseline_frame` 上取静止姿态的成对深度，落盘时带哈希）；
+2. 之后 C@W1 / C@W2 / D 三臂一律 `--baseline <那份 JSON>`，**不许各建各的**——各建各的等于三臂三个零点，`D vs C` 会把基线差算成「振幅效应」；
+3. 基线文件记进报告：`path` + `sha256_lf_normalized` + 建它的那一次运行的 `blend` sha；
+4. **`roi_missing` 必须为空**：`delivery_v1` 是新场景，ROI 18 根骨在它身上解析不出来时，探针会给出 `roi_missing` 非空 ⇒ 该臂判 `UNMEASURED`（理由「ROI 对不上这个骨架」，不是「没穿透」）。
+
+> 这条是写清单时补的：原清单列了三臂却没写基线，跑起来最可能的错是「三臂各建一份基线」或「沿用旧场景基线」，两种都会把姿态差混进判词。
+
 ## 三、判据（照 `prereg v4+amendA1A3`，一条不加一条不减）
 
 1. **量化在先**：`max_depth_m` 与 `raw_depth_m` 先 `round(…, 6)`（探针精度 1e-6 m）再比较，判据是 **1 mm**；`BOUNDARY`（跨 1 mm 线）记两个数、不判通过（`D-143`）。
