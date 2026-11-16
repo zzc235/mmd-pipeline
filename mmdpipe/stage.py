@@ -270,24 +270,8 @@ def collision_scope():
 
 
 def exception_rows(bodies, exceptions) -> list:
-    """作用域外的刚体在"共享位即碰"语义下**仍会与多少作用域内刚体互撞**。
-
-    比的是**通道打完之后的**位（`collision_bits()` = `mask | own`），不是当前场景里的位：
-    要回答的是"接上之后还剩多少"，不是"接之前有多少"（接之前大家都是 `{0001}`，
-    数出来会是全部，那个数没有信息量）。
-    """
-    rows = []
-    for obj in exceptions:
-        bits = mask_mod.collections_of(obj)
-        still = sum(1 for other in bodies if bits & mask_mod.collision_bits(other))
-        rows.append({"name": obj.name,
-                     "group": mask_mod.group_of(obj),
-                     "mask": mask_mod.mask_bits(obj),
-                     "collections": bits,
-                     "still_collides_with": still,
-                     "reason": "不在通道作用域（mmd_type 不是 RIGID_BODY），"
-                               "掩码对 PMX 刚体之外的对手方不适用"})
-    return rows
+    """作用域外的刚体：仍会与多少作用域内刚体互撞（逻辑在 `mmdpipe/mask.py`，可单测）。"""
+    return mask_mod.exception_rows(bodies, exceptions)
 
 
 # ---------------------------------------------------------------- 碰撞掩码（PMX collision_group_mask）

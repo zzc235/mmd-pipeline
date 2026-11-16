@@ -192,6 +192,32 @@ def disabled_pairs(objects) -> set:
     return pairs
 
 
+def exception_rows(bodies, exceptions) -> list:
+    """作用域外的刚体在"共享位即碰"语义下**仍会与多少作用域内刚体互撞**。
+
+    比的是**通道打完之后的**位（`collision_bits()` = `mask | own`），不是当前场景里的位：
+    要回答的是"接上之后还剩多少"，不是"接之前有多少"（接之前大家都是 `{0001}`，
+    数出来会是全部，那个数没有信息量）。
+
+    为什么要这张表而不是"跳过就完了"：`地面_物理` 这种对象有 `rigid_body` + `mmd_rigid`，
+    但 `mmd_type` 不是 `RIGID_BODY`（不在通道作用域），而它的掩码是 0。跳过它意味着一个
+    声明"谁都不碰"的地面在接上之后**仍与 62 个刚体互撞**——这个数必须出现在报告里
+    （`D-20261116-133`：结论要写在纸上，不是靠跳过）。
+    """
+    rows = []
+    for obj in exceptions:
+        bits = collections_of(obj)
+        still = sum(1 for other in bodies if bits & collision_bits(other))
+        rows.append({"name": obj.name,
+                     "group": group_of(obj),
+                     "mask": mask_bits(obj),
+                     "collections": bits,
+                     "still_collides_with": still,
+                     "reason": "不在通道作用域（mmd_type 不是 RIGID_BODY），"
+                               "掩码对 PMX 刚体之外的对手方不适用"})
+    return rows
+
+
 def mask_report(rigids, objects) -> dict:
     """逐刚体回读 + 汇总：声明了多少对 / 实际挡了多少对 / 差在哪。
 

@@ -296,5 +296,36 @@ class TestPlans(unittest.TestCase):
         self.assertNotEqual(plan_off["mask_histogram"], plan_on["mask_histogram"])
 
 
+class TestExceptionRows(unittest.TestCase):
+    """作用域外的刚体单列一行（`D-20261116-133`：跳过要写在纸上，不是靠跳过）。"""
+
+    def test_mask_zero_exception_still_collides_with_wired_bodies(self):
+        """`地面_物理` 那种对象：掩码 0、不在作用域，接上之后仍与 N 个刚体互撞。
+
+        比的是**接上之后**的位（`mask|own`），不是当前的 `{0001}`——后者数出来是全部，
+        没有信息量。
+        """
+        # 作用域内：三个刚体，各自「只碰自己组 + 自己组位」
+        a = Obj("A", 0, bits_for([0]))
+        b = Obj("B", 1, bits_for([1]))
+        c = Obj("C", 0, bits_for([0, 1]))
+        # 作用域外：掩码 0（谁都不碰），当前位仍是默认的 bit0
+        ground = Obj("地面_物理", 1, 0, collections=1)
+        rows = mask_mod.exception_rows([a, b, c], [ground])
+        self.assertEqual(len(rows), 1)
+        row = rows[0]
+        self.assertEqual(row["name"], "地面_物理")
+        self.assertEqual(row["mask"], 0)
+        self.assertEqual(row["group"], 1)
+        # 接上之后：A = {0}, B = {1,1}={1}, C = {0,1}；地面 = {0}
+        # 与 A({0}) 共享 → 碰；与 B({1}) 不共享 → 不碰；与 C({0,1}) 共享 → 碰
+        self.assertEqual(row["still_collides_with"], 2)
+        self.assertTrue(row["reason"])
+
+    def test_no_exception_gives_empty_list(self):
+        a = Obj("A", 0, bits_for([0]))
+        self.assertEqual(mask_mod.exception_rows([a], []), [])
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
