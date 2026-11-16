@@ -49,12 +49,19 @@ def resolve_owner(owner, owner_module, owner_tree):
 
 
 def build_guard_cmd(owner, note, lock_cwd, driver, driver_args,
-                    wait_s=0, heartbeat_every=240):
-    """拼出 `python -m coordination.lock guard ... -- <driver> ...`（纯函数，可离屏测）。"""
-    cmd = [sys.executable, "-m", "coordination.lock", "guard",
-           "--owner", owner, "--note", note,
-           "--wait", str(wait_s), "--heartbeat-every", str(heartbeat_every),
-           "--", sys.executable, driver]
+                    wait_s=0, heartbeat_every=240, owner_module="", owner_tree=""):
+    """拼出 `python -m coordination.lock guard ... -- <driver> ...`（纯函数，可离屏测）。
+
+    两段写现在 `guard` 自己就支持（`--owner-module`/`--owner-tree`，与 `--owner` 互斥），
+    所以**原样透传**，不在这里拼竖线 —— 拼一次就是一份重复规则。
+    """
+    cmd = [sys.executable, "-m", "coordination.lock", "guard"]
+    if owner_module and owner_tree:
+        cmd += ["--owner-module", owner_module, "--owner-tree", owner_tree]
+    else:
+        cmd += ["--owner", owner]
+    cmd += ["--note", note, "--wait", str(wait_s), "--heartbeat-every", str(heartbeat_every),
+            "--", sys.executable, driver]
     cmd.extend(driver_args)
     return cmd
 
@@ -85,7 +92,8 @@ def main(argv=None):
         return 2
 
     cmd = build_guard_cmd(owner, a.note, a.lock_cwd, a.driver, args,
-                          wait_s=a.wait, heartbeat_every=a.heartbeat_every)
+                          wait_s=a.wait, heartbeat_every=a.heartbeat_every,
+                          owner_module=a.owner_module, owner_tree=a.owner_tree)
     print("[guard] %s" % " ".join(cmd[3:8]), flush=True)
     return subprocess.call(cmd, cwd=a.lock_cwd)
 

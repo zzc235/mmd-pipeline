@@ -57,6 +57,16 @@ class BuildGuardCmdTest(unittest.TestCase):
         self.assertEqual(sum(1 for c in cmd if c == "模块负责2|A2"), 1)
         self.assertNotIn("模块负责2|A2".replace("|", ""), cmd)
 
+    def test_two_part_form_is_forwarded_not_composed(self):
+        # guard 自己已支持两段写（且与 --owner 互斥），这里必须原样透传、不再自己拼竖线
+        cmd = L.build_guard_cmd("", "n", ".", "d.py", ["--y"],
+                               owner_module="模块负责2", owner_tree="A2")
+        self.assertIn("--owner-module", cmd)
+        self.assertEqual(cmd[cmd.index("--owner-module") + 1], "模块负责2")
+        self.assertEqual(cmd[cmd.index("--owner-tree") + 1], "A2")
+        self.assertNotIn("--owner", cmd)
+        self.assertFalse(any("|" in c for c in cmd), cmd)
+
 
 if __name__ == "__main__":
     unittest.main()
