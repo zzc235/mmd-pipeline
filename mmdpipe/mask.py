@@ -117,7 +117,15 @@ def collection_flags(bits: int) -> list:
 # 逐对象 `bpy.ops.rigidbody.constraint_add()` 每次都触发整场景 depsgraph 求值，
 # 1500 条级别 10 分钟跑不完、日志涨到 459 MB。所以**大场景必须走建场那条路**
 # （`stage_build` 里刚体还没烘焙、没有缓存要重算），事后 apply 只适合小场景/无缓存场景。
-DEFAULT_MAX_CONSTRAINTS = 4000
+#
+# 上限为什么从 4000 提到 20000（2026-11-16 15:1x，交付路径上的硬边界）：
+#   全尺寸交付场景要补的对数 = `plans()["constraints_needed"]` 10 111 − 已经挡对的 1 813
+#   = **8 298**。旧的 4000 会让每一次全尺寸建场**必然** `constraints_capped`，于是
+#   `verdict` 永远是 PARTIAL——"通道接上了"这件事在交付尺度上根本判不出来，而那不是
+#   物理结论，是我自己写死的闸。20000 留 2.4 倍余量，同时仍然是一个"不许无声跑飞"的闸。
+#   配套：`mmdpipe/stage.py` 的建约束改成复制已有 ncc（不走逐条 ops），代价从
+#   60 ms–0.48 s/条降到毫秒级，否则 8298 条按旧路要 8 分钟到 1 小时。
+DEFAULT_MAX_CONSTRAINTS = 20000
 
 
 def _pair(a: str, b: str) -> tuple:
@@ -233,6 +241,16 @@ def mask_report(rigids, objects) -> dict:
     uncovered = sorted(declared - blocked)
     by_name = {o.name: o for o in bodies}
 
+    # 两个**归零量**（D0 `D-20261116-142`）：判"通道接上了"看这两个为 0，
+    # **不看**约束总数。`released` 会把挡错的放开（总数降）、`added` 会补假碰（总数升），
+    # 总数不变恰恰可能是"又放又补"。这两个数各有 0 与"没测到"的区别：
+    # `None` = 压根没有这类对（无从谈起），`0` = 有这类对、但一条都不剩。
+    plan = plans(bodies, blocked)
+    already_needed = sum(1 for a, b in plan["constraints_needed"]
+                         if pair_key(a, b) in blocked)
+    blocked_and_should_collide = len(plan["release_pairs"])
+    still_colliding = len(plan["constraints_needed"]) - already_needed
+
     def distance(a, b):
         oa, ob = by_name.get(a), by_name.get(b)
         if oa is None or ob is None:
@@ -267,6 +285,12 @@ def mask_report(rigids, objects) -> dict:
         "one_sided_pairs": decl["one_sided"],
         "collections_non_default": sum(1 for o in bodies
                                        if collections_of(o) != ALL_COLLECTIONS),
+        # 两个归零量：不在作用域/规则不适用时给 `None`，不给 0（0 是"测了，是零"）
+        "blocked_and_should_collide": (blocked_and_should_collide
+                                       if plan["pmx_collide"] else None),
+        "nocollide_pairs_still_colliding": (still_colliding
+                                            if plan["pmx_nocollide"] else None),
+        "unexpressible_pairs": len(plan["unexpressible"]),
         "examples": [{"a": a, "b": b, "distance": distance(a, b)}
                      for a, b in uncovered[:5]],
         "rows": rows,
