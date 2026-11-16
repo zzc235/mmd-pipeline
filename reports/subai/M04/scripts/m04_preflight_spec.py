@@ -48,6 +48,8 @@ def _parse(argv):
     ap.add_argument("--needed", default=None, type=int)
     ap.add_argument("--already", default=None, type=int)
     ap.add_argument("--note-source", default="", help="手给数时的出处；缺它即停")
+    ap.add_argument("--batch-id", default="round2",
+                    help="产物批次名（D-189 版本化落盘，与 m04_run_cd.py 的 --batch-id 对应）")
     return ap.parse_args(argv)
 
 
@@ -64,18 +66,42 @@ def _sha(path):
             "sha256_lf_normalized": hashlib.sha256(lf).hexdigest()}
 
 
+def _record_branch(rec):
+    """场景记录有两种形状，两种都认，但要说清用的是哪一种。
+
+    * `top_level` —— `stage_mask()` 直接落盘的记录（顶层就是掩码数）；
+    * `mask_wired_record` —— 回读件里的形状（`m02_m08_readback.py` 把
+      `scene["mask_wired"]` 原样放在这个键下）；同一个数只有一个来源，不另算一遍。
+
+    都找不到 ⇒ 返回 `("none")`，由调用方停下：`mask_triple` 那种「WIRED + 三个 null」
+    不许被当成数（`4号` 18:51 也点了同一条）。
+    """
+    if rec.get("constraints_needed") is not None:
+        return rec, "top_level"
+    nested = rec.get("mask_wired_record")
+    if isinstance(nested, dict) and nested.get("constraints_needed") is not None:
+        return nested, "mask_wired_record"
+    return rec, "none"
+
+
 def numbers_from_scene_record(path):
     """从场景自己的 `stage_mask()` 记录里取数（`utf-8-sig`：PS 写出来的会带 BOM）。"""
     if not os.path.exists(path):
         raise Stop("缺场景记录：%s（不许凭记忆取数）" % path)
     with io.open(path, "r", encoding="utf-8-sig") as fh:
-        rec = json.load(fh)
+        raw = json.load(fh)
+    rec, shape = _record_branch(raw)
+    if shape == "none":
+        raise Stop("场景记录里找不到 constraints_needed：%s（顶层与 mask_wired_record 都没有；"
+                   "mask_triple 的 null 不算数）" % path)
     for key in ("constraints_needed", "constraints_already_blocked"):
         if rec.get(key) is None:
             raise Stop("场景记录缺 %r：%s" % (key, path))
     to_add = rec.get("constraints_to_add")
     if to_add is None:
         to_add = int(rec["constraints_needed"]) - int(rec["constraints_already_blocked"])
+    source = _sha(path)
+    source["shape"] = shape
     return {
         "needed": int(rec["constraints_needed"]),
         "already": int(rec["constraints_already_blocked"]),
@@ -83,7 +109,7 @@ def numbers_from_scene_record(path):
         "skipped": int(rec.get("skipped_count") or 0),
         "verdict": rec.get("verdict"),
         "capped": rec.get("constraints_capped"),
-        "source": _sha(path),
+        "source": source,
     }
 
 
@@ -142,12 +168,13 @@ def main(argv=None):
         # 租约这条不在生成时判：真跑前套锁、开跑前 `coordination.lock` 会说清楚。
         "lease": False,
         "outputs": [
-            "out/subai/M04/penetration/C_W1.meta.json",
-            "out/subai/M04/penetration/C_W2.meta.json",
-            "out/subai/M04/penetration/D.meta.json",
+            "out/subai/M04/penetration/%s/C_W1.meta.json" % a.batch_id,
+            "out/subai/M04/penetration/%s/C_W2.meta.json" % a.batch_id,
+            "out/subai/M04/penetration/%s/D.meta.json" % a.batch_id,
         ],
         **fields,
         "_derivation": {
+            "batch_id": a.batch_id,
             "numbers_source": numbers["source"],
             "scene_record_verdict": numbers["verdict"],
             "scene_record_capped": numbers["capped"],
