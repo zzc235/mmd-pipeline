@@ -269,9 +269,12 @@ def concat(motions, dst: str, offsets=None, gap: int = 0,
         offsets = []
         cursor = 0
         for m in motions:
+            _first, end = m.frame_range if m.bone_last_frame else (0, 0)
             offsets.append(cursor)
-            end = m.frame_range[1] if m.bone_last_frame else 0
-            cursor = end + 1 + gap
+            # 必须累加自身偏移：只写 end+1+gap 会让第 2 段之后的 cursor 停在同一处，
+            # 三段 91/91/151 gap=2 时 offsets 变成 [0,93,93]，第 3 段整段压在
+            # 第 2 段上，时间轴从 337 帧缩成 244 帧（记录没丢，时间被吞）。
+            cursor = cursor + end + 1 + gap
     if len(offsets) != len(motions):
         raise VMDError("offsets 数量 %d 与动作数 %d 不一致" % (len(offsets), len(motions)))
 
@@ -365,6 +368,7 @@ def concat(motions, dst: str, offsets=None, gap: int = 0,
         if b["dst_range"][0] <= a["dst_range"][1]:
             overlaps.append([a["path"], b["path"]])
 
+    total_frames = (spans and max(s["dst_range"][1] for s in spans) + 1) or 0
     return {"out": dst, "bytes": len(out), "spans": spans,
             "bone_records": len(bones), "morph_records": len(morphs),
             "fill": fill, "fill_added": fill_added,
@@ -372,6 +376,7 @@ def concat(motions, dst: str, offsets=None, gap: int = 0,
             "shadow_records": len(shadows), "ik_records": len(iks),
             "tracks_complete": tracks_ok,
             "frame_range": [bones[0][0] if bones else 0, bones[-1][0] if bones else 0],
+            "total_frames": int(total_frames),
             "overlaps": overlaps}
 
 

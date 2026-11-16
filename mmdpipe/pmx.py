@@ -148,6 +148,7 @@ class PMXModel:
     raw: bytes = b""
     textures: list = field(default_factory=list)
     rigid_pos_offsets: list = field(default_factory=list)
+    rigid_mode_offsets: list = field(default_factory=list)
     joint_pos_offsets: list = field(default_factory=list)
 
     @property
@@ -374,6 +375,7 @@ def parse(data: bytes, path: str = "<memory>") -> PMXModel:
 
     # 以下段结构较脆：失败要如实标记，不能把"解析失败"说成"没有物理"
     rigid_pos_offsets: list = []
+    rigid_mode_offsets: list = []
     joint_pos_offsets: list = []
     try:
         morph_start = r.pos
@@ -425,10 +427,12 @@ def parse(data: bytes, path: str = "<memory>") -> PMXModel:
             r.f32()               # rotation attenuation
             r.f32()               # repulsion
             r.f32()               # friction
+            mode_off = r.pos
             mode = r.u8()
             rigids.append(Rigid(i, rname, bone, group, mask, shape, mode, pos,
                                 size=size, rotation=rot))
             rigid_pos_offsets.append(pos_off)
+            rigid_mode_offsets.append(mode_off)
         model.rigids = rigids
 
         joint_count = r.i32()
@@ -458,26 +462,52 @@ def parse(data: bytes, path: str = "<memory>") -> PMXModel:
     model.bytes_consumed = r.pos
     model.raw = data
     model.rigid_pos_offsets = rigid_pos_offsets
+    model.rigid_mode_offsets = rigid_mode_offsets
     model.joint_pos_offsets = joint_pos_offsets
     return model
 
 
 # ---------------------------------------------------------------- 写回
 
+# 刚体 mode 语义（PMX 2.0）：0 = 跟随骨骼（不做物理），1 = 物理演算，2 = 物理演算 + 回填骨骼旋转
+RIGID_MODES = (0, 1, 2)
+
+
 def patch_save(model, dst: str, rigid_pos: dict | None = None,
-               joint_pos: dict | None = None) -> str:
-    """只改指定刚体/关节的位置浮点数，其余字节原样保留。
+               joint_pos: dict | None = None,
+               rigid_mode: dict | None = None) -> str:
+    """只改指定刚体的 mode / 刚体与关节的位置浮点数，其余字节原样保留。
 
     不做整份重序列化——那是"写坏文件"的主要来源（附加 UV、morph 偏移都对不上）。
 
     安全约定：**永远不覆盖源文件**。dst 与解析来源同一路径直接拒绝。
     rigid_pos / joint_pos: {index: (x, y, z)}
+    rigid_mode: {index: 0/1/2}，只改那一个字节；写之前用解析时记下的偏移回读旧值，
+                不一致说明偏移过期（模型换过）→ 拒绝写，而不是把别的字段改坏。
     """
     if not model.raw:
         raise PMXError("解析时没保留原始字节，不能安全写回")
     if os.path.abspath(dst) == os.path.abspath(model.path):
         raise PMXError("拒绝覆盖源文件：dst 与源 PMX 相同（%s）" % dst)
+    modes = dict(rigid_mode or {})
+    for idx, mode in modes.items():
+        if not (0 <= idx < len(model.rigid_mode_offsets)):
+            raise PMXError("刚体索引越界 %d（mode 补丁）" % idx)
+        if isinstance(mode, bool) or not isinstance(mode, int):
+            raise PMXError("非法刚体 mode %r（只接受整数 0/1/2）" % (mode,))
+        if mode not in RIGID_MODES:
+            raise PMXError("非法刚体 mode %d（只接受 0/1/2）" % mode)
+        if model.rigid_mode_offsets[idx] >= len(model.raw):
+            raise PMXError("刚体 %d 的 mode 偏移越界：%d"
+                           % (idx, model.rigid_mode_offsets[idx]))
+        old = model.raw[model.rigid_mode_offsets[idx]]
+        if old != model.rigids[idx].mode:
+            raise PMXError("刚体 %d 的 mode 偏移过期：字节里是 %d，解析记录是 %d"
+                           % (idx, old, model.rigids[idx].mode))
+
     buf = bytearray(model.raw)
+    for idx, mode in modes.items():
+        buf[model.rigid_mode_offsets[idx]] = mode
     for idx, pos in (rigid_pos or {}).items():
         if not (0 <= idx < len(model.rigid_pos_offsets)):
             raise PMXError("刚体索引越界 %d" % idx)
