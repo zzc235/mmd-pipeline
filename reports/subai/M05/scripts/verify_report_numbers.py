@@ -69,8 +69,11 @@ def check(name, got, want):
 
 
 def in_git(rel):
+    # encoding= 是仓库级编码契约（tests/test_subprocess_encoding.py::test_repo_is_clean 硬拦）：
+    # 按文本取输出却不声明编码，在 GBK 控制台会把「有/没有」判错而不是报错。
     return subprocess.run(["git", "ls-files", "--error-unmatch", rel],
-                          cwd=ROOT, capture_output=True, text=True).returncode == 0
+                          cwd=ROOT, capture_output=True, text=True,
+                          encoding="utf-8", errors="replace").returncode == 0
 
 
 def main():

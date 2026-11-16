@@ -22,7 +22,7 @@
 |---|---|---|
 | main HEAD | `e913b4f`（最终值见 §12 收尾补记） | `git log --oneline -1` |
 | 裁决条数 | 229 | `python -m coordination.taxonomy --check` |
-| 测试 | **898**（默认 / utf-8 / gbk 三环境，exit 0，skipped 1） | `python -m unittest discover -s tests -t tests -p 'test_*.py'` |
+| 测试 | **907**（默认 / utf-8 / gbk 三环境，exit 0，skipped 1） | `python -m unittest discover -s tests -t tests -p 'test_*.py'` |
 | 状态对账 | `state=OK / conflicts=[] / pending_human=[]` | `python -m coordination.status --check` |
 | 词表对账 | `state=OK / bad_supersedes=[]` | `python -m coordination.taxonomy --check` |
 | 冻结账本 | M08 6 份 manifest / 18 项；M04 批次 35 项；M05 批次 14 项 | `python -m coordination.artifact_audit --root <树>` |
@@ -429,7 +429,7 @@ AssertionError: Lists differ: [('reports/subai/M04/scripts/m04_snapshot_scope.py
 ```powershell
 cd 'E:\dsh pr\woker2'
 git log --oneline -1                                   # HEAD
-python -m unittest discover -s tests -t tests -p 'test_*.py'   # 902 tests
+python -m unittest discover -s tests -t tests -p 'test_*.py'   # 907 tests
 python -m coordination.status --check                  # state=OK / pending_human=[]
 python -m coordination.taxonomy --check                # state=OK / records=230
 python -m coordination.artifact_audit --root 'E:\code\mmdpipe-ai\A1\out\subai\M08'
@@ -445,13 +445,13 @@ git diff --name-status ae9ef4f HEAD                     # 今晚全部改动
 
 | 项 | 读数 | 命令 |
 |---|---|---|
-| main HEAD | **`6d657bd`**（`Merge branch 'ai/a2'`） | `git log --oneline -1` |
-| 测试 | **902 passed / exit 0**，默认、utf-8、gbk **三环境各跑一遍**（skipped 1，Blender 不可用那条） | `python -m unittest discover -s tests -t tests -p 'test_*.py'` |
+| main HEAD | **`deef5d6`（最后一笔席位合并）+ 本文件所在的那笔收尾提交** | `git log --oneline -3` |
+| 测试 | **907 passed / exit 0**，默认、utf-8、gbk **三环境各跑一遍**（skipped 1，Blender 不可用那条） | `python -m unittest discover -s tests -t tests -p 'test_*.py'` |
 | 裁决 | **230 条**，`state=OK / bad_supersedes=[] / unknown_decision_kinds=[]` | `python -m coordination.taxonomy --check` |
 | 状态对账 | `state=OK / conflicts=[] / pending_human=[] / task_count=9` | `python -m coordination.status --check` |
 | 四支分支 | `ai/a1` `ai/a2` `ai/a3` `ai/a4` **ahead 全部 = 0**（一支不落、全部并入 main） | `git rev-list --count main..ai/aN` |
 | 今日提交 | **421** 笔（含 18:00 之后 57 笔合并提交） | `git rev-list --count --since='2026-11-16 00:00' main` |
-| 最终合并 | `39dc480`→`5a9bd72`→`aff6119`→`1ac05f5`→`b1753ed`→`4a4242c`→`5a9bd72`… →**`e913b4f`**→`a0bf2fd`→**`6d657bd`** | `git log --merges --oneline --since='2026-11-16 18:00'` |
+| 最终合并 | `39dc480`→`5a9bd72`→`aff6119`→`1ac05f5`→`b1753ed`→`4a4242c`→**`e913b4f`**→`a0bf2fd`→`6d657bd`→**`deef5d6`**（`ai/a2` 的 `ce20ae7` 守卫 + `ai/a3` 的 `4c786e6` 头条数核验器） | `git log --merges --oneline --since='2026-11-16 18:00'` |
 
 ### 12.2 收尾最后 40 分钟新增的三条读数（都是当晚量出来的，不是推理）
 
@@ -491,7 +491,35 @@ git diff --name-status ae9ef4f HEAD                     # 今晚全部改动
 
 按今晚第十条（`用记录` vs `用拒绝`：看拒了还能不能补）这条属**能补**的一类：不改历史行，明天给 `append()` 加一条「自动 id 必须查重/撞号即自增」的守卫 + 一条测试。**我没有改写历史行**（append-only 是这条账本的立身之本）。
 
-### 12.5 本轮封版
+### 12.5 同一族红今晚第三次：编码护栏咬住新写的 `subprocess.run`
+
+并完最后两笔席位提交（`ce20ae7` / `4c786e6`）后 main 又红一条，**和 §6.9 是同一个形状、第三次**：
+
+```
+FAIL: test_repo_is_clean (test_subprocess_encoding.TestGuard.test_repo_is_clean)
+AssertionError: Lists differ: [('reports/subai/M05/scripts/verify_report_numbers.py', 72)] != []
+（scanned=312  violations=1  skipped=0  excluded_policy=1  chain_scripts=141）
+```
+
+`in_git()` 里 `subprocess.run(["git","ls-files","--error-unmatch",rel], cwd=ROOT, capture_output=True, text=True)`
+少了 `encoding=`。我按护栏口径补了一行（`encoding="utf-8", errors="replace"`）并写了注释说明这条契约，
+`verify_report_numbers.py` 自跑 **「报告头条数：全部可由仓内文件重算（0 条对不上）」**。
+
+**这一族今晚第三次，说明「一句话记在对话里」和「一条断言」之间还有一层没补上**：
+断言已经存在（护栏是真的在工作，每次都是它抓的，不是人抓的），但**写代码的人提交前不跑它** ⇒
+护栏只能在**我这儿**亮，代价是 main 上出现一段红。真正的修法不是再提醒一次，而是把这条检查挪到
+**每个席位的提交前**（`pre-commit` 或他们各自的 `--check`）—— 明天的第一条流程改进，记在这里不留死角。
+
+### 12.6 今晚我动过别人车道的文件（共 2 处，都必须记账）
+
+| 文件 | 谁的车道 | 为什么 | 通知 |
+|---|---|---|---|
+| `reports/subai/M04/scripts/m04_snapshot_scope.py:78` | `2号` | 同一条编码护栏咬住，补 `encoding="utf-8", errors="replace"`（§6.9） | 已在 Main stream 点名 |
+| `reports/subai/M05/scripts/verify_report_numbers.py:72` | `3号` | 同一条编码护栏咬住（§12.5），同上补法 + 一行注释 | 已在 Main stream 点名 |
+
+**两次都是为了让 main 变绿，属于集成职责，但两次都不是他们的活该我干** —— 所以我一次也没有把它们写成「已修」，只写成「我合的时候补了一行，你自己那边还得有自己的检查」。
+
+### 12.7 本轮封版（最终）
 
 - 从本文件提交的那一刻起，**我不再合任何分支**；四支 ahead 全 0 是封版读数，之后席位若有新提交，明天开工时重新 `fetch` + 重跑三环境再合。
 - 锁空闲、0 个 Blender 进程、无未提交文件（除本报告与 `D-230`／`task_status` 的收尾改动，随本文件一起提交）。
