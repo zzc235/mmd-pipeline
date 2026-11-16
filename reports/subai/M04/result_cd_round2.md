@@ -98,7 +98,7 @@
 
 ## 七、产物与复现
 
-- 读数快照（入 git）：`reports/subai/M04/cd_round2/` —— `C_W1.meta.json`（76 876 B，lf `0ee4f06d…`）/ `C_W2.meta.json`（258 696 B `1908a116…`）/ `D.meta.json`（257 851 B `19160845…`）/ `cmp_round2.json`（2 845 B `1688c852…`）/ `baseline_C_W1.json`（173 934 B `54be168d…`）/ `baseline_C_W2.json`（173 934 B `4f33087b…`）/ `baseline_D.json`（174 177 B `3b2b021c…`）/ `cd_run_ledger.json`（9 307 B `e52cde6e…`）/ `compare.log` / `compare_selftest.log` / `manifest.json`；逐份 `bytes + sha256_lf_normalized` 见 `_snapshot_index.json`。
+- 读数快照（入 git）：`reports/subai/M04/cd_round2/` —— `C_W1.meta.json`（76 876 B，lf `0ee4f06d…`）/ `C_W2.meta.json`（258 696 B `1908a116…`）/ `D.meta.json`（257 851 B `19160845…`）/ `cmp_round2.json`（2 845 B `1688c852…`）/ `baseline_C_W1.json`（173 934 B `54be168d…`）/ `baseline_C_W2.json`（173 934 B `4f33087b…`）/ `baseline_D.json`（174 177 B `3b2b021c…`）/ `cd_run_ledger.json`（9 307 B `e52cde6e…`）/ `compare.log` / `compare_selftest.log` / `manifest.json`；逐份 `bytes + sha256_lf_normalized` 见 `_snapshot_index.json`。**审计范围写在 `manifest_scope.json`**（`path_field=name` 是相对 `base` 的批次目录、不是本目录；11 份副本清单；`two_way_checked=false` 及理由）——`total 35 条目` 按 `base` 解析是 35/35，按本目录枚举则是 11 份副本，两个宇宙不许混用；核验 `python reports/subai/M04/scripts/m04_snapshot_scope.py --dir reports/subai/M04/cd_round2`（`0=OK / 2=MISMATCH / 3=UNMEASURED`，`base` 不在本机是「量不了」不是「不一致」）。
 - 批次目录（只读、35 个文件、`manifest.json` 记 `bytes/sha256/lf 归一 sha/readonly`）：`E:\dsh pr\woker2\out\subai\M04\penetration\round2_324b\`
 - 一条命令复现：
 
@@ -203,6 +203,6 @@ python reports/subai/M04/scripts/m04_run_cd_locked.py \
 
 按 `D-225` 规则第九条②，这条读数**声明它的层**：`layer = eval`（求值层，不是数据层），四次读数各自带 `warmup_frames`（`A/A2/A3 = 0`、`B = 240`）与 `first_eval_after_open`（只有 `A` 为真）。它**故意不热身**——要量的就是开件后第一次求值，所以这是一份**判别用**读数，不是可交付的姿态读数。
 
-**限定**：只在 `C@W1` 上量（`总控` 指定的廉价判别），`C@W2` / `D` 未单独测；这条证明的是「`f1` 的深度表首读 = 重读」，**不是**「`f417` 的姿态差不存在」——后者是引擎行为，仍按 `D-219` 记。
+**限定**：只在 `C@W1` 上量（`总控` 指定的廉价判别），`C@W2` / `D` 未单独测；这条证明的是「`f1` 的深度表首读 = 重读」，**不是**「`f417` 的姿态差不存在」——后者是引擎行为，仍按 `D-219` 记。按 `D-228` 的合并结论，首读偏差**差异在帧、不在标志位**：`f1` 是静止起点姿态、与解算状态无关，所以这条**不能外推到中段帧**（`1号` 的 `f417` 差 1.86–1.99 m 正是差在那里）。跨层、跨帧的推断我这边都不做。
 
 
