@@ -36,6 +36,19 @@ ZERO = "0" * 64
 OUTSIDE = os.path.join(os.path.dirname(ROOT), "_outside_worktree")
 
 
+def outside_path(*parts):
+    """构造一条**确实在树外**的路径，并用判据自己的归一化函数当场断言。
+
+    「树外」不许继续是一个需要相信的名字：换一个树根（`E:\dsh pr` / 别处）时，
+    dirname 拼法未必还成立，那时应当红在这条断言上（说清「样本构造错了」），
+    而不是红在判据上（看起来像「判据坏了」）。
+    """
+    path = os.path.join(OUTSIDE, *parts)
+    assert not preflight_mod._norm(path).startswith(preflight_mod._norm(ROOT)), (
+        "样本路径落在本 worktree 内，用例前提不成立：%s" % path)
+    return path
+
+
 def ev(task_id="M00", **extra):
     rec = {
         "spec": "evidence/1", "task_id": task_id, "attempt": 1, "status": "PASS",
@@ -83,7 +96,7 @@ class GateBundleTest(TempDirTest):
         self.assertEqual(self.code(b), "SNAPSHOT_INVALID")
 
     def test_module_outside_worktree_is_provenance_invalid(self):
-        b = self.bundle(module_provenance={"stage_file": os.path.join(OUTSIDE, "mmdpipe", "stage.py")})
+        b = self.bundle(module_provenance={"stage_file": outside_path("mmdpipe", "stage.py")})
         self.assertEqual(self.code(b), "PROVENANCE_INVALID")
 
     def test_physics_claim_needs_fresh_solve(self):
@@ -209,7 +222,7 @@ class PreflightTest(TempDirTest):
 
     def test_provenance_outside_worktree_blocks(self):
         result = self.check(lease=False,
-                            provenance={"stage_file": os.path.join(OUTSIDE, "mmdpipe", "stage.py")})
+                            provenance={"stage_file": outside_path("mmdpipe", "stage.py")})
         self.assertEqual(result["reason_code"], "PROVENANCE_INVALID")
 
     def test_missing_provenance_blocks(self):
