@@ -10,8 +10,8 @@
     "M00": {
       "status": "PASS",
       "reason": "调度层齐了：覆盖闸门三点式、证据哈希 evidence/1（hash_basis 枚举 + measurements + commit/scope + 不动点 + check 退出码 0/3/4/5）、coordination/lock.py fail-closed、status 视图待批项全量聚合、全仓 subprocess 解码护栏（scanned/skipped 可见）",
-      "next": "两件小尾巴随下一笔：tests[] 未知字段抛 WRONG_TESTS_FIELD（D-094）、不动点规则写进 evidence_hash_v1.md（D-096）",
-      "updated": "2026-11-16T14:03+08:00"
+      "next": "两件小尾巴随下一笔：tests[] 未知字段抛 WRONG_TESTS_FIELD（D-094）、不动点规则写进 evidence_hash_v1.md（D-096）；通道已合入 main（dc9127c）；lock.py 三处加固（真 PID/心跳/移走式回收）待交",
+      "updated": "2026-11-16T15:15+08:00"
     },
     "M01": {
       "status": "PASS",
@@ -34,8 +34,8 @@
     "M04": {
       "status": "PARTIAL",
       "reason": "顺序求值改计划制（回退/冷跳在计划阶段拒）；胶囊口径改相对基线；网格口径 v2 在解析实体上自检通过（0.9933/0.9867/0.27 mm），真实网格 77.01% 不可计分、可计分区 0.9367/0.9067/−8.2 mm",
-      "next": "A2：等通道落地；按 2x2 设计重取（B 组单独隔离通道效应），基线文件按场景 sha+动作 sha+是否接通掩码三项版本化；网格数字四样同笔",
-      "updated": "2026-11-16T14:09+08:00"
+      "next": "A2：B 组作废（事后全量 apply 0.48 s/条 x 10111 ≈ 81 min，D-134），记「通道效应未隔离」；改用 plan 的结构账目（40095[U323]=位可分 29984 + 需约束 10111；既有 4009 条中 2196 挡错）并标明「静态结构数、非物理差」；A0 降级为参考值自证，附在 C@W1 批次里跑（D-137）；C@W1/C@W2/D 在 delivery_v1 上做，全通道",
+      "updated": "2026-11-16T15:15+08:00"
     },
     "M05": {
       "status": "PARTIAL",
@@ -58,8 +58,8 @@
     "M08": {
       "status": "NOT_STARTED",
       "reason": "验收口径已起草（coordination/m08_acceptance.md），硬前提未满足：交付场景用当前代码重建不出来（今天重建 312 刚体、无 $name_j；交付物 324 刚体含 11 个模板命名的静态占位体）；另有新发现的 known_limitation：mmd_rigid 掩码没有进解算器的通道，物理跑在「谁跟谁都碰」上",
-      "next": "通道落地后由 A1 重建 delivery_v1.blend（sha 即身份），以它为验收对象；掩码通道、S2、M04 重取全部在其上完成",
-      "updated": "2026-11-16T14:09+08:00"
+      "next": "A1：在 main 上重建 delivery_v1.blend（sha 即身份）→ 自跑 --expect wired → S8 第三层 + S2 A/B/C；并回答「重建后的场景里有没有 地面_物理」（有则说明重建路径引入手工对象，当缺陷报）",
+      "updated": "2026-11-16T15:15+08:00"
     }
   }
 }
