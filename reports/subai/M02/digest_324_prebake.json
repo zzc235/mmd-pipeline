@@ -1,0 +1,12 @@
+{
+ "body_count_mismatch": null,
+ "canonical_bytes": 59913,
+ "canonical_sha256": "3ea5874b1c34ef22a2f4bc7996b7110de5ac2ee59baea5653d6c255ca135fa1e",
+ "digest": "8cc694a3910a1a86aff20d37024dd735784042c6eb9e4c13d55012dc48d177b1",
+ "digest_mode": "strict",
+ "facts_path": "out/subai/M08/run_20261116_1847\\facts.json",
+ "missing": [],
+ "stage": "pre_bake",
+ "stage_note": "烘前字节：is_baked=false / is_outdated=true；按 D-200 交付件最终摘要只算在烘后字节上，两份永不比较",
+ "version": "content_digest_v1"
+}

@@ -83,7 +83,9 @@ def _action_of(readback, want_name):
     if len(actions) == 1:
         return {"name": actions[0]["name"], "frame_range": actions[0].get("frame_range")}, []
     if not actions:
-        return None, ["action"]
+        # 场景里**一份 action 都没有**（重建链还没接动作步）：这是读出来的事实，
+        # 按显式 null 记录并在 notes 里说明，不冒充「漏读」，也不静默跳过。
+        return {"name": None, "frame_range": None}, []
     raise FactsError("FACTS_ACTION_AMBIGUOUS",
                      "场景里有 %d 份 action 且没有活跃动作：给 --action-name 指定用哪一份（%r）"
                      % (len(actions), [a["name"] for a in actions][:6]))
@@ -146,6 +148,8 @@ def build_facts(readback, rebuild_report=None, action_name=None):
                          % (len(missing), missing), missing=missing)
 
     notes.append("rigids/bodies/scene/action/mask/cache 来自回读 %s" % readback.get("blend"))
+    if isinstance(facts.get("action"), dict) and facts["action"].get("name") is None:
+        notes.append("场景里没有任何 action（重建链未接动作步）⇒ action 记显式 null，不是漏读")
     if rebuild_report:
         notes.append("chain_ratio 来自重建报告 build.metrics（同一次窗口、同一棵树）")
     if readback.get("body_read_errors"):

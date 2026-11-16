@@ -298,20 +298,61 @@ def create_body_from_spec(spec, arm_obj=None, collection=None):
 
 
 def _finish_body(obj, spec, arm_obj):
-    """两条路径共用的收尾：世界矩阵、刚体属性逐个写实、更新 depsgraph。"""
+    """两条路径共用的收尾：重挂父骨 → 世界矩阵 → 刚体属性 → mmd_rigid 参数回写。
+
+    交付件那 12 个的形状是 `parent=骨架 + parent_bone`（不是算子默认的 `rigidbodies` EMPTY），
+    所以**无条件**按补丁重挂；`mmd_rigid` 的 `size/name/...` 是**参数**，算子只负责把记账结构
+    （含 `mmd_tools_rigid_parent` 约束）建好，参数由补丁写实。
+    """
     name = spec["name"]
-    if obj.parent is None and spec["parent"]:
-        parent = bpy.data.objects.get(spec["parent"])
-        if parent is not None:
-            obj.parent = parent
-            if spec["parent_bone"] and spec["parent_bone"] in parent.data.bones:
-                obj.parent_bone = spec["parent_bone"]
-            obj.matrix_parent_inverse = _flat_matrix(spec["matrix_parent_inverse"])
+    parent_name = spec["parent"]
+    if parent_name:
+        parent = bpy.data.objects.get(parent_name)
+        if parent is None:
+            raise PatchApplyError("PATCH_PARENT_MISSING",
+                                  "%s 的父级 %r 不在场景里" % (name, parent_name))
+        obj.parent = parent
+        if spec["parent_bone"]:
+            if spec["parent_bone"] not in parent.data.bones:
+                raise PatchApplyError("PATCH_BONE_MISSING",
+                                      "%s 的父骨 %r 不在 %s 上"
+                                      % (name, spec["parent_bone"], parent.name))
+            obj.parent_type = "BONE"
+            obj.parent_bone = spec["parent_bone"]
+        else:
+            obj.parent_type = "OBJECT"
+        obj.matrix_parent_inverse = _flat_matrix(spec["matrix_parent_inverse"])
+    else:
+        # 无父级（`地面_物理`）：算子会挂到 `rigidbodies` EMPTY 上，必须摘掉
+        obj.parent = None
+        obj.parent_type = "OBJECT"
+        obj.parent_bone = ""
     obj.matrix_world = _flat_matrix(spec["matrix_world"])
     ensure_rigidbody_world()
     rb = getattr(obj, "rigid_body", None)
     if rb is None:
         raise PatchApplyError("PATCH_RIGIDBODY_MISSING", "%s 没有 rigid_body" % name)
+    # **顺序要紧**：先写 `mmd_rigid` 参数，再写 `rigid_body` 属性。
+    # mmd_tools 的 MMDRigidBody 属性带 update 回调（改 `shape`/`type` 会把
+    # `rigid_body.collision_shape`/`kinematic` 一并改回去）——反着写就会「我写了 CONVEX_HULL，
+    # 回读却是 SPHERE」（18:43 实测：`地面_物理` 两条都因此判红）。
+    hard = spec.get("mmd_rigid")
+    rig = getattr(obj, "mmd_rigid", None)
+    if hard is not None and rig is not None:
+        try:
+            rig.name = hard.get("name") or ""
+            rig.name_j = hard.get("name_j") or ""
+            rig.name_e = hard.get("name_e") or ""
+            rig.collision_group_number = int(hard.get("collision_group_number") or 0)
+            rig.collision_group_mask = tuple(bool(b) for b in
+                                             hard.get("collision_group_mask") or [])
+            rig.type = str(hard.get("type") or "0")
+            rig.shape = str(hard.get("shape") or "BOX")
+            rig.bone = hard.get("bone") or ""
+            rig.size = tuple(float(v) for v in hard.get("size") or (0.6, 0.6, 0.6))
+        except Exception as exc:                             # noqa: BLE001
+            raise PatchApplyError("PATCH_MMD_RIGID_WRITE_FAILED",
+                                  "%s 回写 mmd_rigid 参数失败：%s" % (name, exc))
     src = spec["rigid_body"]
     try:
         rb.kinematic = bool(src["kinematic"])
@@ -328,6 +369,17 @@ def _finish_body(obj, spec, arm_obj):
     except Exception as exc:                                 # noqa: BLE001
         raise PatchApplyError("PATCH_PROPERTY_FAILED",
                               "%s 写 rigid body 属性失败：%s" % (name, exc))
+    # 最后才落 `mmd_type`：交付件里 11 个占位体是 `RIGID_BODY`（在通道作用域内），
+    # `地面_物理` 是 `NONE`（**不在**作用域，单列为例外）。算子上来一律设成 RIGID_BODY，
+    # 于是地面也被算进去 —— 18:45 实测：那样 `needed` 会多 36 对（10147 而不是 10111）、
+    # `collections_patterns` 31 而不是 30。作用域是**边界条件**，必须照交付件落回去。
+    if spec.get("mmd_type") is not None:
+        try:
+            obj.mmd_type = spec["mmd_type"]
+        except Exception as exc:                             # noqa: BLE001
+            raise PatchApplyError("PATCH_MMD_TYPE_FAILED",
+                                  "%s 写 mmd_type=%r 失败：%s"
+                                  % (name, spec["mmd_type"], exc))
     bpy.context.view_layer.update()
     return obj
 

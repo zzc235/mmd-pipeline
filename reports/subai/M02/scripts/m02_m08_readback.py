@@ -150,12 +150,16 @@ def collect(blend_path):
     # 约束类型条数 + 动作名与帧范围：`content_digest_v1` 的 included 字段，缺了强摘要就缺料
     by_type = {}
     try:
-        holders = [o for o in bpy.data.objects]
-        for o in holders:
+        arm_obj = None
+        for o in bpy.data.objects:
+            if o.type == "ARMATURE":
+                arm_obj = o
+                break
+        for o in bpy.data.objects:
             for c in getattr(o, "constraints", []):
                 by_type[c.type] = by_type.get(c.type, 0) + 1
-        if arm is not None:
-            for pbone in arm.pose.bones:
+        if arm_obj is not None:
+            for pbone in arm_obj.pose.bones:
                 for c in pbone.constraints:
                     by_type[c.type] = by_type.get(c.type, 0) + 1
     except Exception as exc:                           # noqa: BLE001
@@ -168,8 +172,13 @@ def collect(blend_path):
         except Exception:                              # noqa: BLE001
             actions.append({"name": act.name, "frame_range": None})
     active_action = None
-    if arm is not None and getattr(arm, "animation_data", None) is not None:
-        cur = arm.animation_data.action
+    arm_obj0 = None
+    for o in bpy.data.objects:
+        if o.type == "ARMATURE":
+            arm_obj0 = o
+            break
+    if arm_obj0 is not None and getattr(arm_obj0, "animation_data", None) is not None:
+        cur = arm_obj0.animation_data.action
         if cur is not None:
             active_action = {"name": cur.name,
                              "frame_range": [round(float(v), 6) for v in cur.frame_range]}
