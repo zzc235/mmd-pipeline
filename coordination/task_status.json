@@ -44,10 +44,10 @@
       "updated": "2026-11-16T14:16+08:00"
     },
     "M06": {
-      "status": "PARTIAL",
-      "reason": "台账验收通过（action_library/manifest@2，27 个资产，known_restriction 25 / unknown 2 / 已知商用 0），离 120 个的目标差 93",
-      "next": "A3：ACCAD 授权已下（Human 2026-11-16 17:04，D-20261116-168/169）：**只进基础少量动作，覆盖六类——跑 / 跳 / 走 / 蹲 / 站 / 待机**；ACCAD 仅用于这六类的基础条目，其余动作由 Human 用自己的视频动捕补全。扩容只照这张清单建，不得自行扩大类别或数量级；清单建满并逐条验收前模块保持 PARTIAL",
-      "updated": "2026-11-16T17:10+08:00"
+      "status": "PASS",
+      "reason": "按 Human 授权范围（六类基础少量，D-168/169）验收通过：manifest 30 行、sha 链 46b9564b → 9abefe5e → 7926980e → 56aa17c8 → ba9698e0 → 3d4eb23a 连续，verify --strict 30/30 + rebuild 30/30；新增走/蹲/跳三行（跳 atomic=false），站/待机由 POS_Stand_Idle_Once_F 显式 shared 共享；机器口径覆盖 5/6（缺 跑），事实 6/6 由未标注老记录 LOC_Run_Normal_Once_F 承载且按纪律不回填。D0 独立核：evidence/1:85052c53… 文件 sha==digest、14 条 files/artifacts 逐条对得上（文本按 lf_normalized_v1、manifest raw 3d4eb23a… / lf 21d7f91e…）；class_coverage.py 四条反控（临时打标转绿 6/6、词表外值拒绝、撤共享标注红 跑+站+待机、只改 category 仍算未覆盖）全按预期",
+      "next": "A3：等 1号 的 M08 重建窗口，配合核取用链（manifest → evidence → 场景引用）。遗留两条限定随 PASS 一起记：①跳非原子，M08 按 known_risks 单列、不当完整动作；②跑靠未标注老记录承载，机读数永久 5/6。口径待办（下一轮触点落）：measurements 里 manifest_sha_before/after 是 raw 口径，须与记录的 hash_basis: lf_normalized_v1 分列 raw/lf 两个字段，避免下游拿错基准",
+      "updated": "2026-11-16T17:56+08:00"
     },
     "M07": {
       "status": "PASS",
