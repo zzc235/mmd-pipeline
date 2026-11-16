@@ -46,3 +46,6 @@ out/
 /coordination/*.db-wal
 /coordination/*.db-shm
 /coordination/dispatch.json
+# 改造前快照里的 sqlite 副本不入库（二进制，且可由 `python -m coordination.sync_board`
+# 从 task_status.json 重建）；同目录的 snapshot_sha256.json 仍然入库，谁改过什么可查。
+/coordination/_snapshots/**/*.db

@@ -17,6 +17,7 @@ import sqlite3
 from datetime import datetime, timedelta, timezone
 
 from . import evidence as evidence_mod
+from . import gates as gates_mod
 from . import gate as gate_mod
 from . import paths as paths_mod
 
@@ -338,7 +339,7 @@ class Board:
 
     # ---------- 动作：提交 ----------
 
-    def submit(self, task_id, payload, base=None, head="HEAD", repo=None):
+    def submit(self, task_id, payload, base=None, head="HEAD", repo=None, gate=None):
         """收一份证据。返回 {state, token, evidence_hash, reason}。
 
         * 证据不合规（含 NaN）→ EvidenceError（不落库）
@@ -349,6 +350,10 @@ class Board:
         * 同一 task 同一 hash → DUPLICATE，不排队
         """
         normalized = evidence_mod.validate(payload)
+        try:
+            gate_result = gates_mod.enforce(payload, gate, worktree=repo or os.getcwd())
+        except gates_mod.GateRejected as exc:
+            raise BoardError("闸门没过：%s" % exc.detail, exc.reason_code)
         digest = evidence_mod.digest(normalized)
         base = base or self.task(task_id).get("base_commit") or ""
         coverage = None
@@ -380,6 +385,12 @@ class Board:
                 # 已有一份 active：本任务停在 queued_submission，等令牌轮到自己（13 §4.1）
                 c.execute("UPDATE tasks SET status='queued_submission', updated_at=? WHERE task_id=?",
                           (_iso(now), task_id))
+            if gate_result.get("legacy"):
+                self.event(c, "gate.legacy_skipped", task_id, {"why": gate_result["detail"]})
+            else:
+                self.event(c, "gate.passed", task_id,
+                           {"reason_code": gate_result["reason_code"],
+                            "checks": gate_result.get("checks", [])})
             self.event(c, "SUBMIT", task_id, {"state": status, "evidence_hash": digest,
                                               "deleted_not_in_files":
                                                   (coverage or {}).get("deleted", [])})
