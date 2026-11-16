@@ -23,6 +23,7 @@ from __future__ import annotations
 import os
 import re
 
+from . import provenance as provenance_mod
 from .evidence import DELIVERY_TIER, TIER_MEANING, TRUTH_TIERS
 
 PHYSICS_KEYWORDS = ("穿透", "penetration", "位移", "displacement", "重叠", "overlap",
@@ -125,18 +126,15 @@ def check_bundle(bundle: dict | None, payload: dict | None = None,
     checks.append({"ok": True, "code": "fresh_solve",
                    "detail": "%r" % (bundle.get("fresh_solve_confirmed"),)})
 
-    provenance = bundle.get("module_provenance") or {}
-    root = os.path.abspath(worktree or os.getcwd())
-    outside = []
-    for key, value in provenance.items():
-        if key == "sha256" or not isinstance(value, str) or not value:
-            continue
-        if not os.path.abspath(value).lower().startswith(root.lower()):
-            outside.append("%s=%s" % (key, value))
-    if outside:
-        return fail("PROVENANCE_INVALID", "模块路径不在当前 worktree（%s）：%s"
-                    % (root, "; ".join(outside)))
-    checks.append({"ok": True, "code": "provenance", "detail": "%d 项在 %s" % (len(provenance), root)})
+    # 产地：统一走 coordination.provenance（worktree + 显式声明的 external_roots）。
+    # M06 的正本工具按 evidence_hash_v1 §4.1 在外部树，只有一条「在 worktree 下」的判据
+    # 会把它整条车道结构性误杀——2026-11-16 A3 实测报上来的真缺陷。
+    prov = provenance_mod.check(bundle.get("module_provenance"),
+                                worktree or os.getcwd(),
+                                bundle.get("external_roots"))
+    if not prov["ok"]:
+        return fail(prov["reason_code"], prov["detail"])
+    checks.append({"ok": True, "code": "provenance", "detail": prov["detail"]})
 
     snaps_bad = []
     for art in bundle.get("snapshot_paths") or []:

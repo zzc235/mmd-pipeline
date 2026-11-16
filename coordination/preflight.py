@@ -20,11 +20,12 @@ fail-closed：请求里缺 `provenance`/`cap` 不当成「没问题」，而是�
 from __future__ import annotations
 
 import argparse
+import io
 import json
 import os
 import sys
 
-from . import lock, paths
+from . import lock, paths, provenance
 
 REASON_PASS = "EVIDENCE_COMPLETE"
 DEFAULT_STALE_MINUTES = lock.DEFAULT_STALE_MINUTES
@@ -35,22 +36,11 @@ def _norm(path: str) -> str:
 
 
 def _check_provenance(request: dict, worktree: str) -> dict:
-    provenance = request.get("provenance")
-    if not isinstance(provenance, dict) or not provenance:
-        return {"name": "provenance", "ok": False, "code": "PROVENANCE_INVALID",
-                "detail": "未声明 module_provenance（无法证明代码来自本 worktree）"}
-    root = _norm(worktree)
-    outside = []
-    for key, value in provenance.items():
-        if not isinstance(value, str) or not value:
-            continue
-        if not _norm(value).startswith(root):
-            outside.append("%s=%s" % (key, value))
-    if outside:
-        return {"name": "provenance", "ok": False, "code": "PROVENANCE_INVALID",
-                "detail": "模块不在 worktree（%s）：%s" % (worktree, "; ".join(sorted(outside)))}
-    return {"name": "provenance", "ok": True, "code": REASON_PASS,
-            "detail": "%d 项在 %s" % (len(provenance), worktree)}
+    # 与 gates 共用同一实现：worktree + 显式声明的 external_roots（M06 的外部树走这条）。
+    result = provenance.check(request.get("provenance"), worktree,
+                              request.get("external_roots"))
+    return {"name": "provenance", "ok": result["ok"], "code": result["reason_code"],
+            "detail": result["detail"]}
 
 
 def _as_number(value):
@@ -184,7 +174,9 @@ def main(argv=None) -> int:
     ap.add_argument("--json", action="store_true", help="输出完整 JSON")
     args = ap.parse_args(argv)
 
-    with open(args.spec, "r", encoding="utf-8") as fh:
+    # `utf-8-sig`：PS 5.1 的 `Set-Content -Encoding UTF8` 会写 BOM，用 utf-8 读会
+    # `Unexpected UTF-8 BOM` 崩掉（A3 2026-11-16 17:32 实测踩到）。这不是闸门该有的死法。
+    with io.open(args.spec, "r", encoding="utf-8-sig") as fh:
         request = json.load(fh)
     result = check(request, worktree=args.worktree)
     if args.json:
