@@ -35,7 +35,7 @@ lock_mod.assert_owner(OWNER)                # D-188 入口闸：不是锁主就�
 
 import bpy                                  # noqa: E402
 
-BATCH = os.path.join(HERE, "arms", "20261116_324")
+BATCH = os.path.join(ROOT, "out", "subai", "M05", "arms", "20261116_324")
 FILES = ["C@W1.blend", "C@W1-rerun.blend", "C@W2.blend", "D.blend", "D-_.blend"]
 
 
@@ -154,6 +154,12 @@ def main():
                  rec["is_baked"], len(rec["actions"]),
                  (rec["mask_wired"] or {}).get("verdict")))
     dst = os.path.join(BATCH, "readback_arms.json")
+    # 这份读数是**报告引用的物证**，而它在 `out/` 里、git 看不见 —— 被重跑覆盖掉就只剩「记忆」。
+    # 所以默认拒绝覆盖：目标已存在就 exit 2，要重测必须显式 --force（`D-225`：不可逆的用拒绝）。
+    if os.path.exists(dst) and "--force" not in sys.argv:
+        # 在 `blender -b` 里 `SystemExit` **不改变退出码**（实测 exit 0），要非零必须抛异常
+        # 交给 `--python-exit-code`。所以这里用 RuntimeError，不用 `return 2`。
+        raise RuntimeError("REFUSE 已有读数：%s（确需重测加 --force）" % dst)
     with open(dst, "w", encoding="utf-8") as fh:
         json.dump(out, fh, ensure_ascii=False, indent=2, sort_keys=True)
     print("WROTE %s" % dst)
