@@ -476,11 +476,21 @@ digest 不同是**对的**：证据的输入里有 `apply_action.py`、`tests/te
 
 ```
 REFUSE 已有读数：…\readback_arms.json（确需重测加 --force）
-GUARD_DONE rc=3
+GUARD_DONE rc=10
 readback_arms.json sha256 前后同为 eaf82204…（一个字节没写）
 ```
 
-**这里撞到一个必须记的形状**：第一版守卫写的是 `return 2`（`SystemExit`），真机跑出来 **`rc=0`** ——
-`blender -b` 不把 `SystemExit` 的码带出去。改成 `raise RuntimeError(...)` 交给 `--python-exit-code` 才是 `rc=3`。
-**凡在 Blender 里做「拒绝/失败」的守卫，别用退出码返回值，要抛异常。** 顺带一句：真正保证「没写」的是
-文件 sha 前后同值，不是退出码 —— 退出码只是让调用方停下。
+**这里我先写错一次，被 `4号` 用七种形状的真机读数纠正**：第一版守卫写 `return 2`，跑出来是 `rc=0`，
+我当时记成「`blender -b` 把 `SystemExit` 吞了」。**不成立。** 他实测（Blender 5.2.2 LTS `d13f752e3b9c`）：
+`--python-expr "raise SystemExit(3)"` → 3、`sys.exit(7)` → 7、模块级 `sys.exit(main())` 里 `main()` 抛
+`SystemExit(4)` → 4；而**同一个 `main()` 只写 `main()`、返回值没人接** → 0。所以 `rc=0` 的真因是
+**返回值被丢掉**，不是码被吞。本文件末尾原本就是裸 `main()` —— 正是这一种。
+
+同时采纳他一条更要紧的：**语义码不要用 3**。`3` 是 `coordination.lock` 自己的「冲突/拒绝回收」码，
+而 `guard` 透传子进程 rc ⇒「脚本拒绝覆盖」和「锁被占着」会撞成同一个数。现在这两个脚本用
+**10 = 拒绝覆盖**（11 / 12 留给「输入或身份对不上」「断言不成立」），`--python-exit-code 3` 只兜意外异常。
+
+还有一处是我自己发现的、比退出码更要紧的：守卫原先排在**测量之后**——先花 20 秒开臂件做完读数，
+再告诉你能不能落盘。已挪到 `main()` 最前面，先判目标再干活；负控因此不再需要一份 `.blend` 也能验
+（实测无 `.blend` 时照样 `rc=10`，目标 sha 不变）。真正保证「没写」的仍是文件 sha 前后同值，
+退出码只负责让调用方停下。
