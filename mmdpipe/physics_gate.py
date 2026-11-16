@@ -161,6 +161,13 @@ def gate_frozen(measurement, cfg):
             "consecutive_frames": streak, "frames": span,
             "parent_delta_min_deg": parent_min, "target_delta_max_deg": target_max,
             "min_consecutive_frames": need_streak}
+    if frz.get("suspicious_zero_parent"):
+        # 父链增量恒为 0 且目标角不小：分不清「父链真没动」还是「这一列没测」。
+        # 判 PASS 等于把没测过的量当成合格，这条门禁就成了装饰。
+        return _result("frozen", UNKNOWN,
+                       "父链增量恒为 0（目标峰 %.3f°）：无法区分『父链静止』与『未测量』，不判合格"
+                       % target, dict(evid, suspicious_zero_parent=True),
+                       missing=["frozen.parent_delta_deg"])
     if parent < parent_min:
         return _result("frozen", PASS,
                        "父链只动了 %.3f° < %.3f°：本来就不该动，不判冻结"

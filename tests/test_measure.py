@@ -136,6 +136,69 @@ class TestPenetration(unittest.TestCase):
                              assembly=assembly(), penetrations_roi="row99")
 
 
+class TestNullTolerance(unittest.TestCase):
+    """真实采样的首帧 parent_delta_deg 是 null（没有上一帧可比较）。
+
+    这条不是理论：M02 交付的 10 套 dyn，每套 4320 行里恰好 18 个 null（18 根骨各一条，都在首帧）。
+    早先的装配器直接 float(None) 抛 TypeError，等于把每份真实采样都判死。
+    """
+
+    def test_null_parent_delta_on_first_frame_is_skipped(self):
+        data = [{"frame": 1, "bone": "b", "angle_deg": 0.0, "parent_delta_deg": None}]
+        data += [{"frame": f, "bone": "b", "angle_deg": 0.0, "parent_delta_deg": 60.0}
+                 for f in range(2, 11)]
+        m = measure.assemble(data, None, sample_id="t", evidence_mode="stepped",
+                             frames=FRAMES, assembly=assembly())
+        self.assertEqual(m["frozen"]["parent_delta_deg"], 60.0)
+        self.assertEqual(m["frozen"]["candidates"], 1)
+
+    def test_all_null_parent_gives_zero_candidates(self):
+        data = [{"frame": f, "bone": "b", "angle_deg": 1.0, "parent_delta_deg": None}
+                for f in range(1, 11)]
+        m = measure.assemble(data, None, sample_id="t", evidence_mode="stepped",
+                             frames=FRAMES, assembly=assembly())
+        self.assertEqual(m["frozen"]["candidates"], 0,
+                         "父链全部不可比时不能编造冻结候选")
+        self.assertEqual(m["frozen"]["parent_delta_deg"], 0.0)
+
+    def test_zero_parent_with_large_angle_is_flagged(self):
+        """父链增量恒 0 但目标角 40°：分不清「静止」和「没测」，必须打标记。
+
+        来源是真实数据：M02 首采 240 帧 × 18 骨，parent_delta_deg 全 0.0，
+        而 angle 从 1.74° 变到 67.2°。不打标记，冻结门禁会凭一个 0 就判 PASS。
+        """
+        data = [{"frame": f, "bone": "b", "angle_deg": 40.0, "parent_delta_deg": 0.0}
+                for f in range(1, 11)]
+        m = measure.assemble(data, None, sample_id="t", evidence_mode="stepped",
+                             frames=FRAMES, assembly=assembly())
+        self.assertTrue(m["frozen"]["parent_all_zero"])
+        self.assertTrue(m["frozen"]["suspicious_zero_parent"])
+        self.assertAlmostEqual(m["frozen"]["target_delta_deg"], 40.0)
+
+    def test_zero_parent_with_small_angle_is_not_flagged(self):
+        data = [{"frame": f, "bone": "b", "angle_deg": 1.0, "parent_delta_deg": 0.0}
+                for f in range(1, 11)]
+        m = measure.assemble(data, None, sample_id="t", evidence_mode="stepped",
+                             frames=FRAMES, assembly=assembly())
+        self.assertFalse(m["frozen"]["suspicious_zero_parent"],
+                         "目标本来就不动时，恒 0 的父链不值得告警")
+
+    def test_null_angle_is_an_error_not_zero(self):
+        data = [{"frame": f, "bone": "b", "angle_deg": 1.0, "parent_delta_deg": 1.0}
+                for f in range(1, 10)]
+        data.append({"frame": 10, "bone": "b", "angle_deg": None, "parent_delta_deg": 1.0})
+        with self.assertRaises(measure.AssemblyError) as ctx:
+            measure.assemble(data, None, sample_id="t", evidence_mode="stepped",
+                             frames=FRAMES, assembly=assembly())
+        self.assertIn("angle_deg", str(ctx.exception))
+
+    def test_non_numeric_angle_raises_assembly_error(self):
+        data = [{"frame": 1, "bone": "b", "angle_deg": "很直", "parent_delta_deg": 1.0}]
+        with self.assertRaises(measure.AssemblyError):
+            measure.assemble(data, None, sample_id="t", evidence_mode="stepped",
+                             frames=FRAMES, assembly=assembly())
+
+
 class TestInputErrors(unittest.TestCase):
     def test_duplicate_frame_bone_rejected(self):
         dup = rows([(1, "b", 1.0), (1, "b", 2.0)])
