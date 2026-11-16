@@ -351,8 +351,9 @@ class Board:
         normalized = evidence_mod.validate(payload)
         digest = evidence_mod.digest(normalized)
         base = base or self.task(task_id).get("base_commit") or ""
+        coverage = None
         if base:
-            gate_mod.check_coverage(normalized["files"], base, head=head, repo=repo)
+            coverage = gate_mod.check_coverage(normalized["files"], base, head=head, repo=repo)
         now = self.now()
         with self.tx() as c:
             task = self.task(task_id)
@@ -379,7 +380,9 @@ class Board:
                 # 已有一份 active：本任务停在 queued_submission，等令牌轮到自己（13 §4.1）
                 c.execute("UPDATE tasks SET status='queued_submission', updated_at=? WHERE task_id=?",
                           (_iso(now), task_id))
-            self.event(c, "SUBMIT", task_id, {"state": status, "evidence_hash": digest})
+            self.event(c, "SUBMIT", task_id, {"state": status, "evidence_hash": digest,
+                                              "deleted_not_in_files":
+                                                  (coverage or {}).get("deleted", [])})
         return {"state": status, "task_id": task_id, "evidence_hash": digest}
 
     def _promote_submission(self, c, now) -> str:

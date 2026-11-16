@@ -24,14 +24,15 @@ class CoverageError(evidence_mod.EvidenceError):
         self.changed = list(changed)
 
 
-def changed_files(base: str, head: str = "HEAD", repo: str | None = None) -> list:
-    """`git diff --name-only base..head`，POSIX 分隔符、按码点升序。"""
+def _diff(base: str, head: str, repo: str | None, filter_expr: str) -> list:
     repo = repo or os.getcwd()
     try:
-        out = subprocess.run(["git", "-C", repo, "diff", "--name-only", "%s..%s" % (base, head)],
+        out = subprocess.run(["git", "-C", repo, "diff", "--name-only",
+                              "--diff-filter=" + filter_expr, "%s..%s" % (base, head)],
                              capture_output=True, text=True, timeout=30)
     except (OSError, subprocess.SubprocessError) as exc:
-        raise CoverageError([], [], "MISSING_EVIDENCE") from exc
+        raise evidence_mod.EvidenceError(
+            "无法计算 files[] 覆盖（git 不可用）：%s" % exc, "MISSING_EVIDENCE") from exc
     if out.returncode != 0:
         raise evidence_mod.EvidenceError(
             "无法计算 files[] 覆盖（git diff %s..%s 失败）：%s"
@@ -40,11 +41,29 @@ def changed_files(base: str, head: str = "HEAD", repo: str | None = None) -> lis
     return sorted(set(names))
 
 
+def changed_files(base: str, head: str = "HEAD", repo: str | None = None) -> list:
+    """需要被 `files[]` 覆盖的文件：新增/修改/复制/重命名（ACMR）。
+
+    **删除的文件不在此列**：删除后没有内容可算 sha256，而 `files[]` 每项都要求
+    64 位 sha256（evidence_hash_v1.md §3）。硬要把它塞进去只能造一个假哈希，
+    那比不列更坏。删除单独由 `deleted_files()` 列出，并在提交时记事件留痕。
+    这一条与规范 §4.2 的字面有出入，已在 SUBMISSION 里明说，等 D0 决定是否升 spec。
+    """
+    return _diff(base, head, repo, "ACMR")
+
+
+def deleted_files(base: str, head: str = "HEAD", repo: str | None = None) -> list:
+    """分支上被删除的文件（无法进 files[]，单独报告）。"""
+    return _diff(base, head, repo, "D")
+
+
 def check_coverage(files, base: str, head: str = "HEAD", repo: str | None = None) -> dict:
-    """缺失即抛 CoverageError；通过返回 {base, head, changed, covered}。"""
+    """缺失即抛 CoverageError；通过返回 {base, head, changed, deleted, covered}。"""
     changed = changed_files(base, head=head, repo=repo)
+    deleted = deleted_files(base, head=head, repo=repo)
     covered = {evidence_mod.norm_path(f["path"]) for f in files}
     missing = [p for p in changed if p not in covered]
     if missing:
         raise CoverageError(missing, changed)
-    return {"base": base, "head": head, "changed": changed, "covered": sorted(covered)}
+    return {"base": base, "head": head, "changed": changed,
+            "deleted": deleted, "covered": sorted(covered)}

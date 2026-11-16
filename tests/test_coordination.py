@@ -423,6 +423,16 @@ class TestCoverageGate(unittest.TestCase):
         with self.assertRaises(evidence_mod.EvidenceError):
             gate_mod.check_coverage([], "deadbeef", repo=self.repo)
 
+    def test_deleted_file_is_reported_not_required(self):
+        """删除的文件没有内容可算 sha256：不进 files[] 要求，但要单独列出并留痕。"""
+        (pathlib.Path(self.repo) / "a.py").unlink()
+        self.git("add", "-A")
+        self.git("commit", "-qm", "delete a")
+        files = [{"path": "b.py", "sha256": sha("b"), "tracked": True}]
+        result = gate_mod.check_coverage(files, self.base, repo=self.repo)
+        self.assertIn("a.py", result["deleted"])
+        self.assertNotIn("a.py", result["changed"])
+
     def test_submit_enforces_gate(self):
         board = board_mod.Board(os.path.join(tempfile.mkdtemp(prefix="mm00_gate_"), "b.db"))
         board.init()
