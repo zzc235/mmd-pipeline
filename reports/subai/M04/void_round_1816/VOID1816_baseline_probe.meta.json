@@ -1,0 +1,108 @@
+{
+  "status": "MEASURED_UNVALIDATED",
+  "basis": "capsule",
+  "method": "MMD 刚体球/胶囊距离（mmdpipe.clearance.penetration），读 Blender 世界坐标（米）",
+  "not_equal_to": "网格穿入：刚体没覆盖的骨在胶囊口径里等于不存在，胶囊 PASS 不等于模型无穿入",
+  "addon_enabled": true,
+  "selftest": {
+    "known_gap": {
+      "expected_clearance_m": 0.25,
+      "reported_clearance_m": 0.25,
+      "rel_err": 0.0,
+      "pass": true
+    },
+    "forced_overlap_5cm": {
+      "expected_penetration_m": 0.05,
+      "reported_penetration_m": 0.05,
+      "rel_err": 0.0,
+      "pass": true
+    },
+    "capsule_axis": {
+      "expected_penetration_m": 0.0,
+      "reported_m": 0.0,
+      "pass": true
+    },
+    "tolerance": 0.05,
+    "pass": true
+  },
+  "blend": "E:\\code\\mmdpipe-ai\\A1\\out\\subai\\M08\\rebuild_built.blend",
+  "roi": "18_skirt_rigid",
+  "roi_bones": [
+    "下擺_0_0",
+    "下擺_0_1",
+    "下擺_0_10",
+    "下擺_0_11",
+    "下擺_0_12",
+    "下擺_0_13",
+    "下擺_0_14",
+    "下擺_0_15",
+    "下擺_0_16",
+    "下擺_0_17",
+    "下擺_0_2",
+    "下擺_0_3",
+    "下擺_0_4",
+    "下擺_0_5",
+    "下擺_0_6",
+    "下擺_0_7",
+    "下擺_0_8",
+    "下擺_0_9"
+  ],
+  "rigids_total": 312,
+  "rigid_bones_distinct": 288,
+  "roi_rigids": 18,
+  "excluded_static_rigids": [],
+  "exclude_static": true,
+  "baseline_source": "computed",
+  "baseline_sha256": "91e4650c960ac6ae7c383a0764689cdc117cae4252560aaa6f7850c80da6b566",
+  "baseline_pairs": 4860,
+  "sign_note": "max_depth_m 是**超出基线的增量**（负值=新增重叠），raw_depth_m 是原始重叠；baseline_m 是该对的基线。判定式 max(0, depth-baseline) > epsilon。",
+  "roi_missing": [],
+  "frames": [
+    1,
+    1
+  ],
+  "eval_policy": "sequential_from_frame_start",
+  "eval_plan": {
+    "frame_start": 1,
+    "first_frame": 1,
+    "last_frame": 1,
+    "baseline_frame": 1,
+    "warmup_frames": 0,
+    "visited_frames": 1,
+    "note": "从 scene.frame_start 连续步进到末帧，预热段只步进物理不取数；本输入上冷跳是另一条轨迹（P12：顺序求值逐位相等，冷跳 D_max 1.922861 m）"
+  },
+  "cache_state": {
+    "not_evidence": "info 会谎报「N frames in memory」；is_baked/is_outdated 也判不出好坏（健康烘焙件重开后同为 true/true）。只当线索记，证据是顺序求值本身",
+    "is_baked": false,
+    "is_outdated": true,
+    "use_disk_cache": false,
+    "info": ""
+  },
+  "frames_measured": 1,
+  "deepest": {
+    "frame": 1,
+    "roi": "18_skirt_rigid",
+    "max_depth_m": -3.1e-05,
+    "bone": "下擺_0_0"
+  },
+  "adjacent_note": "adjacent_pairs = 同一骨链父子相邻的刚体重叠（关节区本来就重叠，属预期）；other_pairs = 非相邻骨之间的重叠（才是可疑的）",
+  "per_frame": [
+    {
+      "frame": 1,
+      "overlapping_pairs": 175,
+      "max_depth_m": -3.1e-05,
+      "bone": "下擺_0_0",
+      "bone_other": "下半身",
+      "baseline_m": -0.091994,
+      "raw_depth_m": -0.092024,
+      "pairs_without_baseline": 0,
+      "adjacent_pairs": 119,
+      "other_pairs": 56
+    }
+  ],
+  "elapsed_s": 1.2,
+  "caveats": [
+    "刚体胶囊是 PMX 作者给的近似体，不是网格表面；胶囊无重叠不能替代网格测量",
+    "BOX 形状按球处理（clearance.axis_of 只分球/胶囊），本轮 ROI 与其余刚体里若有 BOX 需单列"
+  ]
+}
