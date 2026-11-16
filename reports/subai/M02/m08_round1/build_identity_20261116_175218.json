@@ -1,0 +1,24 @@
+{
+ "argv": [
+  "presets/feiying.json",
+  "E:\\blender模型\\没有外套本家模型\\星穹铁道—飞霄（无外套）.pmx",
+  "out/subai/M08",
+  "--build"
+ ],
+ "blender": "5.2.2",
+ "mask_file": "E:\\code\\mmdpipe-ai\\A1\\mmdpipe\\mask.py",
+ "mask_sha256": "c5f475b064c7fbf197a4610c7981ca78c09ec1e61cf8855c792c2cc15cad02e0",
+ "mmdpipe_tree_env": "E:\\code\\mmdpipe-ai\\A1",
+ "outcome": "started",
+ "python": "3.13.13",
+ "stage_file": "E:\\code\\mmdpipe-ai\\A1\\mmdpipe\\stage.py",
+ "stage_inside_tree": true,
+ "stage_sha256": "502b3761c3d0efe59e42186b3f58d93d7a883f382c7a64ecb5a806ecc1aa454d",
+ "started_at": "2026-11-16T17:52:18+0800",
+ "tool": "m02_build_delivery",
+ "tree": "E:\\code\\mmdpipe-ai\\A1",
+ "v3_script": "E:\\dsh pr\\woker2\\reports\\subai\\M02\\scripts\\m02_rebuild_scene_v3.py",
+ "v3_sha256": "ea89a10fff871df9aa1388f6ab03dae6d4fc9bbf80105329fafdd8c3b8f12da0",
+ "wrapper": "E:\\code\\mmdpipe-ai\\A1\\reports\\subai\\M02\\scripts\\m02_build_delivery.py",
+ "wrapper_sha256": "99bfc05e0f5eb61e108aef48f4faf62a1eceb57ad8236ec2c3194407e7a104e8"
+}
