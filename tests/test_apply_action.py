@@ -212,6 +212,27 @@ class LockOwnerGateTest(unittest.TestCase):
         self.assertEqual(got["ident"], "模块负责3|A3")
 
 
+class LockTailGateTest(unittest.TestCase):
+    """`D-188` 尾部闸：开头只证明「开始时锁是我的」，所以要开局/收尾两处 ident 对齐。"""
+
+    def test_same_ident_ok(self):
+        ok, msg = AA.lock_tail_verdict({"ident": "模块负责3|A3", "heartbeat_age": 3},
+                                       {"ident": "模块负责3|A3", "heartbeat_age": 1})
+        self.assertTrue(ok, msg)
+        self.assertIn("3", msg)          # 两个心跳年龄都要出现在记录里
+
+    def test_ident_changed_voids_arm(self):
+        ok, msg = AA.lock_tail_verdict({"ident": "模块负责3|A3"},
+                                       {"ident": "模块负责2|A2"})
+        self.assertFalse(ok)
+        self.assertIn("该臂作废", msg)
+
+    def test_missing_ident_voids_arm(self):
+        ok, msg = AA.lock_tail_verdict({"ident": "模块负责3|A3"}, {"ident": None})
+        self.assertFalse(ok)
+        self.assertIn("无法证明", msg)
+
+
 class SourceOfTruthTest(unittest.TestCase):
     """两臂素材的换算必须在记录里显式，不许下游猜（D-186 第三节）。"""
 

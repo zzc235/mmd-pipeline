@@ -115,6 +115,28 @@
   "ensure_addons": {
    "mmd_tools": true
   },
+  "lock_before_save": {
+   "heartbeat_age": 0.07274389266967773,
+   "held": true,
+   "ident": "模块负责3|A3",
+   "raw": "模块负责3|A3|PID=27456|2026-11-16T18:29:43+08:00|M05 干净窗口独占重跑四臂（带锁三步证据）+ 两条反控（D-188 补证）"
+  },
+  "lock_end": {
+   "heartbeat_age": 0.4702620506286621,
+   "held": true,
+   "ident": "模块负责3|A3",
+   "raw": "模块负责3|A3|PID=27456|2026-11-16T18:29:43+08:00|M05 干净窗口独占重跑四臂（带锁三步证据）+ 两条反控（D-188 补证）"
+  },
+  "lock_start": {
+   "heartbeat_age": 2.943053960800171,
+   "held": true,
+   "ident": "模块负责3|A3",
+   "raw": "模块负责3|A3|PID=27456|2026-11-16T18:29:43+08:00|M05 干净窗口独占重跑四臂（带锁三步证据）+ 两条反控（D-188 补证）"
+  },
+  "lock_tail": {
+   "detail": "锁身份一致：'模块负责3|A3'（开局心跳 2.943053960800171s / 收尾心跳 0.4702620506286621s）",
+   "ok": true
+  },
   "preset_fps": 24,
   "update_scene_settings_forced_off": true
  },

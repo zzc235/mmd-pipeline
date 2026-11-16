@@ -84,6 +84,12 @@
   "ensure_addons": {
    "mmd_tools": null
   },
+  "lock_start": {
+   "heartbeat_age": 2.735549211502075,
+   "held": true,
+   "ident": "模块负责3|A3",
+   "raw": "模块负责3|A3|PID=27456|2026-11-16T18:29:43+08:00|M05 干净窗口独占重跑四臂（带锁三步证据）+ 两条反控（D-188 补证）"
+  },
   "preset_fps": 24,
   "update_scene_settings_forced_off": true
  },
