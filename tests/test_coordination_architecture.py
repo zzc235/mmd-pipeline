@@ -737,6 +737,29 @@ class TaxonomyTest(unittest.TestCase):
         self.assertEqual(len(report["bad_supersedes"]), 1)
         self.assertIn("自己更正自己", report["bad_supersedes"][0]["why"])
 
+    def test_vocabulary_slip_creates_a_false_human_item_until_a_correction_answers_it(self):
+        # D-215 的真实现场：把 decision 写成 RULING（它只是 reason_code）⇒ append() 当场转成
+        # NEEDS_HUMAN + human_approval_required ⇒ 生成一条**假的** Human 待批项。
+        # 正规清法是「一条合规裁决 supersedes 更正 + 正文点名」，不是删记录。
+        slip = taxonomy_mod.normalize_or_needs_human(
+            {"decision_id": "D-20261116-951", "task_id": "M08",
+             "decision": "RULING", "reason_code": "SPEC_CHANGE"})
+        self.assertEqual(slip["decision"], "NEEDS_HUMAN")
+        self.assertTrue(slip["human_approval_required"])
+        self.assertEqual(status_mod.pending_human([slip]), [slip])      # 假待批出现了
+        fix = {"decision_id": "D-20261116-952", "task_id": "M08",
+               "decision": "RETURN_FIX", "reason_code": "SPEC_CHANGE",
+               "human_approval_required": False,
+               "supersedes": {"D-20261116-951": {"decision": "RETURN_FIX",
+                                                 "reason_code": "SPEC_CHANGE"}},
+               "evidence": ["更正 D-20261116-951 的 kind（词表外被转成待批，不是真的待批）"]}
+        rows = [slip, fix]
+        self.assertEqual(status_mod.pending_human(rows), [])            # 显式回答后关闭
+        report = taxonomy_mod.check_history(self._history(rows))
+        self.assertEqual(report["missing_mapping"], [])
+        self.assertEqual(report["corrected_out_of_vocabulary"], [])     # NEEDS_HUMAN 本来在闭集里
+        self.assertEqual(len(report["corrected_compliant"]), 1)         # 落进「合规被更正」桶
+
 
 # --------------------------------------------------------------- 阶段 D：派工
 class DispatcherP0Test(TempDirTest):
