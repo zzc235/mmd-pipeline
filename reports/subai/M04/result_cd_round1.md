@@ -76,6 +76,9 @@
 支撑「这一轮的数仍然可信」的三条，**层次必须说清**：① 3号 的 `recheck_vs_7a95651.json`（5 臂 × 7 个回读字段逐字段相同）；② `apply_action` 只加动作、不碰刚体/约束，`stage.py`/`mask.py` 在 A3 与 main 两树 sha 相同；③ 三臂共享同一个物理输入 `ef8e31a9…`（仍在盘上，未变）。
 **这三条是「内容层等价」，不是「实例层同一」。** 两者不能互相顶替——顶替就等于把 `D-189` 的两层身份糊回一层，而糊回去的代价就是这一次。
 
+> **补记（`D-204`，2026-11-16 18:48）**：`D-202` 在 `decisions.jsonl` 里的 `reason_code` 已被 `D-204` 用 `supersedes` 更正为 `ACCEPT_INTERFACE / EVIDENCE_COMPLETE`——原来那个 `INSTANCE_SHA_UNRECOVERABLE` 是词表外自造 code，随 `D-204` 作废，现在它在 `--check` 的 `corrected_out_of_vocabulary` 桶里（共 5 条）。
+> **更正的是词表用词，不是裁决内容**：封顶 `T2`、不为它补跑、`T3` 第③条回溯不可满足这三条一字不改。本节里的 `instance_sha_unrecoverable: true` 是**字段名**（陈述事实），不是 reason_code；以后引用这件事请写「`D-202`（`D-204` 更正词表）」，别再把那个自造 code 当合法词表项用。
+
 ### 六之二、另一条要进 `known_risks` 的（同族第 N 例）
 
 `VOID1816` 的四份日志第一次没进 git：仓库 `.gitignore:39` 排 `*.log`，**「已隔离」必须先确认作废件落得进仓库**，否则作废件只在本地被隔离，别人 checkout 看不到、还以为从没跑过。改名 `.log.txt` 后才落进去（13 个文件齐）。
