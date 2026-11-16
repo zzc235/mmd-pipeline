@@ -433,6 +433,19 @@ class TestCoverageGate(unittest.TestCase):
         self.assertIn("a.py", result["deleted"])
         self.assertNotIn("a.py", result["changed"])
 
+    def test_three_dot_ignores_base_branch_commits(self):
+        """三点式：base 分支上别人合进来的提交不算我的改动（M00 attempt 2 的教训）。
+
+        base = 已经前进的"main"（多了一个别人提交的 other.py），head = 我的分支（停在共同祖先）。
+        两点式会把 other.py 算成"我漏填的文件"，三点式不会。
+        """
+        branch = self.git("rev-parse", "--abbrev-ref", "HEAD").strip()
+        self.git("branch", "side")                     # 我的分支：与 base 的共同祖先
+        (pathlib.Path(self.repo) / "other.py").write_text("other = 1\n", encoding="utf-8")
+        self.git("add", "other.py")
+        self.git("commit", "-qm", "someone else")
+        self.assertEqual(gate_mod.changed_files(branch, head="side", repo=self.repo), [])
+
     def test_submit_enforces_gate(self):
         board = board_mod.Board(os.path.join(tempfile.mkdtemp(prefix="mm00_gate_"), "b.db"))
         board.init()

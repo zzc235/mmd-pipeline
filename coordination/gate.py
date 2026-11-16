@@ -25,10 +25,17 @@ class CoverageError(evidence_mod.EvidenceError):
 
 
 def _diff(base: str, head: str, repo: str | None, filter_expr: str) -> list:
+    """三点式 `git diff base...head`：从**共同祖先**算起，而不是从 base 当前 tip。
+
+    为什么必须三点：分支落后于 main 时，`main..HEAD` 会把 main 上别人合进来的提交
+    也算成"你的改动"，逼着你在 files[] 里列一堆没碰过的文件（M00 第一版就撞过，
+    把 coordination/decisions.jsonl 算成缺项）。三点只算你这条分支真正带来的差异。
+    """
     repo = repo or os.getcwd()
     try:
         out = subprocess.run(["git", "-C", repo, "diff", "--name-only",
-                              "--diff-filter=" + filter_expr, "%s..%s" % (base, head)],
+                              "--diff-filter=" + filter_expr,
+                              "%s...%s" % (base, head)],
                              capture_output=True, text=True, timeout=30)
     except (OSError, subprocess.SubprocessError) as exc:
         raise evidence_mod.EvidenceError(
