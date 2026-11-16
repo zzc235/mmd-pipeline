@@ -1,0 +1,99 @@
+{
+ "addon": "bl_ext.user_default.mmd_tools",
+ "blend": "E:\\code\\mmdpipe-ai\\A1\\out\\subai\\M08\\rebuild_import.blend",
+ "blend_sha256": "cb1b6668206361356600de9f7c5b4326f43132220de55b62adf54c7f9d8c95d6",
+ "blend_sha256_basis": "raw_bytes_v1",
+ "buckets_sum_equals_disallowed": false,
+ "collection_patterns": [
+  {
+   "bits": [
+    0
+   ],
+   "count": 312
+  }
+ ],
+ "constraint_attribution_basis": "约束所属对象名是否以 `ncc_mask_` 开头（4号 的命名）；这是命名约定，不是硬标识",
+ "constraint_types": {
+  "GENERIC_SPRING": 389
+ },
+ "constraints_capped": false,
+ "disable_collisions_flag_count": 0,
+ "distinct_group_mask": 28,
+ "distinct_group_number": 9,
+ "distinct_patterns": 1,
+ "expect": "wired",
+ "mask_read_failures": 0,
+ "mmd_rigid_objects": 312,
+ "ncc_pair_count": 0,
+ "note": "UNWIRED：位型只有 1 种（掩码没进碰撞位）；仍有 36608 对「PMX 不该碰」没有分开（位+约束）",
+ "output_complete": true,
+ "pmx_pairs_not_allowed": 36608,
+ "pose_source": "not_applicable_static_read",
+ "probe": "mask_channel",
+ "rigid_object_set_diff": {
+  "count_only_by_mmd_type": 0,
+  "count_only_by_rigid_body": 0,
+  "only_by_mmd_type": [],
+  "only_by_rigid_body": [],
+  "same_set": true
+ },
+ "rigid_objects": 312,
+ "rigid_objects_by_mmd_type": 312,
+ "separated_by_bits": 0,
+ "separated_by_constraint": 0,
+ "separated_by_constraint_added_by_channel": 0,
+ "separated_by_constraint_preexisting": 0,
+ "separated_total": 0,
+ "skipped_count": 0,
+ "stage": "E-s8",
+ "stage_json": "out/subai/M08/stage_mask_after_rebuild.json",
+ "task": "M02",
+ "unseparated_sample": [
+  [
+   "000_右肩1",
+   "001_右肩2"
+  ],
+  [
+   "000_右肩1",
+   "002_左肩1"
+  ],
+  [
+   "000_右肩1",
+   "003_左肩2"
+  ],
+  [
+   "000_右肩1",
+   "004_下半身"
+  ],
+  [
+   "000_右肩1",
+   "005_上半身1"
+  ],
+  [
+   "000_右肩1",
+   "006_上半身2"
+  ],
+  [
+   "000_右肩1",
+   "007_上半身"
+  ],
+  [
+   "000_右肩1",
+   "008_首"
+  ],
+  [
+   "000_右肩1",
+   "009_頭"
+  ],
+  [
+   "000_右肩1",
+   "010_右肩"
+  ]
+ ],
+ "verdict": "UNWIRED",
+ "verdict_exit_code": 1,
+ "verdict_reasons": [
+  "位型只有 1 种（掩码没进碰撞位）",
+  "仍有 36608 对「PMX 不该碰」没有分开（位+约束）"
+ ]
+}

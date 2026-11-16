@@ -1,0 +1,183 @@
+{
+ "addon_trace": [
+  {
+   "error": null,
+   "name": "bl_ext.user_default.mmd_tools"
+  },
+  {
+   "operator_present": true,
+   "via": "bl_ext.user_default.mmd_tools"
+  }
+ ],
+ "build": {
+  "issues": [],
+  "metrics": {
+   "chain_ratio": 0.946,
+   "chained": 295,
+   "constraints": {
+    "COPY_ROTATION": 264,
+    "COPY_TRANSFORMS": 31,
+    "DAMPED_TRACK": 4,
+    "IK": 4,
+    "LIMIT_ROTATION": 2,
+    "TRANSFORM": 32
+   },
+   "is_built": true,
+   "mask": {
+    "all_off_bodies": 18,
+    "all_on_bodies": 3,
+    "blocked_and_should_collide": 0,
+    "blocked_pairs": 8499,
+    "collections_non_default": 312,
+    "coverage": 0.2322,
+    "declarations": 2331,
+    "declared_pairs": 36608,
+    "examples": [
+     {
+      "a": "000_右肩1",
+      "b": "031_下擺_0_0",
+      "distance": 1.0769
+     },
+     {
+      "a": "000_右肩1",
+      "b": "032_下擺_0_1",
+      "distance": 1.0775
+     },
+     {
+      "a": "000_右肩1",
+      "b": "033_下擺_0_2",
+      "distance": 1.0792
+     },
+     {
+      "a": "000_右肩1",
+      "b": "034_下擺_0_3",
+      "distance": 1.0813
+     },
+     {
+      "a": "000_右肩1",
+      "b": "035_下擺_0_4",
+      "distance": 1.0835
+     }
+    ],
+    "exception_bodies": [],
+    "groups": {
+     "0": 53,
+     "1": 19,
+     "2": 16,
+     "3": 12,
+     "4": 54,
+     "5": 6,
+     "6": 5,
+     "7": 142,
+     "14": 5
+    },
+    "nocollide_pairs_still_colliding": 0,
+    "one_sided_pairs": 7283,
+    "rigids": 312,
+    "scope_bodies": 312,
+    "uncovered_pairs": 28109,
+    "unexpressible_pairs": 0
+   },
+   "mask_scale": 1.5,
+   "mask_wired": {
+    "asymmetric_pairs": 7283,
+    "bodies": 312,
+    "collections_patterns": 30,
+    "collections_set": 312,
+    "constraint_creation": "template_copy",
+    "constraints_added": 6686,
+    "constraints_already_blocked": 1813,
+    "constraints_capped": false,
+    "constraints_identity": true,
+    "constraints_needed": 8499,
+    "constraints_released": 2196,
+    "constraints_to_add": 6686,
+    "guardrail_hit": false,
+    "readback_mismatch": 0,
+    "skipped_count": 0,
+    "unexpressible": [],
+    "verdict": "WIRED",
+    "verdict_reasons": []
+   },
+   "skirt_bodies": 147,
+   "solver_iterations": 20,
+   "substeps": 10
+  }
+ },
+ "build_physics": true,
+ "built_blend": {
+  "path": "out/subai/M08\\rebuild_built.blend",
+  "rigids": {
+   "placeholder_count": 0,
+   "placeholder_names": [],
+   "rigid_count": 312,
+   "sample_names": [
+    "000_右肩1",
+    "001_右肩2",
+    "002_左肩1",
+    "003_左肩2",
+    "004_下半身",
+    "005_上半身1",
+    "006_上半身2",
+    "007_上半身"
+   ],
+   "xia_bai_0_count": 18,
+   "xia_bai_11_bodies": []
+  },
+  "sha256": "e77851abaf43408bd0006e645cdd393d754cb78c79b59d8c65ba7e180d6c3321"
+ },
+ "import": {
+  "armature": "星穹铁道—飞霄（无外套）_arm",
+  "issues": [],
+  "metrics": {
+   "bones": 482,
+   "objects_added": 706,
+   "rigids": 312,
+   "root": "星穹铁道—飞霄（无外套）",
+   "vertices": 25506
+  },
+  "ok": true,
+  "root": "星穹铁道—飞霄（无外套）"
+ },
+ "import_blend": {
+  "path": "out/subai/M08\\rebuild_import.blend",
+  "rigids": {
+   "placeholder_count": 0,
+   "placeholder_names": [],
+   "rigid_count": 312,
+   "sample_names": [
+    "000_右肩1",
+    "001_右肩2",
+    "002_左肩1",
+    "003_左肩2",
+    "004_下半身",
+    "005_上半身1",
+    "006_上半身2",
+    "007_上半身"
+   ],
+   "xia_bai_0_count": 18,
+   "xia_bai_11_bodies": []
+  },
+  "sha256": "cb1b6668206361356600de9f7c5b4326f43132220de55b62adf54c7f9d8c95d6"
+ },
+ "import_cfg": {
+  "clean_model": true,
+  "remove_doubles": false,
+  "rename_bones": true,
+  "scale": 0.08,
+  "types": [
+   "MESH",
+   "ARMATURE",
+   "MORPHS",
+   "PHYSICS"
+  ]
+ },
+ "objects_reset": 3,
+ "operator_available": true,
+ "pmx": "E:\\blender模型\\没有外套本家模型\\星穹铁道—飞霄（无外套）.pmx",
+ "pmx_sha256": "2db720a2281a9ea954082fc4d7f42f0d50a6ca72235d345566fbf5a28549a267",
+ "preset": "presets/feiying.json",
+ "preset_has_import": true,
+ "stage": "rebuild-v3",
+ "status": "MEASURED"
+}

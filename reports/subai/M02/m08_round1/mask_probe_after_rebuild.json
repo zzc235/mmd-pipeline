@@ -1,0 +1,338 @@
+{
+ "addon": "bl_ext.user_default.mmd_tools",
+ "blend": "E:\\code\\mmdpipe-ai\\A1\\out\\subai\\M08\\rebuild_built.blend",
+ "blend_sha256": "e77851abaf43408bd0006e645cdd393d754cb78c79b59d8c65ba7e180d6c3321",
+ "blend_sha256_basis": "raw_bytes_v1",
+ "buckets_sum_equals_disallowed": true,
+ "collection_patterns": [
+  {
+   "bits": [
+    7
+   ],
+   "count": 113
+  },
+  {
+   "bits": [
+    4
+   ],
+   "count": 41
+  },
+  {
+   "bits": [
+    0
+   ],
+   "count": 18
+  },
+  {
+   "bits": [
+    2,
+    13
+   ],
+   "count": 16
+  },
+  {
+   "bits": [
+    5,
+    7
+   ],
+   "count": 15
+  },
+  {
+   "bits": [
+    6,
+    7
+   ],
+   "count": 14
+  },
+  {
+   "bits": [
+    3
+   ],
+   "count": 11
+  },
+  {
+   "bits": [
+    1,
+    3,
+    4
+   ],
+   "count": 10
+  },
+  {
+   "bits": [
+    0,
+    4
+   ],
+   "count": 8
+  },
+  {
+   "bits": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14
+   ],
+   "count": 6
+  },
+  {
+   "bits": [
+    5
+   ],
+   "count": 6
+  },
+  {
+   "bits": [
+    6
+   ],
+   "count": 5
+  },
+  {
+   "bits": [
+    0,
+    6,
+    7
+   ],
+   "count": 5
+  },
+  {
+   "bits": [
+    3,
+    4
+   ],
+   "count": 5
+  },
+  {
+   "bits": [
+    1,
+    4
+   ],
+   "count": 5
+  },
+  {
+   "bits": [
+    1,
+    2,
+    3,
+    14
+   ],
+   "count": 5
+  },
+  {
+   "bits": [
+    0,
+    8
+   ],
+   "count": 4
+  },
+  {
+   "bits": [
+    0,
+    1
+   ],
+   "count": 3
+  },
+  {
+   "bits": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15
+   ],
+   "count": 3
+  },
+  {
+   "bits": [
+    0,
+    7
+   ],
+   "count": 2
+  },
+  {
+   "bits": [
+    0,
+    8,
+    13
+   ],
+   "count": 2
+  },
+  {
+   "bits": [
+    0,
+    2,
+    8,
+    13
+   ],
+   "count": 2
+  },
+  {
+   "bits": [
+    0,
+    2,
+    8,
+    12,
+    14
+   ],
+   "count": 2
+  },
+  {
+   "bits": [
+    0,
+    2,
+    7,
+    8,
+    12,
+    14
+   ],
+   "count": 2
+  },
+  {
+   "bits": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    12,
+    14
+   ],
+   "count": 2
+  },
+  {
+   "bits": [
+    0,
+    13
+   ],
+   "count": 2
+  },
+  {
+   "bits": [
+    1,
+    2,
+    7,
+    8
+   ],
+   "count": 2
+  },
+  {
+   "bits": [
+    0,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    13,
+    14
+   ],
+   "count": 1
+  },
+  {
+   "bits": [
+    0,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15
+   ],
+   "count": 1
+  },
+  {
+   "bits": [
+    0,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14
+   ],
+   "count": 1
+  }
+ ],
+ "constraint_attribution_basis": "约束所属对象名是否以 `ncc_mask_` 开头（4号 的命名）；这是命名约定，不是硬标识",
+ "constraint_types": {
+  "GENERIC": 10337,
+  "GENERIC_SPRING": 389
+ },
+ "constraints_capped": null,
+ "disable_collisions_flag_count": 8499,
+ "distinct_group_mask": 28,
+ "distinct_group_number": 9,
+ "distinct_patterns": 30,
+ "expect": "wired",
+ "mask_read_failures": 0,
+ "mmd_rigid_objects": 312,
+ "ncc_pair_count": 8499,
+ "note": "PARTIAL：未提供 --stage-json：cap / skipped 未知，按判据不能判 WIRED",
+ "output_complete": true,
+ "pmx_pairs_not_allowed": 36608,
+ "pose_source": "not_applicable_static_read",
+ "probe": "mask_channel",
+ "rigid_object_set_diff": {
+  "count_only_by_mmd_type": 0,
+  "count_only_by_rigid_body": 0,
+  "only_by_mmd_type": [],
+  "only_by_rigid_body": [],
+  "same_set": true
+ },
+ "rigid_objects": 312,
+ "rigid_objects_by_mmd_type": 312,
+ "separated_by_bits": 28109,
+ "separated_by_constraint": 8499,
+ "separated_by_constraint_added_by_channel": 6686,
+ "separated_by_constraint_preexisting": 1813,
+ "separated_total": 36608,
+ "skipped_count": null,
+ "stage": "E-s8",
+ "stage_json": null,
+ "task": "M02",
+ "unseparated_sample": [],
+ "verdict": "PARTIAL",
+ "verdict_exit_code": 1,
+ "verdict_reasons": [
+  "未提供 --stage-json：cap / skipped 未知，按判据不能判 WIRED"
+ ]
+}

@@ -12,9 +12,14 @@
 * 缓存判词**直接吃** `mmdpipe.cache_state.evaluate()`，不在这里重写三分法；
 * 三次 sha 独立读三遍（"验收期间没人在写这个文件"）。
 
-用法：
-    blender -b --factory-startup -P tests_integration/m08_accept_probe.py -- \
+用法（`--no-prefs` 在 5.2 里**不存在**，会被当成要打开的文件 ⇒ 脚本不跑；干净起法是 `--factory-startup`）：
+    blender -b --factory-startup --python-exit-code 3 --python tests_bpy/m08_accept_probe.py -- \
         --blend <场景.blend> [--out facts.json]
+
+`stage.stage_mask()` 的 `wired_record` 等字段是 **IDProperty** 容器（`IDPropertyArray` /
+`IDPropertyGroup`），直接进 `json.dumps` 会 `TypeError: not JSON serializable`（2026-11-16 实测，
+1号 在真场景上撞到）。所以落盘前统一过一遍 `to_plain()`；压不动的值**不静默丢**，路径记进
+`unplain` 并算作 `errors`（看不清就当红）。
 
 退出码（`D-135`：Blender 会把脚本异常吞成 0，所以这里自己给非零码）：
     0  采集完成
@@ -35,6 +40,40 @@ from mmdpipe import cache_state as cache_mod          # noqa: E402
 from mmdpipe import stage                             # noqa: E402
 
 SKIRT_PREFIX = "下擺_"
+
+
+def to_plain(value, path="", holes=None):
+    """把 IDProperty 容器 / mathutils 值递归压成 `json` 能吃的结构。
+
+    `IDPropertyArray` 有 `to_list()`、`IDPropertyGroup` 有 `to_dict()`、`Vector`/`Color` 有
+    `to_tuple()`——都用鸭子类型认，不为它 import `bpy.types`（这个模块在离屏测试里也要能导入）。
+
+    **压不动的类型不静默丢**：路径收进 `holes`，调用方据此判红。返回 `(plain, holes)`。
+    """
+    if holes is None:
+        holes = []
+    if value is None or isinstance(value, (bool, int, float, str)):
+        return value, holes
+    if isinstance(value, dict):
+        out = {}
+        for key, item in value.items():
+            out[str(key)], holes = to_plain(item, "%s.%s" % (path or "$", key), holes)
+        return out, holes
+    if isinstance(value, (list, tuple, set)):
+        out = []
+        for index, item in enumerate(value):
+            plain, holes = to_plain(item, "%s[%d]" % (path or "$", index), holes)
+            out.append(plain)
+        return out, holes
+    for attr in ("to_list", "to_dict", "to_tuple"):
+        conv = getattr(value, attr, None)
+        if callable(conv):
+            try:
+                return to_plain(conv(), path, holes)
+            except Exception:                     # 转不动就往下面记洞，不吞掉
+                break
+    holes.append("%s<%s>" % (path or "$", type(value).__name__))
+    return "<unserializable:%s>" % type(value).__name__, holes
 
 
 def sha_reads(path, times=3):
@@ -148,6 +187,16 @@ def collect(blend):
     return facts
 
 
+def dumpable(facts):
+    """落盘前统一压一遍：压不动的值记成 `errors`——看不见的值不能当「没有」。"""
+    plain, holes = to_plain(facts)
+    plain["unplain"] = holes
+    if holes:
+        plain["errors"] = list(plain.get("errors") or []) + [
+            "压不成 JSON 的值：%s" % ", ".join(holes[:8])]
+    return plain
+
+
 def main():
     argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
     ap = argparse.ArgumentParser()
@@ -155,7 +204,7 @@ def main():
     ap.add_argument("--out", default=None, help="把 FACTS_JSON 也写一份到这个文件")
     args = ap.parse_args(argv)
 
-    facts = collect(args.blend)
+    facts = dumpable(collect(args.blend))
     payload = json.dumps(facts, ensure_ascii=False)
     print("FACTS_JSON " + payload)
     if args.out:
