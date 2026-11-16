@@ -295,6 +295,13 @@ def evaluate_many(records: dict) -> tuple[int, dict]:
 
 def main(argv: list[str] | None = None) -> int:
     argv = list(sys.argv[1:] if argv is None else argv)
+    # 报告里带中文 reason；显式钉 UTF-8，别让输出取决于控制台编码
+    # （`text=True` 的调用方若按本地编码解码会拿到 UnicodeDecodeError，见 `measure.py` 同一做法）。
+    for stream in (sys.stdout, sys.stderr):
+        try:
+            stream.reconfigure(encoding="utf-8")
+        except Exception:
+            pass
     if not argv or argv[0] in ("-h", "--help"):
         print("usage: python -m mmdpipe.cache_state records.json", file=sys.stderr)
         return 2

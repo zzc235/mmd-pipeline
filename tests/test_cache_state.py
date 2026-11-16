@@ -266,6 +266,16 @@ class TestSidecar(unittest.TestCase):
 
 
 class TestCli(unittest.TestCase):
+    """CLI 子进程。**显式钉死 utf-8**：`text=True` 走本地编码时，中文输出在 GBK 控制台上
+    会让 `capture_output` 抛 `UnicodeDecodeError`（`proc.stdout` 变成 `None`），
+    那是测试的环境依赖，不是被测代码的缺陷（2026-11-16 在 `PYTHONIOENCODING=utf-8` 下撞到）。"""
+
+    @staticmethod
+    def run_cli(args):
+        return subprocess.run([sys.executable, "-m", "mmdpipe.cache_state"] + args,
+                              capture_output=True, text=True, encoding="utf-8",
+                              errors="replace")
+
     def test_cli_exit_code_follows_worst(self):
         records = {"x.blend": {"exists": True, "has_physics": True,
                                "is_baked": True, "is_outdated": True}}
@@ -273,8 +283,7 @@ class TestCli(unittest.TestCase):
             path = os.path.join(tmp, "records.json")
             with open(path, "w", encoding="utf-8") as fh:
                 json.dump(records, fh)
-            proc = subprocess.run([sys.executable, "-m", "mmdpipe.cache_state", path],
-                                  capture_output=True, text=True)
+            proc = self.run_cli([path])
         self.assertEqual(proc.returncode, 4, proc.stderr)   # 旗标-alone = 未验证
         out = json.loads(proc.stdout)
         self.assertEqual(out["x.blend"]["verdict"], cache_state.SUSPECT_BAKED_OUTDATED)
@@ -286,15 +295,35 @@ class TestCli(unittest.TestCase):
             path = os.path.join(tmp, "records.json")
             with open(path, "w", encoding="utf-8") as fh:
                 json.dump(records, fh)
-            proc = subprocess.run([sys.executable, "-m", "mmdpipe.cache_state", path],
-                                  capture_output=True, text=True)
+            proc = self.run_cli([path])
         self.assertEqual(proc.returncode, 3, proc.stderr)
 
     def test_cli_without_args_is_usage_error(self):
-        proc = subprocess.run([sys.executable, "-m", "mmdpipe.cache_state"],
-                              capture_output=True, text=True)
+        proc = self.run_cli([])
         self.assertEqual(proc.returncode, 2)
         self.assertIn("usage", proc.stderr)
+
+    def test_cli_emits_utf8_even_under_gbk_locale(self):
+        """CLI 输出必须是 UTF-8 字节，与控制台编码无关（main() 里显式 reconfigure）。
+
+        这里故意把子进程的 `PYTHONIOENCODING` 设成 GBK——报告里有中文 reason，
+        若 CLI 跟着控制台走，父进程按 UTF-8 解码就会失败。
+        """
+        records = {"x.blend": {"exists": True, "has_physics": True,
+                               "is_baked": True, "is_outdated": True}}
+        env = dict(os.environ)
+        env["PYTHONIOENCODING"] = "gbk"
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "records.json")
+            with open(path, "w", encoding="utf-8") as fh:
+                json.dump(records, fh)
+            proc = subprocess.run([sys.executable, "-m", "mmdpipe.cache_state", path],
+                                  capture_output=True, env=env)
+        self.assertEqual(proc.returncode, 4, proc.stderr)
+        text = proc.stdout.decode("utf-8")          # 必须是合法 UTF-8，不许靠本地编码
+        out = json.loads(text)
+        self.assertEqual(out["x.blend"]["verdict"], cache_state.SUSPECT_BAKED_OUTDATED)
+        self.assertIn("无法证明", text)              # 中文确实在输出里
 
 
 if __name__ == "__main__":
