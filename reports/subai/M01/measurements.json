@@ -1,0 +1,2055 @@
+{
+ "module": "M01",
+ "date": "2026-11-15",
+ "environment": {
+  "blender": "5.2.2 LTS",
+  "mmd_tools_module": "bl_ext.user_default.mmd_tools",
+  "python": "3.13.13",
+  "blender_argv": [
+   "-b",
+   "--factory-startup"
+  ],
+  "render_engines_available": [
+   "BLENDER_EEVEE"
+  ],
+  "mmd_tools_build_facts": {
+   "rigid_empties_after_import": 312,
+   "is_built_after_import": false,
+   "constraints_after_import": 73,
+   "is_built_after_build": true,
+   "constraints_after_build": 337,
+   "rigid_types": {
+    "0": 48,
+    "2": 264
+   },
+   "rbw_default": {
+    "enabled": false,
+    "substeps": 10,
+    "solver": 10
+   }
+  }
+ },
+ "sources_before": {
+  "feixiao": {
+   "path": "E:\\blender模型\\没有外套本家模型\\星穹铁道—飞霄（无外套）.pmx",
+   "sha256": "2db720a2281a9ea954082fc4d7f42f0d50a6ca72235d345566fbf5a28549a267",
+   "bytes": 3316950
+  },
+  "kafka": {
+   "path": "E:\\blender模型\\星穹铁道—卡芙卡无外套_by_崩坏：星穹铁道_31cc0fe7cc29460474ff5e5cd7188309\\星穹铁道—卡芙卡无外套\\卡芙卡3.0.pmx",
+   "sha256": "287a55563c5ec027127ce7289a022bddffac4cf4a67f175301de35e36de51f0e",
+   "bytes": 2695060
+  }
+ },
+ "sources_after": {
+  "feixiao": "2db720a2281a9ea954082fc4d7f42f0d50a6ca72235d345566fbf5a28549a267",
+  "kafka": "287a55563c5ec027127ce7289a022bddffac4cf4a67f175301de35e36de51f0e"
+ },
+ "s3": {
+  "pmx_structure": {
+   "rigids": 312,
+   "joints": 389,
+   "bones": 420,
+   "mode_distribution": {
+    "0": 48,
+    "2": 264
+   },
+   "targets": [
+    {
+     "index": 24,
+     "name": "右胸",
+     "bone_index": 102,
+     "bone": "右胸",
+     "group": 0,
+     "mask": 32768,
+     "shape": 2,
+     "mode": 2,
+     "position": [
+      -0.7194,
+      16.3633,
+      -0.0295
+     ],
+     "size": [
+      0.65,
+      0.8134,
+      0.0
+     ]
+    },
+    {
+     "index": 25,
+     "name": "右胸１",
+     "bone_index": 103,
+     "bone": "右胸１",
+     "group": 0,
+     "mask": 32768,
+     "shape": 2,
+     "mode": 2,
+     "position": [
+      -0.7195,
+      16.3633,
+      -0.7482
+     ],
+     "size": [
+      0.65,
+      0.6239,
+      0.0
+     ]
+    },
+    {
+     "index": 26,
+     "name": "右胸２",
+     "bone_index": 104,
+     "bone": "右胸２",
+     "group": 0,
+     "mask": 32768,
+     "shape": 2,
+     "mode": 2,
+     "position": [
+      -0.7196,
+      16.1158,
+      -1.1621
+     ],
+     "size": [
+      0.65,
+      0.4073,
+      0.0
+     ]
+    },
+    {
+     "index": 27,
+     "name": "左胸",
+     "bone_index": 105,
+     "bone": "左胸",
+     "group": 0,
+     "mask": 32768,
+     "shape": 2,
+     "mode": 2,
+     "position": [
+      0.7194,
+      16.3633,
+      -0.0295
+     ],
+     "size": [
+      0.65,
+      0.8134,
+      0.0
+     ]
+    },
+    {
+     "index": 28,
+     "name": "左胸１",
+     "bone_index": 106,
+     "bone": "左胸１",
+     "group": 0,
+     "mask": 32768,
+     "shape": 2,
+     "mode": 2,
+     "position": [
+      0.7195,
+      16.3633,
+      -0.7482
+     ],
+     "size": [
+      0.65,
+      0.6239,
+      0.0
+     ]
+    },
+    {
+     "index": 29,
+     "name": "左胸２",
+     "bone_index": 107,
+     "bone": "左胸２",
+     "group": 0,
+     "mask": 32768,
+     "shape": 2,
+     "mode": 2,
+     "position": [
+      0.7196,
+      16.1158,
+      -1.1621
+     ],
+     "size": [
+      0.65,
+      0.4073,
+      0.0
+     ]
+    }
+   ],
+   "target_joints": [
+    {
+     "index": 0,
+     "name": "右胸",
+     "kind": 0,
+     "rigid_a": 6,
+     "rigid_b": 24,
+     "welded": true,
+     "limit_span": 0.0,
+     "spring_max": 0.0,
+     "move_min": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "move_max": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "rot_min": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "rot_max": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "spring_move": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "spring_rot": [
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "index": 1,
+     "name": "右胸１",
+     "kind": 0,
+     "rigid_a": 24,
+     "rigid_b": 25,
+     "welded": false,
+     "limit_span": 0.523599,
+     "spring_max": 0.0,
+     "move_min": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "move_max": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "rot_min": [
+      0.0,
+      -0.174533,
+      0.0
+     ],
+     "rot_max": [
+      0.523599,
+      0.087266,
+      0.0
+     ],
+     "spring_move": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "spring_rot": [
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "index": 2,
+     "name": "右胸２",
+     "kind": 0,
+     "rigid_a": 25,
+     "rigid_b": 26,
+     "welded": false,
+     "limit_span": 0.610865,
+     "spring_max": 0.0,
+     "move_min": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "move_max": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "rot_min": [
+      -0.436332,
+      -0.349066,
+      -0.261799
+     ],
+     "rot_max": [
+      0.610865,
+      0.349066,
+      0.261799
+     ],
+     "spring_move": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "spring_rot": [
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "index": 3,
+     "name": "左胸",
+     "kind": 0,
+     "rigid_a": 6,
+     "rigid_b": 27,
+     "welded": true,
+     "limit_span": 0.0,
+     "spring_max": 0.0,
+     "move_min": [
+      -0.0,
+      0.0,
+      0.0
+     ],
+     "move_max": [
+      -0.0,
+      0.0,
+      0.0
+     ],
+     "rot_min": [
+      0.0,
+      -0.0,
+      -0.0
+     ],
+     "rot_max": [
+      0.0,
+      -0.0,
+      -0.0
+     ],
+     "spring_move": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "spring_rot": [
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "index": 4,
+     "name": "左胸１",
+     "kind": 0,
+     "rigid_a": 27,
+     "rigid_b": 28,
+     "welded": false,
+     "limit_span": 0.523599,
+     "spring_max": 0.0,
+     "move_min": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "move_max": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "rot_min": [
+      0.0,
+      -0.087266,
+      0.0
+     ],
+     "rot_max": [
+      0.523599,
+      0.174533,
+      0.0
+     ],
+     "spring_move": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "spring_rot": [
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "index": 5,
+     "name": "左胸２",
+     "kind": 0,
+     "rigid_a": 28,
+     "rigid_b": 29,
+     "welded": false,
+     "limit_span": 0.610865,
+     "spring_max": 0.0,
+     "move_min": [
+      -0.0,
+      0.0,
+      0.0
+     ],
+     "move_max": [
+      -0.0,
+      0.0,
+      0.0
+     ],
+     "rot_min": [
+      -0.436332,
+      -0.349066,
+      -0.261799
+     ],
+     "rot_max": [
+      0.610865,
+      0.349066,
+      0.261799
+     ],
+     "spring_move": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "spring_rot": [
+      0.0,
+      0.0,
+      0.0
+     ]
+    }
+   ],
+   "classifier_counts": {
+    "physics": 261,
+    "welded": 8,
+    "welded_collider": 0,
+    "collider": 43,
+    "free": 0
+   },
+   "mute_bones": [
+    "右耳1",
+    "右耳2",
+    "右耳3",
+    "右耳4",
+    "左耳1",
+    "左耳2",
+    "左耳3",
+    "左耳4"
+   ]
+  },
+  "patch": {
+   "source": "E:\\blender模型\\没有外套本家模型\\星穹铁道—飞霄（无外套）.pmx",
+   "source_sha256_before": "2db720a2281a9ea954082fc4d7f42f0d50a6ca72235d345566fbf5a28549a267",
+   "source_sha256_after": "2db720a2281a9ea954082fc4d7f42f0d50a6ca72235d345566fbf5a28549a267",
+   "source_unchanged": true,
+   "output": "E:\\dsh pr\\woker2\\out\\subai\\M01\\飞霄_s3_mode0.pmx",
+   "output_sha256": "c59460752835501ead6123b2d5f195bebc1356df29a8871f498ca1f12cf2f3da",
+   "bytes_source": 3316950,
+   "bytes_output": 3316950,
+   "patch_kind": "rigid_mode",
+   "targets": [
+    {
+     "index": 24,
+     "name": "右胸",
+     "bone": "右胸",
+     "old_mode": 2,
+     "new_mode": 0,
+     "byte_offset": 3236857
+    },
+    {
+     "index": 25,
+     "name": "右胸１",
+     "bone": "右胸１",
+     "old_mode": 2,
+     "new_mode": 0,
+     "byte_offset": 3236934
+    },
+    {
+     "index": 26,
+     "name": "右胸２",
+     "bone": "右胸２",
+     "old_mode": 2,
+     "new_mode": 0,
+     "byte_offset": 3237011
+    },
+    {
+     "index": 27,
+     "name": "左胸",
+     "bone": "左胸",
+     "old_mode": 2,
+     "new_mode": 0,
+     "byte_offset": 3237086
+    },
+    {
+     "index": 28,
+     "name": "左胸１",
+     "bone": "左胸１",
+     "old_mode": 2,
+     "new_mode": 0,
+     "byte_offset": 3237163
+    },
+    {
+     "index": 29,
+     "name": "左胸２",
+     "bone": "左胸２",
+     "old_mode": 2,
+     "new_mode": 0,
+     "byte_offset": 3237240
+    }
+   ],
+   "diff_byte_count": 6,
+   "diff_offsets": [
+    3236857,
+    3236934,
+    3237011,
+    3237086,
+    3237163,
+    3237240
+   ],
+   "parse_tail_error": null,
+   "reparse_ok": true,
+   "non_target_modes_unchanged": true,
+   "joint_limit_layout": {
+    "move_min": "joint_pos_offsets[i] + 24  (3f)",
+    "move_max": "joint_pos_offsets[i] + 36  (3f)",
+    "rot_min": "joint_pos_offsets[i] + 48  (3f, rad)",
+    "rot_max": "joint_pos_offsets[i] + 60  (3f, rad)",
+    "spring_move": "joint_pos_offsets[i] + 72  (3f)",
+    "spring_rot": "joint_pos_offsets[i] + 84  (3f)",
+    "note": "实测布局（飞霄 PMX 逐字节核对过 joint 0/1/2）：限位共 12 个 float 从 +24 起，弹簧共 6 个 float 从 +72 起（弹簧位移 +72、弹簧旋转 +84，关节尾部共 24 float = 96 B）。扩展 patch_save 时沿用 rigid_mode 的做法：写前回读旧值校验，不一致就拒绝。",
+    "erratum": "2026-11-16 勘误（模块负责1）：spring_rot 初版写 +78 有误，实测为 +84。+78 落在弹簧位移 sp 第 3 个 float 内部，写进去后 PMX 仍能解析：spring_rot 仍读 0，sp 第 3 个 float 变成 1e-41 量级的反规格化数——既读不到写入值，也看不出有人动过手，只有逐字节比能定位。"
+   }
+  },
+  "clip1_wushu": {
+   "probe_dir": "E:\\dsh pr\\woker2\\out\\subai\\M01\\probe",
+   "action": "PERF_Wushu_VoidStep_Once_F_bone",
+   "action_range": [
+    1,
+    150
+   ],
+   "vmd": "E:/flowhmr-test/library/vmd/PERF_Wushu_VoidStep_Once_F.vmd",
+   "roi": {
+    "chest_parts": 1,
+    "chest_verts": 71,
+    "torso_verts": 1309,
+    "hip_verts": 1250
+   },
+   "camera": {
+    "target": [
+     -0.0494,
+     0.0302,
+     1.3091
+    ],
+    "location": [
+     -0.0494,
+     -1.1198,
+     1.3591
+    ],
+    "lens": 60,
+    "dist": 1.15
+   },
+   "engine": "BLENDER_EEVEE",
+   "variants": {
+    "baseline": {
+     "physics": true,
+     "is_built": true,
+     "rigids": 312,
+     "chest_constraints": 6,
+     "constraint_histogram": {
+      "TRANSFORM": 32,
+      "IK": 4,
+      "LIMIT_ROTATION": 2,
+      "DAMPED_TRACK": 4,
+      "COPY_TRANSFORMS": 31,
+      "COPY_ROTATION": 264
+     },
+     "rigid_types": {
+      "0": 48,
+      "2": 264
+     },
+     "chest_rigids": [
+      {
+       "obj": "024_右胸",
+       "mmd_name": "右胸",
+       "type": "2",
+       "bone": "胸.R",
+       "kinematic": false,
+       "rb_enabled": true
+      },
+      {
+       "obj": "025_右胸１",
+       "mmd_name": "右胸１",
+       "type": "2",
+       "bone": "胸１.R",
+       "kinematic": false,
+       "rb_enabled": true
+      },
+      {
+       "obj": "026_右胸２",
+       "mmd_name": "右胸２",
+       "type": "2",
+       "bone": "胸２.R",
+       "kinematic": false,
+       "rb_enabled": true
+      },
+      {
+       "obj": "027_左胸",
+       "mmd_name": "左胸",
+       "type": "2",
+       "bone": "胸.L",
+       "kinematic": false,
+       "rb_enabled": true
+      },
+      {
+       "obj": "028_左胸１",
+       "mmd_name": "左胸１",
+       "type": "2",
+       "bone": "胸１.L",
+       "kinematic": false,
+       "rb_enabled": true
+      },
+      {
+       "obj": "029_左胸２",
+       "mmd_name": "左胸２",
+       "type": "2",
+       "bone": "胸２.L",
+       "kinematic": false,
+       "rb_enabled": true
+      }
+     ],
+     "frames": [
+      {
+       "frame": 1,
+       "chest_extent": [
+        0.11099,
+        0.19491,
+        0.092
+       ],
+       "chest_hip_ratio": 0.4333
+      },
+      {
+       "frame": 15,
+       "chest_extent": [
+        0.10501,
+        0.19112,
+        0.09111
+       ],
+       "chest_hip_ratio": 0.4034
+      },
+      {
+       "frame": 30,
+       "chest_extent": [
+        0.10988,
+        0.18817,
+        0.09428
+       ],
+       "chest_hip_ratio": 0.4296
+      },
+      {
+       "frame": 45,
+       "chest_extent": [
+        0.13415,
+        0.16068,
+        0.13067
+       ],
+       "chest_hip_ratio": 0.5298
+      },
+      {
+       "frame": 60,
+       "chest_extent": [
+        0.13806,
+        0.14026,
+        0.14041
+       ],
+       "chest_hip_ratio": 0.5286
+      }
+     ]
+    },
+    "static": {
+     "physics": false,
+     "is_built": false,
+     "rigids": 0,
+     "chest_constraints": 0,
+     "constraint_histogram": {
+      "TRANSFORM": 32,
+      "IK": 4,
+      "LIMIT_ROTATION": 2,
+      "DAMPED_TRACK": 4,
+      "COPY_TRANSFORMS": 31
+     },
+     "rigid_types": {},
+     "chest_rigids": [],
+     "frames": [
+      {
+       "frame": 1,
+       "chest_extent": [
+        0.16981,
+        0.10819,
+        0.09644
+       ],
+       "chest_hip_ratio": 0.6629
+      },
+      {
+       "frame": 15,
+       "chest_extent": [
+        0.17423,
+        0.09785,
+        0.09762
+       ],
+       "chest_hip_ratio": 0.6693
+      },
+      {
+       "frame": 30,
+       "chest_extent": [
+        0.18234,
+        0.0829,
+        0.10257
+       ],
+       "chest_hip_ratio": 0.7129
+      },
+      {
+       "frame": 45,
+       "chest_extent": [
+        0.18405,
+        0.0586,
+        0.12022
+       ],
+       "chest_hip_ratio": 0.7268
+      },
+      {
+       "frame": 60,
+       "chest_extent": [
+        0.18409,
+        0.09199,
+        0.12631
+       ],
+       "chest_hip_ratio": 0.7049
+      }
+     ]
+    },
+    "mode0": {
+     "physics": true,
+     "is_built": true,
+     "rigids": 312,
+     "chest_constraints": 0,
+     "constraint_histogram": {
+      "TRANSFORM": 32,
+      "IK": 4,
+      "LIMIT_ROTATION": 2,
+      "DAMPED_TRACK": 4,
+      "COPY_TRANSFORMS": 31,
+      "COPY_ROTATION": 258
+     },
+     "rigid_types": {
+      "0": 54,
+      "2": 258
+     },
+     "chest_rigids": [
+      {
+       "obj": "024_右胸",
+       "mmd_name": "右胸",
+       "type": "0",
+       "bone": "胸.R",
+       "kinematic": true,
+       "rb_enabled": true
+      },
+      {
+       "obj": "025_右胸１",
+       "mmd_name": "右胸１",
+       "type": "0",
+       "bone": "胸１.R",
+       "kinematic": true,
+       "rb_enabled": true
+      },
+      {
+       "obj": "026_右胸２",
+       "mmd_name": "右胸２",
+       "type": "0",
+       "bone": "胸２.R",
+       "kinematic": true,
+       "rb_enabled": true
+      },
+      {
+       "obj": "027_左胸",
+       "mmd_name": "左胸",
+       "type": "0",
+       "bone": "胸.L",
+       "kinematic": true,
+       "rb_enabled": true
+      },
+      {
+       "obj": "028_左胸１",
+       "mmd_name": "左胸１",
+       "type": "0",
+       "bone": "胸１.L",
+       "kinematic": true,
+       "rb_enabled": true
+      },
+      {
+       "obj": "029_左胸２",
+       "mmd_name": "左胸２",
+       "type": "0",
+       "bone": "胸２.L",
+       "kinematic": true,
+       "rb_enabled": true
+      }
+     ],
+     "frames": [
+      {
+       "frame": 1,
+       "chest_extent": [
+        0.16981,
+        0.10819,
+        0.09644
+       ],
+       "chest_hip_ratio": 0.6629
+      },
+      {
+       "frame": 15,
+       "chest_extent": [
+        0.17423,
+        0.09785,
+        0.09762
+       ],
+       "chest_hip_ratio": 0.6693
+      },
+      {
+       "frame": 30,
+       "chest_extent": [
+        0.18234,
+        0.0829,
+        0.10257
+       ],
+       "chest_hip_ratio": 0.7129
+      },
+      {
+       "frame": 45,
+       "chest_extent": [
+        0.18405,
+        0.0586,
+        0.12022
+       ],
+       "chest_hip_ratio": 0.7268
+      },
+      {
+       "frame": 60,
+       "chest_extent": [
+        0.18409,
+        0.09199,
+        0.12631
+       ],
+       "chest_hip_ratio": 0.7049
+      }
+     ]
+    }
+   },
+   "pairs": {
+    "1": {
+     "baseline_vs_static": {
+      "n": 71,
+      "max": 0.292134,
+      "mean": 0.227462,
+      "p95": 0.291426,
+      "min": 0.10516
+     },
+     "mode0_vs_static": {
+      "n": 71,
+      "max": 0.0,
+      "mean": 0.0,
+      "p95": 0.0,
+      "min": 0.0
+     },
+     "mode0_vs_baseline": {
+      "n": 71,
+      "max": 0.292134,
+      "mean": 0.227462,
+      "p95": 0.291426,
+      "min": 0.10516
+     }
+    },
+    "15": {
+     "baseline_vs_static": {
+      "n": 71,
+      "max": 0.293075,
+      "mean": 0.228034,
+      "p95": 0.292281,
+      "min": 0.105304
+     },
+     "mode0_vs_static": {
+      "n": 71,
+      "max": 0.0,
+      "mean": 0.0,
+      "p95": 0.0,
+      "min": 0.0
+     },
+     "mode0_vs_baseline": {
+      "n": 71,
+      "max": 0.293075,
+      "mean": 0.228034,
+      "p95": 0.292281,
+      "min": 0.105304
+     }
+    },
+    "30": {
+     "baseline_vs_static": {
+      "n": 71,
+      "max": 0.291349,
+      "mean": 0.226742,
+      "p95": 0.291163,
+      "min": 0.104325
+     },
+     "mode0_vs_static": {
+      "n": 71,
+      "max": 0.0,
+      "mean": 0.0,
+      "p95": 0.0,
+      "min": 0.0
+     },
+     "mode0_vs_baseline": {
+      "n": 71,
+      "max": 0.291349,
+      "mean": 0.226742,
+      "p95": 0.291163,
+      "min": 0.104325
+     }
+    },
+    "45": {
+     "baseline_vs_static": {
+      "n": 71,
+      "max": 0.29177,
+      "mean": 0.225973,
+      "p95": 0.289905,
+      "min": 0.103336
+     },
+     "mode0_vs_static": {
+      "n": 71,
+      "max": 0.0,
+      "mean": 0.0,
+      "p95": 0.0,
+      "min": 0.0
+     },
+     "mode0_vs_baseline": {
+      "n": 71,
+      "max": 0.29177,
+      "mean": 0.225973,
+      "p95": 0.289905,
+      "min": 0.103336
+     }
+    },
+    "60": {
+     "baseline_vs_static": {
+      "n": 71,
+      "max": 0.293583,
+      "mean": 0.228089,
+      "p95": 0.293078,
+      "min": 0.104541
+     },
+     "mode0_vs_static": {
+      "n": 71,
+      "max": 0.0,
+      "mean": 0.0,
+      "p95": 0.0,
+      "min": 0.0
+     },
+     "mode0_vs_baseline": {
+      "n": 71,
+      "max": 0.293583,
+      "mean": 0.228089,
+      "p95": 0.293078,
+      "min": 0.104541
+     }
+    }
+   }
+  },
+  "clip2_sway": {
+   "probe_dir": "E:\\dsh pr\\woker2\\out\\subai\\M01\\probe2",
+   "action": "EMO_Sway_Normal_Once_F_bone",
+   "action_range": [
+    1,
+    91
+   ],
+   "vmd": "E:/flowhmr-test/library/vmd/EMO_Sway_Normal_Once_F.vmd",
+   "roi": {
+    "chest_parts": 1,
+    "chest_verts": 71,
+    "torso_verts": 1309,
+    "hip_verts": 1250
+   },
+   "camera": {
+    "target": [
+     -0.0494,
+     0.0302,
+     1.3091
+    ],
+    "location": [
+     -0.0494,
+     -1.1198,
+     1.3591
+    ],
+    "lens": 60,
+    "dist": 1.15
+   },
+   "engine": "BLENDER_EEVEE",
+   "variants": {
+    "baseline": {
+     "physics": true,
+     "is_built": true,
+     "rigids": 312,
+     "chest_constraints": 6,
+     "constraint_histogram": {
+      "TRANSFORM": 32,
+      "IK": 4,
+      "LIMIT_ROTATION": 2,
+      "DAMPED_TRACK": 4,
+      "COPY_TRANSFORMS": 31,
+      "COPY_ROTATION": 264
+     },
+     "rigid_types": {
+      "0": 48,
+      "2": 264
+     },
+     "chest_rigids": [
+      {
+       "obj": "024_右胸",
+       "mmd_name": "右胸",
+       "type": "2",
+       "bone": "胸.R",
+       "kinematic": false,
+       "rb_enabled": true
+      },
+      {
+       "obj": "025_右胸１",
+       "mmd_name": "右胸１",
+       "type": "2",
+       "bone": "胸１.R",
+       "kinematic": false,
+       "rb_enabled": true
+      },
+      {
+       "obj": "026_右胸２",
+       "mmd_name": "右胸２",
+       "type": "2",
+       "bone": "胸２.R",
+       "kinematic": false,
+       "rb_enabled": true
+      },
+      {
+       "obj": "027_左胸",
+       "mmd_name": "左胸",
+       "type": "2",
+       "bone": "胸.L",
+       "kinematic": false,
+       "rb_enabled": true
+      },
+      {
+       "obj": "028_左胸１",
+       "mmd_name": "左胸１",
+       "type": "2",
+       "bone": "胸１.L",
+       "kinematic": false,
+       "rb_enabled": true
+      },
+      {
+       "obj": "029_左胸２",
+       "mmd_name": "左胸２",
+       "type": "2",
+       "bone": "胸２.L",
+       "kinematic": false,
+       "rb_enabled": true
+      }
+     ],
+     "frames": [
+      {
+       "frame": 1,
+       "chest_extent": [
+        0.10828,
+        0.16605,
+        0.09381
+       ],
+       "chest_hip_ratio": 0.4285
+      },
+      {
+       "frame": 20,
+       "chest_extent": [
+        0.10774,
+        0.15875,
+        0.09472
+       ],
+       "chest_hip_ratio": 0.4299
+      },
+      {
+       "frame": 40,
+       "chest_extent": [
+        0.11627,
+        0.14921,
+        0.09017
+       ],
+       "chest_hip_ratio": 0.4596
+      },
+      {
+       "frame": 60,
+       "chest_extent": [
+        0.11467,
+        0.14671,
+        0.0944
+       ],
+       "chest_hip_ratio": 0.4526
+      }
+     ]
+    },
+    "static": {
+     "physics": false,
+     "is_built": false,
+     "rigids": 0,
+     "chest_constraints": 0,
+     "constraint_histogram": {
+      "TRANSFORM": 32,
+      "IK": 4,
+      "LIMIT_ROTATION": 2,
+      "DAMPED_TRACK": 4,
+      "COPY_TRANSFORMS": 31
+     },
+     "rigid_types": {},
+     "chest_rigids": [],
+     "frames": [
+      {
+       "frame": 1,
+       "chest_extent": [
+        0.18528,
+        0.06651,
+        0.09892
+       ],
+       "chest_hip_ratio": 0.7332
+      },
+      {
+       "frame": 20,
+       "chest_extent": [
+        0.18639,
+        0.06059,
+        0.0957
+       ],
+       "chest_hip_ratio": 0.7438
+      },
+      {
+       "frame": 40,
+       "chest_extent": [
+        0.18593,
+        0.06545,
+        0.08838
+       ],
+       "chest_hip_ratio": 0.735
+      },
+      {
+       "frame": 60,
+       "chest_extent": [
+        0.1863,
+        0.06209,
+        0.0933
+       ],
+       "chest_hip_ratio": 0.7353
+      }
+     ]
+    },
+    "mode0": {
+     "physics": true,
+     "is_built": true,
+     "rigids": 312,
+     "chest_constraints": 0,
+     "constraint_histogram": {
+      "TRANSFORM": 32,
+      "IK": 4,
+      "LIMIT_ROTATION": 2,
+      "DAMPED_TRACK": 4,
+      "COPY_TRANSFORMS": 31,
+      "COPY_ROTATION": 258
+     },
+     "rigid_types": {
+      "0": 54,
+      "2": 258
+     },
+     "chest_rigids": [
+      {
+       "obj": "024_右胸",
+       "mmd_name": "右胸",
+       "type": "0",
+       "bone": "胸.R",
+       "kinematic": true,
+       "rb_enabled": true
+      },
+      {
+       "obj": "025_右胸１",
+       "mmd_name": "右胸１",
+       "type": "0",
+       "bone": "胸１.R",
+       "kinematic": true,
+       "rb_enabled": true
+      },
+      {
+       "obj": "026_右胸２",
+       "mmd_name": "右胸２",
+       "type": "0",
+       "bone": "胸２.R",
+       "kinematic": true,
+       "rb_enabled": true
+      },
+      {
+       "obj": "027_左胸",
+       "mmd_name": "左胸",
+       "type": "0",
+       "bone": "胸.L",
+       "kinematic": true,
+       "rb_enabled": true
+      },
+      {
+       "obj": "028_左胸１",
+       "mmd_name": "左胸１",
+       "type": "0",
+       "bone": "胸１.L",
+       "kinematic": true,
+       "rb_enabled": true
+      },
+      {
+       "obj": "029_左胸２",
+       "mmd_name": "左胸２",
+       "type": "0",
+       "bone": "胸２.L",
+       "kinematic": true,
+       "rb_enabled": true
+      }
+     ],
+     "frames": [
+      {
+       "frame": 1,
+       "chest_extent": [
+        0.18528,
+        0.06651,
+        0.09892
+       ],
+       "chest_hip_ratio": 0.7332
+      },
+      {
+       "frame": 20,
+       "chest_extent": [
+        0.18639,
+        0.06059,
+        0.0957
+       ],
+       "chest_hip_ratio": 0.7438
+      },
+      {
+       "frame": 40,
+       "chest_extent": [
+        0.18593,
+        0.06545,
+        0.08838
+       ],
+       "chest_hip_ratio": 0.735
+      },
+      {
+       "frame": 60,
+       "chest_extent": [
+        0.1863,
+        0.06209,
+        0.0933
+       ],
+       "chest_hip_ratio": 0.7353
+      }
+     ]
+    }
+   },
+   "pairs": {
+    "1": {
+     "baseline_vs_static": {
+      "n": 71,
+      "max": 0.298996,
+      "mean": 0.23289,
+      "p95": 0.298529,
+      "min": 0.108019
+     },
+     "mode0_vs_static": {
+      "n": 71,
+      "max": 0.0,
+      "mean": 0.0,
+      "p95": 0.0,
+      "min": 0.0
+     },
+     "mode0_vs_baseline": {
+      "n": 71,
+      "max": 0.298996,
+      "mean": 0.23289,
+      "p95": 0.298529,
+      "min": 0.108019
+     }
+    },
+    "20": {
+     "baseline_vs_static": {
+      "n": 71,
+      "max": 0.298642,
+      "mean": 0.232564,
+      "p95": 0.298621,
+      "min": 0.107373
+     },
+     "mode0_vs_static": {
+      "n": 71,
+      "max": 0.0,
+      "mean": 0.0,
+      "p95": 0.0,
+      "min": 0.0
+     },
+     "mode0_vs_baseline": {
+      "n": 71,
+      "max": 0.298642,
+      "mean": 0.232564,
+      "p95": 0.298621,
+      "min": 0.107373
+     }
+    },
+    "40": {
+     "baseline_vs_static": {
+      "n": 71,
+      "max": 0.299904,
+      "mean": 0.232918,
+      "p95": 0.297362,
+      "min": 0.106925
+     },
+     "mode0_vs_static": {
+      "n": 71,
+      "max": 0.0,
+      "mean": 0.0,
+      "p95": 0.0,
+      "min": 0.0
+     },
+     "mode0_vs_baseline": {
+      "n": 71,
+      "max": 0.299904,
+      "mean": 0.232918,
+      "p95": 0.297362,
+      "min": 0.106925
+     }
+    },
+    "60": {
+     "baseline_vs_static": {
+      "n": 71,
+      "max": 0.299957,
+      "mean": 0.232834,
+      "p95": 0.297194,
+      "min": 0.106607
+     },
+     "mode0_vs_static": {
+      "n": 71,
+      "max": 0.0,
+      "mean": 0.0,
+      "p95": 0.0,
+      "min": 0.0
+     },
+     "mode0_vs_baseline": {
+      "n": 71,
+      "max": 0.299957,
+      "mean": 0.232834,
+      "p95": 0.297194,
+      "min": 0.106607
+     }
+    }
+   }
+  },
+  "images": {
+   "compare_chest": "E:\\dsh pr\\woker2\\out\\subai\\M01\\compare_chest.png",
+   "close_ups": "E:\\dsh pr\\woker2\\out\\subai\\M01\\shots_chest3"
+  }
+ },
+ "s5": {
+  "pmx_structure": {
+   "rigids": 145,
+   "joints": 182,
+   "bones": 246,
+   "mode_distribution": {
+    "0": 24,
+    "1": 119,
+    "2": 2
+   },
+   "sleeve_units": [
+    {
+     "uid": 4,
+     "bodies": 25,
+     "joints": 48,
+     "cycle_rank": 24,
+     "welded_ratio": 0.5,
+     "welded_joints": 24,
+     "flex_joints": 24,
+     "anchor_bone": "右ひじ",
+     "modes": {
+      "0": 1,
+      "1": 24
+     },
+     "spring_max": 0.0,
+     "rigid_index_range": [
+      4,
+      104
+     ],
+     "body_detail": [
+      {
+       "index": 4,
+       "name": "右ひじ",
+       "mode": 0,
+       "bone": "右ひじ",
+       "group": 0
+      },
+      {
+       "index": 81,
+       "name": "zxk__1",
+       "mode": 1,
+       "bone": "zxk__1",
+       "group": 4
+      },
+      {
+       "index": 82,
+       "name": "zxk__2",
+       "mode": 1,
+       "bone": "zxk__2",
+       "group": 4
+      },
+      {
+       "index": 83,
+       "name": "zxk__3",
+       "mode": 1,
+       "bone": "zxk__3",
+       "group": 4
+      },
+      {
+       "index": 84,
+       "name": "zxk__4",
+       "mode": 1,
+       "bone": "zxk__4",
+       "group": 4
+      },
+      {
+       "index": 85,
+       "name": "zxk__5",
+       "mode": 1,
+       "bone": "zxk__5",
+       "group": 4
+      },
+      {
+       "index": 86,
+       "name": "zxk__6",
+       "mode": 1,
+       "bone": "zxk__6",
+       "group": 4
+      },
+      {
+       "index": 87,
+       "name": "zxk__7",
+       "mode": 1,
+       "bone": "zxk__7",
+       "group": 4
+      },
+      {
+       "index": 88,
+       "name": "zxk__8",
+       "mode": 1,
+       "bone": "zxk__8",
+       "group": 4
+      },
+      {
+       "index": 89,
+       "name": "zxk__9",
+       "mode": 1,
+       "bone": "zxk__9",
+       "group": 4
+      },
+      {
+       "index": 90,
+       "name": "zxk__10",
+       "mode": 1,
+       "bone": "zxk__10",
+       "group": 4
+      },
+      {
+       "index": 91,
+       "name": "zxk__11",
+       "mode": 1,
+       "bone": "zxk__11",
+       "group": 4
+      },
+      {
+       "index": 92,
+       "name": "zxk__12",
+       "mode": 1,
+       "bone": "zxk__12",
+       "group": 4
+      },
+      {
+       "index": 93,
+       "name": "zxk__13",
+       "mode": 1,
+       "bone": "zxk__13",
+       "group": 4
+      },
+      {
+       "index": 94,
+       "name": "zxk__14",
+       "mode": 1,
+       "bone": "zxk__14",
+       "group": 4
+      },
+      {
+       "index": 95,
+       "name": "zxk__15",
+       "mode": 1,
+       "bone": "zxk__15",
+       "group": 4
+      },
+      {
+       "index": 96,
+       "name": "zxk__16",
+       "mode": 1,
+       "bone": "zxk__16",
+       "group": 4
+      },
+      {
+       "index": 97,
+       "name": "zxk__17",
+       "mode": 1,
+       "bone": "zxk__17",
+       "group": 4
+      },
+      {
+       "index": 98,
+       "name": "zxk__18",
+       "mode": 1,
+       "bone": "zxk__18",
+       "group": 4
+      },
+      {
+       "index": 99,
+       "name": "zxk__19",
+       "mode": 1,
+       "bone": "zxk__19",
+       "group": 4
+      },
+      {
+       "index": 100,
+       "name": "zxk__20",
+       "mode": 1,
+       "bone": "zxk__20",
+       "group": 4
+      },
+      {
+       "index": 101,
+       "name": "zxk__21",
+       "mode": 1,
+       "bone": "zxk__21",
+       "group": 4
+      },
+      {
+       "index": 102,
+       "name": "zxk__22",
+       "mode": 1,
+       "bone": "zxk__22",
+       "group": 4
+      },
+      {
+       "index": 103,
+       "name": "zxk__23",
+       "mode": 1,
+       "bone": "zxk__23",
+       "group": 4
+      },
+      {
+       "index": 104,
+       "name": "zxk__24",
+       "mode": 1,
+       "bone": "zxk__24",
+       "group": 4
+      }
+     ]
+    },
+    {
+     "uid": 7,
+     "bodies": 25,
+     "joints": 48,
+     "cycle_rank": 24,
+     "welded_ratio": 0.5,
+     "welded_joints": 24,
+     "flex_joints": 24,
+     "anchor_bone": "左ひじ",
+     "modes": {
+      "0": 1,
+      "1": 24
+     },
+     "spring_max": 0.0,
+     "rigid_index_range": [
+      7,
+      128
+     ],
+     "body_detail": [
+      {
+       "index": 7,
+       "name": "左ひじ",
+       "mode": 0,
+       "bone": "左ひじ",
+       "group": 0
+      },
+      {
+       "index": 105,
+       "name": "xk_0_0",
+       "mode": 1,
+       "bone": "xk_0_0",
+       "group": 4
+      },
+      {
+       "index": 106,
+       "name": "xk_0_1",
+       "mode": 1,
+       "bone": "xk_0_1",
+       "group": 4
+      },
+      {
+       "index": 107,
+       "name": "xk_0_2",
+       "mode": 1,
+       "bone": "xk_0_2",
+       "group": 4
+      },
+      {
+       "index": 108,
+       "name": "xk_0_3",
+       "mode": 1,
+       "bone": "xk_0_3",
+       "group": 4
+      },
+      {
+       "index": 109,
+       "name": "xk_0_4",
+       "mode": 1,
+       "bone": "xk_0_4",
+       "group": 4
+      },
+      {
+       "index": 110,
+       "name": "xk_0_5",
+       "mode": 1,
+       "bone": "xk_0_5",
+       "group": 4
+      },
+      {
+       "index": 111,
+       "name": "xk_0_6",
+       "mode": 1,
+       "bone": "xk_0_6",
+       "group": 4
+      },
+      {
+       "index": 112,
+       "name": "xk_0_7",
+       "mode": 1,
+       "bone": "xk_0_7",
+       "group": 4
+      },
+      {
+       "index": 113,
+       "name": "xk_1_0",
+       "mode": 1,
+       "bone": "xk_1_0",
+       "group": 4
+      },
+      {
+       "index": 114,
+       "name": "xk_1_1",
+       "mode": 1,
+       "bone": "xk_1_1",
+       "group": 4
+      },
+      {
+       "index": 115,
+       "name": "xk_1_2",
+       "mode": 1,
+       "bone": "xk_1_2",
+       "group": 4
+      },
+      {
+       "index": 116,
+       "name": "xk_1_3",
+       "mode": 1,
+       "bone": "xk_1_3",
+       "group": 4
+      },
+      {
+       "index": 117,
+       "name": "xk_1_4",
+       "mode": 1,
+       "bone": "xk_1_4",
+       "group": 4
+      },
+      {
+       "index": 118,
+       "name": "xk_1_5",
+       "mode": 1,
+       "bone": "xk_1_5",
+       "group": 4
+      },
+      {
+       "index": 119,
+       "name": "xk_1_6",
+       "mode": 1,
+       "bone": "xk_1_6",
+       "group": 4
+      },
+      {
+       "index": 120,
+       "name": "xk_1_7",
+       "mode": 1,
+       "bone": "xk_1_7",
+       "group": 4
+      },
+      {
+       "index": 121,
+       "name": "xk_2_0",
+       "mode": 1,
+       "bone": "xk_2_0",
+       "group": 4
+      },
+      {
+       "index": 122,
+       "name": "xk_2_1",
+       "mode": 1,
+       "bone": "xk_2_1",
+       "group": 4
+      },
+      {
+       "index": 123,
+       "name": "xk_2_2",
+       "mode": 1,
+       "bone": "xk_2_2",
+       "group": 4
+      },
+      {
+       "index": 124,
+       "name": "xk_2_3",
+       "mode": 1,
+       "bone": "xk_2_3",
+       "group": 4
+      },
+      {
+       "index": 125,
+       "name": "xk_2_4",
+       "mode": 1,
+       "bone": "xk_2_4",
+       "group": 4
+      },
+      {
+       "index": 126,
+       "name": "xk_2_5",
+       "mode": 1,
+       "bone": "xk_2_5",
+       "group": 4
+      },
+      {
+       "index": 127,
+       "name": "xk_2_6",
+       "mode": 1,
+       "bone": "xk_2_6",
+       "group": 4
+      },
+      {
+       "index": 128,
+       "name": "xk_2_7",
+       "mode": 1,
+       "bone": "xk_2_7",
+       "group": 4
+      }
+     ]
+    }
+   ],
+   "strict_policy_bones": 48,
+   "xk_pattern_bones": 48
+  },
+  "probe": {
+   "base": {
+    "policy": "off",
+    "is_built": true,
+    "rigids": 145,
+    "pmx_modes": {
+     "0": 24,
+     "1": 119,
+     "2": 2
+    },
+    "sleeve_units": [
+     {
+      "uid": 4,
+      "bodies": 25,
+      "joints": 48,
+      "cycle_rank": 24,
+      "welded_ratio": 0.5,
+      "modes": {
+       "0": 1,
+       "1": 24
+      },
+      "anchor_bone": "右ひじ"
+     },
+     {
+      "uid": 7,
+      "bodies": 25,
+      "joints": 48,
+      "cycle_rank": 24,
+      "welded_ratio": 0.5,
+      "modes": {
+       "0": 1,
+       "1": 24
+      },
+      "anchor_bone": "左ひじ"
+     }
+    ],
+    "sleeve_bones": 48,
+    "muted_constraints": 0,
+    "still_unmuted": [],
+    "sleeve_roi": {
+     "parts": 1,
+     "verts": 397
+    },
+    "other_physics_bones": 90,
+    "bone_delta_stats": {
+     "frames_stepped": 60,
+     "over45_total": 35,
+     "over45_frames": [
+      {
+       "frame": 29,
+       "bones_over45": 5,
+       "worst_bone": "xk_2_4",
+       "worst_deg": 76.036
+      },
+      {
+       "frame": 30,
+       "bones_over45": 13,
+       "worst_bone": "xk_2_4",
+       "worst_deg": 309.263
+      },
+      {
+       "frame": 31,
+       "bones_over45": 8,
+       "worst_bone": "xk_0_0",
+       "worst_deg": 343.349
+      },
+      {
+       "frame": 32,
+       "bones_over45": 7,
+       "worst_bone": "xk_0_1",
+       "worst_deg": 322.223
+      },
+      {
+       "frame": 33,
+       "bones_over45": 2,
+       "worst_bone": "xk_2_1",
+       "worst_deg": 333.571
+      }
+     ],
+     "over45_frame_count": 5,
+     "global_max": 343.349,
+     "global_max_at": {
+      "frame": 31,
+      "bone": "xk_0_0",
+      "deg": 343.349
+     },
+     "mean_of_frame_max": 26.814,
+     "other_global_max": 359.258
+    },
+    "frames": [
+     {
+      "frame": 1,
+      "sleeve_extent": [
+       0.99505,
+       0.11197,
+       0.12842
+      ],
+      "sleeve_bone_delta_max": null,
+      "over45": null,
+      "other_max": null
+     },
+     {
+      "frame": 15,
+      "sleeve_extent": [
+       1.00519,
+       0.12093,
+       0.1386
+      ],
+      "sleeve_bone_delta_max": 0.8108,
+      "over45": 0,
+      "other_max": 16.6434
+     },
+     {
+      "frame": 30,
+      "sleeve_extent": [
+       0.76331,
+       0.14362,
+       0.45328
+      ],
+      "sleeve_bone_delta_max": 309.2633,
+      "over45": 13,
+      "other_max": 18.9192
+     },
+     {
+      "frame": 45,
+      "sleeve_extent": [
+       0.12603,
+       0.30767,
+       0.34016
+      ],
+      "sleeve_bone_delta_max": 3.0826,
+      "over45": 0,
+      "other_max": 352.0188
+     },
+     {
+      "frame": 60,
+      "sleeve_extent": [
+       0.18137,
+       0.37714,
+       0.2971
+      ],
+      "sleeve_bone_delta_max": 1.0287,
+      "over45": 0,
+      "other_max": 19.9549
+     }
+    ]
+   },
+   "static": {
+    "policy": "strict",
+    "is_built": true,
+    "rigids": 145,
+    "pmx_modes": {
+     "0": 24,
+     "1": 119,
+     "2": 2
+    },
+    "sleeve_units": [
+     {
+      "uid": 4,
+      "bodies": 25,
+      "joints": 48,
+      "cycle_rank": 24,
+      "welded_ratio": 0.5,
+      "modes": {
+       "0": 1,
+       "1": 24
+      },
+      "anchor_bone": "右ひじ"
+     },
+     {
+      "uid": 7,
+      "bodies": 25,
+      "joints": 48,
+      "cycle_rank": 24,
+      "welded_ratio": 0.5,
+      "modes": {
+       "0": 1,
+       "1": 24
+      },
+      "anchor_bone": "左ひじ"
+     }
+    ],
+    "sleeve_bones": 48,
+    "muted_constraints": 48,
+    "still_unmuted": [],
+    "sleeve_roi": {
+     "parts": 1,
+     "verts": 397
+    },
+    "other_physics_bones": 90,
+    "bone_delta_stats": {
+     "frames_stepped": 60,
+     "over45_total": 0,
+     "over45_frames": [],
+     "over45_frame_count": 0,
+     "global_max": 12.614,
+     "global_max_at": {
+      "frame": 31,
+      "bone": "xk_0_4",
+      "deg": 12.614
+     },
+     "mean_of_frame_max": 3.422,
+     "other_global_max": 359.258
+    },
+    "frames": [
+     {
+      "frame": 1,
+      "sleeve_extent": [
+       0.33892,
+       0.19498,
+       0.64164
+      ],
+      "sleeve_bone_delta_max": null,
+      "over45": null,
+      "other_max": null
+     },
+     {
+      "frame": 15,
+      "sleeve_extent": [
+       0.33441,
+       0.16423,
+       0.63359
+      ],
+      "sleeve_bone_delta_max": 0.4764,
+      "over45": 0,
+      "other_max": 16.6434
+     },
+     {
+      "frame": 30,
+      "sleeve_extent": [
+       0.70504,
+       0.13236,
+       0.8037
+      ],
+      "sleeve_bone_delta_max": 12.612,
+      "over45": 0,
+      "other_max": 18.9192
+     },
+     {
+      "frame": 45,
+      "sleeve_extent": [
+       1.09981,
+       0.13678,
+       0.62901
+      ],
+      "sleeve_bone_delta_max": 2.9457,
+      "over45": 0,
+      "other_max": 352.0188
+     },
+     {
+      "frame": 60,
+      "sleeve_extent": [
+       1.13786,
+       0.15532,
+       0.53252
+      ],
+      "sleeve_bone_delta_max": 0.8011,
+      "over45": 0,
+      "other_max": 19.9549
+     }
+    ]
+   }
+  },
+  "vmd": "E:\\flowhmr-test\\library\\vmd\\PERF_Wushu_VoidStep_Once_F.vmd",
+  "images": {
+   "compare_sleeve": "E:\\dsh pr\\woker2\\out\\subai\\M01\\compare_sleeve.png"
+  }
+ },
+ "shared_workspace_writes": [
+  {
+   "path": "C:\\Users\\zzc\\Desktop\\ai用\\dsh use\\gongtonggzq\\M01_F3冻结类修复_胸口与袖子.md",
+   "action": "append-only supplement «补充 · M01 执行记录»",
+   "by_script": "m01_append_shared_doc.py"
+  },
+  {
+   "path": "C:\\Users\\zzc\\Desktop\\ai用\\dsh use\\gongtonggzq\\M02_F4下摆与F6碰撞映射.md",
+   "action": "append-only supplement «补充 · M01 → M02 交接»",
+   "by_script": "m01_append_shared_doc.py"
+  }
+ ],
+ "experiment_counts": {
+  "env_api_confirmation": "2（1 次 operator 未注册，1 次 types=PHYSICS 才能 build）",
+  "baseline_reproduction": "1（clip1 基线一次跑通；clip2 独立复核 1 次）",
+  "s3_rounds": "3（基线 / 单变量 mode 修复 / 独立动作复核）",
+  "s5_rounds": "2（基线 / 静态策略）",
+  "same_error_fix": "2（import_vmd poll 缺 select+active；建链需 PHYSICS）",
+  "full_regression": "1 轮（60 项测试全绿）",
+  "render_rounds": "3（12 帧探针内嵌图 1 轮 + 代表帧对比图 2 轮，均为静态图，无序列渲染）"
+ }
+}

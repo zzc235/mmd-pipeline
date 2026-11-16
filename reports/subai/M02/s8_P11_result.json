@@ -1,0 +1,34 @@
+{
+ "A1_vs_P0": {
+  "all": 1.586699962,
+  "hem": 0.908710335
+ },
+ "P11_vs_A1": {
+  "all": 2.303467718,
+  "hem": 1.811733853
+ },
+ "P11_vs_P0": {
+  "all": 1.922861494,
+  "hem": 1.233415581
+ },
+ "blend_sha256": "26f39baa86895269c385fc7f8cb9b28c66efe67f6c9ff1fffd561cf847e23801",
+ "bodies": 324,
+ "cache_after_step": {
+  "frame_end": 326,
+  "frame_start": 1,
+  "info": "240 frames in memory (2.1 MiB), cache is outdated!",
+  "is_baked": false,
+  "is_outdated": true
+ },
+ "cache_at_open": {
+  "frame_end": 326,
+  "frame_start": 1,
+  "info": "240 frames in memory (2.1 MiB), cache is outdated!",
+  "is_baked": false,
+  "is_outdated": true
+ },
+ "frame": 109,
+ "hem": 18,
+ "source_untouched": true,
+ "verdict": "NEITHER"
+}

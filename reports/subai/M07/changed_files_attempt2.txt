@@ -1,0 +1,8 @@
+# M07 attempt 2 · 改动文件（三点式 git diff --name-only --diff-filter=ACMR <main 尖端>...HEAD）
+# 基线：生成证据时的 main 尖端 35b31b87（写报告期间 main 从 4d033e4a 前进到它；差集恒为这 5 个）
+# HEAD：d059a7fffad11ddce7ca01823cbd6ed11cf516dd
+build_addon.py a40e2ce04e4068263d02915d690b5de26194e2556d7db5a038ca57505c216c26
+run_pipeline.py 973c531a1f0a66d05d9974e2cd0676b532bebb7b4f7a4a82b5b32d8966b68de2
+tests/test_build_addon.py 7e473f234044a66348107c2e4f9fa0f240e1c502c290d9ef9073ade1d629876b
+tests_bpy/run_e2e.py f9134c46054a8dd73ce9b4d076be649fbba0563260941a55306d2aa6d92ad346
+tests_bpy/smoke.py f57b95da542af6f0fd9035dc3572ff7845a28d21dbe57eecc78618028cfe5f16

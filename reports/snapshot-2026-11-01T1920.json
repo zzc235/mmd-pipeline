@@ -1,0 +1,42 @@
+{
+  "reportVersion": 1,
+  "taskId": "2026-11-01-claude-code",
+  "title": "Claude Code 接入核查（官方插件链路阻塞 + 直调 Worker 可用）",
+  "capturedAt": "2026-11-01T19:20:00+08:00",
+  "executor": "furina (dsh desktop 0.2.1-rc.3)",
+  "claude": {
+    "cli": "C:\\Users\\zzc\\.local\\bin\\claude.exe",
+    "version": "2.1.251",
+    "installMethod": "native",
+    "autoUpdates": false,
+    "endpoint": "https://api.deepseek.com/anthropic",
+    "model": "deepseek-v4-flash",
+    "agentTeamsEnv": "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1",
+    "probe": { "cmd": "claude -p", "elapsedSec": 2.7, "exitCode": 0 },
+    "wrapperProbe": { "file": "E:\\dsh pr\\woker2\\tools\\claude-worker.ps1", "elapsedMs": 4587, "ok": true }
+  },
+  "dsh": {
+    "host": "0.2.1-rc.3",
+    "claudeCodePlugin": "@deepseek-ai/dsh-subagent-claude-code@0.2.1-rc.3",
+    "pluginLoaded": "include:subagent-claude-code (status=schema)",
+    "conflictingPlugin": "dsh-subagent-default-model@2.1.8",
+    "conflictingPluginLatest": "2.1.12",
+    "capabilityGuard": ["app.asar:1918889", "app.asar:1921744"],
+    "errorCode": "UNSUPPORTED_CAPABILITY"
+  },
+  "status": {
+    "officialPath": "blocked",
+    "directWrapper": "working",
+    "blockedReason": "applyDefaultModel injects agentOptions into every dispatch lacking one; claude-code provider declares NO_START_CAPABILITIES"
+  },
+  "fixOptions": [
+    { "id": "A", "action": "empty default-model models config", "cost": "lose free-model routing/failover", "risk": "low" },
+    { "id": "B", "action": "upgrade dsh-subagent-default-model to 2.1.12", "cost": "unknown fix, host restart", "risk": "medium" },
+    { "id": "C", "action": "upstream issue: skip injection when provider lacks capability", "cost": "wait", "risk": "none" }
+  ],
+  "deliverables": [
+    { "path": "E:\\dsh pr\\woker2\\tools\\claude-worker.ps1", "bytes": null, "sha256_16": null },
+    { "path": "E:\\dsh pr\\woker2\\reports\\2026-11-01_claude-code_任务报告.md", "bytes": null, "sha256_16": null }
+  ],
+  "openItems": ["official link still blocked", "no dsh-side events/usage for direct wrapper", "two independent team systems (dsh AgentTeams vs Claude Code teams)"]
+}

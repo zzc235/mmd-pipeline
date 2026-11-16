@@ -8,10 +8,10 @@
   },
   "tasks": {
     "M00": {
-      "status": "PARTIAL",
-      "reason": "调度层主要件已齐（覆盖闸门三点式、证据哈希 evidence/1 + hash_basis 枚举、coordination/lock.py fail-closed、status.py 视图）；但锁的 CLI 输出编码未钉，main 在默认环境下 6 个 error（test_lock），已判 RETURN_FIX",
-      "next": "A4：① lock.py main() 钉 UTF-8 输出 + 最坏环境（子进程 GBK）解码测试 + 护栏第三类判据 —— 阻塞 main 回绿 ② evidence/1 加可选 measurements ③ 再加可选 commit/scope ④ 护栏硬化：scanned/skipped 计数可见、git 不可用要判红而不是静默退回目录遍历、noqa 扫 lineno..end_lineno",
-      "updated": "2026-11-16T13:52+08:00"
+      "status": "PASS",
+      "reason": "调度层齐了：覆盖闸门三点式、证据哈希 evidence/1（hash_basis 枚举 + measurements + commit/scope + 不动点 + check 退出码 0/3/4/5）、coordination/lock.py fail-closed、status 视图待批项全量聚合、全仓 subprocess 解码护栏（scanned/skipped 可见）",
+      "next": "两件小尾巴随下一笔：tests[] 未知字段抛 WRONG_TESTS_FIELD（D-094）、不动点规则写进 evidence_hash_v1.md（D-096）；通道已合入 main（dc9127c）；lock.py 三处加固（真 PID/心跳/移走式回收）待交",
+      "updated": "2026-11-16T15:15+08:00"
     },
     "M01": {
       "status": "PASS",
@@ -22,8 +22,8 @@
     "M02": {
       "status": "PARTIAL",
       "reason": "判据七态（旗标只筛选、结论靠行为探针）、P12 负 / P13 正、重建三数、P9 拒绝路径、掩码结构性未接线都已实测；交付契约定为 B（烘焙），冷跳逐位等于顺序重算",
-      "next": "A1：attempt 7/8 记录已作废，等内容能进 measurements 后合并成一笔重出（预演 ba3f4364… 仅供参考）；S8 第三层挂掩码通道之后；重建交付场景待产线侧",
-      "updated": "2026-11-16T13:52+08:00"
+      "next": "A1：① 换轴重做 S2 —— 变量轴换成实测峰值最大的那根轴（±0.7 rad 限值结构保留），重出 prereg（写清选轴依据 + 三轴峰值 + 各限值敏感性）后重跑（Human 2026-11-16 17:04「换限轴」，D-20261116-170）；② 掩码通道落地后重建 delivery_v1 并交掩码读数与行为探针；通道 WIRED 前所有物理数带「按全互撞解算」限定（Human 已认账，D-20261116-172）；③ 通道落地后 S8 第三层 + 重取影响量",
+      "updated": "2026-11-16T17:10+08:00"
     },
     "M03": {
       "status": "PASS",
@@ -34,32 +34,32 @@
     "M04": {
       "status": "PARTIAL",
       "reason": "顺序求值改计划制（回退/冷跳在计划阶段拒）；胶囊口径改相对基线；网格口径 v2 在解析实体上自检通过（0.9933/0.9867/0.27 mm），真实网格 77.01% 不可计分、可计分区 0.9367/0.9067/−8.2 mm",
-      "next": "A2：等 measurements + commit/scope 落地后重出记录；网格数字必须四样同笔（可计分样本数/不可计分比例/合成实体三项读数/target_has_skirt_polys）；最终穿透数字等可重建的新交付物",
-      "updated": "2026-11-16T13:52+08:00"
+      "next": "A2：① 交付动画口径已定——按 D-067 烘焙 B，且烘的就是我们自己 fresh_solve 出来的那次姿态，不烘旧缓存（旧缓存与重解第 88 帧差 71.059 mm / 18364 对；D-20261116-173）；② C@W1/C@W2/D 一律 pose_source=fresh_solve，报 T2/T3 才许出结论；③ B 组作废记「通道效应未隔离」，改用 plan 的结构账目（D-134）",
+      "updated": "2026-11-16T17:10+08:00"
     },
     "M05": {
       "status": "PARTIAL",
-      "reason": "接口 chain/junctions+frames+nla_guard@1 已验收并入基线，exit 2 语义分工具写明、--gap 默认值收成单一声源；模块书其余条目（覆盖率体检等）未逐条复核",
-      "next": "A3 待 4号 开始写 chainplan 解析时给绝对路径 + 哈希清单；M08 前补逐条复核",
-      "updated": "2026-11-16T13:25+08:00"
+      "reason": "接口 chain/junctions+frames+nla_guard@1 已验收；丢段 PASS（§6 四条 4/4，本轮又加真跑）；NLA 姿态 1 绿 / 1 部分 / 2 没有；D4 第一处交接已补（像素步差 4.3 倍支持 E-16），第二处待补",
+      "next": "A3：第二处交接 pair[1,2] 同四样（gap=0 步差/常态/gap=22 步差/图）；NLA 三面（导出重导入、blend>gap、悬空坐姿视觉）未验；--chain-gap 默认保持 0（D-112）",
+      "updated": "2026-11-16T14:16+08:00"
     },
     "M06": {
       "status": "PARTIAL",
       "reason": "台账验收通过（action_library/manifest@2，27 个资产，known_restriction 25 / unknown 2 / 已知商用 0），离 120 个的目标差 93",
-      "next": "资产授权口径仍需 Owner；ACCAD 默认不引入",
-      "updated": "2026-11-16T13:25+08:00"
+      "next": "A3：ACCAD 授权已下（Human 2026-11-16 17:04，D-20261116-168/169）：**只进基础少量动作，覆盖六类——跑 / 跳 / 走 / 蹲 / 站 / 待机**；ACCAD 仅用于这六类的基础条目，其余动作由 Human 用自己的视频动捕补全。扩容只照这张清单建，不得自行扩大类别或数量级；清单建满并逐条验收前模块保持 PARTIAL",
+      "updated": "2026-11-16T17:10+08:00"
     },
     "M07": {
       "status": "PASS",
       "reason": "D/E/F 三段全通（validate/build、真隔离安装 + smoke 8/8、12 帧 E2E 两入口各 15 项 PASS、受控失败 exit 1）；两条产品路径缺陷已修并验过；stage.py 两处静默失败已派 A4 并在修",
-      "next": "两条 stage.py 缺陷（ensure_addons 假成功、preset 差分须走 preset.load）派 A4；全局安装去留待 Human",
-      "updated": "2026-11-16T13:28+08:00"
+      "next": "A4：① 全局安装保留 mmd_pipeline 1.3.0（Human 选 a，含退出码透传与冒烟断言两条修复），不 remove、不回退 1.2.0；② S2 换更大摆幅的场景重做（Human 2026-11-16 17:04「4 a，换场景」，D-20261116-171），不收紧限值、不标 BLOCKED；③ 两条 stage.py 缺陷（ensure_addons 假成功、preset 差分须走 preset.load）带正控/反控修",
+      "updated": "2026-11-16T17:10+08:00"
     },
     "M08": {
       "status": "NOT_STARTED",
       "reason": "验收口径已起草（coordination/m08_acceptance.md），硬前提未满足：交付场景用当前代码重建不出来（今天重建 312 刚体、无 $name_j；交付物 324 刚体含 11 个模板命名的静态占位体）；另有新发现的 known_limitation：mmd_rigid 掩码没有进解算器的通道，物理跑在「谁跟谁都碰」上",
-      "next": "先用当前代码产出一版交付场景并通过 cache_gate（且掩码通道已接、否则物理数字要在新解算上重取），再以它为验收对象",
-      "updated": "2026-11-16T13:52+08:00"
+      "next": "A1：在 main 上重建 delivery_v1.blend（sha 即身份）→ 自跑 --expect wired → S8 第三层 + S2 A/B/C；并回答「重建后的场景里有没有 地面_物理」（有则说明重建路径引入手工对象，当缺陷报）",
+      "updated": "2026-11-16T15:15+08:00"
     }
   }
 }

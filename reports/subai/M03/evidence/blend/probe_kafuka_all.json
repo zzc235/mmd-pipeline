@@ -1,0 +1,1315 @@
+{
+  "schema_version": "diagnose/1",
+  "taxonomy_version": "F1-F6+R0/1",
+  "tool": "mmdpipe.diagnose",
+  "tool_version": "0.1.0",
+  "generated_at": "2026-11-15T21:17:11+08:00",
+  "experiment_id": "diag-245b01ee55f3",
+  "input_path": "E:\\dsh pr\\woker2\\kafuka_all\\scene.blend",
+  "input_sha256": "3df0e033205955b7c0635ed8e60a6c4df059d9efe42752f88690bfb04ab98977",
+  "source_type": "blend",
+  "status": "partial",
+  "model": {
+    "name": "卡芙卡3.0_fixH",
+    "version": null,
+    "encoding": null,
+    "bones": 296,
+    "rigids": 145,
+    "joints": null
+  },
+  "frame_range": {
+    "start": null,
+    "end": null,
+    "fps": 24.0,
+    "evidence_mode": "stepped"
+  },
+  "cache": {
+    "is_baked": false,
+    "frame_start": 1,
+    "frame_end": 833
+  },
+  "primary": "F2",
+  "secondary": [],
+  "confidence": "confirmed",
+  "status_detail": {
+    "taxonomy_order": [
+      "F1",
+      "F2",
+      "F3",
+      "F4",
+      "F5",
+      "F6"
+    ],
+    "r0_label": "R0",
+    "out_of_taxonomy": "OUT_OF_TAXONOMY",
+    "confidence_values": [
+      "confirmed",
+      "suspected",
+      "insufficient"
+    ]
+  },
+  "diagnostics": [
+    {
+      "id": "F1",
+      "title": "没 build（约束链缺失）",
+      "matched": false,
+      "confidence": "insufficient",
+      "reason": "骨骼上已有 138 条 COPY_ROTATION/COPY_TRANSFORMS，排除 F1",
+      "score": 0.0,
+      "evidence": [
+        {
+          "key": "blender.mmd_root.is_built",
+          "value": true,
+          "unit": "bool",
+          "compare": "应为 True 才算已建链",
+          "frames": null,
+          "source": "blend"
+        },
+        {
+          "key": "blender.constraints",
+          "value": 138,
+          "unit": "constraint",
+          "compare": ">0 表示约束链存在",
+          "frames": null,
+          "source": "blend"
+        }
+      ],
+      "evidence_keys": [
+        "blender.mmd_root.is_built",
+        "blender.constraints"
+      ],
+      "missing_evidence": []
+    },
+    {
+      "id": "F2",
+      "title": "没烘焙（point_cache 未烘焙）",
+      "matched": true,
+      "confidence": "confirmed",
+      "reason": "point_cache.is_baked=False，缓存范围 f1–f833 未烘焙：拖时间轴不动、播放才动",
+      "score": 3.0,
+      "evidence": [
+        {
+          "key": "blender.point_cache.is_baked",
+          "value": false,
+          "unit": "bool",
+          "compare": "False = 未烘焙",
+          "frames": null,
+          "source": "blend"
+        },
+        {
+          "key": "blender.point_cache.frame_range",
+          "value": [
+            1,
+            833
+          ],
+          "unit": "frame",
+          "compare": null,
+          "frames": {
+            "start": 1,
+            "end": 833
+          },
+          "source": "blend"
+        }
+      ],
+      "evidence_keys": [
+        "blender.point_cache.is_baked",
+        "blender.point_cache.frame_range"
+      ],
+      "missing_evidence": []
+    },
+    {
+      "id": "F3",
+      "title": "硬约束冻结",
+      "matched": false,
+      "confidence": "insufficient",
+      "reason": "动态增量未呈现冻结特征，排除 F3",
+      "score": 0.0,
+      "evidence": [
+        {
+          "key": "blender.frozen_pairs",
+          "value": 0,
+          "unit": "bone",
+          "compare": "目标相对父链的旋转增量",
+          "frames": null,
+          "source": "blend"
+        }
+      ],
+      "evidence_keys": [
+        "blender.frozen_pairs"
+      ],
+      "missing_evidence": []
+    },
+    {
+      "id": "F4",
+      "title": "零弹簧 + 宽限位",
+      "matched": false,
+      "confidence": "insufficient",
+      "reason": "无零弹簧宽限位单元，排除 F4",
+      "score": 0.0,
+      "evidence": [
+        {
+          "key": "blender.unit_angles",
+          "value": 0,
+          "unit": "unit",
+          "compare": "实测最大摆角",
+          "frames": null,
+          "source": "blend"
+        },
+        {
+          "key": "blender.rigid_mass_max_kg",
+          "value": 10.0,
+          "unit": "kg",
+          "compare": "根部质量作为辅助证据（非判据）",
+          "frames": null,
+          "source": "blend"
+        }
+      ],
+      "evidence_keys": [
+        "blender.unit_angles",
+        "blender.rigid_mass_max_kg"
+      ],
+      "missing_evidence": []
+    },
+    {
+      "id": "F5",
+      "title": "骨无刚体（覆盖缺口）",
+      "matched": false,
+      "confidence": "insufficient",
+      "reason": "缺骨—刚体覆盖统计，无法判定 F5",
+      "score": 0.0,
+      "evidence": [],
+      "evidence_keys": [],
+      "missing_evidence": [
+        "coverage.gaps"
+      ]
+    },
+    {
+      "id": "F6",
+      "title": "改了不生效",
+      "matched": false,
+      "confidence": "insufficient",
+      "reason": "没有 A/B 测量文件：F6 固定返回证据不足（需要两次唯一变量对比）",
+      "score": 0.0,
+      "evidence": [],
+      "evidence_keys": [],
+      "missing_evidence": [
+        "ab.differing_fields",
+        "ab.fields_compared",
+        "ab.result_identical",
+        "ab.variable_changed"
+      ]
+    },
+    {
+      "id": "OUT_OF_TAXONOMY",
+      "title": "分类学外（Bullet 初始穿透 R0）",
+      "matched": false,
+      "confidence": "insufficient",
+      "reason": "没有初始穿透证据",
+      "score": 0.0,
+      "evidence": [],
+      "evidence_keys": [],
+      "missing_evidence": []
+    }
+  ],
+  "evidence": {
+    "blender": {
+      "mmd_root": {
+        "name": "卡芙卡3.0_fixH",
+        "is_built": true
+      },
+      "armature": {
+        "name": "卡芙卡3.0_fixH_arm",
+        "bones": 296
+      },
+      "constraints": {
+        "TRANSFORM": 29,
+        "COPY_TRANSFORMS": 138,
+        "IK": 4,
+        "LIMIT_ROTATION": 2,
+        "DAMPED_TRACK": 4
+      },
+      "constraint_bones": [
+        {
+          "bone": "HairA1_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack",
+          "subtarget": ""
+        },
+        {
+          "bone": "HairA2_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.001",
+          "subtarget": ""
+        },
+        {
+          "bone": "HairB1_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.026",
+          "subtarget": ""
+        },
+        {
+          "bone": "HairB2_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.027",
+          "subtarget": ""
+        },
+        {
+          "bone": "HairB3_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.028",
+          "subtarget": ""
+        },
+        {
+          "bone": "HairB4_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.029",
+          "subtarget": ""
+        },
+        {
+          "bone": "HairLB_1_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.030",
+          "subtarget": ""
+        },
+        {
+          "bone": "HairLB_2_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.031",
+          "subtarget": ""
+        },
+        {
+          "bone": "HairLB_3_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.032",
+          "subtarget": ""
+        },
+        {
+          "bone": "HairRB_1_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.033",
+          "subtarget": ""
+        },
+        {
+          "bone": "HairRB_2_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.034",
+          "subtarget": ""
+        },
+        {
+          "bone": "HairRB_3_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.035",
+          "subtarget": ""
+        },
+        {
+          "bone": "HairC1_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.002",
+          "subtarget": ""
+        },
+        {
+          "bone": "HairC2_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.003",
+          "subtarget": ""
+        },
+        {
+          "bone": "HairC3_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.004",
+          "subtarget": ""
+        },
+        {
+          "bone": "HairD1_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.005",
+          "subtarget": ""
+        },
+        {
+          "bone": "HairD2_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.006",
+          "subtarget": ""
+        },
+        {
+          "bone": "HairE1_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.007",
+          "subtarget": ""
+        },
+        {
+          "bone": "HairE2_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.008",
+          "subtarget": ""
+        },
+        {
+          "bone": "HairG1_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.009",
+          "subtarget": ""
+        },
+        {
+          "bone": "HairG2_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.010",
+          "subtarget": ""
+        },
+        {
+          "bone": "HairH1_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.011",
+          "subtarget": ""
+        },
+        {
+          "bone": "HairH2_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.012",
+          "subtarget": ""
+        },
+        {
+          "bone": "HairH3_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.013",
+          "subtarget": ""
+        },
+        {
+          "bone": "HairI1_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.014",
+          "subtarget": ""
+        },
+        {
+          "bone": "HairI2_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.015",
+          "subtarget": ""
+        },
+        {
+          "bone": "HairJ1_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.016",
+          "subtarget": ""
+        },
+        {
+          "bone": "HairJ2_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.017",
+          "subtarget": ""
+        },
+        {
+          "bone": "HairJ3_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.018",
+          "subtarget": ""
+        },
+        {
+          "bone": "HairK1_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.021",
+          "subtarget": ""
+        },
+        {
+          "bone": "HairW1_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.022",
+          "subtarget": ""
+        },
+        {
+          "bone": "HairJ5_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.019",
+          "subtarget": ""
+        },
+        {
+          "bone": "HairJ6_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.020",
+          "subtarget": ""
+        },
+        {
+          "bone": "HairVL_1_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.023",
+          "subtarget": ""
+        },
+        {
+          "bone": "HairVR_1_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.024",
+          "subtarget": ""
+        },
+        {
+          "bone": "HairZ_1_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.025",
+          "subtarget": ""
+        },
+        {
+          "bone": "yb__1",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.036",
+          "subtarget": ""
+        },
+        {
+          "bone": "yb__2",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.037",
+          "subtarget": ""
+        },
+        {
+          "bone": "yb__3",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.038",
+          "subtarget": ""
+        },
+        {
+          "bone": "yb__4",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.039",
+          "subtarget": ""
+        },
+        {
+          "bone": "yb__5",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.040",
+          "subtarget": ""
+        },
+        {
+          "bone": "yb__6",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.041",
+          "subtarget": ""
+        },
+        {
+          "bone": "zb_0_1",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.042",
+          "subtarget": ""
+        },
+        {
+          "bone": "zb_1_1",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.043",
+          "subtarget": ""
+        },
+        {
+          "bone": "zb_2_1",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.044",
+          "subtarget": ""
+        },
+        {
+          "bone": "zb_3_1",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.045",
+          "subtarget": ""
+        },
+        {
+          "bone": "zb_4_1",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.046",
+          "subtarget": ""
+        },
+        {
+          "bone": "zb_5_1",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.047",
+          "subtarget": ""
+        },
+        {
+          "bone": "_shadow_目.R",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "卡芙卡3.0_fixH_arm",
+          "subtarget": "_dummy_目.R"
+        },
+        {
+          "bone": "_shadow_目.L",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "卡芙卡3.0_fixH_arm",
+          "subtarget": "_dummy_目.L"
+        },
+        {
+          "bone": "zxk__1",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.050",
+          "subtarget": ""
+        },
+        {
+          "bone": "zxk__9",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.058",
+          "subtarget": ""
+        },
+        {
+          "bone": "zxk__17",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.066",
+          "subtarget": ""
+        },
+        {
+          "bone": "zxk__2",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.051",
+          "subtarget": ""
+        },
+        {
+          "bone": "zxk__10",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.059",
+          "subtarget": ""
+        },
+        {
+          "bone": "zxk__18",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.067",
+          "subtarget": ""
+        },
+        {
+          "bone": "zxk__3",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.052",
+          "subtarget": ""
+        },
+        {
+          "bone": "zxk__11",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.060",
+          "subtarget": ""
+        },
+        {
+          "bone": "zxk__19",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.068",
+          "subtarget": ""
+        },
+        {
+          "bone": "zxk__4",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.053",
+          "subtarget": ""
+        },
+        {
+          "bone": "zxk__12",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.061",
+          "subtarget": ""
+        },
+        {
+          "bone": "zxk__20",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.069",
+          "subtarget": ""
+        },
+        {
+          "bone": "zxk__5",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.054",
+          "subtarget": ""
+        },
+        {
+          "bone": "zxk__13",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.062",
+          "subtarget": ""
+        },
+        {
+          "bone": "zxk__21",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.070",
+          "subtarget": ""
+        },
+        {
+          "bone": "zxk__6",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.055",
+          "subtarget": ""
+        },
+        {
+          "bone": "zxk__14",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.063",
+          "subtarget": ""
+        },
+        {
+          "bone": "zxk__22",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.071",
+          "subtarget": ""
+        },
+        {
+          "bone": "zxk__7",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.056",
+          "subtarget": ""
+        },
+        {
+          "bone": "zxk__15",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.064",
+          "subtarget": ""
+        },
+        {
+          "bone": "zxk__23",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.072",
+          "subtarget": ""
+        },
+        {
+          "bone": "zxk__8",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.057",
+          "subtarget": ""
+        },
+        {
+          "bone": "zxk__16",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.065",
+          "subtarget": ""
+        },
+        {
+          "bone": "zxk__24",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.073",
+          "subtarget": ""
+        },
+        {
+          "bone": "_shadow_手捩1.R",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "卡芙卡3.0_fixH_arm",
+          "subtarget": "_dummy_手捩1.R"
+        },
+        {
+          "bone": "_shadow_手捩2.R",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "卡芙卡3.0_fixH_arm",
+          "subtarget": "_dummy_手捩2.R"
+        },
+        {
+          "bone": "_shadow_手捩3.R",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "卡芙卡3.0_fixH_arm",
+          "subtarget": "_dummy_手捩3.R"
+        },
+        {
+          "bone": "_shadow_腕捩1.R",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "卡芙卡3.0_fixH_arm",
+          "subtarget": "_dummy_腕捩1.R"
+        },
+        {
+          "bone": "_shadow_腕捩2.R",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "卡芙卡3.0_fixH_arm",
+          "subtarget": "_dummy_腕捩2.R"
+        },
+        {
+          "bone": "_shadow_腕捩3.R",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "卡芙卡3.0_fixH_arm",
+          "subtarget": "_dummy_腕捩3.R"
+        },
+        {
+          "bone": "xk_0_0",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.074",
+          "subtarget": ""
+        },
+        {
+          "bone": "xk_1_0",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.082",
+          "subtarget": ""
+        },
+        {
+          "bone": "xk_2_0",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.090",
+          "subtarget": ""
+        },
+        {
+          "bone": "xk_0_1",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.075",
+          "subtarget": ""
+        },
+        {
+          "bone": "xk_1_1",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.083",
+          "subtarget": ""
+        },
+        {
+          "bone": "xk_2_1",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.091",
+          "subtarget": ""
+        },
+        {
+          "bone": "xk_0_2",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.076",
+          "subtarget": ""
+        },
+        {
+          "bone": "xk_1_2",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.084",
+          "subtarget": ""
+        },
+        {
+          "bone": "xk_2_2",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.092",
+          "subtarget": ""
+        },
+        {
+          "bone": "xk_0_3",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.077",
+          "subtarget": ""
+        },
+        {
+          "bone": "xk_1_3",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.085",
+          "subtarget": ""
+        },
+        {
+          "bone": "xk_2_3",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.093",
+          "subtarget": ""
+        },
+        {
+          "bone": "xk_0_4",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.078",
+          "subtarget": ""
+        },
+        {
+          "bone": "xk_1_4",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.086",
+          "subtarget": ""
+        },
+        {
+          "bone": "xk_2_4",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.094",
+          "subtarget": ""
+        },
+        {
+          "bone": "xk_0_5",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.079",
+          "subtarget": ""
+        },
+        {
+          "bone": "xk_1_5",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.087",
+          "subtarget": ""
+        },
+        {
+          "bone": "xk_2_5",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.095",
+          "subtarget": ""
+        },
+        {
+          "bone": "xk_0_6",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.080",
+          "subtarget": ""
+        },
+        {
+          "bone": "xk_1_6",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.088",
+          "subtarget": ""
+        },
+        {
+          "bone": "xk_2_6",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.096",
+          "subtarget": ""
+        },
+        {
+          "bone": "xk_0_7",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.081",
+          "subtarget": ""
+        },
+        {
+          "bone": "xk_1_7",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.089",
+          "subtarget": ""
+        },
+        {
+          "bone": "xk_2_7",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.097",
+          "subtarget": ""
+        },
+        {
+          "bone": "_shadow_手捩1.L",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "卡芙卡3.0_fixH_arm",
+          "subtarget": "_dummy_手捩1.L"
+        },
+        {
+          "bone": "_shadow_手捩2.L",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "卡芙卡3.0_fixH_arm",
+          "subtarget": "_dummy_手捩2.L"
+        },
+        {
+          "bone": "_shadow_手捩3.L",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "卡芙卡3.0_fixH_arm",
+          "subtarget": "_dummy_手捩3.L"
+        },
+        {
+          "bone": "_shadow_腕捩1.L",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "卡芙卡3.0_fixH_arm",
+          "subtarget": "_dummy_腕捩1.L"
+        },
+        {
+          "bone": "_shadow_腕捩2.L",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "卡芙卡3.0_fixH_arm",
+          "subtarget": "_dummy_腕捩2.L"
+        },
+        {
+          "bone": "_shadow_腕捩3.L",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "卡芙卡3.0_fixH_arm",
+          "subtarget": "_dummy_腕捩3.L"
+        },
+        {
+          "bone": "胸上2.L",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.048",
+          "subtarget": ""
+        },
+        {
+          "bone": "胸上2.R",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.049",
+          "subtarget": ""
+        },
+        {
+          "bone": "_shadow_肩C.R",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "卡芙卡3.0_fixH_arm",
+          "subtarget": "_dummy_肩C.R"
+        },
+        {
+          "bone": "_shadow_肩C.L",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "卡芙卡3.0_fixH_arm",
+          "subtarget": "_dummy_肩C.L"
+        },
+        {
+          "bone": "xj_0_1",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.107",
+          "subtarget": ""
+        },
+        {
+          "bone": "xj_1_1",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.108",
+          "subtarget": ""
+        },
+        {
+          "bone": "xj_2_1",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.109",
+          "subtarget": ""
+        },
+        {
+          "bone": "xj_3_1",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.110",
+          "subtarget": ""
+        },
+        {
+          "bone": "xj_4_1",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.111",
+          "subtarget": ""
+        },
+        {
+          "bone": "xj_5_1",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.112",
+          "subtarget": ""
+        },
+        {
+          "bone": "_shadow_足首D.R",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "卡芙卡3.0_fixH_arm",
+          "subtarget": "_dummy_足首D.R"
+        },
+        {
+          "bone": "_shadow_ひざD.R",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "卡芙卡3.0_fixH_arm",
+          "subtarget": "_dummy_ひざD.R"
+        },
+        {
+          "bone": "PendantB1_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.106",
+          "subtarget": ""
+        },
+        {
+          "bone": "BeltC1_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.098",
+          "subtarget": ""
+        },
+        {
+          "bone": "BeltC2_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.099",
+          "subtarget": ""
+        },
+        {
+          "bone": "BeltD1_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.100",
+          "subtarget": ""
+        },
+        {
+          "bone": "BeltD2_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.101",
+          "subtarget": ""
+        },
+        {
+          "bone": "BeltE1_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.102",
+          "subtarget": ""
+        },
+        {
+          "bone": "BeltE2_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.103",
+          "subtarget": ""
+        },
+        {
+          "bone": "BeltF1_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.104",
+          "subtarget": ""
+        },
+        {
+          "bone": "BeltF2_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.105",
+          "subtarget": ""
+        },
+        {
+          "bone": "_shadow_PendantB1_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "卡芙卡3.0_fixH_arm",
+          "subtarget": "_dummy_PendantB1_JNT"
+        },
+        {
+          "bone": "_shadow_足D.R",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "卡芙卡3.0_fixH_arm",
+          "subtarget": "_dummy_足D.R"
+        },
+        {
+          "bone": "_shadow_足首D.L",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "卡芙卡3.0_fixH_arm",
+          "subtarget": "_dummy_足首D.L"
+        },
+        {
+          "bone": "_shadow_ひざD.L",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "卡芙卡3.0_fixH_arm",
+          "subtarget": "_dummy_ひざD.L"
+        },
+        {
+          "bone": "_shadow_足D.L",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "卡芙卡3.0_fixH_arm",
+          "subtarget": "_dummy_足D.L"
+        },
+        {
+          "bone": "_shadow_腰キャンセル.R",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "卡芙卡3.0_fixH_arm",
+          "subtarget": "_dummy_腰キャンセル.R"
+        },
+        {
+          "bone": "_shadow_腰キャンセル.L",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "卡芙卡3.0_fixH_arm",
+          "subtarget": "_dummy_腰キャンセル.L"
+        }
+      ],
+      "rigids": 145,
+      "collision_collections": {
+        "rigids": 145,
+        "distinct_collection_sets": 1,
+        "top_sets": [
+          {
+            "collections": [
+              0
+            ],
+            "count": 145
+          }
+        ],
+        "rigids_with_no_collection": 0,
+        "note": "全部 rigids 只有 (0,) 时，改 MMD 掩码不会改变 Blender 层碰撞"
+      },
+      "point_cache": {
+        "is_baked": false,
+        "frame_start": 1,
+        "frame_end": 833
+      },
+      "behaviour": {
+        "fps": 24.0,
+        "frame_start": 1,
+        "frame_end": 24,
+        "substeps_per_frame": 10,
+        "solver_iterations": 20,
+        "point_cache_info": ""
+      },
+      "rigid_mass_max_kg": 10.0,
+      "penetration": null,
+      "dynamic": {
+        "frames_sampled": 0,
+        "evidence_mode": "stepped",
+        "frozen_pairs": [],
+        "unit_angles": [],
+        "note": "frames<=1，未做动态采样"
+      },
+      "frozen_pairs": [],
+      "unit_angles": [],
+      "watched_bones": 138
+    },
+    "cache": {
+      "is_baked": false,
+      "frame_start": 1,
+      "frame_end": 833
+    },
+    "model": {
+      "name": "卡芙卡3.0_fixH",
+      "bones": 296,
+      "rigids": 145,
+      "joints": null
+    },
+    "source": {
+      "type": "blend",
+      "path": "E:\\dsh pr\\woker2\\kafuka_all\\scene.blend",
+      "sha256_before": "3df0e033205955b7c0635ed8e60a6c4df059d9efe42752f88690bfb04ab98977",
+      "sha256_after": "3df0e033205955b7c0635ed8e60a6c4df059d9efe42752f88690bfb04ab98977"
+    }
+  },
+  "missing_evidence": [
+    "ab.differing_fields",
+    "ab.fields_compared",
+    "ab.result_identical",
+    "ab.variable_changed",
+    "coverage.gaps"
+  ],
+  "warnings": [
+    "frames<=1，未做动态采样",
+    "阈值 f3_parent_motion_deg=5.000 未标定，相关判据最高只能给 suspected",
+    "阈值 f4_angle_deg=60.000 未标定，相关判据最高只能给 suspected"
+  ],
+  "config": {
+    "schema_version": "diagnose/1",
+    "thresholds": {
+      "spring_zero_eps": {
+        "value": 1e-09,
+        "unit": "rad",
+        "source": "pmx.py Joint.springs_zero 同一口径"
+      },
+      "f3_frozen_deg": {
+        "value": 0.5,
+        "unit": "deg",
+        "source": "项目书 S3 证据① baked_increment2 = 0.00000°"
+      },
+      "f3_parent_motion_deg": {
+        "value": 5.0,
+        "unit": "deg",
+        "source": "未标定（保守下限），待 M04 用门禁数据复核",
+        "calibrated": false
+      },
+      "f4_wide_limit_rad": {
+        "value": 1.2,
+        "unit": "rad",
+        "source": "项目书 S2 根部限位 ±1.5708 rad（±90°）"
+      },
+      "f4_angle_deg": {
+        "value": 60.0,
+        "unit": "deg",
+        "source": "未标定（暂按『接近水平』的保守下限）",
+        "calibrated": false
+      },
+      "f5_gap_ratio": {
+        "value": 0.5,
+        "unit": "row",
+        "source": "S4 第 11 行 11/11 根骨无刚体（实测 ratio=1.0）"
+      },
+      "f6_numeric_eps": {
+        "value": 1e-09,
+        "unit": "raw",
+        "source": "S8 A/B 逐位相同（两次结果完全一样）"
+      }
+    },
+    "f4_calibrated": false,
+    "f3_calibrated": false
+  },
+  "judgment_fingerprint": "f4d9607e80a39057cc1c2578b03092142263c5cbf314bee3f5a1033f25974094"
+}

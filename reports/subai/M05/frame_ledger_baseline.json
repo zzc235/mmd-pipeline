@@ -1,0 +1,127 @@
+{
+  "kind": "frame_ledger",
+  "module": "M05",
+  "gap": 2,
+  "inputs": [
+    "E:\\dsh pr\\woker2\\out\\subai\\M05\\fixtures\\seg1_91.vmd",
+    "E:\\dsh pr\\woker2\\out\\subai\\M05\\fixtures\\seg2_91.vmd",
+    "E:\\dsh pr\\woker2\\out\\subai\\M05\\fixtures\\seg3_151.vmd"
+  ],
+  "segments": [
+    {
+      "segment": 0,
+      "path": "E:\\dsh pr\\woker2\\out\\subai\\M05\\fixtures\\seg1_91.vmd",
+      "sha256": "fd2d8b72d3b80ad77ddc24d8946bb317b774f962addd2e592437e63dc7456ce7",
+      "source_range": [
+        0,
+        90
+      ],
+      "source_count": 91,
+      "bone_records": 4732,
+      "morph_records": 0,
+      "camera_records": 0,
+      "light_records": 0,
+      "shadow_records": 0,
+      "ik_records": 0,
+      "offset": 0,
+      "gap_after": 2,
+      "expected_range": [
+        0,
+        90
+      ],
+      "expected_count": 91,
+      "actual_range": [
+        0,
+        90
+      ],
+      "actual_count": 91
+    },
+    {
+      "segment": 1,
+      "path": "E:\\dsh pr\\woker2\\out\\subai\\M05\\fixtures\\seg2_91.vmd",
+      "sha256": "b4d9fbd09b6910cb3c2b5cbfc07a05961887012055e82022e9bd501dc843a160",
+      "source_range": [
+        0,
+        90
+      ],
+      "source_count": 91,
+      "bone_records": 5112,
+      "morph_records": 0,
+      "camera_records": 0,
+      "light_records": 0,
+      "shadow_records": 0,
+      "ik_records": 0,
+      "offset": 93,
+      "gap_after": 2,
+      "expected_range": [
+        93,
+        183
+      ],
+      "expected_count": 91,
+      "actual_range": [
+        93,
+        183
+      ],
+      "actual_count": 91
+    },
+    {
+      "segment": 2,
+      "path": "E:\\dsh pr\\woker2\\out\\subai\\M05\\fixtures\\seg3_151.vmd",
+      "sha256": "6c657cdf68bcb0eca1729a6fbef3b6c680902afe7db6462cfb9988aa5c473579",
+      "source_range": [
+        0,
+        150
+      ],
+      "source_count": 151,
+      "bone_records": 8352,
+      "morph_records": 0,
+      "camera_records": 0,
+      "light_records": 0,
+      "shadow_records": 0,
+      "ik_records": 0,
+      "offset": 186,
+      "gap_after": 2,
+      "expected_range": [
+        186,
+        336
+      ],
+      "expected_count": 151,
+      "actual_range": [
+        186,
+        243
+      ],
+      "actual_count": 58
+    }
+  ],
+  "expected_total_frames": 337,
+  "expected_bone_records": 18196,
+  "expected_morph_records": 0,
+  "warnings": [],
+  "chain": {
+    "path": "out/subai/M05/chain_baseline_overlap.vmd",
+    "sha256": "7f4196b6c042117f671716292cc92b2eafd0ceba5272686907086bc820012fe1",
+    "actual_range": [
+      0,
+      243
+    ],
+    "actual_count": 244,
+    "bone_records": 18196,
+    "morph_records": 0,
+    "tracks_valid": true
+  },
+  "truncation": null,
+  "record_conservation": {
+    "bone": [
+      18196,
+      18196
+    ],
+    "morph": [
+      0,
+      0
+    ],
+    "bone_ok": true,
+    "morph_ok": true
+  },
+  "gap_frames": 93,
+  "unexplained_gap_frames": 93
+}

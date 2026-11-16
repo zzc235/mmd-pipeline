@@ -1,0 +1,54 @@
+{
+  "reportVersion": 1,
+  "taskId": "2026-11-01-openclaw-shutdown",
+  "title": "OpenClaw 备份（memory/workspace/agents）并停用 gateway + 禁用自启",
+  "capturedAt": "2026-11-01T19:32:00+08:00",
+  "executor": "furina (dsh desktop 0.2.1-rc.3)",
+  "openclaw": {
+    "cli": "C:\\Users\\zzc\\AppData\\Roaming\\npm\\openclaw.ps1",
+    "home": "C:\\Users\\zzc\\.openclaw",
+    "gatewayPidBefore": 10828,
+    "gatewayCmd": "E:\\nodejs\\node.exe ...\\openclaw\\dist\\index.js gateway --port 18789",
+    "port": 18789,
+    "bind": "lan",
+    "model": "deepseek/deepseek-chat",
+    "fallback": "deepseek/deepseek-v4-flash",
+    "weixinPlugin": "enabled"
+  },
+  "cronJobsBeforeStop": [
+    { "id": "4104c734", "name": "晚间复习提醒", "schedule": "30 21 * * *", "status": "error (10x)" },
+    { "id": "77911031", "name": "晚安问候", "schedule": "0 23 * * *", "status": "error (10x)" },
+    { "id": "d739e61b", "name": "早安问候", "schedule": "0 8 * * *", "status": "error (12x)" },
+    { "id": "8d6b2264", "name": "午饭提醒", "schedule": "0 12 * * *", "status": "error (10x)" },
+    { "id": "113b6fd1", "name": "傍晚问候", "schedule": "30 18 * * *", "status": "error (11x)" }
+  ],
+  "tokenWasteReason": "each daily cron wakes an isolated agent session (model call happens first) then fails delivery to WeChat; failure does not refund tokens",
+  "heartbeat": "HEARTBEAT.md is comments-only: not the cause",
+  "backup": {
+    "root": "C:\\Users\\zzc\\Desktop\\ai用\\dsh use\\open",
+    "memory": { "files": 25, "source": "workspace memory files + workspace\\memory -> daily" },
+    "workspace": { "files": 7499, "mb": 177.5 },
+    "agents": { "files": 1322, "mb": 188.7, "source": "~/.openclaw/agents/main" },
+    "totalFiles": 8846,
+    "totalMB": 366.2,
+    "manifest": "open\\MANIFEST.md"
+  },
+  "actions": [
+    "Stop-ScheduledTask 'OpenClaw Gateway'",
+    "Stop-Process -Id 10828 -Force",
+    "Disable-ScheduledTask 'OpenClaw Gateway'"
+  ],
+  "verification": {
+    "taskState": "Disabled",
+    "port18789Listening": false,
+    "openclawNodeProcesses": 0
+  },
+  "untouched": [
+    "C:\\Users\\zzc\\.openclaw (not deleted, not moved; ~590 MB)",
+    "openclaw.json / .env / gateway.vbs / gateway.cmd",
+    "workspace .git",
+    "dsh side config (no changes this round)"
+  ],
+  "sideEffects": ["WeChat<->dsh bridge offline", "5 greeting crons stopped", "phone app cannot connect to gateway"],
+  "restore": "Enable-ScheduledTask + Start-ScheduledTask 'OpenClaw Gateway' (fix the 5 crons first)"
+}

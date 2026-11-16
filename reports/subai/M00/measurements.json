@@ -1,0 +1,94 @@
+{
+ "task_id": "M00",
+ "attempt": 1,
+ "status": "PASS",
+ "commit": "305d67f",
+ "base": "78d9c23",
+ "tests": {
+  "test_coordination": {
+   "ran": 27,
+   "ok": 27,
+   "failed": 0,
+   "exit": 0
+  },
+  "discover_s_tests": {
+   "ran": 132,
+   "ok": 132,
+   "failed": 0,
+   "skipped": 15,
+   "exit": 0
+  }
+ },
+ "board": {
+  "tables": 8,
+  "seeded_tasks": 4,
+  "dispatch_state": "DISPATCH",
+  "backpressure": false
+ },
+ "evidence_hash": "evidence/1:383635f2f2da26a376dc4f5459497feacffba90a68fe59b0d9ac2769ff086f6b",
+ "interface": "coordination/m00@1",
+ "files": [
+  {
+   "path": "coordination/__init__.py",
+   "sha256": "bedb1f8081d4b691c6509325141ce6b98f4e9389393a77bb17a19ca98f1a4ec7",
+   "tracked": true
+  },
+  {
+   "path": "coordination/board.py",
+   "sha256": "cfc8f14b1ead71cc2e4c555672454c23b943b7252fddc92c7f390942500a865d",
+   "tracked": true
+  },
+  {
+   "path": "coordination/scheduler.py",
+   "sha256": "aaccf40b26fe6d5547045912736702af80b8f37e4d189af0c525ec480699a091",
+   "tracked": true
+  },
+  {
+   "path": "coordination/dispatcher.py",
+   "sha256": "501836eb518ef9558107cdd52a330db44e3fb2eaad2decd583501952c3002031",
+   "tracked": true
+  },
+  {
+   "path": "coordination/evidence.py",
+   "sha256": "ed0840930ba7cccffec72db02547c8b071367d487a466d18348e5066c2909ebb",
+   "tracked": true
+  },
+  {
+   "path": "coordination/board.db",
+   "sha256": "8bf87bbe2d898e2c2b9806518eb50abf176be662b2fe045e7de0562da9cda23d",
+   "tracked": true
+  },
+  {
+   "path": "coordination/dispatch.json",
+   "sha256": "83b2eb163a10747685b8cd6917b1fd9a2a0ea16ca5422c43b7aff4198fc61208",
+   "tracked": true
+  },
+  {
+   "path": "tests/test_coordination.py",
+   "sha256": "b462f579143c3c9d7cf8aed34c099d5c3a5defa68ebfadd34cb9aab355ac5a09",
+   "tracked": true
+  }
+ ],
+ "artifacts": [
+  {
+   "path": "reports/subai/M00/result.md",
+   "sha256": "d73404d415ac417f006f79bc1e6d94da955129c76d70f1fad1e7e5a483fa490b",
+   "version": "1"
+  },
+  {
+   "path": "reports/subai/M00/changed_files.txt",
+   "sha256": "7e411b0d232effa590af23c0bbdfc8f3e4d36ab21d5077ce33d6851f4b541dfe",
+   "version": "1"
+  },
+  {
+   "path": "reports/subai/M00/reproduce.md",
+   "sha256": "c9d8a8698fcc669dedf98a12d749f12f6f7f81d4252b21e94f84c5405e22e8a9",
+   "version": "1"
+  },
+  {
+   "path": "reports/subai/M00/handoff.md",
+   "sha256": "7eb4287b29198dfaef6815e1e4b77fb5a8536e59bfe28be1681b576b01eba33f",
+   "version": "1"
+  }
+ ]
+}

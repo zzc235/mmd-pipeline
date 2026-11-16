@@ -1,0 +1,2 @@
+# M07 attempt 2 · 删除文件：本轮没有删除任何文件。
+# 基线同 changed_files_attempt2.txt；`git diff --name-only --diff-filter=D <main 尖端>...HEAD` 输出为空。

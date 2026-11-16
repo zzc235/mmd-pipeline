@@ -13,6 +13,7 @@ import bpy
 from mathutils import Vector
 
 from . import preset as preset_mod
+from . import mask as mask_mod
 from .report import BLOCK, INFO, WARN, StageResult
 
 # HSR 插件暴露的场景级光照/着色滑杆（卡通渲染路线，替代通用三点光）
@@ -242,6 +243,436 @@ def rigid_bodies():
     return [o for o in bpy.data.objects if getattr(o, "mmd_type", None) == "RIGID_BODY"]
 
 
+def collision_scope():
+    """通道的**作用域**与**作用域外的例外**（D0 2026-11-16 15:02，`D-20261116-133`）。
+
+    作用域 = `mmd_type == "RIGID_BODY"`（= U323）= 通道把这些 PMX 刚体的掩码落到
+    碰撞位与约束上。**不按 `rigid_body is not None` 扩**，理由（D0 定，原话三条）：
+    ① 像 `地面_物理` 这种旧场景里手工加的对象不是 PMX 骨名，通道语义是「把 PMX 掩码落到
+    PMX 刚体上」；② 它在 PMX 里没有对应刚体，「PMX 说它不该碰」这条判据对它本就不适用；
+    ③ 纳进来是接口变更，换来的只是 40418 里的 62 对（0.15%）。
+
+    但**跳过必须写在纸上**：例外对象逐条返回，报告里单列一行（名字 / 组 / 掩码 /
+    「在"共享位即碰"语义下仍与多少个刚体互撞」），不进 `skipped[]`（它不是"没做成"，
+    是"不在作用域"）。
+    """
+    inside, outside = [], []
+    for obj in bpy.data.objects:
+        if getattr(obj, "rigid_body", None) is None:
+            continue
+        if getattr(obj, "mmd_rigid", None) is None:
+            continue
+        if getattr(obj, "mmd_type", None) == "RIGID_BODY":
+            inside.append(obj)
+        else:
+            outside.append(obj)
+    return inside, outside
+
+
+def exception_rows(bodies, exceptions) -> list:
+    """作用域外的刚体：仍会与多少作用域内刚体互撞（逻辑在 `mmdpipe/mask.py`，可单测）。"""
+    return mask_mod.exception_rows(bodies, exceptions)
+
+
+# ---------------------------------------------------------------- 碰撞掩码（PMX collision_group_mask）
+#
+# 逻辑在 `mmdpipe/mask.py`（纯 Python，不 import bpy，可单测）。这里只做两件 bpy 侧的事：
+# 把场景喂给它、把结果折进 metrics 与 S8 判据。动机与实测数字见 mask.py 的模块说明：
+# 掩码 145/145 个都写了、声明 7367 对不该碰（占 70.6%）、其中 1462 对是单向的（不能写成
+# 集合位），而 mmd_tools 只给"距离够近"的对建 disable_collisions 约束。语义与证据链见
+# `mmdpipe/mask.py` 的模块说明。
+NCC_TYPE = "NON_COLLISION_CONSTRAINT"
+
+# `stage_build` 折进 metrics 的字段清单（**只此一处**：指标清单和判据清单分开写就会漂，
+# 判「通道够不够」要看的数与报出去的数必须是同一批）。
+MASK_WIRED_KEYS = (
+    "bodies", "collections_set", "collections_patterns",
+    "constraints_needed", "constraints_already_blocked",
+    "constraints_to_add", "constraints_added",
+    "constraints_released", "constraints_identity",
+    "constraints_capped", "guardrail_hit", "skipped_count",
+    "constraint_creation", "readback_mismatch",
+    "unexpressible", "asymmetric_pairs",
+    "verdict", "verdict_reasons")
+
+
+
+def mask_report(rigids=None, objects=None) -> dict:
+    """逐刚体回读 + 汇总（bpy 侧薄封装，逻辑在 `mmdpipe/mask.py`）。"""
+    inside, outside = collision_scope()
+    bodies = inside if rigids is None else rigids
+    pool = bpy.data.objects if objects is None else objects
+    result = mask_mod.mask_report(bodies, pool)
+    result["scope_bodies"] = len(inside)
+    result["exception_bodies"] = exception_rows(inside, outside)
+    return result
+
+
+def _ncc_template():
+    """找一条**可以复制**的 ncc 模板：带 `rigid_body_constraint` 且 `disable_collisions`。
+
+    优先 `mmd_type == NON_COLLISION_CONSTRAINT`（`mmd_tools` 造的 ncc 就是这个形状），
+    退而求其次任何 `disable_collisions=True` 的约束对象。都没有就返回 `None`，
+    调用方退回逐条 `bpy.ops`（并把这个事实写进结果，不做静默选择）。
+    """
+    fallback = None
+    for obj in bpy.data.objects:
+        con = getattr(obj, "rigid_body_constraint", None)
+        if con is None or not getattr(con, "disable_collisions", False):
+            continue
+        if getattr(obj, "mmd_type", None) == mask_mod.NCC_MMD_TYPE:
+            return obj
+        if fallback is None:
+            fallback = obj
+    return fallback
+
+
+def _new_constraint_object(name: str, template=None):
+    """造一个只承担 DISABLE_COLLISIONS 的空物体（mmd_tools 的 ncc 同形状）。
+
+    `template` 给了就**复制**它，不走 `bpy.ops.rigidbody.constraint_add()`：那个算子每次
+    调用都触发整场景 depsgraph 求值（实测 60 ms/条 @145 刚体；带依赖环的 323 刚体场景
+    2号 测到 0.39–0.48 s/条）。全尺寸交付场景要补 8 298 条 ⇒ 旧路 8 分钟到 1 小时，
+    复制路是毫秒级。**复制这条路是"测出来的"不是"想出来的"**：
+    `tests_bpy/mask_channel_small_probe.py --factory template_copy --factory ops` 在小场景
+    上跑两遍，判据是两条路的后态相同（`blocked_and_should_collide == 0`、
+    `nocollide_pairs_still_colliding == 0`、`constraints_added` 相同）而不是"没报错"。
+    """
+    scene = bpy.context.scene
+    if template is not None:
+        obj = template.copy()
+        obj.name = name
+        scene.collection.objects.link(obj)
+        obj.mmd_type = mask_mod.NCC_MMD_TYPE
+        obj.hide_render = True
+        con = obj.rigid_body_constraint
+        if con is None:
+            raise RuntimeError("复制出来的对象没有 rigid_body_constraint（模板形状变了）")
+        # 复制会带走模板的 object1/object2 指针，必须显式改成这一对
+        con.object1 = None
+        con.object2 = None
+        con.enabled = True
+        con.disable_collisions = True
+        return obj
+    obj = bpy.data.objects.new(name, None)
+    scene.collection.objects.link(obj)
+    obj.mmd_type = mask_mod.NCC_MMD_TYPE
+    obj.hide_render = True
+    # 只在需要时切换活动对象：`select_all(action="DESELECT")` 每次都是全场景操作，
+    # 在 300+ 刚体、12 个依赖环的场景里逐条调用的代价极高（实测见 mask.py 的注释）。
+    view_layer = bpy.context.view_layer
+    previous = view_layer.objects.active
+    if previous is not None and previous.name != obj.name:
+        previous.select_set(False)
+    obj.select_set(True)
+    view_layer.objects.active = obj
+    try:
+        bpy.ops.rigidbody.constraint_add(type="GENERIC")
+    finally:
+        obj.select_set(False)
+        if previous is not None:
+            try:
+                view_layer.objects.active = previous
+            except (ReferenceError, RuntimeError):
+                pass
+    con = obj.rigid_body_constraint
+    con.disable_collisions = True
+    return obj
+
+
+def apply_collision_masks(scene=None, *, collection_index_of=None,
+                          max_constraints=None, constraint_factory=None,
+                          constraint_creation=None) -> dict:
+    """把 PMX 的组号与掩码接进 Blender（`coordination/mask_channel_spec.md` §1 的接口）。
+
+    做两件事，缺一不可：
+
+    1. **位**：`collision_collections = mask | (1 << own_group)`。加自己组那一位的理由与
+       可证性质见 `mmdpipe/mask.py` 的「位映射」一节（结论：PMX 该碰的每一对必然共享
+       某一位，「表达不了」= 0）。
+    2. **约束**：位是「共享即碰」的对称语义，于是会出现**假碰**（两个都「与第 5 组碰」
+       但彼此不该碰）。每一对这样的刚体补一条 `DISABLE_COLLISIONS` 约束，把它们分开。
+       **不许拿「交集近似」代替约束**——那会把该碰的成对静默停碰。
+
+    只读源数据（`mmd_rigid.collision_group/mask` 一个字节都不改），可重复调用：
+    第二次进来时已存在的约束会被认出，`constraints_added` 归 0。
+
+    `collection_index_of` 保留给将来换编码用；当前实现不用它（位号就是组号）。
+
+    `constraint_factory(name) -> 对象` 是注入点：给了就完全由它造约束（单测/替身用），
+    否则走「复制已有 ncc」，复制失败才退回逐条 `bpy.ops`。
+
+    `constraint_creation`：`None`（默认，自动选）/ `"template_copy"` / `"ops"`。
+    显式指定 `"template_copy"` 而场景里没有可复制的模板时**抛异常**，不静默降级——
+    探针要对比两条路时，最怕的就是"以为走的是复制路、其实走了 ops"。
+    """
+    bodies, outside = collision_scope()
+    if scene is not None:
+        bodies = [o for o in bodies if o.name in {x.name for x in scene.objects}]
+    already = mask_mod.disabled_pairs(bpy.data.objects)
+    plan = mask_mod.plans(bodies, blocked=already)
+    needed_pairs = [mask_mod.pair_key(a, b) for a, b in plan["constraints_needed"]]
+    already_needed = sum(1 for pair in needed_pairs if pair in already)
+    result = dict(plan)
+    for key in ("bits_of", "constraints_needed", "release_pairs"):
+        result.pop(key, None)
+    # 三个数一起报，才能分清「不用补」「已经挡好了」「该补没补」：
+    # `constraints_needed` 是 PMX 语义下必须靠约束分开的总对数，
+    # `constraints_already_blocked` 是场景里已经挡对的，`constraints_to_add` 才是这条通道的活。
+    result["constraints_needed"] = len(needed_pairs)
+    result["constraints_already_blocked"] = already_needed
+    result["constraints_to_add"] = len(needed_pairs) - already_needed
+    # 这些键**在每条返回路径上都必须存在**（`MASK_WIRED_KEYS` 是折 metrics 的唯一清单，
+    # 少一个键就是 `stage_build` 那边 KeyError 或者一个"没测"被读成 0）。
+    result.setdefault("constraints_capped", False)
+    result.setdefault("guardrail_hit", False)
+    result.setdefault("constraints_released", 0)
+    result.setdefault("constraints_added", 0)
+    result.setdefault("readback_mismatch", 0)
+    result.setdefault("constraint_creation", "none")
+    result.setdefault("verdict_reasons", [])
+    result.setdefault("constraints_identity", len(needed_pairs) == already_needed)
+    result["encoding"] = mask_mod.ENCODING_NOTE
+    result["blender_semantics"] = dict(mask_mod.MEASURED_SEMANTICS)
+    # 作用域与例外（D-20261116-133）：U323 是 1c 等式的宇宙，例外单列一行
+    result["scope_bodies"] = len(bodies)
+    result["exception_bodies"] = exception_rows(bodies, outside)
+
+    if not bodies:
+        # `scanned==0` 同族：0 个刚体不是"通道接好了"，是"没东西可接"（spec §4.6）
+        result.update({"collections_set": 0, "collections_patterns": 0,
+                       "skipped_count": len(result.get("skipped") or []),
+                       "verdict_reasons": ["no_bodies"],
+                       "verdict": "EMPTY"})
+        return result
+
+    # 1) 写位
+    expected = plan["bits_of"]
+    set_count = 0
+    touched_names = set()
+    for obj in bodies:
+        wants = expected[obj.name]
+        flags = mask_mod.collection_flags(wants)
+        body = getattr(obj, "rigid_body", None)
+        if body is None:
+            result.setdefault("skipped", []).append(
+                {"name": obj.name, "reason": "没有 rigid_body（不是刚体对象）"})
+            continue
+        body.collision_collections = flags
+        set_count += 1
+        touched_names.add(obj.name)
+    result["objects_modified"] = len(touched_names)
+    # 改动范围正控（2号 的要求）：只许碰 `mmd_rigid` 存在的刚体对象
+    result["objects_touched_outside_mmd_rigid"] = sum(
+        1 for name in touched_names
+        if getattr(bpy.data.objects.get(name), "mmd_rigid", None) is None)
+
+    # 2) 回读（逐刚体，与源掩码一致）
+    mismatch = []
+    for obj in bodies:
+        body = getattr(obj, "rigid_body", None)
+        if body is None:
+            continue
+        got = 0
+        for n, bit in enumerate(body.collision_collections):
+            if bit:
+                got |= 1 << n
+        if got != expected[obj.name]:
+            mismatch.append(obj.name)
+    result["collections_set"] = set_count
+    result["collections_patterns"] = len({expected[o.name] for o in bodies})
+    result["readback_mismatch"] = len(mismatch)
+    result["readback_mismatch_names"] = mismatch[:5]
+
+    # 3) 放掉挡错的约束（mmd_tools 的 buildRigids() 相对它自己的导入器是反的：
+    #    实测 J_baked.blend 4009 条里有 2196 条挡的是「本该互碰」的对）。
+    #    只置 disable_collisions=False，不删对象——删是别人的数据，改标志是可逆的最小动作。
+    released = 0
+    for obj in bpy.data.objects:
+        con = getattr(obj, "rigid_body_constraint", None)
+        if con is None or not getattr(con, "disable_collisions", False):
+            continue
+        a = getattr(getattr(con, "object1", None), "name", None)
+        b = getattr(getattr(con, "object2", None), "name", None)
+        if not a or not b or a == b:
+            continue
+        if mask_mod.pair_key(a, b) in set(plan["release_pairs"]):
+            con.disable_collisions = False
+            released += 1
+    result["constraints_released"] = released
+
+    # 4) 补 DISABLE_COLLISIONS（幂等：已挡住的对不再建）
+    #
+    # 上限**由 plan 推出，不吃默认值**（D0 15:11：「一处口径，别两个数各说各话」）。
+    # `DEFAULT_MAX_CONSTRAINTS` 只作护栏：需求超过它说明场景形状不对，不是"预算不够"——
+    # 那时停下、把 `guardrail_hit` 与逐条 `skipped` 写出来，绝不静默跑飞。
+    added = 0
+    if max_constraints is None:
+        limit = len(needed_pairs)
+        if limit > mask_mod.DEFAULT_MAX_CONSTRAINTS:
+            limit = mask_mod.DEFAULT_MAX_CONSTRAINTS
+            result["guardrail_hit"] = True
+    else:
+        limit = int(max_constraints)
+    if constraint_creation not in (None, "template_copy", "ops"):
+        raise ValueError("constraint_creation 只能是 None / 'template_copy' / 'ops'，收到 %r"
+                         % (constraint_creation,))
+    template = _ncc_template() if constraint_factory is None else None
+    if constraint_creation == "ops":
+        template = None
+    elif (constraint_creation == "template_copy" and constraint_factory is None
+          and template is None):
+        raise RuntimeError("要求走 template_copy，但场景里没有可复制的 ncc 模板"
+                           "（任何 disable_collisions=True 的约束对象都没有）")
+    modes = set()
+    copy_errors = 0
+    for name_a, name_b in plan["constraints_needed"]:
+        pair = mask_mod.pair_key(name_a, name_b)
+        if pair in already:
+            continue
+        obj_a = bpy.data.objects.get(name_a)
+        obj_b = bpy.data.objects.get(name_b)
+        if obj_a is None or obj_b is None:
+            result.setdefault("skipped", []).append(
+                {"pair": [name_a, name_b], "reason": "取不到刚体对象"})
+            continue
+        if added >= limit:
+            # **不许无声跑飞**：超出上限就停下，并把没做的逐条记进 skipped（spec §1 / D-086）
+            result.setdefault("skipped", []).append(
+                {"pair": [name_a, name_b],
+                 "reason": "达到建约束上限 %d（未做的逐条记在这里，不许当没发生）" % limit})
+            result["constraints_capped"] = True
+            continue
+        if constraint_factory is not None:
+            ncc = constraint_factory("ncc_mask_%04d" % added)
+            modes.add("injected")
+        elif template is not None:
+            try:
+                ncc = _new_constraint_object("ncc_mask_%04d" % added, template=template)
+                modes.add("template_copy")
+            except Exception:
+                # 复制这条路失败要留痕，再退回逐条 ops（慢，但正确）——不做静默降级
+                copy_errors += 1
+                template = None
+                ncc = _new_constraint_object("ncc_mask_%04d" % added)
+                modes.add("ops")
+        else:
+            ncc = _new_constraint_object("ncc_mask_%04d" % added)
+            modes.add("ops")
+        ncc.rigid_body_constraint.object1 = obj_a
+        ncc.rigid_body_constraint.object2 = obj_b
+        ncc.rigid_body_constraint.disable_collisions = True
+        added += 1
+    result["constraints_added"] = added
+    result["constraint_creation"] = "+".join(sorted(modes)) if modes else "none"
+    if copy_errors:
+        result["copy_errors"] = copy_errors
+
+    # 记账恒等式：该补的 = 已经挡好的 + 这次补上的。**不等就是不完整**（跳过/被 cap 都会破）。
+    result["constraints_identity"] = (added + already_needed == len(needed_pairs))
+
+    # 判词：`PARTIAL` 只说"不是 WIRED"，不说**为什么**——所以必须把原因逐项列出来，
+    # 否则「cap 了」「表达不了」「回读不一致」在读数的人眼里长得一模一样。
+    result["skipped_count"] = len(result.get("skipped", []))
+    reasons = []
+    if not set_count:
+        reasons.append("no_collections_written")
+    if result.get("constraints_capped"):
+        reasons.append("constraints_capped")
+    if result.get("guardrail_hit"):
+        reasons.append("guardrail_hit")
+    if result["readback_mismatch"]:
+        reasons.append("readback_mismatch")
+    if plan["unexpressible"]:
+        reasons.append("unexpressible")
+    if result["skipped_count"]:
+        reasons.append("skipped")
+    if not result["constraints_identity"]:
+        reasons.append("constraints_identity_broken")
+    result["verdict_reasons"] = reasons
+    result["verdict"] = "PARTIAL" if reasons else "WIRED"
+
+    # 建场事实写进**场景自身**（D-142「意图写进产物」）：`stage_mask()` 事后读它。
+    # 不写的话，"这次 cap 过"只活在本次运行的返回值里，场景一存盘就看不见了。
+    try:
+        bpy.context.scene["mask_wired"] = {
+            "verdict": result["verdict"],
+            "verdict_reasons": list(result["verdict_reasons"]),
+            "constraints_needed": result["constraints_needed"],
+            "constraints_already_blocked": result["constraints_already_blocked"],
+            "constraints_to_add": result["constraints_to_add"],
+            "constraints_added": result["constraints_added"],
+            "constraints_capped": bool(result["constraints_capped"]),
+            "guardrail_hit": bool(result["guardrail_hit"]),
+            "skipped_count": int(result["skipped_count"]),
+            "readback_mismatch": int(result["readback_mismatch"]),
+            "constraint_creation": result["constraint_creation"],
+        }
+    except (AttributeError, TypeError, KeyError):
+        pass          # 没有场景上下文（单测替身/离屏）时不影响返回值
+    return result
+
+
+def stage_mask(root=None) -> dict:
+    """给外部实验/验收用的最小接口（1号 的 S8 第三层、2号 的准入 ②直接调这个）。
+
+    返回 `mask_report()` 的完整结果（含 `rows` 逐刚体读回：PMX 的 `mask` 位图、
+    忽略的组、Bullet 侧 `collision_collections` 位）**外加判词**。**只读，不改场景。**
+
+    `WIRED` 的四条（`coordination/mask_channel_spec.md` §4，D0 `D-20261116-145`）：
+    ① 位型 ≥ 2 种；② 逐刚体回读全等于 `mask | (1 << group)`；
+    ③ 两个归零量为 0（`blocked_and_should_collide` / `nocollide_pairs_still_colliding`）；
+    ④ 建场记录里 `constraints_capped == False` 且 `skipped_count == 0`。
+
+    第 ④ 条吃的是**建场时写在场景上的记录**（`scene["mask_wired"]`）。场景没有这条记录
+    （别人手搭的、或旧文件）时判词**不可能是 WIRED**——"没记录"不许当成"没问题"。
+    """
+    report = mask_report()
+    scene = bpy.context.scene
+    record = {}
+    try:
+        stored = scene.get("mask_wired")
+        if stored:
+            record = {k: stored[k] for k in stored.keys()}
+    except (AttributeError, TypeError):
+        record = {}
+    report["wired_record"] = record
+    report["constraints_capped"] = record.get("constraints_capped")
+    report["skipped_count"] = record.get("skipped_count")
+
+    if not report["rigids"]:
+        report["verdict_reasons"] = ["no_bodies"]
+        report["verdict"] = "EMPTY"
+        return report
+
+    patterns = {row["collections"] for row in report["rows"]}
+    mismatched = [row["name"] for row in report["rows"]
+                  if row["collections"] != (row["mask"] | (1 << row["group"]))]
+    reasons = []
+    if len(patterns) < 2:
+        reasons.append("bit_patterns_below_2")
+    if mismatched:
+        reasons.append("readback_mismatch")
+    if report["blocked_and_should_collide"]:
+        reasons.append("blocked_and_should_collide")
+    if report["nocollide_pairs_still_colliding"]:
+        reasons.append("nocollide_pairs_still_colliding")
+    if report["unexpressible_pairs"]:
+        reasons.append("unexpressible")
+    if not record:
+        reasons.append("no_wired_record")
+    else:
+        if record.get("constraints_capped"):
+            reasons.append("constraints_capped")
+        if record.get("skipped_count"):
+            reasons.append("skipped")
+    report["readback_mismatch_names"] = mismatched[:5]
+    report["verdict_reasons"] = reasons
+    report["verdict"] = "PARTIAL" if reasons else "WIRED"
+    return report
+
+
+
 def constraint_histogram(arm) -> dict:
     hist = {}
     for pbone in arm.pose.bones:
@@ -314,7 +745,7 @@ def stage_import(preset, pmx_path: str):
 
 
 def stage_build(preset, root, arm):
-    """Model.build() + 刚体世界参数 + 裙摆阻尼。"""
+    """Model.build() + 刚体世界参数 + 裙摆阻尼 + 碰撞掩码读回。"""
     from bl_ext.user_default.mmd_tools.core import model as MModel
     from bl_ext.user_default.mmd_tools.core import rigid_body as MRigid
 
@@ -322,8 +753,18 @@ def stage_build(preset, root, arm):
     t0 = _now()
     cfg = preset["physics"]
 
+    # 掩码通道：`buildRigids()` 只给"距离够近"的被排除对建 disable_collisions 约束，
+    # 这个比例决定多近才算够近。1.5 是 mmd_tools 上游默认；预设调大 → 覆盖更多对，
+    # 代价是场景里约束对象变多、建场变慢。**读回的数（mask.coverage）才是判据**，
+    # 不是"我把参数调大了"。
+    scale = cfg.get("non_collision_distance_scale", 1.5)
     try:
-        MModel.Model(root).build()
+        MModel.Model(root).build(non_collision_distance_scale=float(scale))
+    except ValueError as exc:
+        res.add("S8", BLOCK, "non_collision_distance_scale 不是数字：%r（%s）" % (scale, exc),
+                "建议给 1.5（上游默认）或更大")
+        res.elapsed = _now() - t0
+        return res
     except Exception as exc:
         res.add("E-05", BLOCK, "Model.build() 失败：%s" % exc)
         res.elapsed = _now() - t0
@@ -354,6 +795,11 @@ def stage_build(preset, root, arm):
     hist = constraint_histogram(arm)
     chained = hist.get("COPY_ROTATION", 0) + hist.get("COPY_TRANSFORMS", 0)
     rigids = len(rigid_bodies())
+    mask = mask_report()
+    wired = None
+    if cfg.get("apply_collision_masks", True):
+        wired = apply_collision_masks()
+        mask = mask_report()               # 打完之后重新读回，报的是**实际生效**的数
 
     res.metrics.update({
         "is_built": bool(root.mmd_root.is_built),
@@ -363,6 +809,10 @@ def stage_build(preset, root, arm):
         "chain_ratio": round(chained / rigids, 3) if rigids else 0.0,
         "substeps": rbw.substeps_per_frame,
         "solver_iterations": rbw.solver_iterations,
+        "mask": {k: v for k, v in mask.items() if k != "rows"},
+        "mask_scale": scale,
+        "mask_wired": None if wired is None else {
+            k: wired.get(k) for k in MASK_WIRED_KEYS},
     })
     if chained == 0:
         res.add("G2", BLOCK, "骨骼上没有 COPY_ROTATION/COPY_TRANSFORMS，衣摆不会动")
@@ -370,6 +820,39 @@ def stage_build(preset, root, arm):
         res.add("G2", WARN, "约束链覆盖率 %d/%d，低于 0.8" % (chained, rigids))
     if not rbw.enabled:
         res.add("G1", BLOCK, "刚体世界没开")
+
+    # **fail-closed：通道开着而没接全 ⇒ 在烘焙之前停下**（D0 15:11）。
+    # 半套通道 + 已烘焙的场景是最贵的「看起来像干净」：烧几十秒烘焙，然后被当作交付件
+    # 引用几小时。这里宁可让建场红着，也不产出一个"通道部分生效"的可烘焙场景。
+    if wired is not None and wired.get("verdict") != "WIRED":
+        res.add("S8", BLOCK,
+                "碰撞通道没接全：verdict=%s，未通过项 %s（%d 对 skipped）"
+                % (wired.get("verdict"), ",".join(wired.get("verdict_reasons") or []) or "-",
+                   wired.get("skipped_count", 0)),
+                "补 constraint_factory / 放宽 max_constraints 之前不要烘焙；"
+                "要出无通道的对照场景请显式设 physics.apply_collision_masks=false")
+        res.elapsed = _now() - t0
+        return res
+
+    # S8 掩码判据（D0 2026-11-16：「交付场景的物理没按 MMD 的碰撞约定在跑」）。
+    # 只在**能判**的时候判：没声明任何排除 → 无从谈起（不是满分）。
+    if mask["declared_pairs"] and mask["blocked_pairs"] == 0:
+        res.add("S8", BLOCK,
+                "PMX 声明了 %d 对不该碰，场景里一对都没挡（disable_collisions 约束 0 条）"
+                % mask["declared_pairs"],
+                "non_collision_distance_scale=%.3g" % scale)
+    elif mask["declared_pairs"]:
+        want = float(cfg.get("mask_coverage_min") or 0.0)
+        if want > 0 and mask["coverage"] < want:
+            res.add("S8", WARN,
+                    "掩码覆盖 %d/%d 对（%.1f%%），低于预设下限 %.1f%%"
+                    % (mask["blocked_pairs"], mask["declared_pairs"],
+                       100.0 * mask["coverage"], 100.0 * want),
+                    "调大 non_collision_distance_scale（当前 %.3g）" % scale)
+    elif mask["rigids"]:
+        res.add("S8", INFO,
+                "掩码没有声明任何排除（%d 个刚体全为「与所有组碰」），覆盖无从谈起"
+                % mask["all_on_bodies"])
     res.elapsed = _now() - t0
     return res
 

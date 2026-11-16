@@ -37,6 +37,20 @@ HASH_BASES = ("lf_normalized_v1",)
 COMMIT_RE = re.compile(r"^[0-9a-f]{7,40}$")
 # measurements 序列化后的字节上限（D-072）：超了就该拆成 artifact 文件
 MEASUREMENTS_LIMIT = 16 * 1024
+# 真值档（`14 号令 §3-I`）：这份数是在什么尺度上测出来的。**可选**——老记录不带它，
+# 加了也不改它们的哈希；带了就必须是枚举里的拼法（大小写不改，错一个字就拒）。
+#   T0 单元/合成  T1 真实小场景  T2 代表性逐帧  T3 交付尺度
+#   T_DESCRIPTIVE 只能描述、不能当结论（缓存回放读数就落这一档）
+TRUTH_TIERS = ("T0", "T1", "T2", "T3", "T_DESCRIPTIVE")
+TIER_MEANING = {
+    "T0": "单元/合成：证明逻辑，不证明场景",
+    "T1": "真实小场景：证明能跑通，不证明尺度",
+    "T2": "代表性逐帧：能出「结论级变化」",
+    "T3": "交付尺度：M08 只认这一档",
+    "T_DESCRIPTIVE": "只作描述：不得作为结论依据（含 cache_replay 读数）",
+}
+#: 只有这一档能进交付验收
+DELIVERY_TIER = "T3"
 
 
 class EvidenceError(ValueError):
@@ -116,6 +130,16 @@ def normalize(obj: dict) -> dict:
     for row in obj.get("tests") or []:
         if not isinstance(row, dict) or not isinstance(row.get("cmd"), str):
             raise EvidenceError("tests 的每一项必须有 cmd")
+        # D-094（D0 2026-11-16 14:02）：`tests[]` 行是**重建**的，schema 外的字段会被
+        # 静默丢掉——于是"我声明了的字段"和"进了哈希的字段"不是同一个集合，而写记录的人
+        # 只能靠最后一步 `check` 打出的 exit 5 猜自己哪儿错了。**必须变成错误，不许沉默。**
+        extra = sorted(set(row) - set(TESTS_KEYS))
+        if extra:
+            raise EvidenceError(
+                "tests[%s] 有 schema 外的字段：%s（只允许 %s；这些字段不会进哈希，"
+                "要留说明请放 measurements）"
+                % (row["cmd"], "、".join(extra), "/".join(TESTS_KEYS)),
+                "WRONG_TESTS_FIELD")
         for field in ("exit", "passed", "failed", "skipped"):
             v = row.get(field, 0)
             if isinstance(v, bool) or not isinstance(v, int):
@@ -200,6 +224,20 @@ def normalize(obj: dict) -> dict:
             raise EvidenceError("scope 必须是字符串或 null", "WRONG_SCOPE")
         scope = " ".join(scope.split()) or None
 
+    # truth_tier（14 号令 §3-I）：**可选**，枚举内逐字匹配。
+    # 为什么可选：162 条历史记录没有它，若设成必填，`check_file` 会把它们全判 exit 3
+    # ——迁移历史等于篡改历史（D-157 的教训）。不写 = 「这份记录没声明尺度」，
+    # 那本身就是可读的事实，而缺省的语义由闸门决定（M08 缺档即拒）。
+    truth_tier = obj.get("truth_tier")
+    if truth_tier is not None:
+        if not isinstance(truth_tier, str):
+            raise EvidenceError("truth_tier 必须是字符串或 null", "WRONG_TRUTH_TIER")
+        text = truth_tier.strip()
+        if text not in TRUTH_TIERS:
+            raise EvidenceError("truth_tier 只能是 %s；收到 %r（逐字匹配，大小写不改）"
+                                % (" / ".join(TRUTH_TIERS), truth_tier), "WRONG_TRUTH_TIER")
+        truth_tier = text
+
     normalized = {
         "spec": SPEC,
         "task_id": obj["task_id"],
@@ -219,6 +257,8 @@ def normalize(obj: dict) -> dict:
         normalized["commit"] = commit
     if scope is not None:
         normalized["scope"] = scope
+    if truth_tier is not None:
+        normalized["truth_tier"] = truth_tier
     return _check_floats(normalized)
 
 
@@ -254,7 +294,8 @@ REASON_UNREADABLE = "UNREADABLE"
 
 # 进哈希的顶层键（`normalize()` 之后能出现在 canonical 里的全部）
 HASHED_KEYS = ("spec", "task_id", "attempt", "status", "files", "tests", "artifacts",
-               "known_risks", "interface", "hash_basis", "measurements", "commit", "scope")
+               "known_risks", "interface", "hash_basis", "measurements", "commit", "scope",
+               "truth_tier")
 # `tests[]` 每行只有这五个字段进 canonical（行会被**重建**，其余字段被丢掉）。
 # `files[]` / `artifacts[]` 的行是**整行保留**的，多写字段会进哈希，所以不在此列。
 TESTS_KEYS = ("cmd", "exit", "passed", "failed", "skipped")
@@ -267,12 +308,13 @@ def explain_not_canonical(raw, obj, normal) -> list:
       1. **序列化本身不同**：连裸 `canonical_bytes(obj)`（不经过 normalize）都不等于
          磁盘字节 ⇒ 自建格式化（缩进、`", "` 分隔符、键序没排）。
          改法：落盘前就用 `canonical_bytes()`。
-      2. **有不进哈希的字段**：顶层多写了键，或 `tests[]` 行里多写了字段。
-         内容是对的，但"文件 sha256 == digest"这条等式不成立。
+      2. **顶层多写了不进哈希的键**（`summary` 这类）。内容是对的，但"文件 sha256 ==
+         digest"这条等式不成立。
       3. 都没命中 ⇒ 字段值被规范化改写过（`known_risks` 折叠、路径归一、`-0.0→0.0`、
          行重排）。这时磁盘那份是"人写的"而不是"算出来的"。
 
-    返回可读短语列表（空列表 = 三类都不像，如实说没查出来）。
+    `tests[]` 行多写字段**不在此列**：D-094 之后那是 `WRONG_TESTS_FIELD`（exit 3），
+    在 `normalize()` 里就抛了，走不到这里。
     """
     notes = []
     try:
@@ -284,13 +326,6 @@ def explain_not_canonical(raw, obj, normal) -> list:
     extra_top = sorted(set(obj) - set(normal))
     if extra_top:
         notes.append("顶层多了不进哈希的键：%s" % "、".join(extra_top))
-    tests_extra = set()
-    for row in obj.get("tests") or []:
-        if isinstance(row, dict):
-            tests_extra |= set(row) - set(TESTS_KEYS)
-    if tests_extra:
-        notes.append("tests[] 行里多了不进哈希的字段：%s（只保留 %s）"
-                     % ("、".join(sorted(tests_extra)), "/".join(TESTS_KEYS)))
     if not notes:
         notes.append("字段值被规范化改写过（known_risks 折叠、路径归一、行重排），"
                      "磁盘那份看着是手写/自建的而非算出来的")

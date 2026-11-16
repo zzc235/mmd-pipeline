@@ -1,0 +1,5 @@
+# M07 · 删除清单
+
+本笔（attempt 1）**没有删除任何文件**。
+`operators.py` / `panels.py` / `params.py` / `build_addon.py` 都是原地修改；
+没有文件从版本控制里移除。

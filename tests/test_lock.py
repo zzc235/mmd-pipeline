@@ -166,5 +166,114 @@ class TestLockFS(_TmpLock, unittest.TestCase):
         self.assertIn("空闲", out.stdout)
 
 
+class TestHeartbeatAndReclaim(_TmpLock, unittest.TestCase):
+    """2026-11-16 14:19 的三处加固：记真正干活的 PID / 心跳 / 回收必须「搬走」。
+
+    起因是一次真实误判：`status` 报 `PID=28940` 已死，**但 Blender 还活着**（另一个 PID）。
+    按「PID 死了」判过期就会把别人正在用的锁拿走。所以三条必须同时成立才允许回收。
+    """
+
+    def test_pid_alive_is_safe_probe(self):
+        """**不许用 `os.kill(pid, 0)` 探活**：Windows 上那是 TerminateProcess，会杀掉对方。
+
+        2026-11-16 自报：第一版就是这么写的，测试里传了自己的 PID，测试进程当场消失、
+        一个字节输出都没有——看起来像"无声崩溃"，其实是自己在自杀。
+        """
+        self.assertTrue(lock.pid_alive(os.getpid()), "自己的 PID 必须是活的")
+        self.assertFalse(lock.pid_alive(0))
+        self.assertFalse(lock.pid_alive("不是数字"))
+        # 一个**不存在**的 PID 必须返回 False，而且不能把任何东西弄死
+        self.assertFalse(lock.pid_alive(4000000))
+        self.assertTrue(lock.pid_alive(os.getpid()), "探完一个不存在的 PID，自己还得活着")
+
+    def test_acquire_writes_heartbeat_and_records_work_pid(self):
+        lock.acquire(MINE, "跑 Blender", self.dir, work_pids=["123456"])
+        raw = lock.read_owner(self.dir)["raw"]
+        self.assertIn("PID=", raw)
+        self.assertIn("123456", raw)          # 真正干活的 PID 也记进去了
+        self.assertTrue(os.path.isfile(os.path.join(self.dir, lock.HEARTBEAT_FILE)))
+        self.assertLess(lock.heartbeat_age_seconds(self.dir), 5.0)
+
+    def test_missing_heartbeat_is_infinite_not_zero(self):
+        """从来没写过心跳 = `inf`。返回 0 会让「从没跳过」看起来「刚刚还活着」。"""
+        self.owner_file(MINE + "|PID=999999|2026-11-16T00:00:00+08:00|无心跳")
+        self.assertEqual(lock.heartbeat_age_seconds(self.dir), float("inf"))
+
+    def test_touch_refreshes_and_refuses_other_s_owner(self):
+        lock.acquire(MINE, "长跑", self.dir)
+        os.utime(os.path.join(self.dir, lock.HEARTBEAT_FILE), (0, 0))   # 假装很久没跳
+        self.assertGreater(lock.heartbeat_age_seconds(self.dir), 1000.0)
+        lock.touch(MINE, self.dir)
+        self.assertLess(lock.heartbeat_age_seconds(self.dir), 5.0)
+        with self.assertRaises(lock.NotOwner):
+            lock.touch(OTHER, self.dir)
+
+    # ---------------------------------------------------------------- 应当被拒
+    def test_reclaim_refused_while_blender_runs(self):
+        """**这条是主负控**：PID 已死、心跳也过期，但系统里还有 blender → 不许回收。"""
+        self.owner_file(MINE + "|PID=999999|2026-11-16T00:00:00+08:00|假的")
+        os.utime(os.path.join(self.dir, "owner.txt"), (0, 0))
+        with open(os.path.join(self.dir, lock.HEARTBEAT_FILE), "w", encoding="utf-8") as fh:
+            fh.write("x\n")
+        os.utime(os.path.join(self.dir, lock.HEARTBEAT_FILE), (0, 0))
+        with self.assertRaises(lock.LockHeld) as ctx:
+            lock.reclaim(self.dir, stale_minutes=1, blender_pids=[4242])
+        self.assertIn("blender", str(ctx.exception))
+        self.assertTrue(os.path.isdir(self.dir), "拒绝时不许动锁目录")
+        self.assertTrue(os.path.isfile(os.path.join(self.dir, "owner.txt")))
+
+    def test_reclaim_refused_while_owner_pid_alive(self):
+        self.owner_file(MINE + "|PID=%d|2026-11-16T00:00:00+08:00|就是我" % os.getpid())
+        with open(os.path.join(self.dir, lock.HEARTBEAT_FILE), "w", encoding="utf-8") as fh:
+            fh.write("x\n")
+        os.utime(os.path.join(self.dir, lock.HEARTBEAT_FILE), (0, 0))
+        with self.assertRaises(lock.LockHeld):
+            lock.reclaim(self.dir, stale_minutes=1, blender_pids=[])
+
+    def test_reclaim_refused_while_heartbeat_fresh(self):
+        """心跳还很新 → 不许回收，哪怕 PID 已死、没有 blender（可能刚换了个进程在干）。"""
+        self.owner_file(MINE + "|PID=999999|2026-11-16T00:00:00+08:00|假的")
+        with open(os.path.join(self.dir, lock.HEARTBEAT_FILE), "w", encoding="utf-8") as fh:
+            fh.write("x\n")
+        with self.assertRaises(lock.LockHeld) as ctx:
+            lock.reclaim(self.dir, stale_minutes=10, blender_pids=[])
+        self.assertIn("心跳", str(ctx.exception))
+
+    # ---------------------------------------------------------------- 应当成功
+    def test_reclaim_moves_instead_of_deleting(self):
+        """三条都成立时回收：**搬走**，`owner.txt` 原样保留作为证据。"""
+        self.owner_file(MINE + "|PID=999999|2026-11-16T10:00:00+08:00|留下的证据")
+        with open(os.path.join(self.dir, lock.HEARTBEAT_FILE), "w", encoding="utf-8") as fh:
+            fh.write("x\n")
+        os.utime(os.path.join(self.dir, lock.HEARTBEAT_FILE), (0, 0))
+        info = lock.reclaim(self.dir, stale_minutes=1, blender_pids=[])
+        self.assertFalse(os.path.isdir(self.dir))
+        self.assertTrue(os.path.isdir(info["moved_to"]))
+        kept = os.path.join(info["moved_to"], "owner.txt")
+        self.assertTrue(os.path.isfile(kept), "证据必须留着")
+        with open(kept, encoding="utf-8") as fh:
+            self.assertIn("留下的证据", fh.read())
+        self.assertTrue(info["moved_to"].replace("\\", "/").count("/_reclaimed/") == 1)
+        # 搬走之后就能重新取锁了
+        lock.acquire(OTHER, "接手", self.dir)
+
+    def run_cli(self, *args):
+        env = dict(os.environ)
+        env["PYTHONIOENCODING"] = "gbk"          # 最坏环境：子进程钉 GBK，父进程按 UTF-8 解
+        return subprocess.run([sys.executable, "-m", "coordination.lock", *args],
+                              cwd=ROOT, capture_output=True, text=True, encoding="utf-8",
+                              env=env, timeout=120)
+
+    def test_cli_touch_and_reclaim_exit_codes(self):
+        lock.acquire(MINE, "长跑", self.dir)
+        out = self.run_cli("touch", "--lock", self.dir, "--owner", MINE)
+        self.assertEqual(out.returncode, 0, out.stdout + out.stderr)
+        self.assertTrue(out.stdout.strip(), "CLI 没有任何输出（None 与空串同色坑）")
+        # 心跳新鲜 → 回收必须被拒（exit 3）
+        out = self.run_cli("reclaim", "--lock", self.dir, "--stale-minutes", "10")
+        self.assertEqual(out.returncode, lock.EXIT_CONFLICT, out.stdout + out.stderr)
+        self.assertIn("LOCK_HELD", out.stdout)
+
+
 if __name__ == "__main__":
     unittest.main()

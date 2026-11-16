@@ -81,12 +81,23 @@ def scan_source(source: str, filename: str = "<string>") -> list:
     return sorted(bad)
 
 
-def tracked_py(root: str = ROOT) -> list:
+#: 策略上排除在扫描范围外的目录：**证据脚本是 artifact，不是源码**。
+#: 2026-11-16 16:44 Human 定 `reports/` 纳入 git（提交 e7d9916），于是这些 .py 进了
+#: `git ls-files`。它们不该被本护栏要求「UTF-8 无 BOM、子进程调用必须带 encoding=」——
+#: 这些字节的 sha256 已写进 evidence 记录，改一个字节就等于让历史记录失效（D-159 的教训）。
+#: 但要排除得**说出来**：`policy_excluded()` 让「有多少文件在范围外」可见，
+#: 否则"0 违规"又会变成"少扫了一堆也不知道"（D-086）。
+SCOPE_EXCLUDED_PREFIXES = ("reports/",)
+
+
+def tracked_py(root: str = ROOT, include_excluded: bool = False) -> list:
     """版本控制里的 .py（相对路径）。
 
     **`git` 失败就判红，不静默退回目录遍历**（D0 2026-11-16 13:50）：这个仓库永远是 git 仓库，
     而退回 `os.walk` 会让「venv/build/reports 已被排除」这个保证失效——那时"0 命中"可能是
     一个文件都没扫，也可能扫了一堆无关文件。判红没有代价。
+
+    `include_excluded=True` 时连策略外目录一起返回（只给 `policy_excluded()` 用）。
     """
     try:
         out = subprocess.run(["git", "-C", root, "ls-files", "--", "*.py"],
@@ -99,7 +110,15 @@ def tracked_py(root: str = ROOT) -> list:
     files = sorted(p.strip() for p in out.stdout.splitlines() if p.strip())
     if not files:
         raise RuntimeError("git ls-files 没返回任何 .py——扫描范围为空时，'0 命中' 没有意义")
-    return files
+    if include_excluded:
+        return files
+    return [f for f in files if not f.startswith(SCOPE_EXCLUDED_PREFIXES)]
+
+
+def policy_excluded(root: str = ROOT) -> list:
+    """在版本控制里、但被策略排除在源码范围外的 .py（必须可见，不许静默）。"""
+    return [f for f in tracked_py(root, include_excluded=True)
+            if f.startswith(SCOPE_EXCLUDED_PREFIXES)]
 
 
 def scan_tree(root: str = ROOT) -> tuple:
@@ -132,9 +151,14 @@ def scan_tree(root: str = ROOT) -> tuple:
     return sorted(violations), scanned, skipped
 
 
-def summary_line(violations: list, scanned: int, skipped: list) -> str:
-    """固定输出形状：一眼能判绿/不判绿（1号 建议的形状）。"""
-    head = "scanned=%d  violations=%d  skipped=%d" % (scanned, len(violations), len(skipped))
+def summary_line(violations: list, scanned: int, skipped: list, excluded: int = 0) -> str:
+    """固定输出形状：一眼能判绿/不判绿（1号 建议的形状）。
+
+    `excluded`：策略上不在范围内的文件数（`reports/` 里的证据脚本）。
+    数字必须出现，否则「0 违规」分不清「真干净」和「少扫了 93 个文件」。
+    """
+    head = "scanned=%d  violations=%d  skipped=%d  excluded_policy=%d" % (
+        scanned, len(violations), len(skipped), excluded)
     if skipped:
         head += "（%s）" % ", ".join("%s:%s" % (p, why) for p, why in skipped[:5])
     return head
@@ -143,7 +167,8 @@ def summary_line(violations: list, scanned: int, skipped: list) -> str:
 class TestGuard(unittest.TestCase):
     def test_repo_is_clean(self):
         violations, scanned, skipped = scan_tree()
-        line = summary_line(violations, scanned, skipped)
+        excluded = policy_excluded()
+        line = summary_line(violations, scanned, skipped, len(excluded))
         self.assertEqual(skipped, [], "有文件没扫成（不可判绿）：%s" % line)
         self.assertGreaterEqual(scanned, 50, "扫到的文件太少，护栏可能在空转：%s" % line)
         self.assertEqual(violations, [],
@@ -253,11 +278,23 @@ class TestGuard(unittest.TestCase):
             shutil.rmtree(tmp, ignore_errors=True)
 
     def test_scope_is_version_controlled_files(self):
-        """扫描范围来自 `git ls-files`：`build/`「`reports/`」这类目录不进判据。"""
+        """扫描范围来自 `git ls-files`，减去**明写的**策略外目录。
+
+        `reports/` 自 2026-11-16 16:44 起进版本控制（Human 定，`e7d9916`），于是它出现在
+        `git ls-files` 的结果里。它不该被本护栏管：那是证据脚本，字节已被 evidence 哈希引用，
+        改字节等于让历史记录失效（`D-159`）。所以排除要写成常量、并**计数可见**——
+        旧断言「reports/ 不该出现」是靠 `.gitignore` 顺带成立的，不是设计。
+        """
         files = tracked_py()
         self.assertTrue(files, "git ls-files 没返回任何 .py，扫描范围失效")
         self.assertFalse([f for f in files if f.startswith("build/")], "build/ 不该进扫描范围")
-        self.assertFalse([f for f in files if f.startswith("reports/")], "reports/ 不该进扫描范围")
+        self.assertFalse([f for f in files if f.startswith("reports/")],
+                         "reports/ 是证据脚本，不该进源码扫描范围")
+        excluded = policy_excluded()
+        self.assertTrue(excluded, "reports/ 已在版本控制里，策略外清单不该为空——为空说明 git 或过滤坏了")
+        self.assertTrue(all(f.startswith("reports/") for f in excluded))
+        line = summary_line([], len(files), [], len(excluded))
+        self.assertIn("excluded_policy=%d" % len(excluded), line, "排除数必须在输出里可见")
 
 
 if __name__ == "__main__":

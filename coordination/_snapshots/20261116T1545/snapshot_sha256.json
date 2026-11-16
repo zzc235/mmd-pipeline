@@ -1,0 +1,43 @@
+{
+  "files": [
+    {
+      "bytes": 4996,
+      "head": "419073632447b8d09406fa1ee36660e62239b2fe",
+      "name": "task_status.json",
+      "sha256": "bdfe3e2f8c4ee401eac20e54bf86fa715f17bbbe6636454f3a8d2ff12e6d0a8d",
+      "snapshot": "coordination\\_snapshots\\20261116T1545\\task_status.json",
+      "source": "E:\\dsh pr\\woker2\\coordination\\task_status.json",
+      "taken_at": "2026-11-16T15:57:28+08:00"
+    },
+    {
+      "bytes": 205668,
+      "head": "419073632447b8d09406fa1ee36660e62239b2fe",
+      "name": "decisions.jsonl",
+      "sha256": "41136d0104363db16e5eda4bb504b701cfbf2b1dad38f6f1ba8303596ecf0795",
+      "snapshot": "coordination\\_snapshots\\20261116T1545\\decisions.jsonl",
+      "source": "E:\\dsh pr\\woker2\\coordination\\decisions.jsonl",
+      "taken_at": "2026-11-16T15:57:28+08:00"
+    },
+    {
+      "bytes": 90112,
+      "head": "419073632447b8d09406fa1ee36660e62239b2fe",
+      "name": "board.db",
+      "sha256": "d992f83ffee2889bee7753f5569ed7df378db540b06613c49c1f207f4b03fdf7",
+      "snapshot": "coordination\\_snapshots\\20261116T1545\\board.db",
+      "source": "E:\\dsh pr\\woker2\\out\\subai\\coordination\\board.db",
+      "taken_at": "2026-11-16T15:57:28+08:00"
+    }
+  ],
+  "head": "419073632447b8d09406fa1ee36660e62239b2fe",
+  "note": "冻结快照：只读，不改不删。哈希可复算：sha256(文件字节)。",
+  "readonly": true,
+  "stamp": "20261116T1545",
+  "taken_at": "2026-11-16T15:57:28+08:00",
+  "worktrees": [
+    "E:/dsh pr/woker2      4190736 [main]",
+    "E:/code/mmdpipe-ai/A1 97ed8a0 [ai/a1]",
+    "E:/code/mmdpipe-ai/A2 88e971e [ai/a2]",
+    "E:/code/mmdpipe-ai/A3 247ccfd [ai/a3]",
+    "E:/code/mmdpipe-ai/A4 31d6a1a [ai/a4]"
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "conclusion": "当前没有任何**已验证**的 measurement 可用于标定；阈值只能标 exploratory。",
+  "generated_from": [
+    "M04_物理量化门禁与回归.md §3"
+  ],
+  "module": "M04",
+  "sources": [
+    {
+      "id": "M03.diagnose.evidence",
+      "kind": "diagnosis (diagnose/1)",
+      "path": "reports/subai/M03/evidence/**",
+      "reason": "判据输出的是故障归因与 confidence，不含逐帧物理量；只能作附注",
+      "usable_for_calibration": false
+    },
+    {
+      "id": "M03.sample_manifest",
+      "kind": "8 条样本标签",
+      "path": "reports/subai/M03/sample_manifest.json",
+      "reason": "有标签、无 measurement（无 median/p95/穿透深度）",
+      "usable_for_calibration": false
+    },
+    {
+      "id": "M01.measurements",
+      "kind": "PMX 补丁字节级证据",
+      "path": "reports/subai/M01/measurements.json",
+      "reason": "PMX 字节级，不含物理量；且 M01 尚未验收",
+      "usable_for_calibration": false
+    },
+    {
+      "id": "M02.measurements",
+      "kind": "S2/S8 实验",
+      "path": "reports/subai/M02/",
+      "reason": "尚未产出（M02 未开工）",
+      "usable_for_calibration": false
+    },
+    {
+      "id": "physics_probe",
+      "kind": "逐帧加速度/速度探针",
+      "path": "E:\\flowhmr-test\\tools\\phys_probe.py",
+      "reason": "结构可用，但需要 Blender 且需 dir lock；本轮未取锁",
+      "usable_for_calibration": true
+    }
+  ]
+}

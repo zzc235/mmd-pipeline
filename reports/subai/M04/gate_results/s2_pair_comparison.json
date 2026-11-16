@@ -1,0 +1,18 @@
+{
+  "consequence": "M04 无法用这对样本区分 PASS/FAIL；F4 角度阈值仍无坏样本侧数据",
+  "identical": true,
+  "purpose": "证明 M02 的 S2 对照对 M04 的门禁标定零信息",
+  "reason": "X 限位 ±40.1° 从未被触发（实测 |rot_x| ≤ 33.161°），两版逐行相同",
+  "sets": [
+    {
+      "bytes": 681725,
+      "set": "B2_baseline",
+      "sha256": "7baa7b985fac1f8abf0ab92d0213db4cac8d1f9d8e762137e1c04a83725b80f3"
+    },
+    {
+      "bytes": 681725,
+      "set": "B2_x07",
+      "sha256": "7baa7b985fac1f8abf0ab92d0213db4cac8d1f9d8e762137e1c04a83725b80f3"
+    }
+  ]
+}

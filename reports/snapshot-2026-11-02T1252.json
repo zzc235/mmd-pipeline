@@ -1,0 +1,40 @@
+{
+  "reportVersion": 1,
+  "taskId": "2026-11-02-incident-silent-run",
+  "title": "事故复盘：桌面端崩溃（误杀子进程）+ 弹窗根治（进程守护）+ 静默运行",
+  "capturedAt": "2026-11-02T12:52:00+08:00",
+  "executor": "furina (dsh desktop 0.2.1-rc.3)",
+  "incident": {
+    "observedByUser": "desktop app crash around 12:43",
+    "rootCause": "killed two DeepSeek Harness.exe processes by raw PID (4508, 15672) that belonged to the desktop app process tree, not the superagent instance",
+    "secondary": "first version of ensure-superagent.ps1 had Chinese comments; PowerShell 5.1 parsed BOM-less UTF-8 as ANSI and failed with a syntax error, so the watchdog could not restart the instance for ~15 minutes",
+    "recovery": "desktop app auto-restarted at 12:43 (new main pid 30676); superagent recovered at 12:49 via recover-superagent.ps1"
+  },
+  "popupRootCause": {
+    "explanation": "old ensure script probed only the API; a transient API outage (in-place restart after a settings save) was mistaken for a crash, so a second instance was launched, failed to take the lock, and its Electron window flashed an error",
+    "fix": "process guard: any existing 'profile superagent' process means exit without launching",
+    "evidence": "ensure.log 12:50:31 'instance already running (pids: 29000,23856); nothing to do'"
+  },
+  "changes": [
+    "E:\\dsh-state\\ensure-superagent.ps1 rewritten: ASCII-only, process guard, API probe, 60s window-hiding loop, logging",
+    "E:\\dsh-state\\run-hidden.vbs added (wscript hidden launcher, no console flash)",
+    "E:\\dsh-state\\recover-superagent.ps1 added (kill -> clear lock -> single hidden start -> verify)",
+    "scheduled tasks DSH Superagent / DSH Superagent Watchdog switched to wscript.exe //B //Nologo run-hidden.vbs",
+    "logs: E:\\dsh-state\\ensure.log, recover.log"
+  ],
+  "verification": {
+    "health": "all ready",
+    "setupProblem": null,
+    "sources": { "feishu": "ready", "github": "ready" },
+    "instanceWindowsVisible": false,
+    "taskIdempotent": true,
+    "lastTaskResult": 0,
+    "desktopGui": { "pid": 30676, "windowTitle": "Super-agent 设计探索解读 — DeepSeek Harness" }
+  },
+  "lessons": [
+    "never kill DeepSeek Harness.exe by raw PID; match the command line 'profile superagent'",
+    "PowerShell 5.1 scripts must stay ASCII-only (BOM-less UTF-8 is read as ANSI)",
+    "after changing a launcher or scheduled task, verify with logs + process count + window visibility"
+  ],
+  "pendingUserCheck": ["desktop GUI visually normal?", "watch 10 minutes for popup recurrence"]
+}

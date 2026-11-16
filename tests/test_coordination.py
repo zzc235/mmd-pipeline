@@ -574,6 +574,42 @@ class TestEvidenceHash(unittest.TestCase):
         self.assertEqual(normal["commit"], "f3fd0e1")
         self.assertEqual(normal["scope"], "coordination evidence")
 
+    # ---------------------------------------------------------- D-094：未知字段必须抛
+    def test_tests_unknown_field_rejected(self):
+        """`tests[]` 行是**重建**的，schema 外字段原本会被悄悄扔掉（D-094）。
+
+        静默丢 = 「声明了的字段」与「进了哈希的字段」不是同一个集合，而写记录的人只能靠
+        最后一步 `check` 的 exit 5 猜。所以它必须是错误，并且要点名字段。
+        """
+        payload = evidence()
+        payload["tests"][0]["note"] = "跑了两遍"
+        with self.assertRaises(evidence_mod.EvidenceError) as ctx:
+            evidence_mod.digest(payload)
+        self.assertEqual(ctx.exception.reason_code, "WRONG_TESTS_FIELD")
+        self.assertIn("note", str(ctx.exception))
+        self.assertIn("cmd", str(ctx.exception))       # 允许的字段也要列出来
+
+    def test_tests_five_fields_accepted(self):
+        """正控：五个字段齐全（含缺省）都合规，缺省的按 0 补。"""
+        payload = evidence()
+        payload["tests"] = [{"cmd": "只给 cmd"}]
+        normal = evidence_mod.normalize(payload)
+        self.assertEqual(normal["tests"], [{"cmd": "只给 cmd", "exit": 0, "passed": 0,
+                                            "failed": 0, "skipped": 0}])
+
+    def test_files_artifact_extra_fields_still_kept(self):
+        """`files[]`/`artifacts[]` 是整行保留的，多写字段照旧进哈希（D-094 只管 tests[]）。"""
+        payload = evidence()
+        payload["files"][0]["note"] = "整行保留"
+        payload["artifacts"] = [{"path": "reports/x.json", "sha256": sha("x"),
+                                 "version": "1", "note": "也保留"}]
+        normal = evidence_mod.normalize(payload)
+        self.assertEqual(normal["files"][0]["note"], "整行保留")
+        self.assertEqual(normal["artifacts"][0]["note"], "也保留")
+        plain = evidence()
+        plain["artifacts"] = [{"path": "reports/x.json", "sha256": sha("x"), "version": "1"}]
+        self.assertNotEqual(evidence_mod.digest(payload), evidence_mod.digest(plain))
+
     def test_spec_and_status_validated(self):
         bad_spec = evidence()
         bad_spec["spec"] = "evidence/2"
@@ -854,17 +890,36 @@ class TestEvidenceCheck(unittest.TestCase):
         self.assertEqual(code, evidence_mod.EXIT_NOT_CANONICAL)
         self.assertIn("summary", message)
 
-        # 类 2b：tests[] 行里多了字段（2号 的真实记录就是这个形状）
+        # 类 2b：tests[] 行里多了字段 —— **D-094 之后这是 schema 违规（3），不再是 5**。
+        # 静默丢换成抛错，正是为了让写的人当场知道，而不是等最后一步 check 打 exit 5 去猜。
         extra_tests = evidence()
         extra_tests["tests"][0]["note"] = "跑了两遍"
         path = os.path.join(self.tmp, "extra_tests.json")
         with open(path, "wb") as fh:
             fh.write(json.dumps(extra_tests, ensure_ascii=False,
                                 sort_keys=True, separators=(",", ":")).encode("utf-8"))
-        code, _, message = evidence_mod.check_file(path)
-        self.assertEqual(code, evidence_mod.EXIT_NOT_CANONICAL)
-        self.assertIn("tests[]", message)
+        code, reason, message = evidence_mod.check_file(path)
+        self.assertEqual((code, reason), (evidence_mod.EXIT_SCHEMA,
+                                          evidence_mod.REASON_SCHEMA))
+        self.assertIn("WRONG_TESTS_FIELD", message)
         self.assertIn("note", message)
+
+    def test_legacy_tests_field_file_is_schema_violation_too(self):
+        """D-094 之前落盘的老记录也一样判 3：schema 变严对盘上已有的文件同样生效，
+        差别只在"现在能一眼看出是哪个字段"（消息里点名 `note`）。"""
+        legacy = {"spec": "evidence/1", "task_id": "M01", "attempt": 1, "status": "PASS",
+                  "files": [], "artifacts": [], "known_risks": [], "interface": None,
+                  "tests": [{"cmd": "x", "exit": 0, "passed": 1, "failed": 0,
+                             "skipped": 0, "note": "老记录"}]}
+        path = os.path.join(self.tmp, "legacy.json")
+        with open(path, "wb") as fh:
+            fh.write(json.dumps(legacy, ensure_ascii=False,
+                                sort_keys=True, separators=(",", ":")).encode("utf-8"))
+        code, reason, message = evidence_mod.check_file(path)
+        self.assertEqual(code, evidence_mod.EXIT_SCHEMA)
+        self.assertIn("WRONG_TESTS_FIELD", message)
+        self.assertIn("note", message)
+
 
     def test_canonical_file_has_no_diagnosis_noise(self):
         """正控：规范字节的文件不能说"序列化本身不是规范形态"。"""

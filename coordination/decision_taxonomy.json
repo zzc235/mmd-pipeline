@@ -1,0 +1,1236 @@
+{
+ "_note": "只读映射（14 号令 §3-E）。历史原文不改；新裁决只能落在 allowed_* 里。",
+ "allowed_decision": [
+  "ACCEPT_MERGE",
+  "ACCEPT_INTERFACE",
+  "RETURN_FIX",
+  "BLOCK",
+  "REASSIGN",
+  "NEEDS_HUMAN",
+  "CANCEL"
+ ],
+ "allowed_reason_code": [
+  "EVIDENCE_COMPLETE",
+  "MISSING_EVIDENCE",
+  "TEST_FAILED",
+  "OWNERSHIP_VIOLATION",
+  "SOURCE_MUTATED",
+  "DEPENDENCY_UNMET",
+  "LEASE_EXPIRED",
+  "RETRY_LIMIT",
+  "NO_NEW_EVIDENCE",
+  "SCOPE_CHANGE",
+  "HUMAN_REQUIRED",
+  "GATE_FAILED",
+  "SNAPSHOT_INVALID",
+  "HASH_BASIS_INVALID",
+  "PROVENANCE_INVALID",
+  "CAP_UNMET",
+  "EVIDENCE_SCOPE_MISMATCH",
+  "FRESH_SOLVE_REQUIRED",
+  "CACHE_REPLAY_ONLY",
+  "DELIVERABLE_NOT_REBUILDABLE",
+  "DOC_ONLY",
+  "RULING",
+  "CORRECTION",
+  "SPEC_CHANGE"
+ ],
+ "freeze_point": "D-20261116-162",
+ "legacy_map": {
+  "D-20261116-001": {
+   "decision_class": "STATE",
+   "legacy_decision": "ACCEPT_MERGE",
+   "legacy_reason_code": "EVIDENCE_COMPLETE",
+   "mapped_decision": "ACCEPT_MERGE",
+   "mapped_reason_code": "EVIDENCE_COMPLETE"
+  },
+  "D-20261116-002": {
+   "decision_class": "STATE",
+   "legacy_decision": "RETURN_FIX",
+   "legacy_reason_code": "OWNERSHIP_VIOLATION",
+   "mapped_decision": "RETURN_FIX",
+   "mapped_reason_code": "OWNERSHIP_VIOLATION"
+  },
+  "D-20261116-003": {
+   "decision_class": "STATE",
+   "legacy_decision": "ACCEPT_INTERFACE",
+   "legacy_reason_code": "EVIDENCE_COMPLETE",
+   "mapped_decision": "ACCEPT_INTERFACE",
+   "mapped_reason_code": "EVIDENCE_COMPLETE"
+  },
+  "D-20261116-004": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "DISPATCH",
+   "legacy_reason_code": "EVIDENCE_COMPLETE",
+   "mapped_decision": null,
+   "mapped_reason_code": "DOC_ONLY"
+  },
+  "D-20261116-005": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "DISPATCH",
+   "legacy_reason_code": "EVIDENCE_COMPLETE",
+   "mapped_decision": null,
+   "mapped_reason_code": "DOC_ONLY"
+  },
+  "D-20261116-006": {
+   "decision_class": "STATE",
+   "legacy_decision": "ACCEPT_MERGE",
+   "legacy_reason_code": "EVIDENCE_COMPLETE",
+   "mapped_decision": "ACCEPT_MERGE",
+   "mapped_reason_code": "EVIDENCE_COMPLETE"
+  },
+  "D-20261116-007": {
+   "decision_class": "STATE",
+   "legacy_decision": "ACCEPT_INTERFACE",
+   "legacy_reason_code": "SCOPE_CHANGE",
+   "mapped_decision": "ACCEPT_INTERFACE",
+   "mapped_reason_code": "SCOPE_CHANGE"
+  },
+  "D-20261116-008": {
+   "decision_class": "STATE",
+   "legacy_decision": "ACCEPT_INTERFACE",
+   "legacy_reason_code": "EVIDENCE_COMPLETE",
+   "mapped_decision": "ACCEPT_INTERFACE",
+   "mapped_reason_code": "EVIDENCE_COMPLETE"
+  },
+  "D-20261116-009": {
+   "decision_class": "STATE",
+   "legacy_decision": "ACCEPT_INTERFACE",
+   "legacy_reason_code": "EVIDENCE_COMPLETE",
+   "mapped_decision": "ACCEPT_INTERFACE",
+   "mapped_reason_code": "EVIDENCE_COMPLETE"
+  },
+  "D-20261116-010": {
+   "decision_class": "STATE",
+   "legacy_decision": "ACCEPT_MERGE",
+   "legacy_reason_code": "EVIDENCE_COMPLETE",
+   "mapped_decision": "ACCEPT_MERGE",
+   "mapped_reason_code": "EVIDENCE_COMPLETE"
+  },
+  "D-20261116-011": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "DISPATCH",
+   "legacy_reason_code": "EVIDENCE_COMPLETE",
+   "mapped_decision": null,
+   "mapped_reason_code": "DOC_ONLY"
+  },
+  "D-20261116-012": {
+   "decision_class": "STATE",
+   "legacy_decision": "RETURN_FIX",
+   "legacy_reason_code": "MISSING_EVIDENCE",
+   "mapped_decision": "RETURN_FIX",
+   "mapped_reason_code": "MISSING_EVIDENCE"
+  },
+  "D-20261116-013": {
+   "decision_class": "STATE",
+   "legacy_decision": "ACCEPT_MERGE",
+   "legacy_reason_code": "EVIDENCE_COMPLETE",
+   "mapped_decision": "ACCEPT_MERGE",
+   "mapped_reason_code": "EVIDENCE_COMPLETE"
+  },
+  "D-20261116-014": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "DISPATCH",
+   "legacy_reason_code": "EVIDENCE_COMPLETE",
+   "mapped_decision": null,
+   "mapped_reason_code": "DOC_ONLY"
+  },
+  "D-20261116-015": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "DISPATCH",
+   "legacy_reason_code": "SCOPE_CHANGE",
+   "mapped_decision": null,
+   "mapped_reason_code": "DOC_ONLY"
+  },
+  "D-20261116-016": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "CORRECTION",
+   "legacy_reason_code": "NO_NEW_EVIDENCE",
+   "mapped_decision": null,
+   "mapped_reason_code": "CORRECTION"
+  },
+  "D-20261116-017": {
+   "decision_class": "STATE",
+   "legacy_decision": "ACCEPT_MERGE",
+   "legacy_reason_code": "EVIDENCE_COMPLETE",
+   "mapped_decision": "ACCEPT_MERGE",
+   "mapped_reason_code": "EVIDENCE_COMPLETE"
+  },
+  "D-20261116-018": {
+   "decision_class": "STATE",
+   "legacy_decision": "RETURN_FIX",
+   "legacy_reason_code": "MISSING_EVIDENCE",
+   "mapped_decision": "RETURN_FIX",
+   "mapped_reason_code": "MISSING_EVIDENCE"
+  },
+  "D-20261116-019": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "CORRECTION",
+   "legacy_reason_code": "SCOPE_CHANGE",
+   "mapped_decision": null,
+   "mapped_reason_code": "CORRECTION"
+  },
+  "D-20261116-020": {
+   "decision_class": "STATE",
+   "legacy_decision": "ACCEPT_MERGE",
+   "legacy_reason_code": "EVIDENCE_COMPLETE",
+   "mapped_decision": "ACCEPT_MERGE",
+   "mapped_reason_code": "EVIDENCE_COMPLETE"
+  },
+  "D-20261116-021": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "DISPATCH",
+   "legacy_reason_code": "RETRY_LIMIT",
+   "mapped_decision": null,
+   "mapped_reason_code": "DOC_ONLY"
+  },
+  "D-20261116-022": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "DISPATCH",
+   "legacy_reason_code": "SCOPE_CHANGE",
+   "mapped_decision": null,
+   "mapped_reason_code": "DOC_ONLY"
+  },
+  "D-20261116-023": {
+   "decision_class": "STATE",
+   "legacy_decision": "ACCEPT_MERGE",
+   "legacy_reason_code": "EVIDENCE_COMPLETE",
+   "mapped_decision": "ACCEPT_MERGE",
+   "mapped_reason_code": "EVIDENCE_COMPLETE"
+  },
+  "D-20261116-024": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "DISPATCH",
+   "legacy_reason_code": "EVIDENCE_COMPLETE",
+   "mapped_decision": null,
+   "mapped_reason_code": "DOC_ONLY"
+  },
+  "D-20261116-025": {
+   "decision_class": "STATE",
+   "legacy_decision": "ACCEPT_MERGE",
+   "legacy_reason_code": "EVIDENCE_COMPLETE",
+   "mapped_decision": "ACCEPT_MERGE",
+   "mapped_reason_code": "EVIDENCE_COMPLETE"
+  },
+  "D-20261116-026": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "CORRECTION",
+   "legacy_reason_code": "SCOPE_CHANGE",
+   "mapped_decision": null,
+   "mapped_reason_code": "CORRECTION"
+  },
+  "D-20261116-027": {
+   "decision_class": "STATE",
+   "legacy_decision": "ACCEPT_MERGE",
+   "legacy_reason_code": "EVIDENCE_COMPLETE",
+   "mapped_decision": "ACCEPT_MERGE",
+   "mapped_reason_code": "EVIDENCE_COMPLETE"
+  },
+  "D-20261116-028": {
+   "decision_class": "STATE",
+   "legacy_decision": "ACCEPT_INTERFACE",
+   "legacy_reason_code": "EVIDENCE_COMPLETE",
+   "mapped_decision": "ACCEPT_INTERFACE",
+   "mapped_reason_code": "EVIDENCE_COMPLETE"
+  },
+  "D-20261116-029": {
+   "decision_class": "STATE",
+   "legacy_decision": "ACCEPT_MERGE",
+   "legacy_reason_code": "EVIDENCE_COMPLETE",
+   "mapped_decision": "ACCEPT_MERGE",
+   "mapped_reason_code": "EVIDENCE_COMPLETE"
+  },
+  "D-20261116-030": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "DISPATCH",
+   "legacy_reason_code": "EVIDENCE_COMPLETE",
+   "mapped_decision": null,
+   "mapped_reason_code": "DOC_ONLY"
+  },
+  "D-20261116-031": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "CORRECTION",
+   "legacy_reason_code": "SCOPE_CHANGE",
+   "mapped_decision": null,
+   "mapped_reason_code": "CORRECTION"
+  },
+  "D-20261116-032": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "DISPATCH",
+   "legacy_reason_code": "EVIDENCE_COMPLETE",
+   "mapped_decision": null,
+   "mapped_reason_code": "DOC_ONLY"
+  },
+  "D-20261116-033": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "CORRECTION",
+   "legacy_reason_code": "SCOPE_CHANGE",
+   "mapped_decision": null,
+   "mapped_reason_code": "CORRECTION"
+  },
+  "D-20261116-034": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "CORRECTION",
+   "legacy_reason_code": "OWNERSHIP_VIOLATION",
+   "mapped_decision": null,
+   "mapped_reason_code": "CORRECTION"
+  },
+  "D-20261116-035": {
+   "decision_class": "STATE",
+   "legacy_decision": "ACCEPT_MERGE",
+   "legacy_reason_code": "EVIDENCE_COMPLETE",
+   "mapped_decision": "ACCEPT_MERGE",
+   "mapped_reason_code": "EVIDENCE_COMPLETE"
+  },
+  "D-20261116-036": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "CORRECTION",
+   "legacy_reason_code": "EVIDENCE_COMPLETE",
+   "mapped_decision": null,
+   "mapped_reason_code": "CORRECTION"
+  },
+  "D-20261116-037": {
+   "decision_class": "STATE",
+   "legacy_decision": "ACCEPT_MERGE",
+   "legacy_reason_code": "EVIDENCE_COMPLETE",
+   "mapped_decision": "ACCEPT_MERGE",
+   "mapped_reason_code": "EVIDENCE_COMPLETE"
+  },
+  "D-20261116-038": {
+   "decision_class": "STATE",
+   "legacy_decision": "ACCEPT_MERGE",
+   "legacy_reason_code": "EVIDENCE_COMPLETE",
+   "mapped_decision": "ACCEPT_MERGE",
+   "mapped_reason_code": "EVIDENCE_COMPLETE"
+  },
+  "D-20261116-039": {
+   "decision_class": "STATE",
+   "legacy_decision": "ACCEPT_INTERFACE",
+   "legacy_reason_code": "DOC_ONLY_VERSIONED",
+   "mapped_decision": "ACCEPT_INTERFACE",
+   "mapped_reason_code": "DOC_ONLY"
+  },
+  "D-20261116-040": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "CORRECTION",
+   "legacy_reason_code": "CACHE_CONFOUND_CONFIRMED",
+   "mapped_decision": null,
+   "mapped_reason_code": "CORRECTION"
+  },
+  "D-20261116-041": {
+   "decision_class": "STATE",
+   "legacy_decision": "ACCEPT_CORRECTION",
+   "legacy_reason_code": "SELF_AUDIT_RETRACTION",
+   "mapped_decision": "ACCEPT_INTERFACE",
+   "mapped_reason_code": "EVIDENCE_COMPLETE"
+  },
+  "D-20261116-042": {
+   "decision_class": "STATE",
+   "legacy_decision": "APPROVE_PLAN",
+   "legacy_reason_code": "SECOND_CHANNEL_WITH_GUARDRAILS",
+   "mapped_decision": "ACCEPT_INTERFACE",
+   "mapped_reason_code": "EVIDENCE_COMPLETE"
+  },
+  "D-20261116-043": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "RULING",
+   "legacy_reason_code": "CACHEFREE_RERUN_DECIDES",
+   "mapped_decision": null,
+   "mapped_reason_code": "RULING"
+  },
+  "D-20261116-044": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "DEFECT",
+   "legacy_reason_code": "OUTPUT_NOT_SELF_CONSISTENT",
+   "mapped_decision": null,
+   "mapped_reason_code": "RULING"
+  },
+  "D-20261116-045": {
+   "decision_class": "STATE",
+   "legacy_decision": "ACCEPT_EVIDENCE",
+   "legacy_reason_code": "CACHEFREE_DECIDES",
+   "mapped_decision": "ACCEPT_INTERFACE",
+   "mapped_reason_code": "CACHE_REPLAY_ONLY"
+  },
+  "D-20261116-046": {
+   "decision_class": "STATE",
+   "legacy_decision": "ACCEPT_MERGE",
+   "legacy_reason_code": "EVIDENCE_COMPLETE",
+   "mapped_decision": "ACCEPT_MERGE",
+   "mapped_reason_code": "EVIDENCE_COMPLETE"
+  },
+  "D-20261116-047": {
+   "decision_class": "STATE",
+   "legacy_decision": "ACCEPT_MERGE",
+   "legacy_reason_code": "EVIDENCE_COMPLETE",
+   "mapped_decision": "ACCEPT_MERGE",
+   "mapped_reason_code": "EVIDENCE_COMPLETE"
+  },
+  "D-20261116-048": {
+   "decision_class": "STATE",
+   "legacy_decision": "ACCEPT_EVIDENCE",
+   "legacy_reason_code": "P8_ANSWERS_S2",
+   "mapped_decision": "ACCEPT_INTERFACE",
+   "mapped_reason_code": "EVIDENCE_COMPLETE"
+  },
+  "D-20261116-049": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "CORRECTION",
+   "legacy_reason_code": "BOARD_STATE_UNIMPLEMENTED",
+   "mapped_decision": null,
+   "mapped_reason_code": "CORRECTION"
+  },
+  "D-20261116-050": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "INSTRUCTION",
+   "legacy_reason_code": "ROI_COVERAGE_QUESTION",
+   "mapped_decision": null,
+   "mapped_reason_code": "DOC_ONLY"
+  },
+  "D-20261116-051": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "CORRECTION",
+   "legacy_reason_code": "D0_WRONG_TWICE",
+   "mapped_decision": null,
+   "mapped_reason_code": "CORRECTION"
+  },
+  "D-20261116-052": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "DEFECT",
+   "legacy_reason_code": "SCENE_HAS_TWO_RIGS",
+   "mapped_decision": null,
+   "mapped_reason_code": "RULING"
+  },
+  "D-20261116-053": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "RULING",
+   "legacy_reason_code": "PLACEHOLDER_BODIES_ARE_STATIC",
+   "mapped_decision": null,
+   "mapped_reason_code": "RULING"
+  },
+  "D-20261116-054": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "RULING",
+   "legacy_reason_code": "S8_SCOPE_LADDER",
+   "mapped_decision": null,
+   "mapped_reason_code": "RULING"
+  },
+  "D-20261116-055": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "CORRECTION",
+   "legacy_reason_code": "ONE_SKELETON_NOT_TWO",
+   "mapped_decision": null,
+   "mapped_reason_code": "CORRECTION"
+  },
+  "D-20261116-056": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "DEFECT",
+   "legacy_reason_code": "DELIVERABLE_NOT_REBUILDABLE",
+   "mapped_decision": null,
+   "mapped_reason_code": "RULING"
+  },
+  "D-20261116-057": {
+   "decision_class": "STATE",
+   "legacy_decision": "RETURN_FIX",
+   "legacy_reason_code": "EVIDENCE_ARTIFACT_STALE",
+   "mapped_decision": "RETURN_FIX",
+   "mapped_reason_code": "MISSING_EVIDENCE"
+  },
+  "D-20261116-058": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "RULING",
+   "legacy_reason_code": "UNBAKE_PATH_NEEDS_P11",
+   "mapped_decision": null,
+   "mapped_reason_code": "RULING"
+  },
+  "D-20261116-059": {
+   "decision_class": "STATE",
+   "legacy_decision": "ACCEPT_MERGE",
+   "legacy_reason_code": "DEF_RUN_AND_VERIFIED",
+   "mapped_decision": "ACCEPT_MERGE",
+   "mapped_reason_code": "EVIDENCE_COMPLETE"
+  },
+  "D-20261116-060": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "CORRECTION",
+   "legacy_reason_code": "HASH_BASIS_UNSPECIFIED",
+   "mapped_decision": null,
+   "mapped_reason_code": "CORRECTION"
+  },
+  "D-20261116-061": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "RULING",
+   "legacy_reason_code": "UNBAKE_HALF_VIABLE",
+   "mapped_decision": null,
+   "mapped_reason_code": "RULING"
+  },
+  "D-20261116-062": {
+   "decision_class": "STATE",
+   "legacy_decision": "APPROVE",
+   "legacy_reason_code": "CAPSULE_BASELINE_A",
+   "mapped_decision": "ACCEPT_INTERFACE",
+   "mapped_reason_code": "CAP_UNMET"
+  },
+  "D-20261116-063": {
+   "decision_class": "STATE",
+   "legacy_decision": "ACCEPT_MERGE",
+   "legacy_reason_code": "BASELINE_RELATIVE",
+   "mapped_decision": "ACCEPT_MERGE",
+   "mapped_reason_code": "EVIDENCE_COMPLETE"
+  },
+  "D-20261116-064": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "RULING",
+   "legacy_reason_code": "SEQUENTIAL_DELIVERY_A_PLUS",
+   "mapped_decision": null,
+   "mapped_reason_code": "RULING"
+  },
+  "D-20261116-065": {
+   "decision_class": "STATE",
+   "legacy_decision": "ACCEPT_MERGE",
+   "legacy_reason_code": "SILENT_FAILURES_FIXED",
+   "mapped_decision": "ACCEPT_MERGE",
+   "mapped_reason_code": "EVIDENCE_COMPLETE"
+  },
+  "D-20261116-066": {
+   "decision_class": "STATE",
+   "legacy_decision": "ACCEPT_MERGE",
+   "legacy_reason_code": "STATUS_VIEW_DONE",
+   "mapped_decision": "ACCEPT_MERGE",
+   "mapped_reason_code": "EVIDENCE_COMPLETE"
+  },
+  "D-20261116-067": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "RULING",
+   "legacy_reason_code": "BAKE_WORKS_FLAGS_LIE",
+   "mapped_decision": null,
+   "mapped_reason_code": "RULING"
+  },
+  "D-20261116-068": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "PENDING_HUMAN",
+   "legacy_reason_code": "GLOBAL_INSTALL_AND_S2",
+   "mapped_decision": "NEEDS_HUMAN",
+   "mapped_reason_code": "HUMAN_REQUIRED"
+  },
+  "D-20261116-069": {
+   "decision_class": "STATE",
+   "legacy_decision": "ACCEPT_MERGE",
+   "legacy_reason_code": "HASH_BASIS_FIELD",
+   "mapped_decision": "ACCEPT_MERGE",
+   "mapped_reason_code": "HASH_BASIS_INVALID"
+  },
+  "D-20261116-070": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "RULING",
+   "legacy_reason_code": "TWO_RULERS",
+   "mapped_decision": null,
+   "mapped_reason_code": "RULING"
+  },
+  "D-20261116-071": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "CORRECTION",
+   "legacy_reason_code": "LOCK_DELETED_BY_OTHERS",
+   "mapped_decision": null,
+   "mapped_reason_code": "CORRECTION"
+  },
+  "D-20261116-072": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "SPEC_CHANGE",
+   "legacy_reason_code": "EVIDENCE_MEASUREMENTS_KEY",
+   "mapped_decision": null,
+   "mapped_reason_code": "SPEC_CHANGE"
+  },
+  "D-20261116-073": {
+   "decision_class": "STATE",
+   "legacy_decision": "ACCEPT_CODE_RETURN_EVIDENCE",
+   "legacy_reason_code": "CANONICAL_NOT_FROM_TOOL",
+   "mapped_decision": "ACCEPT_INTERFACE",
+   "mapped_reason_code": "HASH_BASIS_INVALID"
+  },
+  "D-20261116-074": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "RULING",
+   "legacy_reason_code": "MESH_THRESHOLD_SCOPE",
+   "mapped_decision": null,
+   "mapped_reason_code": "RULING"
+  },
+  "D-20261116-075": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "FINDING_ACCEPTED",
+   "legacy_reason_code": "MASK_STRUCTURALLY_UNWIRED",
+   "mapped_decision": null,
+   "mapped_reason_code": "RULING"
+  },
+  "D-20261116-076": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "DEFECT_CLASS",
+   "legacy_reason_code": "SUBPROCESS_ENCODING_UNPINNED",
+   "mapped_decision": null,
+   "mapped_reason_code": "RULING"
+  },
+  "D-20261116-077": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "CORRECTION",
+   "legacy_reason_code": "LOCK_OWNERSHIP_CLOSED",
+   "mapped_decision": null,
+   "mapped_reason_code": "CORRECTION"
+  },
+  "D-20261116-078": {
+   "decision_class": "STATE",
+   "legacy_decision": "ACCEPT_CONTENT_RETURN_RECORD",
+   "legacy_reason_code": "INTERFACE_NOT_CANONICALIZABLE",
+   "mapped_decision": "ACCEPT_INTERFACE",
+   "mapped_reason_code": "HASH_BASIS_INVALID"
+  },
+  "D-20261116-079": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "FINDING_ACCEPTED",
+   "legacy_reason_code": "P9_REFUSED_MASK_UNWIRED",
+   "mapped_decision": null,
+   "mapped_reason_code": "RULING"
+  },
+  "D-20261116-080": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "SPEC_CHANGE",
+   "legacy_reason_code": "INTERFACE_IS_VERSION_STRING",
+   "mapped_decision": null,
+   "mapped_reason_code": "SPEC_CHANGE"
+  },
+  "D-20261116-081": {
+   "decision_class": "STATE",
+   "legacy_decision": "RETURN_FIX",
+   "legacy_reason_code": "ENCODING_CONTRACT_BOTH_SIDES",
+   "mapped_decision": "RETURN_FIX",
+   "mapped_reason_code": "MISSING_EVIDENCE"
+  },
+  "D-20261116-082": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "SPEC_CHANGE",
+   "legacy_reason_code": "COMMIT_SCOPE_KEYS_CHOSEN_B",
+   "mapped_decision": null,
+   "mapped_reason_code": "SPEC_CHANGE"
+  },
+  "D-20261116-083": {
+   "decision_class": "STATE",
+   "legacy_decision": "ACCEPT",
+   "legacy_reason_code": "THREE_STRAIGHT_REPRODUCIBLE",
+   "mapped_decision": "ACCEPT_INTERFACE",
+   "mapped_reason_code": "EVIDENCE_COMPLETE"
+  },
+  "D-20261116-084": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "CORRECTION",
+   "legacy_reason_code": "ENCODING_CLASS_SCOPE_FIXED",
+   "mapped_decision": null,
+   "mapped_reason_code": "CORRECTION"
+  },
+  "D-20261116-085": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "CORRECTION",
+   "legacy_reason_code": "CROSS_MODULE_EDIT_WITHOUT_ASKING",
+   "mapped_decision": null,
+   "mapped_reason_code": "CORRECTION"
+  },
+  "D-20261116-086": {
+   "decision_class": "STATE",
+   "legacy_decision": "RETURN_FIX",
+   "legacy_reason_code": "SCANNER_FALSE_NEGATIVE_LOOKS_CLEAN",
+   "mapped_decision": "RETURN_FIX",
+   "mapped_reason_code": "MISSING_EVIDENCE"
+  },
+  "D-20261116-087": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "RULING",
+   "legacy_reason_code": "M08_OBJECT_IS_CURRENT_CODE_SCENE",
+   "mapped_decision": null,
+   "mapped_reason_code": "RULING"
+  },
+  "D-20261116-088": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "RULING",
+   "legacy_reason_code": "MEASUREMENTS_GOLDEN_VALUE_PINNED",
+   "mapped_decision": null,
+   "mapped_reason_code": "RULING"
+  },
+  "D-20261116-089": {
+   "decision_class": "STATE",
+   "legacy_decision": "ACCEPT_PARTIAL",
+   "legacy_reason_code": "MEASUREMENTS_PASSED_WITH_GOLD",
+   "mapped_decision": "ACCEPT_INTERFACE",
+   "mapped_reason_code": "EVIDENCE_COMPLETE"
+  },
+  "D-20261116-090": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "SPEC_CHANGE",
+   "legacy_reason_code": "EVIDENCE_CHECK_EXIT_CODES",
+   "mapped_decision": null,
+   "mapped_reason_code": "SPEC_CHANGE"
+  },
+  "D-20261116-091": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "RULING",
+   "legacy_reason_code": "PENDING_NOT_FAIL",
+   "mapped_decision": null,
+   "mapped_reason_code": "RULING"
+  },
+  "D-20261116-092": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "RULING",
+   "legacy_reason_code": "PENDING_EXPIRES_WHEN_RULE_LANDS",
+   "mapped_decision": null,
+   "mapped_reason_code": "RULING"
+  },
+  "D-20261116-093": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "FINDING_ACCEPTED",
+   "legacy_reason_code": "VARIANT_D_POSITIVE_CONTROL",
+   "mapped_decision": null,
+   "mapped_reason_code": "RULING"
+  },
+  "D-20261116-094": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "SPEC_CHANGE",
+   "legacy_reason_code": "TESTS_UNKNOWN_FIELD_MUST_RAISE",
+   "mapped_decision": null,
+   "mapped_reason_code": "SPEC_CHANGE"
+  },
+  "D-20261116-095": {
+   "decision_class": "STATE",
+   "legacy_decision": "ACCEPT",
+   "legacy_reason_code": "M00_PASS_MAIN_GREEN_THREE_ENVS",
+   "mapped_decision": "ACCEPT_INTERFACE",
+   "mapped_reason_code": "EVIDENCE_COMPLETE"
+  },
+  "D-20261116-096": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "SPEC_CHANGE",
+   "legacy_reason_code": "FIXED_POINT_REQUIREMENT",
+   "mapped_decision": null,
+   "mapped_reason_code": "SPEC_CHANGE"
+  },
+  "D-20261116-097": {
+   "decision_class": "STATE",
+   "legacy_decision": "ACCEPT_RECORD",
+   "legacy_reason_code": "REISSUED_RECORD_CANONICAL",
+   "mapped_decision": "ACCEPT_INTERFACE",
+   "mapped_reason_code": "HASH_BASIS_INVALID"
+  },
+  "D-20261116-098": {
+   "decision_class": "STATE",
+   "legacy_decision": "ACCEPT_RECORD",
+   "legacy_reason_code": "REISSUED_RECORD_FIXED_POINT",
+   "mapped_decision": "ACCEPT_INTERFACE",
+   "mapped_reason_code": "EVIDENCE_COMPLETE"
+  },
+  "D-20261116-099": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "RULING",
+   "legacy_reason_code": "DEFAULT_MUST_BE_THE_CORRECT_PATH",
+   "mapped_decision": null,
+   "mapped_reason_code": "RULING"
+  },
+  "D-20261116-100": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "RULING",
+   "legacy_reason_code": "SCANNED_ZERO_IS_NOT_GREEN",
+   "mapped_decision": null,
+   "mapped_reason_code": "RULING"
+  },
+  "D-20261116-101": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "RULING",
+   "legacy_reason_code": "MASK_CHANNEL_SPEC_AND_PROBE",
+   "mapped_decision": null,
+   "mapped_reason_code": "RULING"
+  },
+  "D-20261116-102": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "FINDING_ACCEPTED",
+   "legacy_reason_code": "MASK_RECONCILIATION_TWO_PATHS_AGREE",
+   "mapped_decision": null,
+   "mapped_reason_code": "RULING"
+  },
+  "D-20261116-103": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "RULING",
+   "legacy_reason_code": "S2_RESTRUCTURED_PREREGISTERED",
+   "mapped_decision": null,
+   "mapped_reason_code": "RULING"
+  },
+  "D-20261116-104": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "RULING",
+   "legacy_reason_code": "ONE_VARIABLE_AT_A_TIME_DESIGN",
+   "mapped_decision": null,
+   "mapped_reason_code": "RULING"
+  },
+  "D-20261116-105": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "RULING",
+   "legacy_reason_code": "DELIVERY_OBJECT_REBUILD_ASSIGNED",
+   "mapped_decision": null,
+   "mapped_reason_code": "RULING"
+  },
+  "D-20261116-106": {
+   "decision_class": "STATE",
+   "legacy_decision": "CONDITIONAL_ACCEPT",
+   "legacy_reason_code": "S2_PREREG_V1_ACCEPTED_WITH_AMENDMENTS",
+   "mapped_decision": "ACCEPT_INTERFACE",
+   "mapped_reason_code": "EVIDENCE_COMPLETE"
+  },
+  "D-20261116-107": {
+   "decision_class": "STATE",
+   "legacy_decision": "ACCEPT",
+   "legacy_reason_code": "S2_PREREG_V2_ACCEPTED_PLUS_POSITIVE_CONTROL",
+   "mapped_decision": "ACCEPT_INTERFACE",
+   "mapped_reason_code": "EVIDENCE_COMPLETE"
+  },
+  "D-20261116-108": {
+   "decision_class": "STATE",
+   "legacy_decision": "ACCEPT",
+   "legacy_reason_code": "S2_PREREG_V3_APPROVED",
+   "mapped_decision": "ACCEPT_INTERFACE",
+   "mapped_reason_code": "EVIDENCE_COMPLETE"
+  },
+  "D-20261116-109": {
+   "decision_class": "STATE",
+   "legacy_decision": "CONDITIONAL_ACCEPT",
+   "legacy_reason_code": "REMEASURE_PREREG_ACCEPTED_WITH_AMENDMENTS",
+   "mapped_decision": "ACCEPT_INTERFACE",
+   "mapped_reason_code": "EVIDENCE_COMPLETE"
+  },
+  "D-20261116-110": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "RULING",
+   "legacy_reason_code": "DEAD_SEQUENCE_AFTER_CHANNEL",
+   "mapped_decision": null,
+   "mapped_reason_code": "RULING"
+  },
+  "D-20261116-111": {
+   "decision_class": "STATE",
+   "legacy_decision": "ACCEPT",
+   "legacy_reason_code": "B_AND_D4_DELIVERED",
+   "mapped_decision": "ACCEPT_INTERFACE",
+   "mapped_reason_code": "EVIDENCE_COMPLETE"
+  },
+  "D-20261116-112": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "RULING",
+   "legacy_reason_code": "CHAIN_GAP_DEFAULT_STAYS_ZERO",
+   "mapped_decision": null,
+   "mapped_reason_code": "RULING"
+  },
+  "D-20261116-113": {
+   "decision_class": "STATE",
+   "legacy_decision": "ACCEPT",
+   "legacy_reason_code": "REMEASURE_PREREG_V2_APPROVED_D0_SELFCORRECTION",
+   "mapped_decision": "ACCEPT_INTERFACE",
+   "mapped_reason_code": "EVIDENCE_COMPLETE"
+  },
+  "D-20261116-114": {
+   "decision_class": "STATE",
+   "legacy_decision": "RETRACTION",
+   "legacy_reason_code": "DISABLE_COLLISIONS_COUNTED_BY_TYPE",
+   "mapped_decision": "BLOCK",
+   "mapped_reason_code": "GATE_FAILED"
+  },
+  "D-20261116-115": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "FINDING_ACCEPTED",
+   "legacy_reason_code": "SCENE_OVER_AND_UNDER_RESTRICTS",
+   "mapped_decision": null,
+   "mapped_reason_code": "RULING"
+  },
+  "D-20261116-116": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "RULING",
+   "legacy_reason_code": "B_GROUP_PREREG_V3_REQUIRED",
+   "mapped_decision": null,
+   "mapped_reason_code": "RULING"
+  },
+  "D-20261116-117": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "DEFECT_CLASS",
+   "legacy_reason_code": "PREDICATE_VALUE_MUST_EXIST_IN_ENUM",
+   "mapped_decision": null,
+   "mapped_reason_code": "RULING"
+  },
+  "D-20261116-118": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "CORRECTION",
+   "legacy_reason_code": "NUMBER_MIGRATED_TO_WRONG_FILE",
+   "mapped_decision": null,
+   "mapped_reason_code": "CORRECTION"
+  },
+  "D-20261116-119": {
+   "decision_class": "STATE",
+   "legacy_decision": "ACCEPT",
+   "legacy_reason_code": "REMEASURE_PREREG_V3_APPROVED",
+   "mapped_decision": "ACCEPT_INTERFACE",
+   "mapped_reason_code": "EVIDENCE_COMPLETE"
+  },
+  "D-20261116-120": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "RULING",
+   "legacy_reason_code": "UNITS_AND_DEDUP_CHANGE_VERDICT_REQUIRE_V4",
+   "mapped_decision": null,
+   "mapped_reason_code": "RULING"
+  },
+  "D-20261116-121": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "FINDING_ACCEPTED",
+   "legacy_reason_code": "LOCK_PID_NOT_THE_WORKING_PROCESS",
+   "mapped_decision": null,
+   "mapped_reason_code": "RULING"
+  },
+  "D-20261116-122": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "DEFECT_CLASS",
+   "legacy_reason_code": "COMPILE_PASS_IS_NOT_BEHAVIOUR",
+   "mapped_decision": null,
+   "mapped_reason_code": "RULING"
+  },
+  "D-20261116-123": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "RULING",
+   "legacy_reason_code": "PAIR_INTERSECTION_BY_CROSS_INSTRUMENT",
+   "mapped_decision": null,
+   "mapped_reason_code": "RULING"
+  },
+  "D-20261116-124": {
+   "decision_class": "STATE",
+   "legacy_decision": "ACCEPT",
+   "legacy_reason_code": "REMEASURE_PREREG_V4_APPROVED_AND_FROZEN",
+   "mapped_decision": "ACCEPT_INTERFACE",
+   "mapped_reason_code": "EVIDENCE_COMPLETE"
+  },
+  "D-20261116-125": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "DEFECT_CLASS",
+   "legacy_reason_code": "SELFTEST_MEASURED_THE_UNCHANGED_FILE",
+   "mapped_decision": null,
+   "mapped_reason_code": "RULING"
+  },
+  "D-20261116-126": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "RULING",
+   "legacy_reason_code": "BEFORE_AFTER_SAME_INSTRUMENT_SAME_BLEND_SHA",
+   "mapped_decision": null,
+   "mapped_reason_code": "RULING"
+  },
+  "D-20261116-127": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "DEFECT_CLASS",
+   "legacy_reason_code": "SELF_REFERENTIAL_IDENTITY_CHECK",
+   "mapped_decision": null,
+   "mapped_reason_code": "RULING"
+  },
+  "D-20261116-128": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "RULING",
+   "legacy_reason_code": "MUTATION_ON_DISK_IN_SUBPROCESS_JUDGED_BY_EXIT_CODE",
+   "mapped_decision": null,
+   "mapped_reason_code": "RULING"
+  },
+  "D-20261116-129": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "RULING",
+   "legacy_reason_code": "VERIFIER_SEVEN_CHECKS_STANDARDISED",
+   "mapped_decision": null,
+   "mapped_reason_code": "RULING"
+  },
+  "D-20261116-130": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "CORRECTION",
+   "legacy_reason_code": "LOGGED_AT_WAS_ESTIMATED_NOT_MEASURED",
+   "mapped_decision": null,
+   "mapped_reason_code": "CORRECTION"
+  },
+  "D-20261116-131": {
+   "decision_class": "STATE",
+   "legacy_decision": "ACCEPT",
+   "legacy_reason_code": "SCRIPT_HEAD_REPLACED_17051B_BY_19244B_AND_VERIFIED",
+   "mapped_decision": "ACCEPT_INTERFACE",
+   "mapped_reason_code": "EVIDENCE_COMPLETE"
+  },
+  "D-20261116-132": {
+   "decision_class": "STATE",
+   "legacy_decision": "ACCEPT_MERGE",
+   "legacy_reason_code": "MASK_CHANNEL_MERGED_VERIFIED_LOCALLY",
+   "mapped_decision": "ACCEPT_MERGE",
+   "mapped_reason_code": "EVIDENCE_COMPLETE"
+  },
+  "D-20261116-133": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "RULING",
+   "legacy_reason_code": "UNIVERSE_PINNED_U323_GROUND_PHYSICS_NOT_WIRED",
+   "mapped_decision": null,
+   "mapped_reason_code": "RULING"
+  },
+  "D-20261116-134": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "RULING",
+   "legacy_reason_code": "B_GROUP_VOID_CHANNEL_EFFECT_NOT_ISOLATED",
+   "mapped_decision": null,
+   "mapped_reason_code": "RULING"
+  },
+  "D-20261116-135": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "DEFECT_CLASS",
+   "legacy_reason_code": "BLENDER_EXIT_CODE_IS_NOT_THE_SCRIPT_RESULT",
+   "mapped_decision": null,
+   "mapped_reason_code": "RULING"
+  },
+  "D-20261116-136": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "FINDING_ACCEPTED",
+   "legacy_reason_code": "CRLF_MASQUERADED_AS_TWO_CONTENTS",
+   "mapped_decision": null,
+   "mapped_reason_code": "RULING"
+  },
+  "D-20261116-137": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "RULING",
+   "legacy_reason_code": "A0_DOWNGRADED_TO_REFERENCE_REPRODUCIBILITY",
+   "mapped_decision": null,
+   "mapped_reason_code": "RULING"
+  },
+  "D-20261116-138": {
+   "decision_class": "STATE",
+   "legacy_decision": "ACCEPT_EVIDENCE",
+   "legacy_reason_code": "STRUCTURAL_ACCOUNTING_VERIFIED_BY_D0_RERUN",
+   "mapped_decision": "ACCEPT_INTERFACE",
+   "mapped_reason_code": "EVIDENCE_COMPLETE"
+  },
+  "D-20261116-139": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "CORRECTION",
+   "legacy_reason_code": "A0_TIERS_RESTATED_AS_IN_PREREG",
+   "mapped_decision": null,
+   "mapped_reason_code": "CORRECTION"
+  },
+  "D-20261116-140": {
+   "decision_class": "STATE",
+   "legacy_decision": "RETURN_FIX",
+   "legacy_reason_code": "CODE_GREEN_RECORD_MISSING",
+   "mapped_decision": "RETURN_FIX",
+   "mapped_reason_code": "MISSING_EVIDENCE"
+  },
+  "D-20261116-141": {
+   "decision_class": "STATE",
+   "legacy_decision": "ACCEPT_MERGE",
+   "legacy_reason_code": "LOCK_HARDENING_MERGED_VERIFIED",
+   "mapped_decision": "ACCEPT_MERGE",
+   "mapped_reason_code": "EVIDENCE_COMPLETE"
+  },
+  "D-20261116-142": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "RULING",
+   "legacy_reason_code": "CHANNEL_SELF_PROOF_IS_TWO_ZEROS_NOT_TOTAL_UNCHANGED",
+   "mapped_decision": null,
+   "mapped_reason_code": "RULING"
+  },
+  "D-20261116-143": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "RULING",
+   "legacy_reason_code": "BOUNDARY_VERDICTS_MUST_QUANTISE_FIRST",
+   "mapped_decision": null,
+   "mapped_reason_code": "RULING"
+  },
+  "D-20261116-144": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "RULING",
+   "legacy_reason_code": "ABORT_REBUILD_CONSTRAINT_CAP_IS_A_HARD_BOUNDARY",
+   "mapped_decision": null,
+   "mapped_reason_code": "RULING"
+  },
+  "D-20261116-145": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "RULING",
+   "legacy_reason_code": "WIRED_DEFINED_ONCE_ADMISSION_REQUIRES_BOTH_INSTRUMENTS",
+   "mapped_decision": null,
+   "mapped_reason_code": "RULING"
+  },
+  "D-20261116-146": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "RULING",
+   "legacy_reason_code": "UMBRELLA_TASK_TREATED_AS_ANCHOR_NOT_STATE_AUTHORITY",
+   "mapped_decision": null,
+   "mapped_reason_code": "RULING"
+  },
+  "D-20261116-147": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "DEFECT_CLASS",
+   "legacy_reason_code": "SCRIPT_IMPORTS_A_DIFFERENT_TREE_SILENTLY",
+   "mapped_decision": null,
+   "mapped_reason_code": "RULING"
+  },
+  "D-20261116-148": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "RULING",
+   "legacy_reason_code": "EXIT_CODE_SEPARATED_FROM_VERDICT_AND_NOT_A_PASS_CRITERION",
+   "mapped_decision": null,
+   "mapped_reason_code": "RULING"
+  },
+  "D-20261116-149": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "RULING",
+   "legacy_reason_code": "READINGS_MUST_DECLARE_POSE_SOURCE",
+   "mapped_decision": null,
+   "mapped_reason_code": "RULING"
+  },
+  "D-20261116-150": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "RULING",
+   "legacy_reason_code": "A0_V1_UNMEASURED_CAUSE_CACHE_REPLAY_V2_DECIDES",
+   "mapped_decision": null,
+   "mapped_reason_code": "RULING"
+  },
+  "D-20261116-151": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "RULING",
+   "legacy_reason_code": "STATIC_VS_DYNAMIC_READINGS_SPLIT_AND_TWO_ARTIFACTS",
+   "mapped_decision": null,
+   "mapped_reason_code": "RULING"
+  },
+  "D-20261116-152": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "CORRECTION",
+   "legacy_reason_code": "MASK_PY_HASH_BASIS_INFERENCE",
+   "mapped_decision": null,
+   "mapped_reason_code": "CORRECTION"
+  },
+  "D-20261116-153": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "RULING",
+   "legacy_reason_code": "DELIVERY_CONTRACT_STILL_BAKED_BUILD_PATH_DOES_NOT_BAKE",
+   "mapped_decision": null,
+   "mapped_reason_code": "RULING"
+  },
+  "D-20261116-154": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "RULING",
+   "legacy_reason_code": "A0_V2_TIER3_GROUPS_REINSTATED_C_D_FRESH_SOLVE_ONLY",
+   "mapped_decision": null,
+   "mapped_reason_code": "RULING"
+  },
+  "D-20261116-155": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "DEFECT_CLASS",
+   "legacy_reason_code": "BAKED_POSE_NOT_REPRODUCIBLE_BY_RESOLVE",
+   "mapped_decision": null,
+   "mapped_reason_code": "RULING"
+  },
+  "D-20261116-156": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "DEFECT_CLASS",
+   "legacy_reason_code": "PS51_READS_BOMLESS_UTF8_AS_GBK_AND_SILENTLY_DOES_NOT_RUN",
+   "mapped_decision": null,
+   "mapped_reason_code": "RULING"
+  },
+  "D-20261116-157": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "RULING",
+   "legacy_reason_code": "RECORDED_ARTIFACTS_ARE_IMMUTABLE_SPLIT_AND_REVERT",
+   "mapped_decision": null,
+   "mapped_reason_code": "RULING"
+  },
+  "D-20261116-158": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "RULING",
+   "legacy_reason_code": "MEASUREMENT_BASELINE_FRESH_SOLVE_AND_DOUBLE_SOLVE_DETERMINISM",
+   "mapped_decision": null,
+   "mapped_reason_code": "RULING"
+  },
+  "D-20261116-159": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "RULING",
+   "legacy_reason_code": "ARTIFACT_SHA_MARKED_INVALID_AND_SNAPSHOTS_REQUIRED",
+   "mapped_decision": null,
+   "mapped_reason_code": "RULING"
+  },
+  "D-20261116-160": {
+   "decision_class": "STATE",
+   "legacy_decision": "ACCEPT_MERGE",
+   "legacy_reason_code": "CONSTRAINT_PATH_1071X_MERGED_VERIFIED",
+   "mapped_decision": "ACCEPT_MERGE",
+   "mapped_reason_code": "EVIDENCE_COMPLETE"
+  },
+  "D-20261116-161": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "CORRECTION",
+   "legacy_reason_code": "SNAPSHOT_DIR_MUST_NOT_USE_RECORD_DIGEST",
+   "mapped_decision": null,
+   "mapped_reason_code": "CORRECTION"
+  },
+  "D-20261116-162": {
+   "decision_class": "NON_STATE",
+   "legacy_decision": "RULING",
+   "legacy_reason_code": "MASK_WIRED_RECORD_WRITER_SEMANTICS",
+   "mapped_decision": null,
+   "mapped_reason_code": "RULING"
+  }
+ },
+ "non_state_decisions": [
+  "CORRECTION",
+  "DEFECT",
+  "DEFECT_CLASS",
+  "DISPATCH",
+  "FINDING_ACCEPTED",
+  "INSTRUCTION",
+  "NEEDS_HUMAN",
+  "PENDING_HUMAN",
+  "RULING",
+  "SPEC_CHANGE"
+ ],
+ "state_decisions": [
+  "ACCEPT",
+  "ACCEPT_CODE_RETURN_EVIDENCE",
+  "ACCEPT_CONTENT_RETURN_RECORD",
+  "ACCEPT_CORRECTION",
+  "ACCEPT_EVIDENCE",
+  "ACCEPT_INTERFACE",
+  "ACCEPT_MERGE",
+  "ACCEPT_PARTIAL",
+  "ACCEPT_RECORD",
+  "APPROVE",
+  "APPROVE_PLAN",
+  "BLOCK",
+  "CANCEL",
+  "CONDITIONAL_ACCEPT",
+  "REASSIGN",
+  "RETRACTION",
+  "RETURN_FIX"
+ ],
+ "stats": {
+  "kind_counts": [
+   "NON_STATE/CORRECTION: 21",
+   "NON_STATE/DEFECT: 3",
+   "NON_STATE/DEFECT_CLASS: 9",
+   "NON_STATE/DISPATCH: 10",
+   "NON_STATE/FINDING_ACCEPTED: 7",
+   "NON_STATE/INSTRUCTION: 1",
+   "NON_STATE/PENDING_HUMAN: 1",
+   "NON_STATE/RULING: 45",
+   "NON_STATE/SPEC_CHANGE: 6",
+   "STATE/ACCEPT: 9",
+   "STATE/ACCEPT_CODE_RETURN_EVIDENCE: 1",
+   "STATE/ACCEPT_CONTENT_RETURN_RECORD: 1",
+   "STATE/ACCEPT_CORRECTION: 1",
+   "STATE/ACCEPT_EVIDENCE: 3",
+   "STATE/ACCEPT_INTERFACE: 6",
+   "STATE/ACCEPT_MERGE: 23",
+   "STATE/ACCEPT_PARTIAL: 1",
+   "STATE/ACCEPT_RECORD: 2",
+   "STATE/APPROVE: 1",
+   "STATE/APPROVE_PLAN: 1",
+   "STATE/CONDITIONAL_ACCEPT: 2",
+   "STATE/RETRACTION: 1",
+   "STATE/RETURN_FIX: 7"
+  ],
+  "total": 162
+ },
+ "unmapped": [],
+ "version": 1
+}

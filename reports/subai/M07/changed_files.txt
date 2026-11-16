@@ -1,0 +1,17 @@
+# M07 · 变更清单
+
+# 相对分支 `ai/a4` 的基线（`97e40ba` = main tip），三点式：
+#   git diff --name-only main...HEAD
+# 格式：状态<TAB>文件
+
+修改	addon/mmd_pipeline/operators.py
+新增	addon/mmd_pipeline/status.py
+新增	addon/mmd_pipeline/run_tool.py
+修改	addon/mmd_pipeline/panels.py
+修改	mmdpipe/params.py
+修改	build_addon.py
+修改	tests_bpy/smoke.py
+新增	tests_bpy/test_status.py
+新增	tests_bpy/test_zones.py
+修改	coordination/gate.py
+修改	tests/test_coordination.py
