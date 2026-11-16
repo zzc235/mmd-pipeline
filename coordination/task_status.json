@@ -22,8 +22,8 @@
     "M02": {
       "status": "PARTIAL",
       "reason": "判据七态（旗标只筛选、结论靠行为探针）、P12 负 / P13 正、重建三数、P9 拒绝路径、掩码结构性未接线都已实测；交付契约定为 B（烘焙），冷跳逐位等于顺序重算",
-      "next": "A1：S2 选轴证据 D0 已独立复算一致（Y=1.009819 rad > Z 0.756623 > X 0.578768，Z÷Y=0.7493），但 s2_prereg_v4.md §四.1「五臂 frames.jsonl 逐字节相同」不成立（B2r_baseline 818344 B 与 B2_* 681725 B 不同，B2_gravity/B2_none 该路径缺）—— 先改成交付逐臂表（臂名/路径/字节/sha/是否参与选轴）并把结论收窄为「三轴峰值逐位相同」，交回后 D0 合并并冻结新 sha；P2（limit 回读 ⇒ AXIS_FRAME_MISMATCH）批准为强制前置，若真触发不许只把轴从 X 换到 Y，须在约束作用参考系重算三轴峰值。M08 重建等此后再发车",
-      "updated": "2026-11-16T17:48+08:00"
+      "next": "A1：①烘焙按文件所有权切分（D-199）—— 4号 写 mmdpipe/stage.py 的实现（bake=None 保持现状、bake.{requested,applied,frame_start,frame_end,fps}+pose_source+is_baked/is_outdated 落盘、行为探针冷跳==顺序重算 1e-6、能红的反控、不传 bake 路径逐字节不变的测试），1号 只写调用点与重建链，4号 合进 main 前 1号 不写调用点；②当前锁窗口（A1 18:33:42 起）做「抽补丁 → 重建 324 → 逐刚体回读 → 强摘要」，产物落版本化路径并冻结（D-198），强摘要与烘焙的时序按 D-200（最终只留一份算在烘后字节上的 strict 摘要，烘前那份标 stage=pre_bake 且永不与之比较，负控只在临时副本上改）；③preflight spec 快照（2 555 B / 79b19f75…）进 git，needs 只是进窗口的门、窗口内用重建件自己的 already 重算（D-201）。仍欠：S2 预注册 §四.1 改成交付逐臂表并把结论收窄为「三轴峰值逐位相同」；P2（limit 回读 ⇒ AXIS_FRAME_MISMATCH）为强制前置",
+      "updated": "2026-11-16T18:45+08:00"
     },
     "M03": {
       "status": "PASS",
@@ -34,14 +34,14 @@
     "M04": {
       "status": "PARTIAL",
       "reason": "顺序求值改计划制（回退/冷跳在计划阶段拒）；胶囊口径改相对基线；网格口径 v2 在解析实体上自检通过（0.9933/0.9867/0.27 mm），真实网格 77.01% 不可计分、可计分区 0.9367/0.9067/−8.2 mm",
-      "next": "A2：判官拆「灵敏度/确定性」两个问题已合入 main（tier=None + DETERMINISTIC，旧 JSON 留档 supersedes）；C/D 发车清单已批准（W1=1..240、W2=1..832、C 跑两次、D 与 C@W2 比；B_aligned 300 帧 ⇒ 301..832 末帧定格的限制要进 known_risks）；档位本轮 T2，T3 需四条件同时成立（场景自身 WIRED/cap=0/skipped=[] + 契约 B 烘焙与行为探针 + delivery_v1 sha 同一次 + cap 来自 constraint_limit）。只等 1号 delivery_v1；缺项判 UNMEASURED 不判 FAIL",
-      "updated": "2026-11-16T17:48+08:00"
+      "next": "A2：判官拆「灵敏度/确定性」两个问题已合入 main（tier=None + DETERMINISTIC，旧 JSON 留档 supersedes）；C/D 发车清单已批准（W1=1..240、W2=1..832、C 跑两次、D 与 C@W2 比；B_aligned 300 帧 ⇒ 301..832 末帧定格的限制要进 known_risks）；档位本轮 T2，T3 需四条件同时成立（场景自身 WIRED/cap=0/skipped=[] + 契约 B 烘焙与行为探针 + delivery_v1 sha 同一次 + cap 来自 constraint_limit）。只等 1号 delivery_v1；缺项判 UNMEASURED 不判 FAIL。第一轮 C/D 已出 T2（D-202 受理）：D vs C@W2 832/832 帧更深、中位 40.266 mm、最大 46.453 mm @f409，定格段与动作段只差 2.9% ⇒ 定格未主导；C@W1 vs A(R_free) 标 T_DESCRIPTIVE。本轮读数钉的实例 sha（251146e9…/be6c0a1c…）已被 3号 重跑覆盖、盘上不存在 ⇒ T3 第③条回溯性不可满足，本轮永久封顶 T2、不重跑；下一轮在最终 324 冻结件上把 A0 正控与三臂整套重钉，标题「T2，但仪器有效性在同场景自证」",
+      "updated": "2026-11-16T18:45+08:00"
     },
     "M05": {
       "status": "PARTIAL",
       "reason": "接口 chain/junctions+frames+nla_guard@1 已验收；丢段 PASS（§6 四条 4/4，本轮又加真跑）；NLA 姿态 1 绿 / 1 部分 / 2 没有；D4 第一处交接已补（像素步差 4.3 倍支持 E-16），第二处待补",
-      "next": "A3：第二处交接 pair[1,2] 同四样（gap=0 步差/常态/gap=22 步差/图）；NLA 三面（导出重导入、blend>gap、悬空坐姿视觉）未验；--chain-gap 默认保持 0（D-112）",
-      "updated": "2026-11-16T14:16+08:00"
+      "next": "**插单已交付（D-186 → D-203）**：mmdpipe/apply_action.py 已进 main（入口闸不持锁连 bpy 都不进、尾部闸三步记 lock_ident+heartbeat_age、版本化落盘 --out-dir/--batch-id 默认拒覆盖 + --freeze 只读），四臂 fps=24 读数与补证（5 臂 × 7 回读字段逐字段相同）已受理。仍欠：①版本化的真 Blender 端到端（拒绝覆盖 / 冻结）在下一批第一次真跑时走通；②在版本化路径上重跑四臂并带 content_digest_v1 强摘要（bodies[] 用 1号 的重建回读，不造第二份读刚体的实现）；③第二处交接 pair[1,2] 同四样（gap=0 步差/常态/gap=22 步差/图）；④NLA 三面（导出重导入、blend>gap、悬空坐姿视觉）未验；--chain-gap 默认保持 0（D-112）。原插单口径存档：（gap=0 步差/常态/gap=22 步差/图）；NLA 三面（导出重导入、blend>gap、悬空坐姿视觉）未验；--chain-gap 默认保持 0（D-112）",
+      "updated": "2026-11-16T18:03+08:00"
     },
     "M06": {
       "status": "PASS",
@@ -56,10 +56,10 @@
       "updated": "2026-11-16T17:48+08:00"
     },
     "M08": {
-      "status": "NOT_STARTED",
-      "reason": "验收口径已起草（coordination/m08_acceptance.md），硬前提未满足：交付场景用当前代码重建不出来（今天重建 312 刚体、无 $name_j；交付物 324 刚体含 11 个模板命名的静态占位体）；另有新发现的 known_limitation：mmd_rigid 掩码没有进解算器的通道，物理跑在「谁跟谁都碰」上",
-      "next": "A1：在 main 上重建 delivery_v1.blend（sha 即身份）→ 自跑 --expect wired → S8 第三层 + S2 A/B/C；并回答「重建后的场景里有没有 地面_物理」（有则说明重建路径引入手工对象，当缺陷报）",
-      "updated": "2026-11-16T15:15+08:00"
+      "status": "PARTIAL",
+      "reason": "第一轮重建已跑（D-186）：rebuild_built.blend 5 929 823 B / e77851ab…，312 刚体尺度上掩码通道判 WIRED，恒等式 6 686 + 1 813 = 8 499 成立、capped=false、skipped_count=0、readback_mismatch=0，负控 import_only 判 UNWIRED、缺 --stage-json 时判 PARTIAL —— 判据能绿能红且缺料不装懂。但交付件缺两件：①没有「应用动作」这一段（actions == []，C/D 判 UNMEASURED，缺料非缺陷）；②312/324，12 个刚体（11 个 $name_j 占位体 + 第 11 行）建不出来 ⇒ 硬前置「交付场景可由当前代码重建」未满足。（D-198 更正口径：通道作用域 U323=323、盘上 U324=324，差的那一个是 地面_物理、例外单列；10111/1813/8298 都是 U323 口径，already 是场景状态量，已取消「to_add 必回 8298」的预承诺）",
+      "next": "顺序（D-197/D-199/D-200/D-201，不改）：①1号 当前窗口：抽补丁 → 重建 324 → 逐刚体回读 → 强摘要（落版本化路径并冻结；烘前摘要标 stage=pre_bake，与烘后摘要永不比较），preflight spec 快照进 git，三件套用重建件自己的回读重算并验 needed==already+to_add；②4号 写 stage.py 烘焙实现（只增不改 + 五条判据 + 能红的反控 + 不传 bake 路径逐字节不变的测试），合进 main 后 1号 写调用点、同件真烘一次并补 bake.applied 与探针读数、再出烘后 strict 摘要；③2号 在最终件同一份字节上跑 A0 仪器正控 + 三臂（标题「T2，但仪器有效性在同场景自证」）；④3号 在版本化路径上重跑四臂 + 强摘要。四步全绿才谈 T3（四条件：场景自身 WIRED/cap=0/skipped=[] + 契约 B 已烘焙且行为探针过 + sha 与读数同一次 + cap 来自 constraint_limit）",
+      "updated": "2026-11-16T18:03+08:00"
     }
   }
 }

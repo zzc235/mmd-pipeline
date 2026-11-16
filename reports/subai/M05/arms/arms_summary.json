@@ -1,0 +1,923 @@
+{
+ "arms": [
+  {
+   "action": {
+    "fcurves": 725,
+    "frame_range": [
+     1,
+     301
+    ],
+    "name": "B_aligned_bone"
+   },
+   "arm": "C_W1",
+   "arm_role": "C@W1",
+   "cache": {
+    "has_rigidbody_world": true,
+    "is_baked": false,
+    "is_outdated": true
+   },
+   "checks": [
+    {
+     "detail": "ensure_addons={'mmd_tools': True}（`hasattr` 在没装上时也返回 True，只能信这个）",
+     "id": "A0_profile_ready",
+     "ok": true
+    },
+    {
+     "detail": "action='B_aligned_bone' fcurves=725（门槛 > 100）",
+     "id": "A1_action_applied",
+     "ok": true
+    },
+    {
+     "detail": "scene.frame_end=301，action.frame_range[1]=301，来源='readback:arm.animation_data.action.frame_range[1]'",
+     "id": "A2_frame_end_readback",
+     "ok": true
+    },
+    {
+     "detail": "rigidbody_world=True is_baked=False is_outdated=True freed_bake=False",
+     "id": "A3_is_baked_false",
+     "ok": true
+    },
+    {
+     "detail": "nla_tracks=0（单动作这一步不许留 NLA 轨道）",
+     "id": "A4_no_nla_stacking",
+     "ok": true
+    },
+    {
+     "detail": "scene.frame_end=301，plan.final_last=301",
+     "id": "A5_window_matches_plan",
+     "ok": true
+    },
+    {
+     "detail": "scene.fps_after=24，preset=24",
+     "id": "A6_fps_matches_preset",
+     "ok": true
+    }
+   ],
+   "cleared": {
+    "action": false,
+    "nla_tracks": 0,
+    "orphan_actions": 0
+   },
+   "in_blend": {
+    "bytes": 5923244,
+    "path": "E:\\code\\mmdpipe-ai\\A1\\out\\subai\\M08\\run_20261116_1805\\rebuild_built.blend",
+    "sha256": "ef8e31a9fa2d4ef48d7e1b3e684a2238091c4b3b6b253d012fab4abe9f7ef27e"
+   },
+   "ops": [],
+   "out_blend": {
+    "bytes": 5963498,
+    "path": "E:\\code\\mmdpipe-ai\\A3\\out\\subai\\M05\\arms\\C_W1.blend",
+    "sha256": "8a8d7daa8fb26dd09895ab3392688189724fe0fd9496c52f64c8a67960d940a6"
+   },
+   "profile": {
+    "ensure_addons": {
+     "mmd_tools": true
+    },
+    "lock_before_save": {
+     "heartbeat_age": 0.07543444633483887,
+     "held": true,
+     "ident": "模块负责3|A3",
+     "raw": "模块负责3|A3|PID=27456|2026-11-16T18:29:43+08:00|M05 干净窗口独占重跑四臂（带锁三步证据）+ 两条反控（D-188 补证）"
+    },
+    "lock_end": {
+     "heartbeat_age": 0.5052189826965332,
+     "held": true,
+     "ident": "模块负责3|A3",
+     "raw": "模块负责3|A3|PID=27456|2026-11-16T18:29:43+08:00|M05 干净窗口独占重跑四臂（带锁三步证据）+ 两条反控（D-188 补证）"
+    },
+    "lock_start": {
+     "heartbeat_age": 8.084413290023804,
+     "held": true,
+     "ident": "模块负责3|A3",
+     "raw": "模块负责3|A3|PID=27456|2026-11-16T18:29:43+08:00|M05 干净窗口独占重跑四臂（带锁三步证据）+ 两条反控（D-188 补证）"
+    },
+    "lock_tail": {
+     "detail": "锁身份一致：'模块负责3|A3'（开局心跳 8.084413290023804s / 收尾心跳 0.5052189826965332s）",
+     "ok": true
+    },
+    "preset_fps": 24,
+    "update_scene_settings_forced_off": true
+   },
+   "scene": {
+    "fps_after": 24,
+    "fps_before": 24,
+    "fps_changed": false,
+    "name": "Scene"
+   },
+   "source": {
+    "bone_frames": 491,
+    "bones": 332,
+    "frame_range": [
+     0,
+     300
+    ],
+    "path": "E:\\dsh pr\\woker2\\out\\B_aligned.vmd",
+    "sha256": "5d391f1a01d2279aa9f769cf6cd20fc176b5aa2f542c2d5568608a69a02e762d"
+   },
+   "verdict": "READY",
+   "verdict_reason": {},
+   "window": {
+    "frame_end": 301,
+    "frame_end_source": "readback:arm.animation_data.action.frame_range[1]",
+    "frame_start": 1
+   }
+  },
+  {
+   "action": {
+    "fcurves": 725,
+    "frame_range": [
+     1,
+     832
+    ],
+    "name": "B_aligned_bone"
+   },
+   "arm": "C_W2",
+   "arm_role": "C@W2",
+   "cache": {
+    "has_rigidbody_world": true,
+    "is_baked": false,
+    "is_outdated": true
+   },
+   "checks": [
+    {
+     "detail": "ensure_addons={'mmd_tools': True}（`hasattr` 在没装上时也返回 True，只能信这个）",
+     "id": "A0_profile_ready",
+     "ok": true
+    },
+    {
+     "detail": "action='B_aligned_bone' fcurves=725（门槛 > 100）",
+     "id": "A1_action_applied",
+     "ok": true
+    },
+    {
+     "detail": "scene.frame_end=832，action.frame_range[1]=832，来源='readback:arm.animation_data.action.frame_range[1]'",
+     "id": "A2_frame_end_readback",
+     "ok": true
+    },
+    {
+     "detail": "rigidbody_world=True is_baked=False is_outdated=True freed_bake=False",
+     "id": "A3_is_baked_false",
+     "ok": true
+    },
+    {
+     "detail": "nla_tracks=0（单动作这一步不许留 NLA 轨道）",
+     "id": "A4_no_nla_stacking",
+     "ok": true
+    },
+    {
+     "detail": "scene.frame_end=832，plan.final_last=832",
+     "id": "A5_window_matches_plan",
+     "ok": true
+    },
+    {
+     "detail": "scene.fps_after=24，preset=24",
+     "id": "A6_fps_matches_preset",
+     "ok": true
+    }
+   ],
+   "cleared": {
+    "action": false,
+    "nla_tracks": 0,
+    "orphan_actions": 0
+   },
+   "in_blend": {
+    "bytes": 5923244,
+    "path": "E:\\code\\mmdpipe-ai\\A1\\out\\subai\\M08\\run_20261116_1805\\rebuild_built.blend",
+    "sha256": "ef8e31a9fa2d4ef48d7e1b3e684a2238091c4b3b6b253d012fab4abe9f7ef27e"
+   },
+   "ops": [
+    {
+     "end_after": 832,
+     "from_expected_by_offset": 301,
+     "from_readback": 301,
+     "held_fcurves": 725,
+     "op": "hold",
+     "to": 832
+    }
+   ],
+   "out_blend": {
+    "bytes": 5965883,
+    "path": "E:\\code\\mmdpipe-ai\\A3\\out\\subai\\M05\\arms\\C_W2.blend",
+    "sha256": "c02c982f9d3c70f25cabf0aaebea0cccd400ce55dcda609d04f841adcb0f9996"
+   },
+   "profile": {
+    "ensure_addons": {
+     "mmd_tools": true
+    },
+    "lock_before_save": {
+     "heartbeat_age": 0.07274389266967773,
+     "held": true,
+     "ident": "模块负责3|A3",
+     "raw": "模块负责3|A3|PID=27456|2026-11-16T18:29:43+08:00|M05 干净窗口独占重跑四臂（带锁三步证据）+ 两条反控（D-188 补证）"
+    },
+    "lock_end": {
+     "heartbeat_age": 0.4702620506286621,
+     "held": true,
+     "ident": "模块负责3|A3",
+     "raw": "模块负责3|A3|PID=27456|2026-11-16T18:29:43+08:00|M05 干净窗口独占重跑四臂（带锁三步证据）+ 两条反控（D-188 补证）"
+    },
+    "lock_start": {
+     "heartbeat_age": 2.943053960800171,
+     "held": true,
+     "ident": "模块负责3|A3",
+     "raw": "模块负责3|A3|PID=27456|2026-11-16T18:29:43+08:00|M05 干净窗口独占重跑四臂（带锁三步证据）+ 两条反控（D-188 补证）"
+    },
+    "lock_tail": {
+     "detail": "锁身份一致：'模块负责3|A3'（开局心跳 2.943053960800171s / 收尾心跳 0.4702620506286621s）",
+     "ok": true
+    },
+    "preset_fps": 24,
+    "update_scene_settings_forced_off": true
+   },
+   "scene": {
+    "fps_after": 24,
+    "fps_before": 24,
+    "fps_changed": false,
+    "name": "Scene"
+   },
+   "source": {
+    "bone_frames": 491,
+    "bones": 332,
+    "frame_range": [
+     0,
+     300
+    ],
+    "path": "E:\\dsh pr\\woker2\\out\\B_aligned.vmd",
+    "sha256": "5d391f1a01d2279aa9f769cf6cd20fc176b5aa2f542c2d5568608a69a02e762d"
+   },
+   "verdict": "READY",
+   "verdict_reason": {},
+   "window": {
+    "frame_end": 832,
+    "frame_end_source": "readback:arm.animation_data.action.frame_range[1]",
+    "frame_start": 1
+   }
+  },
+  {
+   "action": {
+    "fcurves": 700,
+    "frame_range": [
+     1,
+     833
+    ],
+    "name": "原神摇_merged_bone"
+   },
+   "arm": "D",
+   "arm_role": "D",
+   "cache": {
+    "has_rigidbody_world": true,
+    "is_baked": false,
+    "is_outdated": true
+   },
+   "checks": [
+    {
+     "detail": "ensure_addons={'mmd_tools': True}（`hasattr` 在没装上时也返回 True，只能信这个）",
+     "id": "A0_profile_ready",
+     "ok": true
+    },
+    {
+     "detail": "action='原神摇_merged_bone' fcurves=700（门槛 > 100）",
+     "id": "A1_action_applied",
+     "ok": true
+    },
+    {
+     "detail": "scene.frame_end=833，action.frame_range[1]=833，来源='readback:arm.animation_data.action.frame_range[1]'",
+     "id": "A2_frame_end_readback",
+     "ok": true
+    },
+    {
+     "detail": "rigidbody_world=True is_baked=False is_outdated=True freed_bake=False",
+     "id": "A3_is_baked_false",
+     "ok": true
+    },
+    {
+     "detail": "nla_tracks=0（单动作这一步不许留 NLA 轨道）",
+     "id": "A4_no_nla_stacking",
+     "ok": true
+    },
+    {
+     "detail": "scene.frame_end=833，plan.final_last=833",
+     "id": "A5_window_matches_plan",
+     "ok": true
+    },
+    {
+     "detail": "scene.fps_after=24，preset=24",
+     "id": "A6_fps_matches_preset",
+     "ok": true
+    }
+   ],
+   "cleared": {
+    "action": false,
+    "nla_tracks": 0,
+    "orphan_actions": 0
+   },
+   "in_blend": {
+    "bytes": 5923244,
+    "path": "E:\\code\\mmdpipe-ai\\A1\\out\\subai\\M08\\run_20261116_1805\\rebuild_built.blend",
+    "sha256": "ef8e31a9fa2d4ef48d7e1b3e684a2238091c4b3b6b253d012fab4abe9f7ef27e"
+   },
+   "ops": [],
+   "out_blend": {
+    "bytes": 10037703,
+    "path": "E:\\code\\mmdpipe-ai\\A3\\out\\subai\\M05\\arms\\D.blend",
+    "sha256": "5eb83a80ad750da1bcf4f5323cb21c7c147907c8a606650087c006b00fbd2e68"
+   },
+   "profile": {
+    "ensure_addons": {
+     "mmd_tools": true
+    },
+    "lock_before_save": {
+     "heartbeat_age": 0.07484722137451172,
+     "held": true,
+     "ident": "模块负责3|A3",
+     "raw": "模块负责3|A3|PID=27456|2026-11-16T18:29:43+08:00|M05 干净窗口独占重跑四臂（带锁三步证据）+ 两条反控（D-188 补证）"
+    },
+    "lock_end": {
+     "heartbeat_age": 0.5892179012298584,
+     "held": true,
+     "ident": "模块负责3|A3",
+     "raw": "模块负责3|A3|PID=27456|2026-11-16T18:29:43+08:00|M05 干净窗口独占重跑四臂（带锁三步证据）+ 两条反控（D-188 补证）"
+    },
+    "lock_start": {
+     "heartbeat_age": 2.8785016536712646,
+     "held": true,
+     "ident": "模块负责3|A3",
+     "raw": "模块负责3|A3|PID=27456|2026-11-16T18:29:43+08:00|M05 干净窗口独占重跑四臂（带锁三步证据）+ 两条反控（D-188 补证）"
+    },
+    "lock_tail": {
+     "detail": "锁身份一致：'模块负责3|A3'（开局心跳 2.8785016536712646s / 收尾心跳 0.5892179012298584s）",
+     "ok": true
+    },
+    "preset_fps": 24,
+    "update_scene_settings_forced_off": true
+   },
+   "scene": {
+    "fps_after": 24,
+    "fps_before": 24,
+    "fps_changed": false,
+    "name": "Scene"
+   },
+   "source": {
+    "bone_frames": 43962,
+    "bones": 259,
+    "frame_range": [
+     0,
+     832
+    ],
+    "path": "E:\\dsh pr\\woker2\\kafuka_all\\vmd\\原神摇_merged.vmd",
+    "sha256": "b872fda7a4bbbfa6f72675969d39df90de715a2577f5990501f6436911b2e46b"
+   },
+   "verdict": "READY",
+   "verdict_reason": {},
+   "window": {
+    "frame_end": 833,
+    "frame_end_source": "readback:arm.animation_data.action.frame_range[1]",
+    "frame_start": 1
+   }
+  },
+  {
+   "action": {
+    "fcurves": 357,
+    "frame_range": [
+     1,
+     447
+    ],
+    "name": "原神摇_merged_bone"
+   },
+   "arm": "D_ctrl_447",
+   "arm_role": "D-对照",
+   "cache": {
+    "has_rigidbody_world": true,
+    "is_baked": false,
+    "is_outdated": true
+   },
+   "checks": [
+    {
+     "detail": "ensure_addons={'mmd_tools': True}（`hasattr` 在没装上时也返回 True，只能信这个）",
+     "id": "A0_profile_ready",
+     "ok": true
+    },
+    {
+     "detail": "action='原神摇_merged_bone' fcurves=357（门槛 > 100）",
+     "id": "A1_action_applied",
+     "ok": true
+    },
+    {
+     "detail": "scene.frame_end=447，action.frame_range[1]=447，来源='readback:arm.animation_data.action.frame_range[1]'",
+     "id": "A2_frame_end_readback",
+     "ok": true
+    },
+    {
+     "detail": "rigidbody_world=True is_baked=False is_outdated=True freed_bake=False",
+     "id": "A3_is_baked_false",
+     "ok": true
+    },
+    {
+     "detail": "nla_tracks=0（单动作这一步不许留 NLA 轨道）",
+     "id": "A4_no_nla_stacking",
+     "ok": true
+    },
+    {
+     "detail": "scene.frame_end=447，plan.final_last=447",
+     "id": "A5_window_matches_plan",
+     "ok": true
+    },
+    {
+     "detail": "scene.fps_after=24，preset=24",
+     "id": "A6_fps_matches_preset",
+     "ok": true
+    }
+   ],
+   "cleared": {
+    "action": false,
+    "nla_tracks": 0,
+    "orphan_actions": 0
+   },
+   "in_blend": {
+    "bytes": 5923244,
+    "path": "E:\\code\\mmdpipe-ai\\A1\\out\\subai\\M08\\run_20261116_1805\\rebuild_built.blend",
+    "sha256": "ef8e31a9fa2d4ef48d7e1b3e684a2238091c4b3b6b253d012fab4abe9f7ef27e"
+   },
+   "ops": [],
+   "out_blend": {
+    "bytes": 8597651,
+    "path": "E:\\code\\mmdpipe-ai\\A3\\out\\subai\\M05\\arms\\D_ctrl_447.blend",
+    "sha256": "fa39c9b0c1f030a306a0b619167eaba7302281a302f8cec1b5b672c64eb15a41"
+   },
+   "profile": {
+    "ensure_addons": {
+     "mmd_tools": true
+    },
+    "lock_before_save": {
+     "heartbeat_age": 0.09015035629272461,
+     "held": true,
+     "ident": "模块负责3|A3",
+     "raw": "模块负责3|A3|PID=27456|2026-11-16T18:29:43+08:00|M05 干净窗口独占重跑四臂（带锁三步证据）+ 两条反控（D-188 补证）"
+    },
+    "lock_end": {
+     "heartbeat_age": 0.6515891551971436,
+     "held": true,
+     "ident": "模块负责3|A3",
+     "raw": "模块负责3|A3|PID=27456|2026-11-16T18:29:43+08:00|M05 干净窗口独占重跑四臂（带锁三步证据）+ 两条反控（D-188 补证）"
+    },
+    "lock_start": {
+     "heartbeat_age": 2.9484758377075195,
+     "held": true,
+     "ident": "模块负责3|A3",
+     "raw": "模块负责3|A3|PID=27456|2026-11-16T18:29:43+08:00|M05 干净窗口独占重跑四臂（带锁三步证据）+ 两条反控（D-188 补证）"
+    },
+    "lock_tail": {
+     "detail": "锁身份一致：'模块负责3|A3'（开局心跳 2.9484758377075195s / 收尾心跳 0.6515891551971436s）",
+     "ok": true
+    },
+    "preset_fps": 24,
+    "update_scene_settings_forced_off": true
+   },
+   "scene": {
+    "fps_after": 24,
+    "fps_before": 24,
+    "fps_changed": false,
+    "name": "Scene"
+   },
+   "source": {
+    "bone_frames": 23244,
+    "bones": 52,
+    "frame_range": [
+     0,
+     446
+    ],
+    "path": "E:\\dsh pr\\woker2\\out\\原神摇_merged.vmd",
+    "sha256": "027179ac268019fda46d8277f7b481223baf55bee55b357a2a584222b95df0ae"
+   },
+   "verdict": "READY",
+   "verdict_reason": {},
+   "window": {
+    "frame_end": 447,
+    "frame_end_source": "readback:arm.animation_data.action.frame_range[1]",
+    "frame_start": 1
+   }
+  },
+  {
+   "action": {
+    "fcurves": 725,
+    "frame_range": [
+     1,
+     301
+    ],
+    "name": "B_aligned_bone"
+   },
+   "arm": "C_W1_rerun",
+   "arm_role": "C@W1-rerun",
+   "cache": {
+    "has_rigidbody_world": true,
+    "is_baked": false,
+    "is_outdated": true
+   },
+   "checks": [
+    {
+     "detail": "ensure_addons={'mmd_tools': True}（`hasattr` 在没装上时也返回 True，只能信这个）",
+     "id": "A0_profile_ready",
+     "ok": true
+    },
+    {
+     "detail": "action='B_aligned_bone' fcurves=725（门槛 > 100）",
+     "id": "A1_action_applied",
+     "ok": true
+    },
+    {
+     "detail": "scene.frame_end=301，action.frame_range[1]=301，来源='readback:arm.animation_data.action.frame_range[1]'",
+     "id": "A2_frame_end_readback",
+     "ok": true
+    },
+    {
+     "detail": "rigidbody_world=True is_baked=False is_outdated=True freed_bake=False",
+     "id": "A3_is_baked_false",
+     "ok": true
+    },
+    {
+     "detail": "nla_tracks=0（单动作这一步不许留 NLA 轨道）",
+     "id": "A4_no_nla_stacking",
+     "ok": true
+    },
+    {
+     "detail": "scene.frame_end=301，plan.final_last=301",
+     "id": "A5_window_matches_plan",
+     "ok": true
+    },
+    {
+     "detail": "scene.fps_after=24，preset=24",
+     "id": "A6_fps_matches_preset",
+     "ok": true
+    }
+   ],
+   "cleared": {
+    "action": true,
+    "nla_tracks": 0,
+    "orphan_actions": 1
+   },
+   "in_blend": {
+    "bytes": 5963498,
+    "path": "E:\\code\\mmdpipe-ai\\A3\\out\\subai\\M05\\arms\\C_W1.blend",
+    "sha256": "8a8d7daa8fb26dd09895ab3392688189724fe0fd9496c52f64c8a67960d940a6"
+   },
+   "ops": [],
+   "out_blend": {
+    "bytes": 5963458,
+    "path": "E:\\code\\mmdpipe-ai\\A3\\out\\subai\\M05\\arms\\C_W1_rerun.blend",
+    "sha256": "b46810b7c242f647547f1a45f17efc50a9f7b2225a5d5d8d55fdb2b4676957e7"
+   },
+   "profile": {
+    "ensure_addons": {
+     "mmd_tools": true
+    },
+    "lock_before_save": {
+     "heartbeat_age": 0.07169222831726074,
+     "held": true,
+     "ident": "模块负责3|A3",
+     "raw": "模块负责3|A3|PID=27456|2026-11-16T18:29:43+08:00|M05 干净窗口独占重跑四臂（带锁三步证据）+ 两条反控（D-188 补证）"
+    },
+    "lock_end": {
+     "heartbeat_age": 0.5035662651062012,
+     "held": true,
+     "ident": "模块负责3|A3",
+     "raw": "模块负责3|A3|PID=27456|2026-11-16T18:29:43+08:00|M05 干净窗口独占重跑四臂（带锁三步证据）+ 两条反控（D-188 补证）"
+    },
+    "lock_start": {
+     "heartbeat_age": 2.8586678504943848,
+     "held": true,
+     "ident": "模块负责3|A3",
+     "raw": "模块负责3|A3|PID=27456|2026-11-16T18:29:43+08:00|M05 干净窗口独占重跑四臂（带锁三步证据）+ 两条反控（D-188 补证）"
+    },
+    "lock_tail": {
+     "detail": "锁身份一致：'模块负责3|A3'（开局心跳 2.8586678504943848s / 收尾心跳 0.5035662651062012s）",
+     "ok": true
+    },
+    "preset_fps": 24,
+    "update_scene_settings_forced_off": true
+   },
+   "scene": {
+    "fps_after": 24,
+    "fps_before": 24,
+    "fps_changed": false,
+    "name": "Scene"
+   },
+   "source": {
+    "bone_frames": 491,
+    "bones": 332,
+    "frame_range": [
+     0,
+     300
+    ],
+    "path": "E:\\dsh pr\\woker2\\out\\B_aligned.vmd",
+    "sha256": "5d391f1a01d2279aa9f769cf6cd20fc176b5aa2f542c2d5568608a69a02e762d"
+   },
+   "verdict": "READY",
+   "verdict_reason": {},
+   "window": {
+    "frame_end": 301,
+    "frame_end_source": "readback:arm.animation_data.action.frame_range[1]",
+    "frame_start": 1
+   }
+  }
+ ],
+ "controls": [
+  {
+   "action": {
+    "fcurves": 0,
+    "frame_range": [
+     null,
+     null
+    ],
+    "name": null
+   },
+   "arm": "CTRL_no_addon",
+   "arm_role": "反控-无插件闸门",
+   "cache": {
+    "has_rigidbody_world": true,
+    "is_baked": null,
+    "is_outdated": null
+   },
+   "checks": [
+    {
+     "detail": "ensure_addons={'mmd_tools': None}（`hasattr` 在没装上时也返回 True，只能信这个）",
+     "id": "A0_profile_ready",
+     "ok": false
+    },
+    {
+     "detail": "action=None fcurves=0（门槛 > 100）",
+     "id": "A1_action_applied",
+     "ok": false
+    },
+    {
+     "detail": "scene.frame_end=250，action.frame_range[1]=None，来源='not-applied'",
+     "id": "A2_frame_end_readback",
+     "ok": false
+    },
+    {
+     "detail": "rigidbody_world=True is_baked=None is_outdated=None freed_bake=False",
+     "id": "A3_is_baked_false",
+     "ok": false
+    },
+    {
+     "detail": "nla_tracks=0（单动作这一步不许留 NLA 轨道）",
+     "id": "A4_no_nla_stacking",
+     "ok": true
+    },
+    {
+     "detail": "scene.frame_end=250，plan.final_last=301",
+     "id": "A5_window_matches_plan",
+     "ok": false
+    },
+    {
+     "detail": "scene.fps_after=None，preset=24（导入动作改了容器 fps）",
+     "id": "A6_fps_matches_preset",
+     "ok": false
+    }
+   ],
+   "cleared": {
+    "action": false,
+    "nla_tracks": 0,
+    "orphan_actions": 0
+   },
+   "in_blend": {
+    "bytes": 5923244,
+    "path": "E:\\code\\mmdpipe-ai\\A1\\out\\subai\\M08\\run_20261116_1805\\rebuild_built.blend",
+    "sha256": "ef8e31a9fa2d4ef48d7e1b3e684a2238091c4b3b6b253d012fab4abe9f7ef27e"
+   },
+   "ops": null,
+   "out_blend": null,
+   "profile": {
+    "ensure_addons": {
+     "mmd_tools": null
+    },
+    "lock_start": {
+     "heartbeat_age": 2.735549211502075,
+     "held": true,
+     "ident": "模块负责3|A3",
+     "raw": "模块负责3|A3|PID=27456|2026-11-16T18:29:43+08:00|M05 干净窗口独占重跑四臂（带锁三步证据）+ 两条反控（D-188 补证）"
+    },
+    "preset_fps": 24,
+    "update_scene_settings_forced_off": true
+   },
+   "scene": {
+    "fps_before": 24,
+    "name": "Scene"
+   },
+   "source": {
+    "bone_frames": 491,
+    "bones": 332,
+    "frame_range": [
+     0,
+     300
+    ],
+    "path": "E:\\dsh pr\\woker2\\out\\B_aligned.vmd",
+    "sha256": "5d391f1a01d2279aa9f769cf6cd20fc176b5aa2f542c2d5568608a69a02e762d"
+   },
+   "verdict": "BLOCKED",
+   "verdict_reason": {
+    "A0_profile_ready": "ensure_addons={'mmd_tools': None}（`hasattr` 在没装上时也返回 True，只能信这个）",
+    "A1_action_applied": "action=None fcurves=0（门槛 > 100）",
+    "A2_frame_end_readback": "scene.frame_end=250，action.frame_range[1]=None，来源='not-applied'",
+    "A3_is_baked_false": "rigidbody_world=True is_baked=None is_outdated=None freed_bake=False",
+    "A5_window_matches_plan": "scene.frame_end=250，plan.final_last=301",
+    "A6_fps_matches_preset": "scene.fps_after=None，preset=24（导入动作改了容器 fps）"
+   },
+   "window": {
+    "frame_end": 250,
+    "frame_end_source": "not-applied",
+    "frame_start": 1
+   }
+  },
+  {
+   "action": {
+    "fcurves": 725,
+    "frame_range": [
+     1,
+     301
+    ],
+    "name": "B_aligned_bone"
+   },
+   "arm": "CTRL_fps_changed",
+   "arm_role": "反控-fps被改",
+   "cache": {
+    "has_rigidbody_world": true,
+    "is_baked": false,
+    "is_outdated": true
+   },
+   "checks": [
+    {
+     "detail": "ensure_addons={'mmd_tools': True}（`hasattr` 在没装上时也返回 True，只能信这个）",
+     "id": "A0_profile_ready",
+     "ok": true
+    },
+    {
+     "detail": "action='B_aligned_bone' fcurves=725（门槛 > 100）",
+     "id": "A1_action_applied",
+     "ok": true
+    },
+    {
+     "detail": "scene.frame_end=301，action.frame_range[1]=301，来源='readback:arm.animation_data.action.frame_range[1]'",
+     "id": "A2_frame_end_readback",
+     "ok": true
+    },
+    {
+     "detail": "rigidbody_world=True is_baked=False is_outdated=True freed_bake=False",
+     "id": "A3_is_baked_false",
+     "ok": true
+    },
+    {
+     "detail": "nla_tracks=0（单动作这一步不许留 NLA 轨道）",
+     "id": "A4_no_nla_stacking",
+     "ok": true
+    },
+    {
+     "detail": "scene.frame_end=301，plan.final_last=301",
+     "id": "A5_window_matches_plan",
+     "ok": true
+    },
+    {
+     "detail": "scene.fps_after=30，preset=24（导入动作改了容器 fps）",
+     "id": "A6_fps_matches_preset",
+     "ok": false
+    }
+   ],
+   "cleared": {
+    "action": false,
+    "nla_tracks": 0,
+    "orphan_actions": 0
+   },
+   "in_blend": {
+    "bytes": 5923244,
+    "path": "E:\\code\\mmdpipe-ai\\A1\\out\\subai\\M08\\run_20261116_1805\\rebuild_built.blend",
+    "sha256": "ef8e31a9fa2d4ef48d7e1b3e684a2238091c4b3b6b253d012fab4abe9f7ef27e"
+   },
+   "ops": [],
+   "out_blend": null,
+   "profile": {
+    "ensure_addons": {
+     "mmd_tools": true
+    },
+    "lock_start": {
+     "heartbeat_age": 5.172860622406006,
+     "held": true,
+     "ident": "模块负责3|A3",
+     "raw": "模块负责3|A3|PID=27456|2026-11-16T18:29:43+08:00|M05 干净窗口独占重跑四臂（带锁三步证据）+ 两条反控（D-188 补证）"
+    },
+    "preset_fps": 24,
+    "update_scene_settings_forced_off": false
+   },
+   "scene": {
+    "fps_after": 30,
+    "fps_before": 24,
+    "fps_changed": true,
+    "name": "Scene"
+   },
+   "source": {
+    "bone_frames": 491,
+    "bones": 332,
+    "frame_range": [
+     0,
+     300
+    ],
+    "path": "E:\\dsh pr\\woker2\\out\\B_aligned.vmd",
+    "sha256": "5d391f1a01d2279aa9f769cf6cd20fc176b5aa2f542c2d5568608a69a02e762d"
+   },
+   "verdict": "BLOCKED",
+   "verdict_reason": {
+    "A6_fps_matches_preset": "scene.fps_after=30，preset=24（导入动作改了容器 fps）"
+   },
+   "window": {
+    "frame_end": 301,
+    "frame_end_source": "readback:arm.animation_data.action.frame_range[1]",
+    "frame_start": 1
+   }
+  }
+ ],
+ "fps_control": {
+  "arm": "CTRL_fps_changed",
+  "exit_code": 3,
+  "fps_after": 30,
+  "fps_before": 24,
+  "out_blend_written": false,
+  "red_checks": [
+   "A6_fps_matches_preset"
+  ],
+  "verdict": "BLOCKED",
+  "why": "允许 import_vmd 改场景 fps（--allow-scene-settings）⇒ 24→30 ⇒ 只红 A6；证明 A6 是唯一挡住「输入改环境」的那条，且判红不写交付件"
+ },
+ "idempotence": {
+  "blend_sha_equal": false,
+  "blend_sha_first": "8a8d7daa8fb26dd09895ab3392688189724fe0fd9496c52f64c8a67960d940a6",
+  "blend_sha_rerun": "b46810b7c242f647547f1a45f17efc50a9f7b2225a5d5d8d55fdb2b4676957e7",
+  "cleared_on_rerun": {
+   "action": true,
+   "nla_tracks": 0,
+   "orphan_actions": 1
+  },
+  "definition": "同一动作在同一份产物上再应用一次，**回读内容**必须逐字段相同；`.blend` 字节不参与判据（Blender 存盘不可逐字节复现）",
+  "first": {
+   "action": {
+    "fcurves": 725,
+    "frame_range": [
+     1,
+     301
+    ],
+    "name": "B_aligned_bone"
+   },
+   "cache": {
+    "has_rigidbody_world": true,
+    "is_baked": false,
+    "is_outdated": true
+   },
+   "window": {
+    "frame_end": 301,
+    "frame_end_source": "readback:arm.animation_data.action.frame_range[1]",
+    "frame_start": 1
+   }
+  },
+  "readback_equal": true,
+  "rerun": {
+   "action": {
+    "fcurves": 725,
+    "frame_range": [
+     1,
+     301
+    ],
+    "name": "B_aligned_bone"
+   },
+   "cache": {
+    "has_rigidbody_world": true,
+    "is_baked": false,
+    "is_outdated": true
+   },
+   "window": {
+    "frame_end": 301,
+    "frame_end_source": "readback:arm.animation_data.action.frame_range[1]",
+    "frame_start": 1
+   }
+  }
+ },
+ "input_blend": {
+  "bytes": 5923244,
+  "path": "E:\\code\\mmdpipe-ai\\A1\\out\\subai\\M08\\run_20261116_1805\\rebuild_built.blend",
+  "sha256": "ef8e31a9fa2d4ef48d7e1b3e684a2238091c4b3b6b253d012fab4abe9f7ef27e"
+ },
+ "issue": "D-186",
+ "scene_level_negative_control": {
+  "arm": "CTRL_no_addon",
+  "exit_code": 3,
+  "out_blend_written": false,
+  "red_checks": [
+   "A0_profile_ready",
+   "A1_action_applied",
+   "A2_frame_end_readback",
+   "A3_is_baked_false",
+   "A5_window_matches_plan",
+   "A6_fps_matches_preset"
+  ],
+  "verdict": "BLOCKED",
+  "why": "关掉插件闸门（--skip-ensure）⇒ stage_motion 拿到 import_vmd could not be found（E-14）"
+ },
+ "schema": "m05.arms_summary/1",
+ "task": "M05"
+}
