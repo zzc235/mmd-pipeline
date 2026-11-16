@@ -52,15 +52,26 @@ class RealSnapshotTest(unittest.TestCase):
         self.assertEqual(out["checked"], 35)
         self.assertEqual(out["missing"], [])
 
-    def test_snapshot_copies_are_listed_and_present(self):
-        copies = self.scope["snapshot_copies"]
-        self.assertTrue(copies)
-        for name in copies:
-            self.assertTrue(os.path.exists(os.path.join(SNAP, name)), name)
+    def test_every_declared_copy_is_accounted_for_in_git(self):
+        """`in_git=true` 的必须在 git 里；`in_git=false` 的必须写明原因。
+
+        这里**不**用 `os.path.exists`：那只说明本机有没有。`compare.log` 本机有、git 里没有
+        （`.gitignore:39` 的 `*.log`），而 main 19:55 就是被这个「靠本机状态的绿灯」弄红的。
+        """
+        rel_snap = os.path.relpath(SNAP, ROOT).replace("\\", "/")
+        out = SCOPE.check_copies(self.scope, SNAP, rel_snap=rel_snap)
+        self.assertEqual(out["state"], SCOPE.STATE_OK, out)
+        self.assertEqual(out["checked"], len(self.scope["snapshot_copies"]))
 
     def test_two_way_checked_is_false_with_reason(self):
         self.assertFalse(self.scope["two_way_checked"])
         self.assertIn("out/", self.scope["why"])
+
+    def test_ignored_logs_are_declared_not_asserted_present(self):
+        copies = {c["name"]: c for c in self.scope["snapshot_copies"]}
+        self.assertFalse(copies["compare.log"]["in_git"])
+        self.assertFalse(copies["compare_selftest.log"]["in_git"])
+        self.assertIn(".gitignore", copies["compare.log"]["why_not"])
 
 
 class NegativeControlTest(unittest.TestCase):
@@ -93,6 +104,34 @@ class NegativeControlTest(unittest.TestCase):
                                   {"files": [{"path": "x.json"}]})
         self.assertEqual(out["state"], SCOPE.STATE_MISMATCH)
         self.assertEqual(out["missing"][0]["why"], "条目没有 'name' 字段")
+
+
+class CopiesTest(unittest.TestCase):
+    """负控：声明与 git 对不上必须 `MISMATCH`；git 不可用必须 `UNMEASURED`。"""
+
+    def test_declared_tracked_but_missing_is_mismatch(self):
+        scope = {"snapshot_copies": [{"name": "compare.log", "in_git": True}]}
+        out = SCOPE.check_copies(scope, SNAP, tracked=lambda rel: False, rel_snap="reports/x")
+        self.assertEqual(out["state"], SCOPE.STATE_MISMATCH)
+        self.assertEqual(len(out["bad"]), 1)
+
+    def test_ignored_copy_without_reason_is_mismatch(self):
+        scope = {"snapshot_copies": [{"name": "a.log", "in_git": False}]}
+        out = SCOPE.check_copies(scope, SNAP, tracked=lambda rel: None)
+        self.assertEqual(out["state"], SCOPE.STATE_MISMATCH)
+        self.assertIn("why_not", out["bad"][0]["why"])
+
+    def test_git_unavailable_is_unmeasured(self):
+        scope = {"snapshot_copies": [{"name": "cmp_round2.json", "in_git": True}]}
+        out = SCOPE.check_copies(scope, SNAP, tracked=lambda rel: None)
+        self.assertEqual(out["state"], SCOPE.STATE_UNMEASURED)
+
+    def test_copy_without_in_git_field_is_mismatch(self):
+        """一个只有名字的副本条目 = 「本机有」冒充「账上有」，必须拒。"""
+        scope = {"snapshot_copies": [{"name": "cmp_round2.json"}]}
+        out = SCOPE.check_copies(scope, SNAP, tracked=lambda rel: True)
+        self.assertEqual(out["state"], SCOPE.STATE_MISMATCH)
+        self.assertIn("in_git", out["bad"][0]["why"])
 
 
 class CliTest(unittest.TestCase):
