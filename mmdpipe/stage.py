@@ -243,6 +243,37 @@ def rigid_bodies():
     return [o for o in bpy.data.objects if getattr(o, "mmd_type", None) == "RIGID_BODY"]
 
 
+def collision_scope():
+    """通道的**作用域**与**作用域外的例外**（D0 2026-11-16 15:02，`D-20261116-133`）。
+
+    作用域 = `mmd_type == "RIGID_BODY"`（= U323）= 通道把这些 PMX 刚体的掩码落到
+    碰撞位与约束上。**不按 `rigid_body is not None` 扩**，理由（D0 定，原话三条）：
+    ① 像 `地面_物理` 这种旧场景里手工加的对象不是 PMX 骨名，通道语义是「把 PMX 掩码落到
+    PMX 刚体上」；② 它在 PMX 里没有对应刚体，「PMX 说它不该碰」这条判据对它本就不适用；
+    ③ 纳进来是接口变更，换来的只是 40418 里的 62 对（0.15%）。
+
+    但**跳过必须写在纸上**：例外对象逐条返回，报告里单列一行（名字 / 组 / 掩码 /
+    「在"共享位即碰"语义下仍与多少个刚体互撞」），不进 `skipped[]`（它不是"没做成"，
+    是"不在作用域"）。
+    """
+    inside, outside = [], []
+    for obj in bpy.data.objects:
+        if getattr(obj, "rigid_body", None) is None:
+            continue
+        if getattr(obj, "mmd_rigid", None) is None:
+            continue
+        if getattr(obj, "mmd_type", None) == "RIGID_BODY":
+            inside.append(obj)
+        else:
+            outside.append(obj)
+    return inside, outside
+
+
+def exception_rows(bodies, exceptions) -> list:
+    """作用域外的刚体：仍会与多少作用域内刚体互撞（逻辑在 `mmdpipe/mask.py`，可单测）。"""
+    return mask_mod.exception_rows(bodies, exceptions)
+
+
 # ---------------------------------------------------------------- 碰撞掩码（PMX collision_group_mask）
 #
 # 逻辑在 `mmdpipe/mask.py`（纯 Python，不 import bpy，可单测）。这里只做两件 bpy 侧的事：
@@ -255,9 +286,13 @@ NCC_TYPE = "NON_COLLISION_CONSTRAINT"
 
 def mask_report(rigids=None, objects=None) -> dict:
     """逐刚体回读 + 汇总（bpy 侧薄封装，逻辑在 `mmdpipe/mask.py`）。"""
-    bodies = rigid_bodies() if rigids is None else rigids
+    inside, outside = collision_scope()
+    bodies = inside if rigids is None else rigids
     pool = bpy.data.objects if objects is None else objects
-    return mask_mod.mask_report(bodies, pool)
+    result = mask_mod.mask_report(bodies, pool)
+    result["scope_bodies"] = len(inside)
+    result["exception_bodies"] = exception_rows(inside, outside)
+    return result
 
 
 def _new_constraint_object(name: str):
@@ -307,8 +342,9 @@ def apply_collision_masks(scene=None, *, collection_index_of=None,
 
     `collection_index_of` 保留给将来换编码用；当前实现不用它（位号就是组号）。
     """
-    bodies = rigid_bodies() if scene is None else [o for o in bpy.data.objects
-                                                   if getattr(o, "mmd_type", None) == "RIGID_BODY"]
+    bodies, outside = collision_scope()
+    if scene is not None:
+        bodies = [o for o in bodies if o.name in {x.name for x in scene.objects}]
     already = mask_mod.disabled_pairs(bpy.data.objects)
     plan = mask_mod.plans(bodies, blocked=already)
     result = dict(plan)
@@ -316,6 +352,9 @@ def apply_collision_masks(scene=None, *, collection_index_of=None,
         result.pop(key, None)
     result["encoding"] = mask_mod.ENCODING_NOTE
     result["blender_semantics"] = dict(mask_mod.MEASURED_SEMANTICS)
+    # 作用域与例外（D-20261116-133）：U323 是 1c 等式的宇宙，例外单列一行
+    result["scope_bodies"] = len(bodies)
+    result["exception_bodies"] = exception_rows(bodies, outside)
 
     if not bodies:
         # `scanned==0` 同族：0 个刚体不是"通道接好了"，是"没东西可接"（spec §4.6）
