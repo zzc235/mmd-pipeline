@@ -194,6 +194,7 @@ def main():
     expect_fps = int(opt(argv, "--expect-fps", "24"))
     built_report = opt(argv, "--built-report")
     expect_readback = opt(argv, "--expect-readback")
+    build_identity = opt(argv, "--build-identity")
     disk_cache = "--disk-cache" in argv
     if not in_blend or not report_path:
         raise SystemExit("必给 --in-blend 与 --report")
@@ -217,10 +218,35 @@ def main():
             report["built_by"] = {
                 "report": os.path.abspath(built_report),
                 "report_sha256": sha256_file(built_report),
+                # `rebuild_report.json` 里**没有** `provenance` 键（`v3` 只写了 `addon_trace` 等），
+                # 所以建件的 `stage.py` 只能从 identity 件拿 —— 19:14 那次 `stage_py=null` 就是这么来的。
                 "stage_py": (rep.get("provenance") or {}).get("stage_py")
                 or (rep.get("provenance") or {}).get("stage_sha256"),
                 "v3_script": (rep.get("provenance") or {}).get("v3_script"),
             }
+            if not report["built_by"]["stage_py"]:
+                report["built_by"]["stage_py_source"] = ("rebuild_report 无 provenance；"
+                                                         "请用 --build-identity 指 identity 件")
+        except Exception as exc:  # noqa: BLE001
+            report["built_by"] = {"error": "%s: %s" % (type(exc).__name__, exc)}
+    if build_identity and os.path.exists(build_identity):
+        try:
+            with open(build_identity, encoding="utf-8") as fh:
+                ident = json.load(fh)
+            # identity 件的实际形状（`build_identity_20261116_184302.json`）：`stage_sha256`
+            # 在**顶层**、没有 `provenance` 键；两种都认，别再猜一种。
+            stage_py = ((ident.get("provenance") or {}).get("stage_py")
+                        or ident.get("stage_sha256") or ident.get("stage_py"))
+            report.setdefault("built_by", {})
+            report["built_by"].update({
+                "identity": os.path.abspath(build_identity),
+                "identity_sha256": sha256_file(build_identity),
+                "stage_py": stage_py or report["built_by"].get("stage_py"),
+                "stage_py_source": "identity.provenance.stage_py",
+            })
+        except Exception as exc:  # noqa: BLE001
+            report.setdefault("built_by", {})
+            report["built_by"]["identity_error"] = "%s: %s" % (type(exc).__name__, exc)
         except Exception as exc:  # noqa: BLE001
             report["built_by"] = {"error": "%s: %s" % (type(exc).__name__, exc)}
 
