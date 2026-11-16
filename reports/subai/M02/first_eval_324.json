@@ -1,0 +1,112 @@
+{
+ "blend": {
+  "bytes": 17186243,
+  "path": "E:\\code\\mmdpipe-ai\\A1\\out\\subai\\M08\\run_20261116_1900\\frozen\\delivery_324_action_baked_5bc1581e.blend",
+  "sha256": "5bc1581ec75dea36795ffb44b76740ef92da6fcd815084db8d75f0ecff5d2cb0"
+ },
+ "bodies": 323,
+ "cache_after_free": {
+  "info": "833 frames in memory (7.3 MiB), cache is outdated!",
+  "is_baked": false
+ },
+ "cache_at_open": {
+  "info": "833 frames in memory (7.3 MiB), cache is outdated!",
+  "is_baked": true,
+  "is_outdated": true,
+  "use_disk_cache": false
+ },
+ "compare": {
+  "p0_vs_p1": {
+   "bodies": 323,
+   "max_delta": 1.99586308,
+   "over_tol": 275,
+   "sample": [
+    {
+     "max_delta": 1.785858632,
+     "name": "000_$name_j"
+    },
+    {
+     "max_delta": 1.783676505,
+     "name": "001_$name_j.001"
+    },
+    {
+     "max_delta": 1.882547975,
+     "name": "002_$name_j.002"
+    },
+    {
+     "max_delta": 1.940657557,
+     "name": "003_$name_j.003"
+    },
+    {
+     "max_delta": 1.881431282,
+     "name": "004_$name_j.005"
+    }
+   ],
+   "tol": 1e-06
+  },
+  "p0_vs_p2": {
+   "bodies": 323,
+   "max_delta": 1.863228202,
+   "over_tol": 275,
+   "sample": [
+    {
+     "max_delta": 0.150372744,
+     "name": "000_$name_j"
+    },
+    {
+     "max_delta": 0.210457951,
+     "name": "001_$name_j.001"
+    },
+    {
+     "max_delta": 0.211222604,
+     "name": "002_$name_j.002"
+    },
+    {
+     "max_delta": 0.198331609,
+     "name": "003_$name_j.003"
+    },
+    {
+     "max_delta": 0.18544671,
+     "name": "004_$name_j.005"
+    }
+   ],
+   "tol": 1e-06
+  },
+  "p1_vs_p2": {
+   "bodies": 323,
+   "max_delta": 1.994663775,
+   "over_tol": 275,
+   "sample": [
+    {
+     "max_delta": 1.7674734,
+     "name": "000_$name_j"
+    },
+    {
+     "max_delta": 1.787798047,
+     "name": "001_$name_j.001"
+    },
+    {
+     "max_delta": 1.849378467,
+     "name": "002_$name_j.002"
+    },
+    {
+     "max_delta": 1.925107718,
+     "name": "003_$name_j.003"
+    },
+    {
+     "max_delta": 1.91235143,
+     "name": "004_$name_j.005"
+    }
+   ],
+   "tol": 1e-06
+  }
+ },
+ "frame": 417,
+ "frame_start": 1,
+ "p0_first_eval_sha": "795ec30bcd7f7e2133221a09f8e6c1638589235cdcdaa077b2e83eb6d58d8615",
+ "p1_cold_after_free_sha": "bf1c55e11c31ff1f01c6bf9f576c089342b119c6700da8e5057bc4ceac76b143",
+ "p2_sequential_sha": "666a0013ceb41f88b0bf016b8b06785300cf1fc3bbb8a6e3f218ce34453191b7",
+ "reading": "COLD_VS_SEQUENTIAL",
+ "stage": "first-eval-probe-v1",
+ "tol": 1e-06
+}

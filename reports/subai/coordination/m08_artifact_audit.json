@@ -1,0 +1,332 @@
+{
+ "failures": 0,
+ "manifests": 6,
+ "ok": true,
+ "reports": [
+  {
+   "drift": [],
+   "items": [
+    {
+     "bytes": 6102478,
+     "path": "E:\\code\\mmdpipe-ai\\A1\\out\\subai\\M08\\frozen\\delivery_324_ffaa6780.blend",
+     "readonly": true,
+     "recorded_bytes": 6102478,
+     "recorded_sha256": "ffaa6780a2f7e765512201403a21e34848837b5f1c7486e91a70442762857761",
+     "role": "delivery_324_ffaa6780.blend",
+     "sha256": "ffaa6780a2f7e765512201403a21e34848837b5f1c7486e91a70442762857761",
+     "sha256_lf_normalized": "e4f4a1209c3fb6e5d2108ade9d43b6000dcae1f5aa3a953dab06ce9faeadcc4d",
+     "state": "ok"
+    },
+    {
+     "bytes": 33680,
+     "path": "E:\\code\\mmdpipe-ai\\A1\\out\\subai\\M08\\frozen\\extra_bodies_patch_60d8c64e.json",
+     "readonly": true,
+     "recorded_bytes": 33680,
+     "recorded_sha256": "6d61a3649c5d116322aa0c915180e8b6ec95a938af74a745d0bc0bea2a282351",
+     "role": "extra_bodies_patch_60d8c64e.json",
+     "sha256": "6d61a3649c5d116322aa0c915180e8b6ec95a938af74a745d0bc0bea2a282351",
+     "sha256_lf_normalized": "6d61a3649c5d116322aa0c915180e8b6ec95a938af74a745d0bc0bea2a282351",
+     "state": "ok"
+    },
+    {
+     "bytes": 206289,
+     "path": "E:\\code\\mmdpipe-ai\\A1\\out\\subai\\M08\\frozen\\readback_frozen_ffaa6780.json",
+     "readonly": true,
+     "recorded_bytes": 206289,
+     "recorded_sha256": "2cc761f1ccb356dc9e95582ade180b3bd1ef6582653a82c429c597b6d5a97ac6",
+     "role": "readback_frozen_ffaa6780.json",
+     "sha256": "2cc761f1ccb356dc9e95582ade180b3bd1ef6582653a82c429c597b6d5a97ac6",
+     "sha256_lf_normalized": "2cc761f1ccb356dc9e95582ade180b3bd1ef6582653a82c429c597b6d5a97ac6",
+     "state": "ok"
+    },
+    {
+     "bytes": 11101,
+     "path": "E:\\code\\mmdpipe-ai\\A1\\out\\subai\\M08\\frozen\\rebuild_report_ffaa6780.json",
+     "readonly": true,
+     "recorded_bytes": 11101,
+     "recorded_sha256": "5536fc84e900dfc2550eb6b9b493b6ce241979ae07452f96cfb49145416eb641",
+     "role": "rebuild_report_ffaa6780.json",
+     "sha256": "5536fc84e900dfc2550eb6b9b493b6ce241979ae07452f96cfb49145416eb641",
+     "sha256_lf_normalized": "5536fc84e900dfc2550eb6b9b493b6ce241979ae07452f96cfb49145416eb641",
+     "state": "ok"
+    }
+   ],
+   "listed": 4,
+   "listed_ok": 4,
+   "manifest": "E:\\code\\mmdpipe-ai\\A1\\out\\subai\\M08\\frozen\\frozen_manifest.json",
+   "manifest_bytes": 1870,
+   "manifest_sha256": "6eca6add7c647d678bf29af00aa1eb61f1cc6c37486256bad4c4e5903e89dc4f",
+   "manifest_sha256_lf_normalized": "6eca6add7c647d678bf29af00aa1eb61f1cc6c37486256bad4c4e5903e89dc4f",
+   "ok": true,
+   "only_on_disk": [],
+   "recorded_assertions": {
+    "bidirectional_ok": true,
+    "listed_count": 4,
+    "on_disk_count": 4,
+    "only_in_manifest": [],
+    "only_on_disk": []
+   },
+   "warnings": []
+  },
+  {
+   "drift": [],
+   "items": [
+    {
+     "bytes": 1317,
+     "path": "E:\\code\\mmdpipe-ai\\A1\\out\\subai\\M08\\run_20261116_1900\\digestwarm_frozen\\digest_warmup.json",
+     "readonly": false,
+     "recorded_bytes": 1317,
+     "recorded_sha256": "f56e765da1c35992e33f50ee80ea3214cc3ec1fed2fad8f9d0d52dd48fb05c15",
+     "role": "digest_warmup.json",
+     "sha256": "f56e765da1c35992e33f50ee80ea3214cc3ec1fed2fad8f9d0d52dd48fb05c15",
+     "sha256_lf_normalized": "f56e765da1c35992e33f50ee80ea3214cc3ec1fed2fad8f9d0d52dd48fb05c15",
+     "state": "ok"
+    }
+   ],
+   "listed": 1,
+   "listed_ok": 1,
+   "manifest": "E:\\code\\mmdpipe-ai\\A1\\out\\subai\\M08\\run_20261116_1900\\digestwarm_frozen\\frozen_manifest.json",
+   "manifest_bytes": 860,
+   "manifest_sha256": "b5547c6ef73d7f6362cf7827a90a93500e0fc6d33707e3e3d77f0dcf800f3d77",
+   "manifest_sha256_lf_normalized": "b5547c6ef73d7f6362cf7827a90a93500e0fc6d33707e3e3d77f0dcf800f3d77",
+   "ok": true,
+   "only_on_disk": [],
+   "recorded_assertions": {
+    "bidirectional_ok": true,
+    "listed_count": 1,
+    "on_disk_count": 1,
+    "only_in_manifest": [],
+    "only_on_disk": []
+   },
+   "warnings": []
+  },
+  {
+   "drift": [],
+   "items": [
+    {
+     "bytes": 2415,
+     "path": "E:\\code\\mmdpipe-ai\\A1\\out\\subai\\M08\\run_20261116_1900\\firsteval_frozen\\first_eval.json",
+     "readonly": false,
+     "recorded_bytes": 2415,
+     "recorded_sha256": "a072f3192899e2d2374a3b93b0612bd39c222edc08cb409aa0605b11745106a9",
+     "role": "first_eval.json",
+     "sha256": "a072f3192899e2d2374a3b93b0612bd39c222edc08cb409aa0605b11745106a9",
+     "sha256_lf_normalized": "a072f3192899e2d2374a3b93b0612bd39c222edc08cb409aa0605b11745106a9",
+     "state": "ok"
+    },
+    {
+     "bytes": 1428,
+     "path": "E:\\code\\mmdpipe-ai\\A1\\out\\subai\\M08\\run_20261116_1900\\firsteval_frozen\\first_eval_freed.json",
+     "readonly": false,
+     "recorded_bytes": 1428,
+     "recorded_sha256": "fe95195b7e88b757ee62f9e533deaefe6d4f47c3b7cc6c2d45fd75c74040c64e",
+     "role": "first_eval_freed.json",
+     "sha256": "fe95195b7e88b757ee62f9e533deaefe6d4f47c3b7cc6c2d45fd75c74040c64e",
+     "sha256_lf_normalized": "fe95195b7e88b757ee62f9e533deaefe6d4f47c3b7cc6c2d45fd75c74040c64e",
+     "state": "ok"
+    }
+   ],
+   "listed": 2,
+   "listed_ok": 2,
+   "manifest": "E:\\code\\mmdpipe-ai\\A1\\out\\subai\\M08\\run_20261116_1900\\firsteval_frozen\\frozen_manifest.json",
+   "manifest_bytes": 1236,
+   "manifest_sha256": "2e705758ab256d299accb40381c4c04a822c392e60865d83766d76355a6918f8",
+   "manifest_sha256_lf_normalized": "2e705758ab256d299accb40381c4c04a822c392e60865d83766d76355a6918f8",
+   "ok": true,
+   "only_on_disk": [],
+   "recorded_assertions": {
+    "bidirectional_ok": true,
+    "listed_count": 2,
+    "on_disk_count": 2,
+    "only_in_manifest": [],
+    "only_on_disk": []
+   },
+   "warnings": []
+  },
+  {
+   "drift": [],
+   "items": [
+    {
+     "bytes": 4742,
+     "path": "E:\\code\\mmdpipe-ai\\A1\\out\\subai\\M08\\run_20261116_1900\\frozen\\bake_report_5bc1581e.json",
+     "readonly": false,
+     "recorded_bytes": 4742,
+     "recorded_sha256": "3560a216268ddd5c1bdfd6e6c2aaa3384d662fb2a47c922306a7a19a67209b28",
+     "role": "bake_report_5bc1581e.json",
+     "sha256": "3560a216268ddd5c1bdfd6e6c2aaa3384d662fb2a47c922306a7a19a67209b28",
+     "sha256_lf_normalized": "3560a216268ddd5c1bdfd6e6c2aaa3384d662fb2a47c922306a7a19a67209b28",
+     "state": "ok"
+    },
+    {
+     "bytes": 17186243,
+     "path": "E:\\code\\mmdpipe-ai\\A1\\out\\subai\\M08\\run_20261116_1900\\frozen\\delivery_324_action_baked_5bc1581e.blend",
+     "readonly": false,
+     "recorded_bytes": 17186243,
+     "recorded_sha256": "5bc1581ec75dea36795ffb44b76740ef92da6fcd815084db8d75f0ecff5d2cb0",
+     "role": "delivery_324_action_baked_5bc1581e.blend",
+     "sha256": "5bc1581ec75dea36795ffb44b76740ef92da6fcd815084db8d75f0ecff5d2cb0",
+     "sha256_lf_normalized": "7d7c7999fe439a47d3bad3c078d848947344e3569c95ea47c0cba4e36c05580a",
+     "state": "ok"
+    },
+    {
+     "bytes": 382,
+     "path": "E:\\code\\mmdpipe-ai\\A1\\out\\subai\\M08\\run_20261116_1900\\frozen\\digest_baked_5bc1581e.json",
+     "readonly": false,
+     "recorded_bytes": 382,
+     "recorded_sha256": "6a54fc06fd9e2e5b58be0370fcd3f9984e8cc208d26463b951017c2a26505a83",
+     "role": "digest_baked_5bc1581e.json",
+     "sha256": "6a54fc06fd9e2e5b58be0370fcd3f9984e8cc208d26463b951017c2a26505a83",
+     "sha256_lf_normalized": "6a54fc06fd9e2e5b58be0370fcd3f9984e8cc208d26463b951017c2a26505a83",
+     "state": "ok"
+    },
+    {
+     "bytes": 106975,
+     "path": "E:\\code\\mmdpipe-ai\\A1\\out\\subai\\M08\\run_20261116_1900\\frozen\\facts_baked_5bc1581e.json",
+     "readonly": false,
+     "recorded_bytes": 106975,
+     "recorded_sha256": "ad470db7e3528915588164166a13227e222446797a661e2902e8ab368a801f14",
+     "role": "facts_baked_5bc1581e.json",
+     "sha256": "ad470db7e3528915588164166a13227e222446797a661e2902e8ab368a801f14",
+     "sha256_lf_normalized": "ad470db7e3528915588164166a13227e222446797a661e2902e8ab368a801f14",
+     "state": "ok"
+    },
+    {
+     "bytes": 207181,
+     "path": "E:\\code\\mmdpipe-ai\\A1\\out\\subai\\M08\\run_20261116_1900\\frozen\\readback_baked_5bc1581e.json",
+     "readonly": false,
+     "recorded_bytes": 207181,
+     "recorded_sha256": "c6b18505dcb6f9e175db7f1e8f6ba9db64aba806a7167628285751d2696ffd62",
+     "role": "readback_baked_5bc1581e.json",
+     "sha256": "c6b18505dcb6f9e175db7f1e8f6ba9db64aba806a7167628285751d2696ffd62",
+     "sha256_lf_normalized": "c6b18505dcb6f9e175db7f1e8f6ba9db64aba806a7167628285751d2696ffd62",
+     "state": "ok"
+    }
+   ],
+   "listed": 5,
+   "listed_ok": 5,
+   "manifest": "E:\\code\\mmdpipe-ai\\A1\\out\\subai\\M08\\run_20261116_1900\\frozen\\frozen_manifest.json",
+   "manifest_bytes": 2337,
+   "manifest_sha256": "49d5bfae9f80d8b03cb425acd03487dbc7d93fdff525d888a9748eee9d794ef8",
+   "manifest_sha256_lf_normalized": "49d5bfae9f80d8b03cb425acd03487dbc7d93fdff525d888a9748eee9d794ef8",
+   "ok": true,
+   "only_on_disk": [],
+   "recorded_assertions": {
+    "bidirectional_ok": true,
+    "listed_count": 5,
+    "on_disk_count": 5,
+    "only_in_manifest": [],
+    "only_on_disk": []
+   },
+   "warnings": []
+  },
+  {
+   "drift": [],
+   "items": [
+    {
+     "bytes": 1726,
+     "path": "E:\\code\\mmdpipe-ai\\A1\\out\\subai\\M08\\run_20261116_1900\\recompute_frozen\\recomputed.json",
+     "readonly": false,
+     "recorded_bytes": 1726,
+     "recorded_sha256": "91a463ca7ce126c0424144108b7bd001413f4671e166e3ceb9e600f96c1d3a26",
+     "role": "recomputed.json",
+     "sha256": "91a463ca7ce126c0424144108b7bd001413f4671e166e3ceb9e600f96c1d3a26",
+     "sha256_lf_normalized": "91a463ca7ce126c0424144108b7bd001413f4671e166e3ceb9e600f96c1d3a26",
+     "state": "ok"
+    },
+    {
+     "bytes": 1771,
+     "path": "E:\\code\\mmdpipe-ai\\A1\\out\\subai\\M08\\run_20261116_1900\\recompute_frozen\\recomputed_run1.json",
+     "readonly": false,
+     "recorded_bytes": 1771,
+     "recorded_sha256": "79f453cd2d5c958f62b874f90e2146a1475aa766777f81a401c9da8ff324e67e",
+     "role": "recomputed_run1.json",
+     "sha256": "79f453cd2d5c958f62b874f90e2146a1475aa766777f81a401c9da8ff324e67e",
+     "sha256_lf_normalized": "79f453cd2d5c958f62b874f90e2146a1475aa766777f81a401c9da8ff324e67e",
+     "state": "ok"
+    },
+    {
+     "bytes": 1771,
+     "path": "E:\\code\\mmdpipe-ai\\A1\\out\\subai\\M08\\run_20261116_1900\\recompute_frozen\\recomputed_run2.json",
+     "readonly": false,
+     "recorded_bytes": 1771,
+     "recorded_sha256": "79f453cd2d5c958f62b874f90e2146a1475aa766777f81a401c9da8ff324e67e",
+     "role": "recomputed_run2.json",
+     "sha256": "79f453cd2d5c958f62b874f90e2146a1475aa766777f81a401c9da8ff324e67e",
+     "sha256_lf_normalized": "79f453cd2d5c958f62b874f90e2146a1475aa766777f81a401c9da8ff324e67e",
+     "state": "ok"
+    }
+   ],
+   "listed": 3,
+   "listed_ok": 3,
+   "manifest": "E:\\code\\mmdpipe-ai\\A1\\out\\subai\\M08\\run_20261116_1900\\recompute_frozen\\frozen_manifest.json",
+   "manifest_bytes": 1615,
+   "manifest_sha256": "eb7406e5100f3f57f471223a8eaa66128a4d648810760894bca1af9bdad46d47",
+   "manifest_sha256_lf_normalized": "eb7406e5100f3f57f471223a8eaa66128a4d648810760894bca1af9bdad46d47",
+   "ok": true,
+   "only_on_disk": [],
+   "recorded_assertions": {
+    "bidirectional_ok": true,
+    "listed_count": 3,
+    "on_disk_count": 3,
+    "only_in_manifest": [],
+    "only_on_disk": []
+   },
+   "warnings": []
+  },
+  {
+   "drift": [],
+   "items": [
+    {
+     "bytes": 2214,
+     "path": "E:\\code\\mmdpipe-ai\\A1\\out\\subai\\M08\\run_20261116_1900\\recompute_frozen_v2\\computed_v2.json",
+     "readonly": false,
+     "recorded_bytes": 2214,
+     "recorded_sha256": "30ff803c01c9b1b0ed61b7a33a5f88b383c7e3957800c03d082650f502745ee3",
+     "role": "computed_v2.json",
+     "sha256": "30ff803c01c9b1b0ed61b7a33a5f88b383c7e3957800c03d082650f502745ee3",
+     "sha256_lf_normalized": "30ff803c01c9b1b0ed61b7a33a5f88b383c7e3957800c03d082650f502745ee3",
+     "state": "ok"
+    },
+    {
+     "bytes": 1771,
+     "path": "E:\\code\\mmdpipe-ai\\A1\\out\\subai\\M08\\run_20261116_1900\\recompute_frozen_v2\\recomputed_run1.json",
+     "readonly": false,
+     "recorded_bytes": 1771,
+     "recorded_sha256": "79f453cd2d5c958f62b874f90e2146a1475aa766777f81a401c9da8ff324e67e",
+     "role": "recomputed_run1.json",
+     "sha256": "79f453cd2d5c958f62b874f90e2146a1475aa766777f81a401c9da8ff324e67e",
+     "sha256_lf_normalized": "79f453cd2d5c958f62b874f90e2146a1475aa766777f81a401c9da8ff324e67e",
+     "state": "ok"
+    },
+    {
+     "bytes": 1771,
+     "path": "E:\\code\\mmdpipe-ai\\A1\\out\\subai\\M08\\run_20261116_1900\\recompute_frozen_v2\\recomputed_run2.json",
+     "readonly": false,
+     "recorded_bytes": 1771,
+     "recorded_sha256": "79f453cd2d5c958f62b874f90e2146a1475aa766777f81a401c9da8ff324e67e",
+     "role": "recomputed_run2.json",
+     "sha256": "79f453cd2d5c958f62b874f90e2146a1475aa766777f81a401c9da8ff324e67e",
+     "sha256_lf_normalized": "79f453cd2d5c958f62b874f90e2146a1475aa766777f81a401c9da8ff324e67e",
+     "state": "ok"
+    }
+   ],
+   "listed": 3,
+   "listed_ok": 3,
+   "manifest": "E:\\code\\mmdpipe-ai\\A1\\out\\subai\\M08\\run_20261116_1900\\recompute_frozen_v2\\frozen_manifest.json",
+   "manifest_bytes": 1626,
+   "manifest_sha256": "4439ac4291ca3a1237c99b5e8e0bbf34c5dce0ccda52a7e83d9a7d199a41f79e",
+   "manifest_sha256_lf_normalized": "4439ac4291ca3a1237c99b5e8e0bbf34c5dce0ccda52a7e83d9a7d199a41f79e",
+   "ok": true,
+   "only_on_disk": [],
+   "recorded_assertions": {
+    "bidirectional_ok": true,
+    "listed_count": 3,
+    "on_disk_count": 3,
+    "only_in_manifest": [],
+    "only_on_disk": []
+   },
+   "warnings": []
+  }
+ ],
+ "root": "E:\\code\\mmdpipe-ai\\A1\\out\\subai\\M08"
+}

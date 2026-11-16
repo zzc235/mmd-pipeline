@@ -1,0 +1,54 @@
+{
+ "caveats": [
+  "leg B（`pass_b_cold_reread`）的冷跳读的是**本会话顺序重算刚刚填进去的缓存**，所以 A 与 B 相同是构造出来的，**不构成对缓存回放的测量**，不能拿来翻案 `D-218`/`D-219`（重开件里那份缓存被引擎判为 outdated、且 `use_disk_cache=false`）。",
+  "这条判据只证明「场景可确定性重建」；跨会话一致性来自两次独立会话的 `pass_a_sequential` pose sha 相同，与缓存无关。"
+ ],
+ "cross_session": {
+  "consistent": true,
+  "criterion": "pass_a_sequential 的 pose sha 在两次独立会话里逐帧相同",
+  "diff_frames": [],
+  "frames": [
+   "417",
+   "833"
+  ],
+  "per_frame": {
+   "417": {
+    "run1": "adf78ad2dc13f2d2a8efb121ed6c8c9d94bc94d3dc11e23ad38c96d8e8b065de",
+    "run2": "adf78ad2dc13f2d2a8efb121ed6c8c9d94bc94d3dc11e23ad38c96d8e8b065de",
+    "same": true
+   },
+   "833": {
+    "run1": "7a6ff211c09516983ea478924f28b02eda8687b759d0bb5ec84928bb03446016",
+    "run2": "7a6ff211c09516983ea478924f28b02eda8687b759d0bb5ec84928bb03446016",
+    "same": true
+   }
+  }
+ },
+ "inputs": {
+  "run1": {
+   "blend_sha256": "5bc1581ec75dea36795ffb44b76740ef92da6fcd815084db8d75f0ecff5d2cb0",
+   "path": "E:\\code\\mmdpipe-ai\\A1\\out\\subai\\M08\\run_20261116_1900\\recomputed_run1.json",
+   "verdict": "RECOMPUTE_CONSISTENT"
+  },
+  "run2": {
+   "blend_sha256": "5bc1581ec75dea36795ffb44b76740ef92da6fcd815084db8d75f0ecff5d2cb0",
+   "path": "E:\\code\\mmdpipe-ai\\A1\\out\\subai\\M08\\run_20261116_1900\\recomputed_run2.json",
+   "verdict": "RECOMPUTE_CONSISTENT"
+  }
+ },
+ "order_dependence": {
+  "note": "同一次会话里 A（顺序步进）与 B（缓存释放后冷跳重读）的差 —— **已知**：解算依赖遍历方式。只记量级，不参与判定。",
+  "run1": {
+   "max_delta": 0.0,
+   "over_tol_total": 0
+  },
+  "run2": {
+   "max_delta": 0.0,
+   "over_tol_total": 0
+  }
+ },
+ "problems": [],
+ "scope": "通过 = 场景可在任意新会话里确定性重建到同一姿态（`T2` 的立足点）。不证明交付件自带可回放缓存（`D-218`/`D-219` 已定：缓存没出门），两句不许合并。",
+ "stage": "recompute-compare-v1",
+ "verdict": "RECOMPUTE_CONSISTENT"
+}
