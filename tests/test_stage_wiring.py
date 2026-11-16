@@ -451,9 +451,15 @@ class TestMaskGate(unittest.TestCase):
         src = inspect.getsource(self.stage.stage_build)
         self.assertIn("mask_gate_reason(wired)", src,
                       "stage_build 没调用 mask_gate_reason —— 判据没接在建场路径上")
-        self.assertNotIn("bake", src.lower(),
-                         "stage_build 里出现了烘焙动作：fail-closed 必须在烘焙之前")
         gate_at = src.index("mask_gate_reason(wired)")
+        # 旧写法是「源码里不许出现 bake」。`D-173` 给 `stage_build` 加了显式 `bake=` 参数之后，
+        # 按词断言就不成立了——但它防的是同一件事：**烘焙必须发生在闸门之后**。改成按位置断言，
+        # 顺带要求烘焙算子只在 `stage_bake()` 里出现（`stage_build` 不许自己调 ptcache）。
+        self.assertNotIn("ptcache", src, "stage_build 自己调了烘焙算子：应该走 stage_bake()")
+        first_bake = src.index("stage_bake(")
+        self.assertGreater(first_bake, gate_at, "烘焙调用出现在掩码闸门之前")
+        self.assertLess(first_bake, src.index("bake_gate_reason(record)"),
+                        "`stage_bake` 的调用必须在判「烘得合不合格」之前")
         self.assertLess(gate_at, src.rindex("return res"),
                         "BLOCK 之后又往下走了（`return res` 不在闸门后面）")
         with open(os.path.join(ROOT, "mmdpipe", "runner.py"), encoding="utf-8") as fh:

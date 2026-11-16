@@ -842,7 +842,211 @@ def stage_import(preset, pmx_path: str):
     return res, root, arm, mesh
 
 
-def stage_build(preset, root, arm):
+# ---------------------------------------------------------------- 烘焙（契约 B / D-067 / D-173）
+#
+# 为什么是「显式参数 + 行为探针」而不是「在 stage_build 里顺手烘一下」：
+#
+# * `bake=None`（默认）必须逐字保持旧行为——`runner.py`、交付构建链、各席的臂都不传它，
+#   这条改动一旦悄悄改了别人的读数，比不烘更坏；
+# * 「烘过了」不是判据：`point_cache.is_baked` 在健康件和缺陷件上都可能为真（D-155/D-158），
+#   所以烘完必须**冷跳读回来和烘焙前顺序解算的那次姿态比**，不是看标志位；
+# * 烘的不是我们这次解算的姿态，就等于把另一条轨迹钉进交付件——所以比较的参照物必须是
+#   **本进程烘焙前**逐帧步进得到的那批指纹。
+BAKE_FIELDS = ("requested", "applied", "frame_start", "frame_end", "fps")
+BAKE_EXTRA_FIELDS = ("pose_source", "is_baked", "is_outdated")
+BAKE_TOL = 1e-6
+BAKE_KEYS = ("frame_start", "frame_end", "fps")
+
+
+def bake_request(bake=None) -> dict | None:
+    """规范化 `bake` 参数：`None` ⇒ `None`（不烘）；字典只认 `frame_start/frame_end/fps`。
+
+    不认识的键**直接拒**：多一个拼错的键被静默忽略，就是「以为调了 fps、其实没调」。
+    """
+    if bake is None:
+        return None
+    if not isinstance(bake, dict):
+        raise ValueError("bake 必须是 None 或 dict，给的是 %s"
+                         % type(bake).__name__)
+    unknown = sorted(set(bake) - set(BAKE_KEYS))
+    if unknown:
+        raise ValueError("bake 里有不认识的键：%s（只认 %s）"
+                         % (", ".join(unknown), "/".join(BAKE_KEYS)))
+    start = int(bake["frame_start"]) if bake.get("frame_start") is not None else 1
+    end = int(bake["frame_end"]) if bake.get("frame_end") is not None else start
+    if end < start:
+        raise ValueError("bake.frame_end(%d) < bake.frame_start(%d)" % (end, start))
+    req = {"frame_start": start, "frame_end": end}
+    if bake.get("fps") is not None:
+        fps = int(bake["fps"])
+        if fps <= 0:
+            raise ValueError("bake.fps 必须为正，给的是 %d" % fps)
+        req["fps"] = fps
+    return req
+
+
+def pose_snapshot(objects) -> dict:
+    """逐刚体的世界矩阵（16 个浮点，9 位小数）。烘焙前后的**同一批帧**都用它取指纹。"""
+    snap = {}
+    for obj in objects:
+        matrix = getattr(obj, "matrix_world", None)
+        if matrix is None:
+            continue
+        values = []
+        for row in matrix:
+            for value in row:
+                values.append(round(float(value), 9))
+        snap[obj.name] = values
+    return snap
+
+
+def bake_probe(fresh, cached, tol=BAKE_TOL) -> dict:
+    """纯函数：`fresh`（烘焙前顺序解算）对比 `cached`（烘焙后冷跳）逐帧逐值。
+
+    返回的 `matched` 只有「帧齐、刚体齐、每个值都在 `tol` 内」才为真；缺帧缺刚体都算红
+    （`bodies=[]` 那种「读不到当 0」的假绿在这里同样不许出现）。
+    """
+    fresh = dict(fresh or {})
+    cached = dict(cached or {})
+    missing_frames = sorted(set(fresh) - set(cached))
+    extra_frames = sorted(set(cached) - set(fresh))
+    mismatches = []
+    missing_objects = []
+    max_delta = 0.0
+    compared_bodies = set()
+    for frame in sorted(set(fresh) & set(cached)):
+        want, got = fresh[frame], cached[frame]
+        for name in sorted(want):
+            if name not in got:
+                missing_objects.append({"frame": frame, "object": name})
+                continue
+            compared_bodies.add(name)
+            a, b = want[name], got[name]
+            if len(a) != len(b):
+                mismatches.append({"frame": frame, "object": name, "field": "matrix_length",
+                                   "fresh": len(a), "cached": len(b)})
+                continue
+            for index, (va, vb) in enumerate(zip(a, b)):
+                delta = abs(float(va) - float(vb))
+                max_delta = max(max_delta, delta)
+                if delta > tol:
+                    mismatches.append({"frame": frame, "object": name, "index": index,
+                                       "fresh": va, "cached": vb, "delta": delta})
+    return {
+        "matched": not (mismatches or missing_objects or missing_frames or extra_frames)
+                   and bool(compared_bodies),
+        "tol": tol,
+        "frames": sorted(set(fresh) & set(cached)),
+        "bodies": len(compared_bodies),
+        "max_delta": max_delta,
+        "mismatch_count": len(mismatches),
+        "mismatches": mismatches[:20],
+        "missing_frames": missing_frames,
+        "extra_frames": extra_frames,
+        "missing_objects": missing_objects[:20],
+    }
+
+
+def bake_checks(record) -> dict:
+    """「这件算按契约 B 烘过吗」——五条**分开给**，不合成一个 `and`（一位坏就看不见）。"""
+    record = record or {}
+    probe = record.get("probe") or {}
+    return {
+        "requested": record.get("requested") is not None,
+        "applied": record.get("applied") is True,
+        "not_outdated": record.get("is_outdated") is False,
+        "probe_matched": probe.get("matched") is True,
+        "fields_complete": all(key in record for key in BAKE_FIELDS + BAKE_EXTRA_FIELDS),
+    }
+
+
+def bake_missing(record) -> list:
+    return [key for key, ok in bake_checks(record).items() if not ok]
+
+
+def bake_gate_reason(record) -> str | None:
+    """五条全绿才算「烘过」。返回 None 或一句能直接进 BLOCK 的理由。"""
+    missing = bake_missing(record)
+    if not missing:
+        return None
+    probe = (record or {}).get("probe") or {}
+    detail = ""
+    if "probe_matched" in missing:
+        detail = "（不一致 %d 处，最大差 %s，帧 %s）" % (
+            probe.get("mismatch_count", 0), probe.get("max_delta"),
+            probe.get("frames"))
+    return "烘焙不合格：%s%s" % ("、".join(missing), detail)
+
+
+def bake_record(scene, req, probe, applied, is_baked, is_outdated) -> dict:
+    """落盘形状（读者不用打开 `stage.py` 就知道这件是什么状态）。"""
+    cache = scene.rigidbody_world.point_cache if scene and scene.rigidbody_world else None
+    req = req or {}
+
+    def _int(value, default=0):
+        return default if value is None else int(value)
+
+    return {
+        "requested": req or None,
+        "applied": bool(applied),
+        "frame_start": _int(getattr(cache, "frame_start", None), _int(req.get("frame_start"))),
+        "frame_end": _int(getattr(cache, "frame_end", None), _int(req.get("frame_end"))),
+        "fps": _int(getattr(getattr(scene, "render", None), "fps", None),
+                    _int(req.get("fps"))),
+        "pose_source": "cache_replay" if applied else "fresh_solve",
+        "is_baked": bool(is_baked),
+        "is_outdated": bool(is_outdated),
+        "probe": probe,
+    }
+
+
+def stage_bake(scene, bake, objects=None, bake_call=None) -> dict:
+    """烘一次 + 行为探针（契约 B）。返回落盘记录；**不判**，判在 `bake_gate_reason()`。
+
+    探针口径：烘焙前从 `frame_start` 逐帧步进记下采样帧的刚体世界矩阵（`fresh_solve`）→
+    烘焙 → 每帧「先跳回起点前、再冷跳到该帧」重读（`cache_replay`）→ 逐值比。两次读数
+    若一致，说明缓存里钉的就是这次解算；不一致说明烘进去的是另一条轨迹。
+    """
+    req = bake_request(bake)
+    objects = list(rigid_bodies() if objects is None else objects)
+    if req is None:
+        return bake_record(scene, None, {}, False, False, False)
+    rbw = getattr(scene, "rigidbody_world", None)
+    if rbw is None:
+        return bake_record(scene, req, {"error": "no_rigidbody_world"}, False, False, False)
+    cache = rbw.point_cache
+    cache.frame_start = req["frame_start"]
+    cache.frame_end = req["frame_end"]
+    if req.get("fps"):
+        scene.render.fps = req["fps"]
+
+    samples = sorted({req["frame_start"],
+                      (req["frame_start"] + req["frame_end"]) // 2,
+                      req["frame_end"]})
+    fresh = {}
+    for frame in range(req["frame_start"], max(samples) + 1):
+        scene.frame_set(frame)
+        if frame in samples:
+            fresh[frame] = pose_snapshot(objects)
+
+    if bake_call is None:
+        bake_call = lambda **_kw: bpy.ops.ptcache.bake_all(bake=True)      # noqa: E731
+    bake_call(bake=True)
+
+    cold = req["frame_start"] - 1
+    cached = {}
+    for frame in samples:
+        scene.frame_set(cold)          # 先离开目标帧，否则「读到的是上一帧留下的缓存」
+        scene.frame_set(frame)
+        cached[frame] = pose_snapshot(objects)
+
+    probe = bake_probe(fresh, cached)
+    return bake_record(scene, req, probe, bool(getattr(cache, "is_baked", True)),
+                       bool(getattr(cache, "is_baked", True)),
+                       bool(getattr(cache, "is_outdated", False)))
+
+
+def stage_build(preset, root, arm, bake=None):
     """Model.build() + 刚体世界参数 + 裙摆阻尼 + 碰撞掩码读回。"""
     from bl_ext.user_default.mmd_tools.core import model as MModel
     from bl_ext.user_default.mmd_tools.core import rigid_body as MRigid
@@ -951,6 +1155,26 @@ def stage_build(preset, root, arm):
         res.add("S8", INFO,
                 "掩码没有声明任何排除（%d 个刚体全为「与所有组碰」），覆盖无从谈起"
                 % mask["all_on_bodies"])
+
+    # 烘焙（契约 B / `D-067` / `D-173`）：**显式参数**。`bake=None` 时这一段整段不执行，
+    # metrics 里也不会多出 `bake` 键——不传 bake 的调用方（`runner.py`、交付构建链、
+    # 各席的臂）读数逐字不变，这条有测试盯着。
+    if bake is not None:
+        try:
+            record = stage_bake(bpy.context.scene, bake)
+        except ValueError as exc:
+            res.add("S8", BLOCK, "bake 参数不合法：%s" % exc,
+                    "只认 frame_start/frame_end/fps，且 frame_end >= frame_start")
+            res.elapsed = _now() - t0
+            return res
+        res.metrics["bake"] = dict(record)
+        reason = bake_gate_reason(record)
+        if reason is not None:
+            res.add("S8", BLOCK, reason,
+                    "烘焙没通过行为探针 ⇒ 这份场景不是「按契约 B 烘过」的交付件"
+                    "（D-155/D-158：`is_baked` 标志位本身证明不了任何事）")
+            res.elapsed = _now() - t0
+            return res
     res.elapsed = _now() - t0
     return res
 
