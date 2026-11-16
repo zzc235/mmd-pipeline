@@ -351,6 +351,50 @@ class TestEvidenceHash(unittest.TestCase):
         with self.assertRaises(evidence_mod.EvidenceError):
             evidence_mod.digest(inf)
 
+    def test_hash_basis_absent_keeps_old_digest(self):
+        """不写 `hash_basis` 时，规范化结果与加这个字段之前**逐字节相同**。
+
+        参考值 `0863ecaa…` 是在改 `evidence.py` 之前算出来的：新增字段必须是
+        **可选**的，否则今天所有已合并的证据哈希都会失效。
+        """
+        payload = {
+            "spec": "evidence/1", "task_id": "M00", "attempt": 1, "status": "PASS",
+            "files": [{"path": "a.py", "sha256": "0" * 64, "tracked": True}],
+            "tests": [{"cmd": "x", "exit": 0, "passed": 1, "failed": 0, "skipped": 0}],
+            "artifacts": [], "known_risks": [], "interface": "i",
+        }
+        self.assertNotIn("hash_basis", evidence_mod.normalize(payload))
+        self.assertEqual(
+            evidence_mod.digest(payload),
+            "evidence/1:0863ecaa9f799f78b20ac87af69291dd5a971934c6662d62bb48d15566ac4186")
+
+    def test_hash_basis_present_enters_hash(self):
+        a = evidence()
+        b = evidence()
+        b["hash_basis"] = "lf_normalized_v1"
+        self.assertIn("hash_basis", evidence_mod.normalize(b))
+        self.assertNotEqual(evidence_mod.digest(a), evidence_mod.digest(b))
+        # 只有基数不同也要区分开
+        c = evidence()
+        c["hash_basis"] = "raw_bytes_v1"
+        self.assertNotEqual(evidence_mod.digest(b), evidence_mod.digest(c))
+
+    def test_hash_basis_whitespace_collapsed(self):
+        a = evidence()
+        a["hash_basis"] = "  lf_normalized_v1  "
+        b = evidence()
+        b["hash_basis"] = "lf_normalized_v1"
+        self.assertEqual(evidence_mod.digest(a), evidence_mod.digest(b))
+
+    def test_hash_basis_type_checked(self):
+        bad = evidence()
+        bad["hash_basis"] = 1
+        with self.assertRaises(evidence_mod.EvidenceError):
+            evidence_mod.digest(bad)
+        blank = evidence()
+        blank["hash_basis"] = "   "
+        self.assertNotIn("hash_basis", evidence_mod.normalize(blank))
+
     def test_spec_and_status_validated(self):
         bad_spec = evidence()
         bad_spec["spec"] = "evidence/2"

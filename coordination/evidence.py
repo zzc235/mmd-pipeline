@@ -128,6 +128,15 @@ def normalize(obj: dict) -> dict:
     if interface is not None and not isinstance(interface, str):
         raise EvidenceError("interface 必须是字符串或 null")
 
+    # 哈希基数（D0 2026-11-16 定：文本先 \r\n → \n 再 sha256）。
+    # **可选且只在不写时才补默认**：给了就进 hash，不给就完全不出现——
+    # 这样改动之前算出来的证据哈希一个都不变（有测试钉住）。
+    hash_basis = obj.get("hash_basis")
+    if hash_basis is not None and not isinstance(hash_basis, str):
+        raise EvidenceError("hash_basis 必须是字符串或 null")
+    if isinstance(hash_basis, str) and not hash_basis.strip():
+        hash_basis = None
+
     normalized = {
         "spec": SPEC,
         "task_id": obj["task_id"],
@@ -139,6 +148,8 @@ def normalize(obj: dict) -> dict:
         "known_risks": risks,
         "interface": interface,
     }
+    if hash_basis is not None:
+        normalized["hash_basis"] = " ".join(hash_basis.split())
     return _check_floats(normalized)
 
 
