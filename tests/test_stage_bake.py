@@ -437,7 +437,7 @@ class TestBakeFailureShapeTellsTheThreeApart(unittest.TestCase):
         self.stage, _ = load_stage()
 
     def _record(self, applied=True, reopened=None, baked_after=None, outdated=None,
-                replay_matched=True):
+                replay_matched=True, first_eval=True):
         record = {
             "requested": {"frame_start": 1, "frame_end": 833, "fps": 30},
             "applied": applied,
@@ -453,8 +453,11 @@ class TestBakeFailureShapeTellsTheThreeApart(unittest.TestCase):
         if reopened is not None:
             record = self.stage.bake_artifact_record(
                 record, reopened=reopened,
-                replay_probe={"matched": replay_matched, "max_delta": 0.0,
-                              "over_tol": 0 if replay_matched else 275, "frames": [417]},
+                replay_probe=self.stage.bake_replay_probe(
+                    matched=replay_matched,
+                    first_eval_after_open=first_eval,
+                    max_delta=0.0 if replay_matched else 1.85651505,
+                    frames=[417]),
                 is_baked_after_reopen=baked_after,
                 is_outdated_after_reopen=outdated)
         return record
@@ -485,7 +488,7 @@ class TestBakeFailureShapeTellsTheThreeApart(unittest.TestCase):
         self.assertEqual(self.stage.bake_failure_shape(record), "replay_unmeasured")
         self.assertEqual(self.stage.bake_artifact_missing(record),
                          ["reopen_measured", "cache_usable_after_reopen",
-                          "replay_matched_after_reopen"])
+                          "replay_first_eval_after_open", "replay_matched_after_reopen"])
 
     def test_reopened_without_a_replay_probe_is_unmeasured(self):
         """缓存可用、但没做重放对照 ⇒ 仍然是「缺料」，不许写成不一致。"""
@@ -493,7 +496,7 @@ class TestBakeFailureShapeTellsTheThreeApart(unittest.TestCase):
         record["persist"]["replay_probe"] = None
         self.assertEqual(self.stage.bake_failure_shape(record), "replay_unmeasured")
         self.assertEqual(self.stage.bake_artifact_missing(record),
-                         ["replay_matched_after_reopen"])
+                         ["replay_first_eval_after_open", "replay_matched_after_reopen"])
 
     def test_persisted_but_replay_differs(self):
         """缓存可用、但冷跳读回来的姿态与顺序重算不一致 ⇒ 最难发现的那一种。"""
@@ -508,6 +511,38 @@ class TestBakeFailureShapeTellsTheThreeApart(unittest.TestCase):
         self.assertEqual(self.stage.bake_failure_shape(record), "ok")
         self.assertEqual(self.stage.bake_artifact_missing(record), [])
         self.assertIsNone(self.stage.bake_artifact_gate_reason(record))
+
+    def test_self_fulfilling_replay_is_unmeasured_not_matched(self):
+        """`D-223`/`D-224`：先顺序走完再冷跳（`first_eval_after_open=false`）⇒ 不算一致。
+
+        `1号` 19:20 那支 `matched=true / max_delta=0.0` 就是这种：缓存里装的是本会话自己
+        刚算出来的东西，冷跳读到的是它自己。判它 `replay_unmeasured`，**不是** `replay_mismatch`。
+        """
+        record = self._record(reopened=True, baked_after=True, outdated=False,
+                              first_eval=False)
+        self.assertEqual(self.stage.bake_failure_shape(record), "replay_unmeasured")
+        checks = self.stage.bake_checks(record)
+        self.assertFalse(checks["replay_first_eval_after_open"])
+        self.assertFalse(checks["replay_matched_after_reopen"],
+                         "方式不对时 matched 这面旗不许单独为真")
+        self.assertEqual(self.stage.bake_artifact_missing(record),
+                         ["replay_first_eval_after_open", "replay_matched_after_reopen"])
+
+    def test_missing_first_eval_flag_is_unmeasured(self):
+        """漏写这个键 ⇒ 同样算没量（不许因为默认值变成"一致"）。"""
+        record = self._record(reopened=True, baked_after=True, outdated=False)
+        del record["persist"]["replay_probe"]["first_eval_after_open"]
+        self.assertEqual(self.stage.bake_failure_shape(record), "replay_unmeasured")
+        self.assertFalse(self.stage.bake_checks(record)["replay_matched_after_reopen"])
+
+    def test_replay_probe_builder_has_no_default_for_the_flag(self):
+        """构造器不许给 `first_eval_after_open` 默认值 —— 忘了写就是"合法的一致"。"""
+        with self.assertRaises(TypeError):
+            self.stage.bake_replay_probe(matched=True, max_delta=0.0, frames=[417])
+        probe = self.stage.bake_replay_probe(matched=True, first_eval_after_open=True,
+                                            max_delta=0.0, frames=[417])
+        self.assertEqual(sorted(probe), ["first_eval_after_open", "frames",
+                                         "matched", "max_delta"])
 
     def test_disk_cache_switch_is_recorded_but_never_a_criterion(self):
         """`use_disk_cache` 只记录：`D-218` 实测赋值会把 Blender 打死，判据不能建在它上面。"""
@@ -525,7 +560,7 @@ class TestBakeFailureShapeTellsTheThreeApart(unittest.TestCase):
         self.assertEqual(list(self.stage.BAKE_ARTIFACT_CRITERIA),
                          list(self.stage.BAKE_CRITERIA)
                          + ["reopen_measured", "cache_usable_after_reopen",
-                            "replay_matched_after_reopen"])
+                            "replay_first_eval_after_open", "replay_matched_after_reopen"])
 
     def test_the_six_criteria_names_are_unchanged(self):
         """1号 在读 `bake_checks()["probe_informative"]`：老键的名字与语义不许动。"""

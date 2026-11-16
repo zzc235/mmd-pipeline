@@ -886,9 +886,14 @@ BAKE_EXTRA_FIELDS = ("pose_source", "is_baked", "is_outdated")
 # 形状由 `bake_failure_shape()` 一次说清，谁都不用自己拼。
 BAKE_CRITERIA = ("requested", "applied", "not_outdated", "probe_matched",
                  "probe_informative", "fields_complete")
+# 重开之后的三条，外加一条**量的方式**——`D-223`/`D-224`：引擎开件后**第一次求值**就与顺序重算
+# 差 1.86–1.99 m（与 `is_baked` 无关，先清标志再首次求值差得更大）。所以「冷跳读回来和顺序重算
+# 一致」只有在**开件后第一次求值就是那一次冷跳**时才算证据；若先顺序走完 1..833 再冷跳，读的是
+# 本会话自己刚算出来的东西 ⇒ `matched=true / max_delta=0.0` 是**自证循环**（1号 19:20 那支就是）。
 BAKE_PERSIST_CRITERIA = ("reopen_measured", "cache_usable_after_reopen",
-                         "replay_matched_after_reopen")
+                         "replay_first_eval_after_open", "replay_matched_after_reopen")
 BAKE_ARTIFACT_CRITERIA = BAKE_CRITERIA + BAKE_PERSIST_CRITERIA
+BAKE_REPLAY_FIELDS = ("matched", "first_eval_after_open", "max_delta", "frames")
 BAKE_TOL = 1e-6
 BAKE_KEYS = ("frame_start", "frame_end", "fps")
 
@@ -1006,6 +1011,7 @@ def bake_checks(record) -> dict:
     probe = record.get("probe") or {}
     persist = record.get("persist") or {}
     replay = persist.get("replay_probe") or {}
+    first_eval = replay.get("first_eval_after_open") is True
     return {
         "requested": record.get("requested") is not None,
         "applied": record.get("applied") is True,
@@ -1021,8 +1027,11 @@ def bake_checks(record) -> dict:
         #    （`EXCEPTION_ACCESS_VIOLATION`，两次复现）—— 这条路不存在，判据也不能建在它上面。
         "cache_usable_after_reopen": (persist.get("is_baked_after_reopen") is True
                                       and persist.get("is_outdated_after_reopen") is False),
-        # ③ 重放一致：冷跳读回来的姿态 == 顺序重算的姿态（tol 见 `BAKE_TOL`）
-        "replay_matched_after_reopen": replay.get("matched") is True,
+        # ③ **量的方式对**：重放探针必须是开件后第一次求值（`D-223`/`D-224`）
+        "replay_first_eval_after_open": first_eval,
+        # ④ 重放一致：冷跳读回来的姿态 == 顺序重算的姿态（tol 见 `BAKE_TOL`）。
+        #    **同时要求方式对**——自证循环里的 `matched=true` 不算一致，否则这面旗会被单独引用。
+        "replay_matched_after_reopen": (first_eval and replay.get("matched") is True),
     }
 
 
@@ -1065,6 +1074,10 @@ def bake_failure_shape(record) -> str:
         return "baked_not_persisted"
     replay = ((record or {}).get("persist") or {}).get("replay_probe")
     if not replay:
+        return "replay_unmeasured"
+    if not checks["replay_first_eval_after_open"]:
+        # 自证循环：先顺序走完再冷跳，「一致」是本会话自己算出来的东西对上了自己。
+        # `D-223`/`D-224` 定它一律算没量，不算一致、也不算不一致。
         return "replay_unmeasured"
     if not checks["replay_matched_after_reopen"]:
         return "replay_mismatch"
@@ -1148,6 +1161,21 @@ def bake_record(scene, req, probe, applied, is_baked, is_outdated) -> dict:
         # 进程内那一刻的缓存去向；重开之后的读数由 `bake_artifact_record()` 补（`D-214`）
         "persist": bake_persist_block(scene),
         "probe": probe,
+    }
+
+
+def bake_replay_probe(*, matched, first_eval_after_open, max_delta, frames) -> dict:
+    """构造「重开后的重放探针」记录。`first_eval_after_open` **没有默认值**，必须显式给。
+
+    为什么要一个构造器：自证循环（先顺序走完 1..833 再冷跳）与正确的量法**只差这一个布尔**，
+    而它决定 `matched` 算不算证据（`D-223`/`D-224`）。留成手写 dict 就等于让「忘了写这个键」
+    变成「合法的一致」——那面旗会被单独引用，`1号` 19:20 那支 `max_delta=0.0` 就是这种。
+    """
+    return {
+        "matched": bool(matched),
+        "first_eval_after_open": bool(first_eval_after_open),
+        "max_delta": max_delta,
+        "frames": list(frames or []),
     }
 
 
