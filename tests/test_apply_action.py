@@ -233,6 +233,41 @@ class LockTailGateTest(unittest.TestCase):
         self.assertIn("无法证明", msg)
 
 
+class VersionedPathTest(unittest.TestCase):
+    """`D-189`：臂件是「那次读数的物证」，落盘要版本化、默认不覆盖。"""
+
+    def test_path_is_versioned_by_batch(self):
+        p = AA.versioned_out_path(r"out\arms", "20261116_1830", "C@W1")
+        self.assertTrue(p.endswith(os.path.join("20261116_1830", "C@W1.blend")), p)
+
+    def test_two_batches_never_share_a_path(self):
+        a = AA.versioned_out_path("out", "batch_a", "D")
+        b = AA.versioned_out_path("out", "batch_b", "D")
+        self.assertNotEqual(a, b)
+
+    def test_missing_pieces_are_refused(self):
+        for args in ((None, "b", "n"), ("out", None, "n"), ("out", "b", None)):
+            with self.assertRaises(AA.PlanError):
+                AA.versioned_out_path(*args)
+
+    def test_name_is_sanitised(self):
+        p = AA.versioned_out_path("out", "b 1", "D-对照")
+        self.assertNotIn(" ", os.path.basename(p))
+        self.assertTrue(p.endswith(".blend"))
+
+    def test_freeze_makes_file_read_only(self):
+        with tempfile.TemporaryDirectory() as d:
+            p = os.path.join(d, "arm.blend")
+            with open(p, "wb") as fh:
+                fh.write(b"x")
+            mode = AA.freeze_file(p)
+            self.assertEqual(mode, oct(0o444))
+            with self.assertRaises(PermissionError):   # 只读文件写不进去，这才叫冻结
+                with open(p, "wb"):
+                    pass
+            os.chmod(p, 0o666)             # 留给 TemporaryDirectory 清理
+
+
 class SourceOfTruthTest(unittest.TestCase):
     """两臂素材的换算必须在记录里显式，不许下游猜（D-186 第三节）。"""
 

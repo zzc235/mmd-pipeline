@@ -27,6 +27,7 @@ import copy
 import hashlib
 import json
 import os
+import re
 import sys
 
 try:                       # 作为包的一部分（Blender 扩展里是 mmd_pipeline.mmdpipe）
@@ -63,6 +64,27 @@ def lock_tail_verdict(start, end):
                        % (sid, eid))
     return True, "锁身份一致：%r（开局心跳 %ss / 收尾心跳 %ss）" % (
         sid, (start or {}).get("heartbeat_age"), (end or {}).get("heartbeat_age"))
+
+
+def versioned_out_path(out_dir, batch_id, name):
+    """臂产物的**版本化落盘**路径：`<out_dir>/<batch_id>/<name>.blend`（`D-189`）。
+
+    为什么：臂件是「那次读数的物证」，不是中间产物。覆盖同一路径会让读数与文件的对应关系断掉
+    ——`2号` 钉的 `251146e9…` 一度在盘上找不到，下一个拿 sha 去核的人会怀疑整批。所以重跑一律
+    落新路径，旧件留着（并冻结成只读）。
+    """
+    if not out_dir or not batch_id or not name:
+        raise PlanError("版本化落盘要三样都给：out_dir=%r batch_id=%r name=%r"
+                        % (out_dir, batch_id, name))
+    safe = re.sub(r"[^0-9A-Za-z_.@-]+", "_", str(batch_id))
+    arm = re.sub(r"[^0-9A-Za-z_.@-]+", "_", str(name))
+    return os.path.join(out_dir, safe, arm + ".blend")
+
+
+def freeze_file(path):
+    """把已交付的臂件设成只读（落地「旧件留着当物证」）。返回实际生效的模式。"""
+    os.chmod(path, 0o444)
+    return oct(os.stat(path).st_mode & 0o777)
 
 
 def assert_lock_owner(owner, *, lock_dir=None, checker=None):
@@ -485,7 +507,15 @@ def main(argv=None):
                                  description="交付链·应用动作（幂等、回读 frame_end 与 is_baked）")
     ap.add_argument("--vmd", required=True, help="动作源 VMD")
     ap.add_argument("--preset", required=True, help="预设 JSON（stage_motion 要 motion/render 段）")
-    ap.add_argument("--out-blend", required=True)
+    ap.add_argument("--out-blend", required=False, default=None,
+                    help="写出路径；给了 --out-dir 时忽略此项（走版本化路径）")
+    ap.add_argument("--out-dir", default=None,
+                    help="版本化落盘根目录：产物写到 <out-dir>/<batch-id>/<arm-role>.blend")
+    ap.add_argument("--batch-id", default=None, help="批次号（配 --out-dir 用；不覆盖同名旧件）")
+    ap.add_argument("--allow-overwrite", action="store_true",
+                    help="**只给反控用**：允许覆盖已存在的臂件（默认拒绝）")
+    ap.add_argument("--freeze", action="store_true",
+                    help="写出后把臂件设成只读（已交付的臂件应当冻结）")
     ap.add_argument("--json", required=True)
     ap.add_argument("--arm", default=None)
     ap.add_argument("--frame-start", type=int, default=1)
@@ -507,6 +537,19 @@ def main(argv=None):
 
     # 第一句：这把锁不是我的就一个字节都不动（D-188）。放在 import bpy 之前。
     lock_start = assert_lock_owner(args.owner)
+
+    # 版本化落盘（D-189）：臂件是物证，默认**不覆盖**已有文件。
+    if args.out_dir:
+        out_blend = versioned_out_path(args.out_dir, args.batch_id, args.arm_role or "arm")
+    else:
+        out_blend = args.out_blend
+    if not out_blend:
+        raise SystemExit("用法错误：--out-blend 与（--out-dir + --batch-id）二者必给其一")
+    if os.path.exists(out_blend) and not args.allow_overwrite:
+        print("REFUSED 已存在同名臂件（%s）：臂件是那次读数的物证，重跑请换 --batch-id"
+              % out_blend)
+        sys.stdout.flush()
+        return 3
 
     import bpy
     try:                       # 作为包的一部分
@@ -559,11 +602,12 @@ def main(argv=None):
         rec["known_risks"] = ["锁在保存前易主（%s）⇒ 不落盘" % (exc,)]
         return _dump("REFUSED", 3)
 
-    os.makedirs(os.path.dirname(os.path.abspath(args.out_blend)) or ".", exist_ok=True)
-    bpy.ops.wm.save_as_mainfile(filepath=os.path.abspath(args.out_blend))
-    with open(args.out_blend, "rb") as fh:
-        rec["out_blend"] = {"path": os.path.abspath(args.out_blend),
-                            "bytes": os.path.getsize(args.out_blend),
+    os.makedirs(os.path.dirname(os.path.abspath(out_blend)) or ".", exist_ok=True)
+    bpy.ops.wm.save_as_mainfile(filepath=os.path.abspath(out_blend))
+    with open(out_blend, "rb") as fh:
+        rec["out_blend"] = {"path": os.path.abspath(out_blend),
+                            "batch_id": args.batch_id,
+                            "bytes": os.path.getsize(out_blend),
                             "sha256": hashlib.sha256(fh.read()).hexdigest()}
 
     # 收尾再确认一次，并比对两处 ident（尾部闸第二步）：不同即该臂作废，产物删掉。
@@ -576,13 +620,17 @@ def main(argv=None):
     rec["profile"]["lock_tail"] = {"ok": tail_ok, "detail": tail_msg}
     if not tail_ok:
         try:
-            os.remove(os.path.abspath(args.out_blend))
+            os.chmod(out_blend, 0o666)
+            os.remove(os.path.abspath(out_blend))
         except OSError:
             pass
         rec["out_blend"] = None
         rec["verdict"] = "NOT_APPLICABLE"
         rec.setdefault("known_risks", []).append(tail_msg)
         return _dump("VOID", 3)
+
+    if args.freeze:
+        rec["out_blend"]["frozen_mode"] = freeze_file(out_blend)
 
     return _dump("DONE", 0 if ok else 3)
 
