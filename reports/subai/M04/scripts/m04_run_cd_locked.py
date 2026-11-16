@@ -47,6 +47,8 @@ def main(argv=None):
     ap.add_argument("--note", required=True, help="一句话说明这次要跑什么")
     ap.add_argument("--lock-cwd", default=LOCK_CWD)
     ap.add_argument("--touch-every", type=int, default=300)
+    ap.add_argument("--acquire-wait", type=int, default=0,
+                    help="等锁秒数（0 = 不等，直接 exit 3；排队时用大一点，抢到才开始）")
     ap.add_argument("--driver", default=DRIVER)
     ap.add_argument("driver_args", nargs=argparse.REMAINDER,
                     help="`--` 之后原样传给驱动")
@@ -59,7 +61,8 @@ def main(argv=None):
         print("[用法] `--` 之后要跟驱动参数", file=sys.stderr)
         return 2
 
-    got = lock_cmd("acquire", a.owner, a.lock_cwd, ["--note", a.note, "--wait", "0"])
+    got = lock_cmd("acquire", a.owner, a.lock_cwd,
+                   ["--note", a.note, "--wait", str(a.acquire_wait)])
     print("[acquire] rc=%s %s" % (got.returncode, (got.stdout or got.stderr or "").strip()[:200]),
           flush=True)
     if got.returncode != 0:
