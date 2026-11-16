@@ -66,6 +66,67 @@ def resolve_scope(scope, manifest, exists=None):
             "count_declared": manifest.get("count")}
 
 
+def git_tracked(relpath, cwd=None):
+    """该路径在 git 里有没有被跟踪：`True` / `False` / `None`（本机没有 git ⇒ 算不出）。
+
+    19:55 main 红了一条就是因为原版用 `os.path.exists` 判副本在不在 —— 那只说明**本机**
+    有没有，而 `compare.log` 被 `.gitignore:39` 的 `*.log` 吞掉、从来没进过 git。
+    「本机有」和「账上有」必须分开问，问错了就是靠本机状态的绿灯。
+    """
+    import subprocess
+    try:
+        r = subprocess.run(["git", "ls-files", "--error-unmatch", relpath],
+                           cwd=cwd, capture_output=True, text=True)
+    except (OSError, ValueError):
+        return None
+    if r.returncode == 0:
+        return True
+    if "did not match any file" in (r.stderr or ""):
+        return False
+    return None
+
+
+def check_copies(scope, snap_dir, tracked=None, rel_snap=None):
+    """核 `snapshot_copies`：`in_git=true` 的必须真的在 git 里，`false` 的必须给出原因。
+
+    三态：`OK` / `MISMATCH` / `UNMEASURED`（git 不可用时算不出，不许算成不一致）。
+    """
+    tracked = tracked or git_tracked
+    rel_snap = rel_snap or snap_dir
+    copies = scope.get("snapshot_copies") or []
+    if not copies:
+        return {"state": STATE_UNMEASURED, "reason": "scope 没有 snapshot_copies"}
+    ok, bad, unknown = [], [], []
+    for ent in copies:
+        name = ent.get("name") if isinstance(ent, dict) else ent
+        in_git = ent.get("in_git") if isinstance(ent, dict) else None
+        if in_git is None:
+            bad.append({"name": name, "why": "缺 in_git 字段（本机有 ≠ 账上有）"})
+            continue
+        if not in_git:
+            if not (isinstance(ent, dict) and ent.get("why_not")):
+                bad.append({"name": name, "why": "in_git=false 但没写 why_not"})
+            else:
+                ok.append({"name": name, "in_git": False})
+            continue
+        rel = os.path.join(str(rel_snap).replace("\\", "/"), name).replace("\\", "/")
+        got = tracked(rel)
+        if got is True:
+            ok.append({"name": name, "in_git": True})
+        elif got is False:
+            bad.append({"name": name, "why": "声明 in_git=true 但 git 里没有这个路径", "path": rel})
+        else:
+            unknown.append({"name": name, "path": rel})
+    if bad:
+        state = STATE_MISMATCH
+    elif unknown:
+        state = STATE_UNMEASURED
+    else:
+        state = STATE_OK
+    return {"state": state, "checked": len(copies), "ok": len(ok),
+            "bad": bad, "unknown": unknown}
+
+
 def main(argv=None):
     import argparse
     import sys
@@ -79,8 +140,16 @@ def main(argv=None):
     scope = load_json(os.path.join(args.dir, "manifest_scope.json"))
     manifest = load_json(os.path.join(args.dir, "manifest.json"))
     out = resolve_scope(scope, manifest)
-    print(json.dumps(out, ensure_ascii=False, indent=2, sort_keys=True))
-    return 0 if out["state"] == STATE_OK else (2 if out["state"] == STATE_MISMATCH else 3)
+    repo_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(here))))
+    rel_snap = os.path.relpath(args.dir, repo_root).replace("\\", "/")
+    copies = check_copies(scope, args.dir, rel_snap=rel_snap)
+    print(json.dumps({"manifest": out, "copies": copies},
+                     ensure_ascii=False, indent=2, sort_keys=True))
+    if out["state"] == STATE_MISMATCH or copies["state"] == STATE_MISMATCH:
+        return 2
+    if out["state"] == STATE_UNMEASURED or copies["state"] == STATE_UNMEASURED:
+        return 3
+    return 0
 
 
 if __name__ == "__main__":
