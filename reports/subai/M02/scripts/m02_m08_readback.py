@@ -223,6 +223,16 @@ def collect(blend_path):
     return {
         "blend": os.path.abspath(blend_path),
         "blend_sha256": sha256_file(blend_path),
+        # 总控 `D-223` ①：任何「开件后立刻读」的读数都要带这个标注。
+        # 本回读确实在任何 `frame_set` 之前取数，但它的载荷是**数据层**：
+        # `bodies[]` 走 `digest_body()` 的 7 个字段（`name/parent_bone/mass/kinematic/
+        # collision_shape/collision_collections/friction`，**不含 `matrix_world`**）。
+        # 实测（`digest_warmup.json`）：冷读与热身后的 `bodies_sha` 相同（`6c555bcc…`），
+        # 而同一批对象的 `matrix_world` 323/323 不同、最大差 1.9923 m ⇒ 回读不受影响，
+        # 但**任何读 `matrix_world` 的判据必须先顺序热身**。
+        "first_eval_after_open": True,
+        "first_eval_note": ("载荷为数据层字段（digest_body 不含 matrix_world）；"
+                            "pose/matrix_world 类判据必须先从 frame_start 顺序步进再读"),
         "addon_enabled": addon,
         "rigids_u323_rigid_bodies": len(rigids_u323) if rigids_u323 is not None else None,
         "rigids_u324_rigid_body_attr": len(rigids_u324),

@@ -134,6 +134,10 @@ def main():
     rec["compare"] = {"per_frame": per_frame, "max_delta": worst, "over_tol_total": over,
                       "bodies": len(bodies), "tol": TOL}
     consistent = over == 0
+    rec["first_eval_after_open"] = False
+    # `D-223` ①：任何「开件后立刻读姿态」的读数都要带这个标注。本脚本两条腿都**不是**首读：
+    # A 从 `frame_start` 顺序步进，B 在 A 之后冷跳。`matrix_world` 类读数只有在热身之后才可复现
+    # —— 实测首读与热身后 323/323 不同、最大差 1.9923 m（`digest_warmup.json`）。
     rec["verdict"] = "RECOMPUTE_CONSISTENT" if consistent else "RECOMPUTE_INCONSISTENT"
     rec["scope"] = ("A 与 B 都是本进程内的求值（B 是在缓存已释放后的第二次求值）："
                     "这一致性只证明**本进程内**解算稳定，不证明跨会话一致、也不证明交付件自带可回放缓存。"
