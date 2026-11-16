@@ -84,7 +84,9 @@ def seed_template():
 def build():
     for obj in list(bpy.data.objects):
         bpy.data.objects.remove(obj, do_unlink=True)
-    bpy.ops.rigidbody.world_add()
+    # 第二次进来时刚体世界已经存在：再 world_add 会 `poll() failed, context is incorrect`
+    if bpy.context.scene.rigidbody_world is None:
+        bpy.ops.rigidbody.world_add()
     rbw = bpy.context.scene.rigidbody_world
     rbw.enabled = True
     rbw.substeps_per_frame = 10
@@ -112,9 +114,17 @@ def run(path):
     bpy.context.scene.frame_set(1)
     for frame in range(2, FRAMES + 2):
         bpy.context.scene.frame_set(frame)
+    # 2号 15:21 的教训：**已烘焙的场景上 `frame_set` 读的是旧缓存**，"两组读数相同"
+    # 可能只是谁都没重解。所以这里必须自报姿态来源，否则本探针的分辨力无从判断。
+    world = bpy.context.scene.rigidbody_world
+    cache = world.point_cache if world is not None else None
+    pose_source = "cache_replay" if (cache is not None and cache.is_baked) else "fresh_solve"
     return {
         "path": path,
         "seconds": round(seconds, 3),
+        "pose_source": pose_source,
+        "is_baked": None if cache is None else bool(cache.is_baked),
+        "is_outdated": None if cache is None else bool(cache.is_outdated),
         "constraint_creation": wired.get("constraint_creation"),
         "constraints_needed": wired.get("constraints_needed"),
         "constraints_added": wired.get("constraints_added"),
@@ -159,6 +169,9 @@ def main():
     # 两条路行为一致 = 复制路径与逐条 ops 等价
     out["paths_agree"] = (len({(r.get("P_passed"), r.get("Q_stopped"))
                                for r in out["runs"]}) == 1)
+    # 读数来源必须全是「重新解算」：缓存回放会让两组逐位相同，把"没重解"读成"没差别"
+    out["all_fresh_solve"] = all(r.get("pose_source") == "fresh_solve"
+                                 for r in out["runs"])
     print("PROBE_JSON " + json.dumps(out, ensure_ascii=False))
 
 
