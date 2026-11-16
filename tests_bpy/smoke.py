@@ -89,11 +89,20 @@ def t_zones():
 
 
 def t_panel_and_ops():
-    """面板与三个工具按钮都注册上了（点不动也要有按钮，不能缺类）。"""
+    """面板与四个工具按钮都注册上了。
+
+    注意：Blender **不会**把 operator 类挂到 `bpy.types` 上（实测：`dir(bpy.types)`
+    里只有 `MMDP_PT_main`，没有 `MMDP_OT_*`），但 `bpy.ops.mmd_pipeline.<op>`
+    存在、且类上 `is_registered=True`。按 `bpy.types` 判会把"注册成功"误判成失败——
+    这条是 2026-11-16 用坏断言撞出来的。
+    """
     pkg = __import__(FULL, fromlist=["panels", "operators"])
-    assert hasattr(pkg.panels, "MMDP_PT_main"), "面板类不存在"
+    assert hasattr(bpy.types, "MMDP_PT_main"), "面板类不存在"
+    namespace = bpy.ops.mmd_pipeline
     for op in ("run", "diagnose", "gate", "open_dir"):
-        assert hasattr(bpy.types, "MMDP_OT_" + op), "operator %s 没注册" % op
+        assert hasattr(namespace, op), "operator %s 没注册" % op
+    for cls in pkg.operators.CLASSES:
+        assert getattr(cls, "is_registered", False), "%s 未注册" % cls.__name__
 
 
 def t_status_layer():
