@@ -143,3 +143,16 @@ git diff --name-only main...HEAD      # 等价于 从 merge-base 算到 HEAD
 | 非字符串 | `EvidenceError` |
 
 **为什么收枚举**：自由文本的"标准"等于没有标准——写 `raw_bytes_v1` 和写 `foo` 一样能过，核验方反而要猜。允许省略是为了让已合并的 9 笔旧证据继续有效；新提交必须带 `lf_normalized_v1`。
+
+### 5.2 `measurements` 与 `check` 入口（2026-11-16 13:48，D-072 / D-080）
+
+* **`measurements`**（可选 JSON 对象）：原样进 canonical、参与哈希。NaN/Inf 拒；非对象拒；
+  **序列化后超过 16 KiB 拒**（按字节判，不按键数/字符数——带 `per_frame` 的记录很容易几十 KB）。
+  缺席时 canonical 里不出现该键，旧哈希逐字节不变。
+  为什么要有它：此前"数"只能写进正文，而正文不进 hash —— 最要紧的那批数（`eval_policy`、
+  网格自检 0.9933/0.9867/77.01%）等于没被证明。
+* **`interface` 永远是版本串**（字符串或 null）。结构化内容一律进 `measurements`（D-080）。
+* **提交前自查**：`python -m coordination.evidence check <file>`，打印 digest 并给退出码
+  `0` 合规 / `3` schema 或 canonical 违规 / `4` 读不到。
+  它判两件事：能 `normalize()`；**磁盘字节必须就是 canonical 序列化结果**——否则
+  "文件 sha256 == digest"这条大家用来核验的等式不成立，记录就无法被别人复算。

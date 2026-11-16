@@ -411,14 +411,168 @@ class TestEvidenceHash(unittest.TestCase):
             evidence_mod.digest(bad)
         self.assertEqual(ctx.exception.reason_code, "WRONG_HASH_BASIS")
 
-    def test_hash_basis_type_checked(self):
+    # ---------------------------------------------------------- measurements（D-072）
+    def test_measurements_absent_keeps_old_digest(self):
+        """缺席时与加这个字段之前逐字节相同——旧证据哈希一个都不许变。"""
+        payload = {
+            "spec": "evidence/1", "task_id": "M00", "attempt": 1, "status": "PASS",
+            "files": [{"path": "a.py", "sha256": "0" * 64, "tracked": True}],
+            "tests": [{"cmd": "x", "exit": 0, "passed": 1, "failed": 0, "skipped": 0}],
+            "artifacts": [], "known_risks": [], "interface": "i",
+        }
+        self.assertNotIn("measurements", evidence_mod.normalize(payload))
+        self.assertEqual(
+            evidence_mod.digest(payload),
+            "evidence/1:0863ecaa9f799f78b20ac87af69291dd5a971934c6662d62bb48d15566ac4186")
+
+    def test_measurements_enter_hash(self):
+        a = evidence()
+        b = evidence()
+        b["measurements"] = {"eval_policy": {"warmup_frames": 2, "visited": 5}}
+        self.assertEqual(evidence_mod.normalize(b)["measurements"], b["measurements"])
+        self.assertNotEqual(evidence_mod.digest(a), evidence_mod.digest(b))
+        # 改一个数就必须换一个 hash
+        c = evidence()
+        c["measurements"] = {"eval_policy": {"warmup_frames": 2, "visited": 6}}
+        self.assertNotEqual(evidence_mod.digest(b), evidence_mod.digest(c))
+
+    def test_measurements_nested_key_order_irrelevant(self):
+        """嵌套 dict 的插入顺序不该影响 hash（canonical 是递归排序的）。"""
+        a = evidence()
+        a["measurements"] = {"outer": {"b": 1, "a": {"y": 2, "x": 3}}}
+        b = evidence()
+        b["measurements"] = {"outer": {"a": {"x": 3, "y": 2}, "b": 1}}
+        self.assertEqual(evidence_mod.digest(a), evidence_mod.digest(b))
+
+    def test_measurements_nan_rejected(self):
         bad = evidence()
-        bad["hash_basis"] = 1
+        bad["measurements"] = {"mesh_v2_selftest": {"depth_median_m": float("nan")}}
         with self.assertRaises(evidence_mod.EvidenceError):
             evidence_mod.digest(bad)
-        blank = evidence()
-        blank["hash_basis"] = "   "
-        self.assertNotIn("hash_basis", evidence_mod.normalize(blank))
+        inf = evidence()
+        inf["measurements"] = {"per_frame": [{"depth_m": float("-inf")}]}
+        with self.assertRaises(evidence_mod.EvidenceError):
+            evidence_mod.digest(inf)
+
+    def test_measurements_non_object_rejected(self):
+        for bad_value in ([1, 2, 3], "3.14", 42, True):
+            bad = evidence()
+            bad["measurements"] = bad_value
+            with self.assertRaises(evidence_mod.EvidenceError) as ctx:
+                evidence_mod.digest(bad)
+            self.assertEqual(ctx.exception.reason_code, "BAD_MEASUREMENTS")
+
+    def test_measurements_oversize_rejected_by_bytes(self):
+        """上限按**序列化后的字节**判，不是按键数/字符数（D-072，2号 提的第 3 条）。"""
+        big = evidence()
+        # 单键塞满中文：字符数 ≈ 字节数的 1/3，按字符数判会放过它
+        big["measurements"] = {"blob": "汉" * (evidence_mod.MEASUREMENTS_LIMIT // 2)}
+        with self.assertRaises(evidence_mod.EvidenceError) as ctx:
+            evidence_mod.digest(big)
+        self.assertEqual(ctx.exception.reason_code, "BAD_MEASUREMENTS")
+        # 刚好在上限内的要能过
+        ok = evidence()
+        payload = {"blob": "x" * 4096}
+        self.assertLessEqual(len(evidence_mod.canonical_bytes(payload)),
+                             evidence_mod.MEASUREMENTS_LIMIT)
+        ok["measurements"] = payload
+        self.assertIn("measurements", evidence_mod.normalize(ok))
+
+    def test_measurements_negative_zero_normalized_inside(self):
+        a = evidence()
+        a["measurements"] = {"delta": -0.0}
+        b = evidence()
+        b["measurements"] = {"delta": 0.0}
+        self.assertEqual(evidence_mod.digest(a), evidence_mod.digest(b))
+
+    # ---------------------------------------------------------- commit / scope（D0 13:49 (b)）
+    def test_commit_scope_absent_keeps_old_digest(self):
+        """两个新键也必须可选：不写时与加它们之前逐字节相同（旧证据一个都不失效）。"""
+        payload = {
+            "spec": "evidence/1", "task_id": "M00", "attempt": 1, "status": "PASS",
+            "files": [{"path": "a.py", "sha256": "0" * 64, "tracked": True}],
+            "tests": [{"cmd": "x", "exit": 0, "passed": 1, "failed": 0, "skipped": 0}],
+            "artifacts": [], "known_risks": [], "interface": "i",
+        }
+        normal = evidence_mod.normalize(payload)
+        self.assertNotIn("commit", normal)
+        self.assertNotIn("scope", normal)
+        self.assertEqual(
+            evidence_mod.digest(payload),
+            "evidence/1:0863ecaa9f799f78b20ac87af69291dd5a971934c6662d62bb48d15566ac4186")
+
+    def test_commit_enters_hash(self):
+        a = evidence()
+        b = evidence()
+        b["commit"] = "f3fd0e1"
+        self.assertEqual(evidence_mod.normalize(b)["commit"], "f3fd0e1")
+        self.assertNotEqual(evidence_mod.digest(a), evidence_mod.digest(b))
+
+    def test_commit_shape_enforced(self):
+        """形状是硬约束：7–40 位小写 hex。每一条都应当被拒。"""
+        for bad in ("", "f3fd0e",                      # 空串 / 太短
+                    "F3FD0E1", "f3fd0e1z",              # 大写、非 hex
+                    " f3fd0e1", "f3fd0e1 ",             # 空白不 strip，直接拒
+                    "refs/heads/main", "0" * 41):       # 不是 hash / 太长
+            payload = evidence()
+            payload["commit"] = bad
+            with self.assertRaises(evidence_mod.EvidenceError) as ctx:
+                evidence_mod.digest(payload)
+            self.assertEqual(ctx.exception.reason_code, "WRONG_COMMIT", repr(bad))
+        payload = evidence()
+        payload["commit"] = 1234567
+        with self.assertRaises(evidence_mod.EvidenceError) as ctx:
+            evidence_mod.digest(payload)
+        self.assertEqual(ctx.exception.reason_code, "WRONG_COMMIT")
+
+    def test_commit_bounds_accepted(self):
+        """7 位与 40 位都在界内（边界要正面验，不能只验拒绝）。"""
+        for ok in ("0" * 7, "a" * 40, "f3fd0e1"):
+            payload = evidence()
+            payload["commit"] = ok
+            self.assertEqual(evidence_mod.normalize(payload)["commit"], ok)
+
+    def test_commit_none_is_absent(self):
+        payload = evidence()
+        payload["commit"] = None
+        self.assertNotIn("commit", evidence_mod.normalize(payload))
+
+    def test_scope_whitespace_collapsed(self):
+        a = evidence()
+        a["scope"] = "  coordination/evidence.py\n\t tests/test_coordination.py  "
+        b = evidence()
+        b["scope"] = "coordination/evidence.py tests/test_coordination.py"
+        self.assertEqual(evidence_mod.normalize(a)["scope"], b["scope"])
+        self.assertEqual(evidence_mod.digest(a), evidence_mod.digest(b))
+
+    def test_scope_blank_is_absent_not_empty_string(self):
+        """`scope` 折成空串等同缺席——**不能**把 `scope: ""` 放进 canonical。
+
+        这是 2号 最担心的不对称：若写成"有键就放"，同一份内容会有两种哈希。
+        """
+        for blank in ("", "   ", "\n\t "):
+            payload = evidence()
+            payload["scope"] = blank
+            self.assertNotIn("scope", evidence_mod.normalize(payload))
+        with_blank = evidence()
+        with_blank["scope"] = "   "
+        self.assertEqual(evidence_mod.digest(with_blank), evidence_mod.digest(evidence()))
+
+    def test_scope_non_string_rejected(self):
+        payload = evidence()
+        payload["scope"] = ["a.py"]
+        with self.assertRaises(evidence_mod.EvidenceError) as ctx:
+            evidence_mod.digest(payload)
+        self.assertEqual(ctx.exception.reason_code, "WRONG_SCOPE")
+
+    def test_commit_and_scope_both_present(self):
+        """同一条记录里两个键同时出现，各进各的位（别让一个盖掉另一个）。"""
+        payload = evidence()
+        payload["commit"] = "f3fd0e1"
+        payload["scope"] = "coordination evidence"
+        normal = evidence_mod.normalize(payload)
+        self.assertEqual(normal["commit"], "f3fd0e1")
+        self.assertEqual(normal["scope"], "coordination evidence")
 
     def test_spec_and_status_validated(self):
         bad_spec = evidence()
@@ -560,6 +714,174 @@ class TestSharedBoardPath(unittest.TestCase):
         self.assertTrue(a.stdout.strip(), "第一次运行没有输出，比较无意义")
         self.assertTrue(b.stdout.strip(), "第二次运行没有输出，比较无意义")
         self.assertEqual(a.stdout.strip(), b.stdout.strip())
+
+
+class TestEvidenceCheck(unittest.TestCase):
+    """`python -m coordination.evidence check <file>`（D-080 的提交前自查入口）。
+
+    退出码（D0 13:53 定死）：0 合规 / 3 SCHEMA_INVALID / **5 NOT_CANONICAL** / 4 UNREADABLE。
+    **3 与 5 必须分开**，因为只有退出码是调用方能机械判的；`reason_code` 要在输出里另给一列。
+    **D-080 点名要的拒绝例**：`interface` 是对象 → 必须 exit 3。
+    """
+
+    def setUp(self):
+        self.tmp = tempfile.mkdtemp(prefix="m00_evcheck_")
+
+    def tearDown(self):
+        shutil.rmtree(self.tmp, ignore_errors=True)
+
+    def write(self, payload, canonical=True, name="ev.json"):
+        path = os.path.join(self.tmp, name)
+        if canonical:
+            blob = evidence_mod.canonical_bytes(evidence_mod.normalize(payload))
+        else:
+            blob = json.dumps(payload, ensure_ascii=False, indent=2).encode("utf-8")
+        with open(path, "wb") as fh:
+            fh.write(blob)
+        return path
+
+    def run_cli(self, path):
+        return subprocess.run([sys.executable, "-m", "coordination.evidence", "check", path],
+                              cwd=ROOT, capture_output=True, text=True, encoding="utf-8",
+                              timeout=60)
+
+    def test_canonical_file_is_ok(self):
+        path = self.write(evidence())
+        code, reason, message = evidence_mod.check_file(path)
+        self.assertEqual(code, evidence_mod.EXIT_OK)
+        self.assertEqual(reason, evidence_mod.REASON_OK)
+        self.assertEqual(message, evidence_mod.digest(evidence()))
+        out = self.run_cli(path)
+        self.assertEqual(out.returncode, 0, out.stderr)
+        self.assertIn("OK evidence/1:", out.stdout)
+
+    def test_interface_object_is_schema_violation(self):
+        """D-080 点名要的这个拒绝例：`interface` 必须是版本串。"""
+        payload = evidence()
+        payload["interface"] = {"version": "cache_state/1", "struct": {"a": 1}}
+        path = os.path.join(self.tmp, "obj.json")
+        with open(path, "wb") as fh:
+            fh.write(json.dumps(payload, ensure_ascii=False).encode("utf-8"))
+        code, reason, message = evidence_mod.check_file(path)
+        self.assertEqual(code, evidence_mod.EXIT_SCHEMA)
+        self.assertEqual(reason, evidence_mod.REASON_SCHEMA)
+        self.assertIn("interface", message)
+        out = self.run_cli(path)
+        self.assertEqual(out.returncode, 3, out.stdout + out.stderr)
+        self.assertIn("SCHEMA_INVALID", out.stdout)
+        self.assertNotIn("NOT_CANONICAL", out.stdout)
+
+    def test_non_canonical_bytes_are_rejected_with_their_own_code(self):
+        """能规范化、但磁盘上那份不是规范字节 ⇒ **5 / NOT_CANONICAL**，不是 3。"""
+        path = self.write(evidence(), canonical=False)
+        code, reason, message = evidence_mod.check_file(path)
+        self.assertEqual(code, evidence_mod.EXIT_NOT_CANONICAL)
+        self.assertEqual(reason, evidence_mod.REASON_NOT_CANONICAL)
+        self.assertIn("canonical", message)
+        # 提示里要带上"规范 digest 应为 X"——否则看的人不知道对的值是什么
+        self.assertIn(evidence_mod.digest(evidence()), message)
+        out = self.run_cli(path)
+        self.assertEqual(out.returncode, 5, out.stdout + out.stderr)
+        self.assertIn("NOT_CANONICAL", out.stdout)
+
+    def test_schema_and_byte_violations_are_different_shapes(self):
+        """同类失败必须不同形：3 与 5 分家之后，脚本能机械判（这是分开的唯一理由）。"""
+        schema_path = os.path.join(self.tmp, "schema.json")
+        payload = evidence()
+        payload["status"] = "基本好了"          # 类型/约束不符 ⇒ 3
+        with open(schema_path, "wb") as fh:
+            fh.write(json.dumps(payload, ensure_ascii=False).encode("utf-8"))
+        byte_path = self.write(evidence(), canonical=False)   # schema 对、字节不规范 ⇒ 5
+        schema_code = evidence_mod.check_file(schema_path)[0]
+        byte_code = evidence_mod.check_file(byte_path)[0]
+        self.assertEqual(schema_code, evidence_mod.EXIT_SCHEMA)
+        self.assertEqual(byte_code, evidence_mod.EXIT_NOT_CANONICAL)
+        self.assertNotEqual(schema_code, byte_code)
+
+    def test_missing_file_is_unreadable(self):
+        code, reason, _ = evidence_mod.check_file(os.path.join(self.tmp, "nope.json"))
+        self.assertEqual(code, evidence_mod.EXIT_UNREADABLE)
+        self.assertEqual(reason, evidence_mod.REASON_UNREADABLE)
+        out = self.run_cli(os.path.join(self.tmp, "nope.json"))
+        self.assertEqual(out.returncode, 4)
+        self.assertIn("UNREADABLE", out.stdout)
+
+    def test_broken_json_is_unreadable(self):
+        path = os.path.join(self.tmp, "broken.json")
+        with open(path, "w", encoding="utf-8") as fh:
+            fh.write("{not json")
+        self.assertEqual(evidence_mod.check_file(path)[0], evidence_mod.EXIT_UNREADABLE)
+
+    def test_measurements_roundtrip_through_check(self):
+        payload = evidence()
+        payload["measurements"] = {"eval_policy": {"visited": 5}, "selftest": {"rate": 0.9933}}
+        path = self.write(payload)
+        code, reason, message = evidence_mod.check_file(path)
+        self.assertEqual(code, evidence_mod.EXIT_OK)
+        self.assertEqual(reason, evidence_mod.REASON_OK)
+        self.assertEqual(message, evidence_mod.digest(payload))
+
+    def test_commit_and_scope_roundtrip_through_check(self):
+        payload = evidence()
+        payload["commit"] = "f3fd0e1"
+        payload["scope"] = "coordination/evidence.py  tests/test_coordination.py"
+        path = self.write(payload)
+        self.assertEqual(evidence_mod.check_file(path)[0], evidence_mod.EXIT_OK)
+        # check 读回后规范化必须与写它时同一份口径（commit 原样、scope 折叠）
+        normal = evidence_mod.normalize(payload)
+        self.assertEqual(normal["commit"], "f3fd0e1")
+        self.assertEqual(normal["scope"], "coordination/evidence.py tests/test_coordination.py")
+
+    def test_not_canonical_names_the_cause_not_just_the_state(self):
+        """exit 5 不能只说"不是规范字节"——三类原因的处理办法完全不同，必须点名。"""
+        # 类 1：自建格式化（缩进）
+        pretty = os.path.join(self.tmp, "pretty.json")
+        with open(pretty, "wb") as fh:
+            fh.write(json.dumps(evidence(), ensure_ascii=False, indent=2).encode("utf-8"))
+        code, reason, message = evidence_mod.check_file(pretty)
+        self.assertEqual((code, reason), (evidence_mod.EXIT_NOT_CANONICAL,
+                                          evidence_mod.REASON_NOT_CANONICAL))
+        self.assertIn("序列化本身", message)
+
+        # 类 2a：顶层多写了不进哈希的键
+        extra_top = evidence()
+        extra_top["summary"] = "说明不参与哈希"
+        path = os.path.join(self.tmp, "extra_top.json")
+        with open(path, "wb") as fh:
+            fh.write(json.dumps(extra_top, ensure_ascii=False,
+                                sort_keys=True, separators=(",", ":")).encode("utf-8"))
+        code, _, message = evidence_mod.check_file(path)
+        self.assertEqual(code, evidence_mod.EXIT_NOT_CANONICAL)
+        self.assertIn("summary", message)
+
+        # 类 2b：tests[] 行里多了字段（2号 的真实记录就是这个形状）
+        extra_tests = evidence()
+        extra_tests["tests"][0]["note"] = "跑了两遍"
+        path = os.path.join(self.tmp, "extra_tests.json")
+        with open(path, "wb") as fh:
+            fh.write(json.dumps(extra_tests, ensure_ascii=False,
+                                sort_keys=True, separators=(",", ":")).encode("utf-8"))
+        code, _, message = evidence_mod.check_file(path)
+        self.assertEqual(code, evidence_mod.EXIT_NOT_CANONICAL)
+        self.assertIn("tests[]", message)
+        self.assertIn("note", message)
+
+    def test_canonical_file_has_no_diagnosis_noise(self):
+        """正控：规范字节的文件不能说"序列化本身不是规范形态"。"""
+        code, reason, message = evidence_mod.check_file(self.write(evidence()))
+        self.assertEqual((code, reason), (evidence_mod.EXIT_OK, evidence_mod.REASON_OK))
+        self.assertNotIn("序列化", message)
+
+    def test_help_lists_four_exit_codes(self):
+        """`--help` 必须写明四个码——调用方读的就是它。"""
+        out = subprocess.run([sys.executable, "-m", "coordination.evidence", "--help"],
+                             cwd=ROOT, capture_output=True, text=True, encoding="utf-8",
+                             timeout=60)
+        self.assertEqual(out.returncode, 0, out.stderr)
+        for token in ("0", "3", "5", "4", "SCHEMA_INVALID", "NOT_CANONICAL", "UNREADABLE"):
+            self.assertIn(token, out.stdout)
+        # 能力边界也要写在 help 里，否则下一个人把 exit 0 读成"全都对"
+        self.assertIn("不重算", out.stdout)
 
 
 if __name__ == "__main__":

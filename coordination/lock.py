@@ -191,6 +191,8 @@ def render_status(info: dict) -> str:
 
 
 def main(argv=None) -> int:
+    from .cli import ensure_utf8_stdio
+    ensure_utf8_stdio()
     ap = argparse.ArgumentParser(prog="coordination.lock",
                                  description="Blender 互斥锁（acquire/release/status，fail-closed）")
     ap.add_argument("action", choices=("acquire", "release", "status"))
