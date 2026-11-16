@@ -46,4 +46,3 @@ out/
 /coordination/*.db-wal
 /coordination/*.db-shm
 /coordination/dispatch.json
-/coordination/*.db-journal
