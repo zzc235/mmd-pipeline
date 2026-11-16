@@ -27,7 +27,7 @@ def _git_common_dir(start: str) -> str:
     try:
         out = subprocess.run(["git", "-C", start, "rev-parse", "--path-format=absolute",
                               "--git-common-dir"],
-                             capture_output=True, text=True, timeout=10)
+                             capture_output=True, text=True, encoding="utf-8", timeout=10)
     except (OSError, subprocess.SubprocessError):
         return ""
     if out.returncode != 0:
@@ -71,3 +71,20 @@ def dispatch_path(override: str | None = None, start: str | None = None) -> str:
     if env:
         return os.path.abspath(env)
     return os.path.join(coordination_dir(start), DISPATCH_NAME)
+
+
+def lock_dir(override: str | None = None, start: str | None = None) -> str:
+    """Blender 互斥锁的目录：主工作树 `out/subai/locks/blender.lock`。
+
+    与 board 同一个根（`out/subai`），因为它同样必须是**四棵树共享的那一把**——
+    锁跟着仓库跑就没有互斥可言。
+    """
+    if override:
+        return os.path.abspath(override)
+    env = os.environ.get("MMDPIPE_LOCK")
+    if env:
+        return os.path.abspath(env)
+    root = main_worktree_root(start)
+    base = (os.path.join(root, "out", "subai") if root
+            else os.path.join(os.path.abspath(start or os.getcwd()), "out", "subai"))
+    return os.path.join(base, "locks", "blender.lock")

@@ -36,7 +36,7 @@ def _diff(base: str, head: str, repo: str | None, filter_expr: str) -> list:
         out = subprocess.run(["git", "-C", repo, "diff", "--name-only",
                               "--diff-filter=" + filter_expr,
                               "%s...%s" % (base, head)],
-                             capture_output=True, text=True, timeout=30)
+                             capture_output=True, text=True, encoding="utf-8", timeout=30)
     except (OSError, subprocess.SubprocessError) as exc:
         raise evidence_mod.EvidenceError(
             "无法计算 files[] 覆盖（git 不可用）：%s" % exc, "MISSING_EVIDENCE") from exc

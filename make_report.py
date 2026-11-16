@@ -78,7 +78,7 @@ pyver = platform.python_version()
 bt = ""
 try:
     out = subprocess.run([r"E:/code/Blender/blender-5.2.2-windows-x64/blender.exe", "--version"],
-                         capture_output=True, text=True, timeout=60)
+                         capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=60)
     bt = out.stdout.splitlines()[0].strip()
 except Exception as exc:
     bt = "读取失败: %s" % exc

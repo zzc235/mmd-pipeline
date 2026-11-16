@@ -74,8 +74,10 @@ class TestClaim(BoardCase):
         self.ready_task()
         cmd = [sys.executable, "-m", "coordination.scheduler", "claim",
                "--board", self.board.path, "--lane", "A1", "--agent", "A1"]
-        p1 = subprocess.Popen(cmd, cwd=ROOT, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-        p2 = subprocess.Popen(cmd, cwd=ROOT, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        p1 = subprocess.Popen(cmd, cwd=ROOT, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                              text=True, encoding="utf-8", errors="replace")
+        p2 = subprocess.Popen(cmd, cwd=ROOT, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                              text=True, encoding="utf-8", errors="replace")
         outs = [p1.communicate(timeout=60)[0], p2.communicate(timeout=60)[0]]
         states = [json.loads(o.strip().splitlines()[-1]) for o in outs]
         claimed = [s for s in states if s.get("task_id") == "M01"]
@@ -309,7 +311,7 @@ class TestEvidenceHash(unittest.TestCase):
                     "from coordination import evidence as e;"
                     "print(e.digest(json.loads(sys.argv[1])))") % ROOT
             out = subprocess.run([sys.executable, "-c", code, json.dumps(payload)],
-                                 cwd=other, capture_output=True, text=True, timeout=60)
+                                 cwd=other, capture_output=True, text=True, encoding="utf-8", timeout=60)
             self.assertEqual(out.returncode, 0, out.stderr)
             self.assertEqual(out.stdout.strip(), here)
         finally:
@@ -462,7 +464,8 @@ class TestCoverageGate(unittest.TestCase):
         shutil.rmtree(self.repo, ignore_errors=True)
 
     def git(self, *args):
-        out = subprocess.run(["git", "-C", self.repo, *args], capture_output=True, text=True)
+        out = subprocess.run(["git", "-C", self.repo, *args], capture_output=True, text=True,
+                             encoding="utf-8", errors="replace")
         self.assertEqual(out.returncode, 0, out.stderr)
         return out.stdout
 
@@ -547,8 +550,15 @@ class TestSharedBoardPath(unittest.TestCase):
     def test_two_processes_same_cwd_agree(self):
         code = ("import sys;sys.path.insert(0,%r);from coordination import paths;"
                 "print(paths.board_path())") % ROOT
-        a = subprocess.run([sys.executable, "-c", code], cwd=ROOT, capture_output=True, text=True)
-        b = subprocess.run([sys.executable, "-c", code], cwd=ROOT, capture_output=True, text=True)
+        a = subprocess.run([sys.executable, "-c", code], cwd=ROOT, capture_output=True,
+                           text=True, encoding="utf-8")
+        b = subprocess.run([sys.executable, "-c", code], cwd=ROOT, capture_output=True,
+                           text=True, encoding="utf-8")
+        # 先钉住"两次都真的出了东西"：两个 None 比起来也是 None == None，那是假绿
+        self.assertEqual(a.returncode, 0, a.stderr)
+        self.assertEqual(b.returncode, 0, b.stderr)
+        self.assertTrue(a.stdout.strip(), "第一次运行没有输出，比较无意义")
+        self.assertTrue(b.stdout.strip(), "第二次运行没有输出，比较无意义")
         self.assertEqual(a.stdout.strip(), b.stdout.strip())
 
 
