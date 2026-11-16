@@ -186,6 +186,11 @@ if not (isdir(ROOT / "coordination") and isdir(ROOT / "mmdpipe")):
 落地断言：索引里列的每个文件，必须能在 `git ls-files <dir>` 里找到（或
 `git ls-files --error-unmatch <path>` 成功）。
 
+**配套的一句（`2号` 2026-11-16 补，同晚被 `3号` 翻过一次车）**：**「提交前跑过」必须是「`git add` 之后跑过」**——
+`git add` 才把新文件带进仓库级护栏的扫描范围，先跑后加等于没跑。`3号` 的 `4c786e6` 就是这样：
+树上绿 → `git add` → 立刻红在 `test_repo_is_clean`，所以他报的那句测试数**只对提交前那次成立**。
+自证的顺序是 **改 → `git add` → 跑全量 → 报数 → 提交**；跑完又改了文件，重跑。
+
 | 事故 | 形状 |
 |---|---|
 | `2026-11-16` `M04` | `2号` 的快照副本含 `compare.log` / `compare_selftest.log`，被 `.gitignore:39 *.log` 吞掉 ⇒ 合并后在干净 checkout 上 `FAIL: test_snapshot_copies_are_listed_and_present ... AssertionError: False is not true : compare.log` |
