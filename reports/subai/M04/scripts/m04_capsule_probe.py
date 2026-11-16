@@ -436,4 +436,7 @@ def main():
     sys.exit(0)
 
 
-main()
+# 只在当脚本跑时进入 main：19:45 需要**导入**本模块的胶囊口径（`run_pairs()` 那种复用），
+# 无条件 `main()` 会让「import 一下」变成「跑一遍完整测量」。
+if __name__ == "__main__":
+    main()
