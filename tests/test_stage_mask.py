@@ -35,13 +35,13 @@ class Obj:
     """一个刚体对象：名字 + 所属组 + 掩码位图 + Bullet 侧集合位。"""
 
     def __init__(self, name, group, bits, *, location=(0.0, 0.0, 0.0),
-                 collections=mask_mod.ALL_GROUPS):
+                 collections=mask_mod.ALL_COLLECTIONS):
         self.name = name
         self.location = _Vec(location)
         self.mmd_rigid = FakeRigid(group, bits, name)
         self.rigid_body = type("RB", (), {"collision_collections":
                                           [bool(collections >> n & 1)
-                                           for n in range(mask_mod.GROUP_COUNT)]})()
+                                           for n in range(mask_mod.COLLECTION_COUNT)]})()
 
 
 class _Vec:

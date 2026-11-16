@@ -247,8 +247,9 @@ def rigid_bodies():
 #
 # 逻辑在 `mmdpipe/mask.py`（纯 Python，不 import bpy，可单测）。这里只做两件 bpy 侧的事：
 # 把场景喂给它、把结果折进 metrics 与 S8 判据。动机与实测数字见 mask.py 的模块说明：
-# 掩码 145/145 个都写了、声明 4535 对不该碰、其中 2924 对是单向的（不能写成集合位），
-# 而 mmd_tools 只给"距离够近"的对建 disable_collisions 约束。
+# 掩码 145/145 个都写了、声明 7367 对不该碰（占 70.6%）、其中 1462 对是单向的（不能写成
+# 集合位），而 mmd_tools 只给"距离够近"的对建 disable_collisions 约束。语义与证据链见
+# `mmdpipe/mask.py` 的模块说明。
 NCC_TYPE = "NON_COLLISION_CONSTRAINT"
 
 
@@ -266,16 +267,30 @@ def _new_constraint_object(name: str):
     scene.collection.objects.link(obj)
     obj.mmd_type = mask_mod.NCC_MMD_TYPE
     obj.hide_render = True
-    bpy.ops.object.select_all(action="DESELECT")
+    # 只在需要时切换活动对象：`select_all(action="DESELECT")` 每次都是全场景操作，
+    # 在 300+ 刚体、12 个依赖环的场景里逐条调用的代价极高（实测见 mask.py 的注释）。
+    view_layer = bpy.context.view_layer
+    previous = view_layer.objects.active
+    if previous is not None and previous.name != obj.name:
+        previous.select_set(False)
     obj.select_set(True)
-    bpy.context.view_layer.objects.active = obj
-    bpy.ops.rigidbody.constraint_add(type="GENERIC")
+    view_layer.objects.active = obj
+    try:
+        bpy.ops.rigidbody.constraint_add(type="GENERIC")
+    finally:
+        obj.select_set(False)
+        if previous is not None:
+            try:
+                view_layer.objects.active = previous
+            except (ReferenceError, RuntimeError):
+                pass
     con = obj.rigid_body_constraint
     con.disable_collisions = True
     return obj
 
 
-def apply_collision_masks(scene=None, *, collection_index_of=None) -> dict:
+def apply_collision_masks(scene=None, *, collection_index_of=None,
+                          max_constraints=None) -> dict:
     """把 PMX 的组号与掩码接进 Blender（`coordination/mask_channel_spec.md` §1 的接口）。
 
     做两件事，缺一不可：
@@ -294,10 +309,11 @@ def apply_collision_masks(scene=None, *, collection_index_of=None) -> dict:
     """
     bodies = rigid_bodies() if scene is None else [o for o in bpy.data.objects
                                                    if getattr(o, "mmd_type", None) == "RIGID_BODY"]
-    plan = mask_mod.plans(bodies)
+    already = mask_mod.disabled_pairs(bpy.data.objects)
+    plan = mask_mod.plans(bodies, blocked=already)
     result = dict(plan)
-    result.pop("bits_of", None)
-    result.pop("constraints_needed", None)
+    for key in ("bits_of", "constraints_needed", "release_pairs"):
+        result.pop(key, None)
     result["encoding"] = mask_mod.ENCODING_NOTE
     result["blender_semantics"] = dict(mask_mod.MEASURED_SEMANTICS)
 
@@ -311,9 +327,10 @@ def apply_collision_masks(scene=None, *, collection_index_of=None) -> dict:
     # 1) 写位
     expected = plan["bits_of"]
     set_count = 0
+    touched_names = set()
     for obj in bodies:
         wants = expected[obj.name]
-        flags = [bool(wants >> n & 1) for n in range(mask_mod.GROUP_COUNT)]
+        flags = mask_mod.collection_flags(wants)
         body = getattr(obj, "rigid_body", None)
         if body is None:
             result.setdefault("skipped", []).append(
@@ -321,6 +338,12 @@ def apply_collision_masks(scene=None, *, collection_index_of=None) -> dict:
             continue
         body.collision_collections = flags
         set_count += 1
+        touched_names.add(obj.name)
+    result["objects_modified"] = len(touched_names)
+    # 改动范围正控（2号 的要求）：只许碰 `mmd_rigid` 存在的刚体对象
+    result["objects_touched_outside_mmd_rigid"] = sum(
+        1 for name in touched_names
+        if getattr(bpy.data.objects.get(name), "mmd_rigid", None) is None)
 
     # 2) 回读（逐刚体，与源掩码一致）
     mismatch = []
@@ -339,9 +362,27 @@ def apply_collision_masks(scene=None, *, collection_index_of=None) -> dict:
     result["readback_mismatch"] = len(mismatch)
     result["readback_mismatch_names"] = mismatch[:5]
 
-    # 3) 补 DISABLE_COLLISIONS（幂等：已挡住的对不再建）
-    already = mask_mod.disabled_pairs(bpy.data.objects)
+    # 3) 放掉挡错的约束（mmd_tools 的 buildRigids() 相对它自己的导入器是反的：
+    #    实测 J_baked.blend 4009 条里有 2196 条挡的是「本该互碰」的对）。
+    #    只置 disable_collisions=False，不删对象——删是别人的数据，改标志是可逆的最小动作。
+    released = 0
+    for obj in bpy.data.objects:
+        con = getattr(obj, "rigid_body_constraint", None)
+        if con is None or not getattr(con, "disable_collisions", False):
+            continue
+        a = getattr(getattr(con, "object1", None), "name", None)
+        b = getattr(getattr(con, "object2", None), "name", None)
+        if not a or not b or a == b:
+            continue
+        if mask_mod.pair_key(a, b) in set(plan["release_pairs"]):
+            con.disable_collisions = False
+            released += 1
+    result["constraints_released"] = released
+
+    # 4) 补 DISABLE_COLLISIONS（幂等：已挡住的对不再建）
     added = 0
+    limit = (mask_mod.DEFAULT_MAX_CONSTRAINTS if max_constraints is None
+             else int(max_constraints))
     for name_a, name_b in plan["constraints_needed"]:
         pair = mask_mod.pair_key(name_a, name_b)
         if pair in already:
@@ -352,6 +393,14 @@ def apply_collision_masks(scene=None, *, collection_index_of=None) -> dict:
             result.setdefault("skipped", []).append(
                 {"pair": [name_a, name_b], "reason": "取不到刚体对象"})
             continue
+        if added >= limit:
+            # **不许无声跑飞**：超出上限就停下，并把没做的逐条记进 skipped（spec §1 / D-086）
+            result.setdefault("skipped", []).append(
+                {"pair": [name_a, name_b],
+                 "reason": "达到建约束上限 %d（逐条 constraint_add 在大场景里代价过高，"
+                           "应走建场路径）" % limit})
+            result["constraints_capped"] = True
+            continue
         ncc = _new_constraint_object("ncc_mask_%04d" % added)
         ncc.rigid_body_constraint.object1 = obj_a
         ncc.rigid_body_constraint.object2 = obj_b
@@ -359,7 +408,8 @@ def apply_collision_masks(scene=None, *, collection_index_of=None) -> dict:
         added += 1
     result["constraints_added"] = added
 
-    result["verdict"] = "WIRED" if (set_count and added >= 0
+    result["verdict"] = "WIRED" if (set_count
+                                    and not result.get("constraints_capped")
                                     and result["readback_mismatch"] == 0
                                     and not plan["unexpressible"]) else "PARTIAL"
     return result

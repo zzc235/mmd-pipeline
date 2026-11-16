@@ -33,8 +33,9 @@ def make_block(name, loc, collections, active):
     body.mass = 1.0
     body.friction = 0.5
     body.restitution = 0.0
-    # 只留给定的位（默认是 bit0 全开之类，必须显式清干净）
-    flags = [False] * 16
+    # 只留给定的位（默认是 bit0 全开之类，必须显式清干净）。
+    # **20 项**：Blender 的属性是 20 位，写 16 项会抛 ValueError。
+    flags = [False] * 20
     for i in collections:
         flags[i] = True
     body.collision_collections = flags
