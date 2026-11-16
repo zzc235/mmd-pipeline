@@ -1039,7 +1039,7 @@ def bake_artifact_missing(record) -> list:
 
 
 def bake_failure_shape(record) -> str:
-    """把「红在哪一层」压成一句人能直接用的判词（`D-214` / `D-217` 要的三种分开打红）。
+    """把「红在哪一层」压成一句人能直接用的判词（`D-214` / `D-217` / `D-219` 要的分开打红）。
 
     * `ok` —— 重开之后缓存可用且重放一致；
     * `not_baked` —— 根本没烘（`applied` 假）；
@@ -1047,17 +1047,26 @@ def bake_failure_shape(record) -> str:
       （`is_outdated_after_reopen` 真 / `is_baked_after_reopen` 假）。`D-217` 那份冻结件
       就是这一种：`is_baked=true / is_outdated=true / use_disk_cache=false`，
       `info="833 frames in memory (7.3 MiB), cache is outdated!"`；
-    * `replay_mismatch` —— 缓存**可用**，但冷跳读回来的姿态与顺序重算不一致
-      （只能在前一种不成立时才落到这里；否则"差 1.86 m"是取样自一份无效缓存）。
+    * `replay_mismatch` —— 缓存**可用**、也**真的量过**重放，冷跳读回来的姿态与顺序重算不一致；
+    * `replay_unmeasured` —— **没有料，不是做错了**：没在重开件上量过，或缓存可用但没做重放对照。
+
+    `replay_unmeasured` 单独存在是 `D-219` 的直接后果：把「我方缺料」写成
+    「缓存会算错」（`UNMEASURED` 当 `FAIL` 用），读者会去找一个不存在的正确性 bug——而
+    「第三种形状到底成不成立」现在**量不了**（要造一份重开后 `is_baked=true` 且
+    `is_outdated=false` 的件，需要持久化通道，`D-218` 已确认引擎层不存在）。
+    所以缺料就得说缺料，不许借 `replay_mismatch` 顶替。
     """
     checks = bake_checks(record)
     if checks["applied"] is not True:
         return "not_baked"
+    if not checks["reopen_measured"]:
+        return "replay_unmeasured"
     if not checks["cache_usable_after_reopen"]:
         return "baked_not_persisted"
+    replay = ((record or {}).get("persist") or {}).get("replay_probe")
+    if not replay:
+        return "replay_unmeasured"
     if not checks["replay_matched_after_reopen"]:
-        return "replay_mismatch"
-    if not checks["reopen_measured"]:
         return "replay_mismatch"
     return "ok"
 

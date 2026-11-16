@@ -476,13 +476,24 @@ class TestBakeFailureShapeTellsTheThreeApart(unittest.TestCase):
         self.assertIn("baked_not_persisted",
                       self.stage.bake_artifact_gate_reason(record))
 
-    def test_never_reopened_is_not_accepted(self):
-        """没在重开的字节上量过 ⇒ 三条重开判据全红（不许拿进程内的读数冒充）。"""
+    def test_never_reopened_is_unmeasured_not_a_failure(self):
+        """没在重开的字节上量过 ⇒ `replay_unmeasured`（缺料），不是 `replay_mismatch`（做错）。
+
+        `D-219`：把 `UNMEASURED` 当 `FAIL` 用，会让读者去找一个不存在的正确性 bug。
+        """
         record = self._record()
-        self.assertEqual(self.stage.bake_failure_shape(record), "baked_not_persisted")
+        self.assertEqual(self.stage.bake_failure_shape(record), "replay_unmeasured")
         self.assertEqual(self.stage.bake_artifact_missing(record),
                          ["reopen_measured", "cache_usable_after_reopen",
                           "replay_matched_after_reopen"])
+
+    def test_reopened_without_a_replay_probe_is_unmeasured(self):
+        """缓存可用、但没做重放对照 ⇒ 仍然是「缺料」，不许写成不一致。"""
+        record = self._record(reopened=True, baked_after=True, outdated=False)
+        record["persist"]["replay_probe"] = None
+        self.assertEqual(self.stage.bake_failure_shape(record), "replay_unmeasured")
+        self.assertEqual(self.stage.bake_artifact_missing(record),
+                         ["replay_matched_after_reopen"])
 
     def test_persisted_but_replay_differs(self):
         """缓存可用、但冷跳读回来的姿态与顺序重算不一致 ⇒ 最难发现的那一种。"""
