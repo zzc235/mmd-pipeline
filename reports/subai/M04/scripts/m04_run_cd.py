@@ -306,6 +306,17 @@ def admission_round(a, arms, pen, ledger):
     return results, failures
 
 
+def compare_verdict_word(rc, selftest_exit):
+    """比对器的退出码 → 判词词（`m04_group_compare.py` 的契约）。
+
+    0 = 无结论级变化 / 1 = 至少一处结论级变化 / 3 = 有组不可判 / 4 = 自检失败（任何引用作废）。
+    **非 0 不等于失败**：`1` 与 `3` 都是合法结果，只有 `4` 让判词作废。
+    """
+    if selftest_exit != 0:
+        return "NOT_JUDGED_SELFTEST_FAILED"
+    return {0: "JUDGED_NO_CHANGE", 1: "JUDGED_CHANGE", 3: "UNKNOWN"}.get(rc, "UNKNOWN(rc=%s)" % rc)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--arms-dir", required=True)
@@ -464,6 +475,37 @@ def main():
             ledger["arms"][key]["meta_bytes"] = os.path.getsize(meta)
             ledger["arms"][key]["pose_source_is_baked"] = (mm.get("cache_state") or {}).get("is_baked")
             ledger["arms"][key]["eval_policy"] = mm.get("eval_policy")
+
+    # 8) 判词：先跑冻结比对器的自检（门），再按预注册出判词。
+    #    **非 0 不代表失败**：1（有结论级变化）与 3（不可判）都是合法结果，只有 4（自检失败）让判词作废。
+    cmp_script = os.path.join(HERE, "m04_group_compare.py")
+    st_log = os.path.join(pen, "compare_selftest.log")
+    with open(st_log, "wb") as fh:
+        st_exit = subprocess.call([sys.executable, cmp_script, "--selftest"],
+                                  stdout=fh, stderr=subprocess.STDOUT)
+    ledger["compare"] = {"selftest_exit": st_exit, "selftest_log": st_log.replace("\\", "/")}
+    present = [k for k in ("C_W1", "C_W2", "D")
+               if os.path.exists(os.path.join(pen, "%s.meta.json" % k))]
+    if st_exit != 0:
+        ledger["compare"]["verdict"] = compare_verdict_word(None, st_exit)
+        print("[compare] 自检失败，判词作废（exit %s）" % st_exit, flush=True)
+    elif len(present) >= 2:
+        cmp_json = os.path.join(pen, "cmp_round2.json")
+        args = [sys.executable, cmp_script]
+        for key in present:
+            args += ["--meta", "%s=%s" % (key, os.path.join(pen, "%s.meta.json" % key))]
+        # 预注册 §七：`D vs C` 不许比 max_depth_m 数值差（不给 :same-action）；
+        # `C@W1 vs C@W2` 同一个动作，才允许比数值差。
+        args += ["--pairs", "D:C_W2", "--pairs", "C_W1:C_W2:same-action", "--json", cmp_json]
+        with open(os.path.join(pen, "compare.log"), "wb") as fh:
+            rc = subprocess.call(args, stdout=fh, stderr=subprocess.STDOUT)
+        ledger["compare"].update({"exit": rc, "json": cmp_json.replace("\\", "/"),
+                                  "verdict": compare_verdict_word(rc, st_exit),
+                                  "note": "0=无结论级变化 / 1=有 / 3=不可判 / 4=自检失败"})
+        print("[compare] %s（exit %s）" % (ledger["compare"]["verdict"], rc), flush=True)
+    else:
+        ledger["compare"]["verdict"] = "NOT_JUDGED_TOO_FEW_ARMS"
+        print("[compare] 可判的臂不足两组，不出判词", flush=True)
 
     finish()
     return 0

@@ -309,5 +309,25 @@ class ArmFilesTest(unittest.TestCase):
                 DRV.parse_arm_files([bad])
 
 
+class CompareVerdictTest(unittest.TestCase):
+    """比对器退出码 → 判词词：非 0 不等于失败，只有自检失败让判词作废。"""
+
+    def test_selftest_failure_voids_everything(self):
+        for rc in (0, 1, 3, None):
+            self.assertEqual(DRV.compare_verdict_word(rc, 4), "NOT_JUDGED_SELFTEST_FAILED")
+
+    def test_exit_zero_is_no_change(self):
+        self.assertEqual(DRV.compare_verdict_word(0, 0), "JUDGED_NO_CHANGE")
+
+    def test_exit_one_is_change_not_failure(self):
+        self.assertEqual(DRV.compare_verdict_word(1, 0), "JUDGED_CHANGE")
+
+    def test_exit_three_is_unknown(self):
+        self.assertEqual(DRV.compare_verdict_word(3, 0), "UNKNOWN")
+
+    def test_unknown_exit_is_labelled_with_its_code(self):
+        self.assertIn("rc=2", DRV.compare_verdict_word(2, 0))
+
+
 if __name__ == "__main__":
     unittest.main()
