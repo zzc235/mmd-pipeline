@@ -137,6 +137,55 @@ class CopiesTest(unittest.TestCase):
         self.assertIn("in_git", out["bad"][0]["why"])
 
 
+class CarriersTest(unittest.TestCase):
+    """`3号` 20:17：**豁免 ≠ 可核的转手** —— 每个「不在仓里」的引用都要写出承载方。
+
+    这里只核「承载方本身在仓里」：`carriers` 的值是文件路径（可以带 `|` 分隔多份，
+    也可以带括号说明），把路径段抽出来逐条 `git ls-files`。
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        cls.scope = SCOPE.load_json(os.path.join(SNAP, "manifest_scope.json"))
+        cls.repo = os.path.dirname(os.path.dirname(os.path.abspath(
+            os.path.join(SNAP, "..", "..", "..", ".."))))
+
+    @staticmethod
+    def _paths(value):
+        head = value.split("（")[0]
+        out = []
+        for part in head.split("|"):
+            part = part.strip()
+            if part.endswith(".json") or part.endswith(".md") or part.endswith(".py"):
+                out.append(part)
+        return out
+
+    def test_carriers_exist_and_are_in_git(self):
+        carriers = self.scope.get("carriers") or {}
+        self.assertTrue(carriers, "manifest_scope 里没有 carriers 表")
+        missing = []
+        checked = 0
+        for key, value in carriers.items():
+            for rel in self._paths(value):
+                if "m04_" in rel or rel.startswith("reports/"):
+                    full = os.path.join(ROOT, rel)
+                else:
+                    full = os.path.join(SNAP, rel)
+                if not os.path.exists(full):
+                    missing.append((key, rel, "盘上不在"))
+                    continue
+                rel_repo = os.path.relpath(full, ROOT).replace("\\", "/")
+                tracked = SCOPE.git_tracked(rel_repo, cwd=ROOT)
+                checked += 1
+                if tracked is not True:
+                    missing.append((key, rel, "git 里没有"))
+        self.assertEqual(missing, [], "承载方不可核：%s" % missing)
+        self.assertGreaterEqual(checked, 5, "carriers 里可核的路径太少，护栏可能在空转")
+
+    def test_carriers_note_states_the_rule(self):
+        self.assertIn("承载", self.scope["carriers_note"])
+
+
 class CliTest(unittest.TestCase):
     def test_cli_returns_zero_or_three_never_two_on_this_machine(self):
         code = SCOPE.main(["--dir", SNAP])
