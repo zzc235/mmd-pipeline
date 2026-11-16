@@ -535,14 +535,22 @@ class TestBakeFailureShapeTellsTheThreeApart(unittest.TestCase):
         self.assertEqual(self.stage.bake_failure_shape(record), "replay_unmeasured")
         self.assertFalse(self.stage.bake_checks(record)["replay_matched_after_reopen"])
 
-    def test_replay_probe_builder_has_no_default_for_the_flag(self):
-        """构造器不许给 `first_eval_after_open` 默认值 —— 忘了写就是"合法的一致"。"""
-        with self.assertRaises(TypeError):
-            self.stage.bake_replay_probe(matched=True, max_delta=0.0, frames=[417])
-        probe = self.stage.bake_replay_probe(matched=True, first_eval_after_open=True,
-                                            max_delta=0.0, frames=[417])
+    def test_replay_probe_builder_defaults_the_flag_to_false(self):
+        """漏写 `first_eval_after_open` ⇒ 落 `false`（可补的记录），而不是抛异常。
+
+        `D-225`：「能靠记录解决的事，不要用拒绝解决」—— 漏一个可补的字段不该让一次
+        6–12 分钟的构建当场死掉，红在记录里、理由看得见、单条重跑就补得回。
+        """
+        probe = self.stage.bake_replay_probe(matched=True, max_delta=0.0, frames=[417])
+        self.assertIs(probe["first_eval_after_open"], False)
         self.assertEqual(sorted(probe), ["first_eval_after_open", "frames",
                                          "matched", "max_delta"])
+        record = self._record(reopened=True, baked_after=True, outdated=False)
+        record["persist"]["replay_probe"] = probe
+        self.assertEqual(self.stage.bake_failure_shape(record), "replay_unmeasured",
+                         "漏键的探针不许被判成「一致」")
+        self.assertIn("replay_first_eval_after_open",
+                      self.stage.bake_artifact_missing(record))
 
     def test_disk_cache_switch_is_recorded_but_never_a_criterion(self):
         """`use_disk_cache` 只记录：`D-218` 实测赋值会把 Blender 打死，判据不能建在它上面。"""

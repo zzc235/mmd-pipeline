@@ -1164,12 +1164,17 @@ def bake_record(scene, req, probe, applied, is_baked, is_outdated) -> dict:
     }
 
 
-def bake_replay_probe(*, matched, first_eval_after_open, max_delta, frames) -> dict:
-    """构造「重开后的重放探针」记录。`first_eval_after_open` **没有默认值**，必须显式给。
+def bake_replay_probe(*, matched, first_eval_after_open=False, max_delta, frames) -> dict:
+    """构造「重开后的重放探针」记录。`first_eval_after_open` 不给就落 `False`。
 
-    为什么要一个构造器：自证循环（先顺序走完 1..833 再冷跳）与正确的量法**只差这一个布尔**，
-    而它决定 `matched` 算不算证据（`D-223`/`D-224`）。留成手写 dict 就等于让「忘了写这个键」
-    变成「合法的一致」——那面旗会被单独引用，`1号` 19:20 那支 `max_delta=0.0` 就是这种。
+    为什么不抛：`D-225` 的裁定是「**能靠记录解决的事，不要用拒绝解决**」——漏写这个键属于
+    「可补」那一类（单条重跑就补上、历史不用动），所以它落成 `false` ⇒ `bake_failure_shape()`
+    判 `replay_unmeasured`（缺料），红在记录里、理由看得见、补得回来。抛 `TypeError` 会让
+    一次 6–12 分钟的构建因为一个可以补的字段当场死掉，而且崩掉之后连"该补什么"都没留在盘上。
+
+    为什么必须有这个布尔：自证循环（先顺序走完 1..833 再冷跳）与正确的量法**只差这一位**，
+    而它决定 `matched` 算不算证据（`D-223`/`D-224`）。`1号` 19:20 那支 `max_delta=0.0`
+    就是自证循环——缓存里装的是本会话自己刚算出来的东西。
     """
     return {
         "matched": bool(matched),
