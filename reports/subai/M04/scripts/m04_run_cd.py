@@ -193,6 +193,99 @@ def check_frames(meta_path, f0, f1):
             "roi_missing": meta.get("roi_missing")}
 
 
+# 这个计数器数的是 `mmd_type == "RIGID_BODY"` ⇒ **u323 口径（323）**，不是 u324（324）。
+# 两者差一个具名对象 `地面_物理`（有 `rigid_body`、无 `mmd_type`）。2026-11-16 18:55 在
+# `C@W1.blend` 上实测 = 323，按 324 去判会把这批臂全挡在门外。
+EXPECT_RIGIDS_DEFAULT = 323
+
+
+def admission_checks(health, window_end, expect_rigids=EXPECT_RIGIDS_DEFAULT):
+    """一条臂的准入判据（纯函数，离屏可测）。
+
+    四条同时成立才放行，**缺记录一律不过**（「没记录」不等于「没问题」，`D-162`）：
+
+    ① 刚体数 == 期望：动作那一步只许加动作、不许动刚体，324 就该还是 324；
+    ② 场景上的 `mask_wired` 记录是 `WIRED`、`constraints_capped` 假、`skipped_count == 0`；
+    ③ `cache.is_baked` 严格为 `False`（A1：跑前必须未烘）；
+    ④ `scene.frame_end` ≥ 窗口末帧，且场景里真有动作。
+
+    这四条读的是**臂件自己**，不采信任何人的转述或「结构性推断」——上一轮 `actions == []`
+    就是在别人的体检结论里被当成「应该没问题」的。
+    """
+    fails, facts = [], {}
+    h = health or {}
+
+    rig = (h.get("rigids") or {}).get("count")
+    facts["rigids"] = rig
+    if rig is None:
+        fails.append("rigids 读不到")
+    elif rig != expect_rigids:
+        fails.append("rigids=%s ≠ %d" % (rig, expect_rigids))
+
+    mask = h.get("mask_wired") or {}
+    facts["mask"] = {k: mask.get(k)
+                     for k in ("verdict", "constraints_capped", "skipped_count")}
+    if not mask:
+        fails.append("场景上没有 mask_wired 记录（缺记录判 UNMEASURED）")
+    else:
+        if mask.get("verdict") != "WIRED":
+            fails.append("mask verdict=%r" % (mask.get("verdict"),))
+        if mask.get("constraints_capped"):
+            fails.append("constraints_capped=true")
+        if (mask.get("skipped_count") or 0) != 0:
+            fails.append("skipped_count=%s" % (mask.get("skipped_count"),))
+
+    cache = h.get("cache") or {}
+    facts["is_baked"] = cache.get("is_baked")
+    if cache.get("is_baked") is not False:
+        fails.append("is_baked=%r（A1 要求 false）" % (cache.get("is_baked"),))
+
+    scene = h.get("scene") or {}
+    fe = scene.get("frame_end")
+    facts["frame_end"] = fe
+    if fe is None:
+        fails.append("scene.frame_end 读不到")
+    elif fe < window_end:
+        fails.append("frame_end=%s < 窗口末帧 %d" % (fe, window_end))
+
+    act = (h.get("armature_action") or {}).get("action")
+    facts["action"] = act
+    facts["actions_all"] = len(h.get("actions_all") or [])
+    if not act and not facts["actions_all"]:
+        fails.append("场景里没有动作（actions_all=0 且骨架无 action）")
+
+    return {"ok": not fails, "failures": fails, "facts": facts}
+
+
+def admission_round(a, arms, pen, ledger):
+    """三臂各跑一次只读体检并判准入，返回 `(逐臂结果, 全部失败项)`。"""
+    results, failures = {}, []
+    for key in ("C_W1", "C_W2", "D"):
+        fname, _f0, f1 = arms[key]
+        out = os.path.join(pen, "health_%s.json" % key)
+        led = run("0_health_%s" % key, [
+            BLENDER, "-b", "--python", os.path.join(HERE, "m04_delivery_health.py"),
+            "--", "--blend", os.path.join(a.arms_dir, fname), "--out", out],
+            os.path.join(pen, "cd_step0_health_%s.log" % key), out)
+        led["arm"] = key
+        ledger["steps"].append(led)
+        health = None
+        if os.path.exists(out):
+            with io.open(out, encoding="utf-8") as fh:
+                health = json.load(fh)
+        verdict = admission_checks(health, f1)
+        verdict["health"] = out.replace("\\", "/")
+        results[key] = verdict
+        if not verdict["ok"]:
+            failures.extend("%s: %s" % (key, f) for f in verdict["failures"])
+            print("[admission %s] FAIL %s" % (key, verdict["failures"]), flush=True)
+        else:
+            print("[admission %s] ok rigids=%s frame_end=%s action=%r is_baked=%s"
+                  % (key, verdict["facts"]["rigids"], verdict["facts"]["frame_end"],
+                     verdict["facts"]["action"], verdict["facts"]["is_baked"]), flush=True)
+    return results, failures
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--arms-dir", required=True)
@@ -248,6 +341,15 @@ def main():
                                          "frozen_files": frozen,
                                          "blocked": ledger.get("blocked")})
         print("[manifest] %d files, frozen=%s" % (man["count"], bool(a.freeze)), flush=True)
+
+    # 0) 准入体检：**在要测的那些场景上**回读（D-162 / 七条前置的第 1、2 条）。
+    #    别人的回读、别人的「结构性推断」都不算 —— 缺记录就判 UNMEASURED，不许当 OK。
+    ledger["admission"], failures = admission_round(a, arms, pen, ledger)
+    if failures:
+        ledger["blocked"] = "准入未过：%s" % "; ".join(failures)
+        print("[blocked] %s" % ledger["blocked"], flush=True)
+        finish()
+        return 5
 
     # 1) 刚体→骨 dump（新骨架）
     ledger["steps"].append(run("1_dump", [

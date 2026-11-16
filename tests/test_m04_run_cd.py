@@ -206,5 +206,85 @@ class FreezeTest(TempDirCase):
         self.assertTrue(created)
 
 
+class AdmissionTest(unittest.TestCase):
+    """准入四条：缺任何一条都不许开跑（上一轮 `actions == []` 就是这么混进来的）。"""
+
+    def health(self, **over):
+        base = {
+            "rigids": {"count": 323},
+            "mask_wired": {"verdict": "WIRED", "constraints_capped": False,
+                           "skipped_count": 0, "constraints_needed": 10111},
+            "cache": {"is_baked": False, "is_outdated": True},
+            "scene": {"frame_start": 1, "frame_end": 832, "fps": 24},
+            "armature_action": {"action": "和胡桃睡觉_bone", "frame_range": [1, 832]},
+            "actions_all": [{"name": "和胡桃睡觉_bone"}],
+        }
+        base.update(over)
+        return base
+
+    def test_all_good_passes(self):
+        v = DRV.admission_checks(self.health(), 832)
+        self.assertTrue(v["ok"], v["failures"])
+        self.assertEqual(v["facts"]["rigids"], 323)
+        self.assertEqual(v["facts"]["frame_end"], 832)
+
+    def test_rigid_count_must_match(self):
+        # 计数器是 `mmd_type == RIGID_BODY` ⇒ u323 口径（实测 323）；324 是 u324 口径，混用会被挡
+        v = DRV.admission_checks(self.health(rigids={"count": 324}), 832)
+        self.assertFalse(v["ok"])
+        self.assertEqual(len(v["failures"]), 1)
+        self.assertIn("rigids=324", v["failures"][0])
+
+    def test_missing_mask_record_is_not_ok(self):
+        # 反控：没有记录 ≠ 没问题（D-162）
+        v = DRV.admission_checks(self.health(mask_wired={}), 832)
+        self.assertFalse(v["ok"])
+        self.assertIn("没有 mask_wired 记录", v["failures"][0])
+
+    def test_mask_not_wired_fails(self):
+        v = DRV.admission_checks(self.health(mask_wired={"verdict": "PARTIAL",
+                                                         "constraints_capped": False,
+                                                         "skipped_count": 0}), 832)
+        self.assertFalse(v["ok"])
+        self.assertEqual(len(v["failures"]), 1)
+        self.assertIn("PARTIAL", v["failures"][0])
+
+    def test_capped_or_skipped_fails(self):
+        a = DRV.admission_checks(self.health(mask_wired={"verdict": "WIRED",
+                                                         "constraints_capped": True,
+                                                         "skipped_count": 0}), 832)
+        b = DRV.admission_checks(self.health(mask_wired={"verdict": "WIRED",
+                                                         "constraints_capped": False,
+                                                         "skipped_count": 7}), 832)
+        self.assertIn("constraints_capped=true", a["failures"])
+        self.assertIn("skipped_count=7", b["failures"])
+
+    def test_baked_scene_fails(self):
+        v = DRV.admission_checks(self.health(cache={"is_baked": True}), 832)
+        self.assertFalse(v["ok"])
+        self.assertIn("is_baked", v["failures"][0])
+
+    def test_is_baked_absent_is_not_false(self):
+        # 反控：读不到不能当 false（本机 D-135 那族：字段缺了也照样绿）
+        v = DRV.admission_checks(self.health(cache={}), 832)
+        self.assertFalse(v["ok"])
+
+    def test_window_longer_than_scene_fails(self):
+        v = DRV.admission_checks(self.health(scene={"frame_start": 1, "frame_end": 301}), 832)
+        self.assertFalse(v["ok"])
+        self.assertIn("frame_end=301 < 窗口末帧 832", v["failures"][0])
+
+    def test_no_action_fails(self):
+        v = DRV.admission_checks(self.health(armature_action={"action": None},
+                                            actions_all=[]), 832)
+        self.assertFalse(v["ok"])
+        self.assertIn("没有动作", v["failures"][0])
+
+    def test_empty_health_reports_every_missing_thing(self):
+        v = DRV.admission_checks(None, 240)
+        self.assertFalse(v["ok"])
+        self.assertGreaterEqual(len(v["failures"]), 5)  # 逐项报出，不是「第一个就返回」
+
+
 if __name__ == "__main__":
     unittest.main()
