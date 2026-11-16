@@ -77,11 +77,49 @@ def t_argv():
     assert argv.count("--force-static") == 2, "列表没拆开"
 
 
+def t_zones():
+    """四区面板：分区元数据与参数声明同源，且每区非空。"""
+    pkg = __import__(FULL, fromlist=["mmdpipe"])
+    P = pkg.mmdpipe.params
+    assert tuple(P.ZONES) == ("asset", "physics", "render"), P.ZONES
+    covered = [p.name for z in P.ZONES for p in P.by_zone(z)]
+    assert sorted(covered) == sorted(p.name for p in P.PARAMS), "有参数没归区或归了两次"
+    for zone in P.ZONES:
+        assert P.by_zone(zone), "区 %s 是空的" % zone
+
+
+def t_panel_and_ops():
+    """面板与三个工具按钮都注册上了（点不动也要有按钮，不能缺类）。"""
+    pkg = __import__(FULL, fromlist=["panels", "operators"])
+    assert hasattr(pkg.panels, "MMDP_PT_main"), "面板类不存在"
+    for op in ("run", "diagnose", "gate", "open_dir"):
+        assert hasattr(bpy.types, "MMDP_OT_" + op), "operator %s 没注册" % op
+
+
+def t_status_layer():
+    """报告区读 state 的那一层：空目录不抛异常，空串给可读提示。"""
+    pkg = __import__(FULL, fromlist=["status"])
+    st = pkg.status
+    assert st.report_lines("") == ["还没选输出目录"]
+    info = st.summary("")
+    assert isinstance(info, dict) and info["ok"] is False
+
+
+def t_tool_entry():
+    """run_tool 的白名单只有三个 CLI，不外扩。"""
+    pkg = __import__(FULL, fromlist=["run_tool"])
+    assert tuple(pkg.run_tool.TOOLS) == ("diagnose", "physics_gate", "gate_report")
+
+
 print("SMOKE START")
 addon_utils.enable(FULL, default_set=True, persistent=True)
 check("包内导入", t_import)
 check("参数同源", t_parity)
 check("argv 生成", t_argv)
+check("四区分区", t_zones)
+check("面板与按钮注册", t_panel_and_ops)
+check("报告区状态层", t_status_layer)
+check("工具入口白名单", t_tool_entry)
 check("无预设取景", t_camera_no_preset)
 
 print("SMOKE RESULT %s (%d failed)" % ("OK" if not FAIL else "FAIL", len(FAIL)))

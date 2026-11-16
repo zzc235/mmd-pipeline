@@ -107,6 +107,54 @@ def by_name(name: str) -> Param:
     raise KeyError(name)
 
 
+# ---- 面板四区（M07）----
+# 参数 → 区由这里唯一决定，面板不再自己列字段。
+# 加新参数却忘了归区时，import 阶段就 raise —— 宁可插件装不上，也不要某个旋钮
+# 悄悄从面板上消失（v1.2.0 就有过「高级项折叠后找不到」的投诉）。
+ZONES = ("asset", "physics", "render")
+
+ZONE_OF = {
+    # 资产：输入、输出、时长
+    "pmx": "asset",
+    "vmd": "asset",
+    "motions": "asset",
+    "expression": "asset",
+    "preset": "asset",
+    "camera": "asset",
+    "out": "asset",
+    "layout": "asset",
+    "frames": "asset",
+    "fps": "asset",
+    # 物理：策略、诊断、净空
+    "physics_policy": "physics",
+    "force_static": "physics",
+    "force_physics": "physics",
+    "probe": "physics",
+    "clearance": "physics",
+    "clearance_margin": "physics",
+    # 渲染：拼接、对齐、道具
+    "chain_mode": "render",
+    "chain_gap": "render",
+    "chain_blend": "render",
+    "align": "render",
+    "prop": "render",
+    "force": "render",
+}
+
+_missing = sorted(p.name for p in PARAMS if p.name not in ZONE_OF)
+_extra = sorted(set(ZONE_OF) - {p.name for p in PARAMS})
+if _missing or _extra:
+    raise ValueError("面板分区与参数声明不一致：缺 %s 多 %s（见 params.ZONE_OF）"
+                     % (_missing, _extra))
+
+
+def by_zone(zone: str) -> tuple:
+    """某一区的参数（顺序与 PARAMS 声明一致，面板显示顺序即声明顺序）。"""
+    if zone not in ZONES:
+        raise KeyError(zone)
+    return tuple(p for p in PARAMS if ZONE_OF[p.name] == zone)
+
+
 def add_arguments(ap) -> None:
     """把声明转成 argparse 参数。runner 只调这个，不再自己写 add_argument。"""
     for p in PARAMS:
