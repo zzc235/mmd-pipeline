@@ -35,14 +35,16 @@ def good():
         "frames": {"start": 1, "end": 60},
         "dynamics": {"median": 10.0, "p95": 20.0, "max": 30.0, "spike_count": 0, "bones": 100},
         "frozen": {"parent_delta_deg": 2.0, "target_delta_deg": 20.0, "consecutive_frames": 0},
-        "penetration": {"roi": "r", "max_depth_m": 0.0, "frames": 3, "bones": 5},
+        "penetration": {"roi": "r", "max_depth_m": 0.0, "frames": 3, "bones": 5,
+                    "frames_measured": 240},
     }
 
 
 def bad():
     m = good()
     m["sample_id"] = "bad"
-    m["penetration"] = {"roi": "r", "max_depth_m": -0.3, "frames": 9, "bones": 3}
+    m["penetration"] = {"roi": "r", "max_depth_m": -0.3, "frames": 9, "bones": 3,
+                        "frames_measured": 240}
     return m
 
 
