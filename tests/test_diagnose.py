@@ -504,6 +504,59 @@ class TestCliUsage(unittest.TestCase):
         self.assertEqual(proc.returncode, diagnose.EXIT_USAGE, proc.stderr)
 
 
+# ---------------------------------------------------------------- 真实证据回归
+EVIDENCE_DIR = os.path.join(REPO_ROOT, "reports", "subai", "M03", "evidence")
+
+# 录好的真实证据（本轮之前用 Blender / 真 PMX 采出来的 diagnosis JSON）。
+# 判据改一次就要重跑这一组：证据不变、判定不许漂。缺文件时跳过——
+# reports/ 不进版本控制，干净克隆里没有这些文件是正常的。
+REAL_EVIDENCE = (
+    ("F1", "blend/probe_v1.json", "F1", "confirmed"),
+    ("F2", "blend/probe_combined_v3.json", "F2", "confirmed"),
+    ("F2-b", "blend/probe_kafuka_all.json", "F2", "confirmed"),
+    ("F3", "blend/S5_sleeve_60f.json", "F3", "confirmed"),
+    ("F6", "static/S8_f6.json", "F6", "confirmed"),
+    # 正常舞蹈场景：实测摆角 179.231°，阈值 60° 会误报，这里锁死「不得 confirmed」
+    ("正常舞蹈不误报", "blend/S3_chest_60f.json", None, "suspected"),
+    ("静态胸口", "static/S3.json", "F3", "suspected"),
+)
+
+
+class TestRealEvidenceRegression(unittest.TestCase):
+    """证据不变则判定不许漂：judge() 与 judgment_fingerprint() 都要逐位复现。
+
+    这一组补的是「F2 没有独立标签样本」的缺口——F2 的两份证据（合成场景与
+    卡芙卡真实场景）现在都成了可重放的回归样本，不再是只存在于报告文字里的数字。
+    """
+
+    def _load(self, rel):
+        path = os.path.join(EVIDENCE_DIR, *rel.split("/"))
+        if not os.path.isfile(path):
+            self.skipTest("缺少录好的证据文件：%s" % rel)
+        with open(path, encoding="utf-8") as fh:
+            return json.load(fh)
+
+    def test_recorded_evidence_reproduces_primary_and_confidence(self):
+        for name, rel, want_primary, want_conf in REAL_EVIDENCE:
+            with self.subTest(fixture=name):
+                report = self._load(rel)
+                got = diagnose.judge(report["evidence"])
+                self.assertEqual(got["confidence"], want_conf, report["primary"])
+                if want_primary is not None:
+                    self.assertEqual(got["primary"], want_primary)
+
+    def test_recorded_evidence_reproduces_fingerprint(self):
+        for name, rel, _p, _c in REAL_EVIDENCE:
+            with self.subTest(fixture=name):
+                report = self._load(rel)
+                fresh = diagnose.judge(report["evidence"])
+                rebuilt = dict(report)
+                rebuilt.update({k: fresh[k] for k in
+                                ("primary", "secondary", "confidence", "diagnostics")})
+                self.assertEqual(diagnose.judgment_fingerprint(rebuilt),
+                                 report["judgment_fingerprint"])
+
+
 # ---------------------------------------------------------------- 静态采集器
 class TestCollector(unittest.TestCase):
     def test_coverage_helper_groups_rows(self):

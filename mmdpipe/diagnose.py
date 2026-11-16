@@ -112,7 +112,9 @@ DEFAULT_CONFIG: dict[str, Any] = {
         "f4_angle_deg": {
             "value": 60.0,
             "unit": "deg",
-            "source": "未标定（暂按『接近水平』的保守下限）",
+            "source": "未标定（暂按『接近水平』的保守下限）；S3 正常舞蹈场景实测摆角 179.231°，"
+                      "说明绝对值本身不足以区分正常与异常——真标定须等 M02 的 S2 真阳性样本，"
+                      "在此之前 F4 只许 suspected（见 f4_calibrated）",
             "calibrated": False,
         },
         # 覆盖缺口：整行/整组缺失才算主缺口，零散缺 1 根只记为 sparse
