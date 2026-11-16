@@ -62,37 +62,57 @@ def _is_manifest_name(name: str) -> bool:
     return MANIFEST_GLOB in low and low.endswith(".json")
 
 
-def audit_manifest(manifest_path: str) -> dict:
-    """重算一份 manifest 登记的每一项；返回 `{"ok": bool, "drift": [...], "items": [...]}`。"""
+def audit_manifest(manifest_path: str, base: str | None = None) -> dict:
+    """重算一份 manifest 登记的每一项；返回 `{"ok": bool, "drift": [...], "items": [...]}`。
+
+    `base` 用来解析**只写了文件名**的条目（`{"name": "C_W1.jsonl", ...}` 这种形状，
+    `2号` 的批次 manifest 就是）。不给 `base` 时这类条目记为 **`unresolved`** ——
+    **不是** `drift`：解析不了路径不等于文件被改过，把「量不了」写成「不一致」正是
+    本仓反复立的规矩要杀的东西（`UNMEASURED ≠ FAIL`）。
+    """
     with open(manifest_path, "rb") as fh:
         raw = fh.read()
     manifest = json.loads(raw.decode("utf-8"))
     items = manifest.get("items") or manifest.get("files") or []
-    base = os.path.dirname(os.path.abspath(manifest_path))
+    here = os.path.dirname(os.path.abspath(manifest_path))
+    resolve_base = os.path.abspath(base) if base else here
     listed = set()
     drift = []
+    unresolved = []
     warnings = []
     out_items = []
 
     for item in items:
         path = item.get("frozen_path") or item.get("path")
+        bare_name = None
+        if not path:
+            bare_name = item.get("name") or item.get("role")
+            if bare_name:
+                path = os.path.join(resolve_base, bare_name)
         if not path:
             drift.append({"why": "item_without_path", "item": item})
             continue
         if not os.path.isabs(path):
-            path = os.path.join(base, path)
-        listed.add(os.path.normcase(os.path.abspath(path)))
-        role = item.get("role") or os.path.basename(path)
+            path = os.path.join(resolve_base, path)
+        path = os.path.abspath(path)
+        role = item.get("role") or item.get("name") or os.path.basename(path)
         rec_sha = item.get("sha256")
         rec_lf = item.get("sha256_lf_normalized")
         row = {"role": role, "path": path, "recorded_sha256": rec_sha,
                "recorded_bytes": item.get("bytes")}
         if not os.path.exists(path):
-            row["state"] = "missing"
-            drift.append({"why": "missing", "role": role, "path": path,
-                          "recorded_sha256": rec_sha})
+            if bare_name and not base:
+                # 只写了文件名、又没给 base：量不了，不是不一致
+                row["state"] = "unresolved"
+                unresolved.append({"why": "bare_name_without_base", "role": role,
+                                   "name": bare_name, "tried": path})
+            else:
+                row["state"] = "missing"
+                drift.append({"why": "missing", "role": role, "path": path,
+                              "recorded_sha256": rec_sha})
             out_items.append(row)
             continue
+        listed.add(os.path.normcase(path))
         now_sha = sha256_file(path)
         now_lf = sha256_lf_file(path)
         now_bytes = os.path.getsize(path)
@@ -116,21 +136,29 @@ def audit_manifest(manifest_path: str) -> dict:
                              "recorded": bool(item["readonly"]), "now": row["readonly"]})
         out_items.append(row)
 
-    # 双向：目录里除 manifest 自己与其他 manifest 之外，多出来的文件
+    # 双向：目录里除 manifest 自己与其他 manifest 之外，多出来的文件。
+    # **只在条目都落在 manifest 自己这一层目录里时才有定义** —— 条目指向别处（批次 manifest
+    # 登记的是批次目录里的产物）时，拿 manifest 所在目录去枚举会得到一堆假 only_on_disk。
+    outside = sorted({os.path.dirname(p) for p in listed
+                      if os.path.dirname(p) != os.path.normcase(here)})
     only_on_disk = []
-    for name in sorted(os.listdir(base)):
-        full = os.path.normcase(os.path.abspath(os.path.join(base, name)))
-        if full == os.path.normcase(os.path.abspath(manifest_path)):
-            continue
-        if _is_manifest_name(name) or name.endswith(SKIP_SUFFIXES):
-            continue
-        if not os.path.isfile(os.path.join(base, name)):
-            continue
-        if full not in listed:
-            only_on_disk.append(name)
-    for name in only_on_disk:
-        drift.append({"why": "only_on_disk", "name": name, "path": os.path.join(base, name)})
+    two_way_checked = not outside
+    if two_way_checked:
+        for name in sorted(os.listdir(here)):
+            full = os.path.normcase(os.path.abspath(os.path.join(here, name)))
+            if full == os.path.normcase(os.path.abspath(manifest_path)):
+                continue
+            if _is_manifest_name(name) or name.endswith(SKIP_SUFFIXES):
+                continue
+            if not os.path.isfile(os.path.join(here, name)):
+                continue
+            if full not in listed:
+                only_on_disk.append(name)
+        for name in only_on_disk:
+            drift.append({"why": "only_on_disk", "name": name,
+                          "path": os.path.join(here, name)})
 
+    state = "OK" if not drift and not unresolved else ("DRIFT" if drift else "UNMEASURED")
     return {
         "manifest": os.path.abspath(manifest_path),
         "manifest_bytes": len(raw),
@@ -139,10 +167,14 @@ def audit_manifest(manifest_path: str) -> dict:
             hashlib.sha256(raw.replace(b"\r\n", b"\n")).hexdigest(),
         "listed": len(items),
         "listed_ok": sum(1 for r in out_items if r.get("state") == "ok"),
+        "unresolved": unresolved,
         "only_on_disk": only_on_disk,
+        "two_way_checked": two_way_checked,
+        "entries_outside_manifest_dir": outside,
         "items": out_items,
         "drift": drift,
         "warnings": warnings,
+        "state": state,
         "ok": not drift,
         "recorded_assertions": manifest.get("assertions"),
     }
@@ -157,23 +189,27 @@ def find_manifests(root: str) -> list:
     return sorted(out)
 
 
-def audit_root(root: str) -> dict:
+def audit_root(root: str, base: str | None = None) -> dict:
     reports = []
     for path in find_manifests(root):
         try:
-            reports.append(audit_manifest(path))
+            reports.append(audit_manifest(path, base=base))
         except (OSError, ValueError) as exc:
-            reports.append({"manifest": path, "ok": False,
-                            "drift": [{"why": "unreadable", "error": str(exc)}]})
+            reports.append({"manifest": path, "ok": False, "state": "UNREADABLE",
+                            "drift": [{"why": "unreadable", "error": str(exc)}],
+                            "unresolved": []})
     bad = [r for r in reports if not r["ok"]]
-    return {"root": os.path.abspath(root), "manifests": len(reports),
-            "failures": len(bad), "ok": not bad, "reports": reports}
+    unmeasured = [r for r in reports if r.get("state") == "UNMEASURED"]
+    return {"root": os.path.abspath(root), "base": base, "manifests": len(reports),
+            "failures": len(bad), "unmeasured": len(unmeasured),
+            "ok": not bad, "reports": reports}
 
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(prog="artifact_audit", description=__doc__.splitlines()[0])
     ap.add_argument("--manifest", help="审一份 manifest")
     ap.add_argument("--root", help="审一棵树下的所有 manifest")
+    ap.add_argument("--base", help="把只写了文件名的条目解析到这个目录（不给则记 unresolved，不算 drift）")
     ap.add_argument("--json", help="把结果写到这个路径（UTF-8，无 BOM）")
     ap.add_argument("--quiet", action="store_true", help="只打一行结论")
     args = ap.parse_args(argv)
@@ -181,7 +217,8 @@ def main(argv=None) -> int:
         ap.print_usage(sys.stderr)
         return 4
     try:
-        got = audit_manifest(args.manifest) if args.manifest else audit_root(args.root)
+        got = (audit_manifest(args.manifest, base=args.base) if args.manifest
+               else audit_root(args.root, base=args.base))
     except (OSError, ValueError) as exc:
         sys.stdout.write("UNREADABLE: %s\n" % exc)
         return 4
@@ -195,17 +232,19 @@ def main(argv=None) -> int:
         if "drift" in got:
             sys.stdout.write("AUDIT ok=%s drift=%d\n" % (got["ok"], len(got["drift"])))
         else:
-            sys.stdout.write("AUDIT ok=%s manifests=%d failures=%d\n"
-                             % (got["ok"], got["manifests"], got["failures"]))
+            sys.stdout.write("AUDIT ok=%s manifests=%d failures=%d unmeasured=%d\n"
+                             % (got["ok"], got["manifests"], got["failures"],
+                                got.get("unmeasured", 0)))
     else:
         sys.stdout.write(json.dumps({k: v for k, v in got.items() if k != "reports"},
                                     ensure_ascii=False, indent=1, sort_keys=True) + "\n")
         if "reports" in got:
             for rep in got["reports"]:
-                sys.stdout.write("%-58s ok=%s drift=%d\n"
+                sys.stdout.write("%-58s state=%-10s ok=%s drift=%d unresolved=%d\n"
                                  % (os.path.basename(os.path.dirname(rep["manifest"]))
                                     + "/" + os.path.basename(rep["manifest"]),
-                                    rep["ok"], len(rep["drift"])))
+                                    rep.get("state", "?"), rep["ok"], len(rep["drift"]),
+                                    len(rep.get("unresolved") or [])))
     return 0 if got["ok"] else 3
 
 

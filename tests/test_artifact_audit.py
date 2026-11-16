@@ -138,6 +138,68 @@ class AuditManifestTest(unittest.TestCase):
         self.assertNotEqual(raw, lf)
 
 
+class BareNameManifestTest(unittest.TestCase):
+    """只写文件名的批次 manifest（`2号` 的形状）：**量不了 ≠ 不一致**。"""
+
+    def setUp(self):
+        self.tmp = tempfile.mkdtemp(prefix="auditbare_")
+        self.batch = os.path.join(self.tmp, "batch")
+        self.snap = os.path.join(self.tmp, "snap")
+        os.makedirs(self.batch)
+        os.makedirs(self.snap)
+        files = {}
+        for name in ("C_W1.jsonl", "D.jsonl"):
+            path = os.path.join(self.batch, name)
+            with open(path, "wb") as fh:
+                fh.write(name.encode())
+            files[name] = {"name": name, "bytes": os.path.getsize(path),
+                           "sha256": A.sha256_file(path),
+                           "sha256_lf_normalized": A.sha256_lf_file(path),
+                           "readonly": False}
+        manifest = {"batch_id": "b1", "count": len(files),
+                    "files": list(files.values()), "frozen": True,
+                    "frozen_files": sorted(files)}
+        self.manifest = os.path.join(self.snap, "manifest.json")
+        with open(self.manifest, "w", encoding="utf-8", newline="\n") as fh:
+            json.dump(manifest, fh, ensure_ascii=False, indent=1)
+
+    def tearDown(self):
+        shutil.rmtree(self.tmp, ignore_errors=True)
+
+    def test_no_base_is_unresolved_not_drift(self):
+        got = A.audit_manifest(self.manifest)
+        self.assertTrue(got["ok"], "解析不了路径不许记成 drift：%r" % (got["drift"],))
+        self.assertEqual(got["state"], "UNMEASURED")
+        self.assertEqual(len(got["unresolved"]), 2)
+        self.assertTrue(all(u["why"] == "bare_name_without_base" for u in got["unresolved"]))
+
+    def test_with_base_resolves_and_verifies(self):
+        got = A.audit_manifest(self.manifest, base=self.batch)
+        self.assertEqual(got["state"], "OK", got["drift"])
+        self.assertEqual(got["listed_ok"], 2)
+        self.assertEqual(got["unresolved"], [])
+
+    def test_with_base_detects_tamper(self):
+        target = os.path.join(self.batch, "C_W1.jsonl")
+        with open(target, "wb") as fh:
+            fh.write(b"tampered")
+        got = A.audit_manifest(self.manifest, base=self.batch)
+        self.assertFalse(got["ok"])
+        self.assertEqual(got["state"], "DRIFT")
+        self.assertTrue(any(d["why"] == "sha_drift" for d in got["drift"]))
+
+    def test_two_way_skipped_when_entries_live_elsewhere(self):
+        """条目都在别的目录时，拿 manifest 所在目录做双向枚举会得到假 only_on_disk。"""
+        stray = os.path.join(self.snap, "snapshot_copy.json")
+        with open(stray, "w", encoding="utf-8") as fh:
+            fh.write("{}\n")
+        got = A.audit_manifest(self.manifest, base=self.batch)
+        self.assertFalse(got["two_way_checked"])
+        self.assertEqual(got["only_on_disk"], [])
+        self.assertTrue(got["ok"], got["drift"])
+        self.assertTrue(got["entries_outside_manifest_dir"])
+
+
 class AuditRootTest(unittest.TestCase):
 
     def setUp(self):
