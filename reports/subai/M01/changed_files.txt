@@ -1,0 +1,68 @@
+# M01 实际改动清单
+# 生成方式：本会话内实际写入/新增的文件（git status 里其它模块的改动不属于 M01，见末尾）
+
+## 源码（1）
+M mmdpipe/pmx.py
+     PMXModel.rigid_mode_offsets 字段
+     parse(): rigid 段在 r.u8() 之前记录 mode 字节偏移（rigid_mode_offsets）
+     patch_save(): 新增 rigid_mode={index: 0|1|2}；写前回读旧值校验偏移未过期；
+                   拒绝覆盖源文件 / 非法 mode / 越界索引；仍只改字节不重序列化
+     RIGID_MODES = (0, 1, 2) 常量
+
+## 测试（1）
+A tests/test_pmx_patch.py
+     12 项：合成 PMX 的字节级不变量 + 真实飞霄模型的 6 个目标 mode
+
+## 实验脚本（9，新增）
+A reports/subai/M01/scripts/m01_baseline.py        阶段 A 只读基线（纯 Python）
+A reports/subai/M01/scripts/m01_env_probe.py       Blender build 流程/约束结构确认
+A reports/subai/M01/scripts/m01_make_patch.py      S3 副本 + patch_manifest.json
+A reports/subai/M01/scripts/m01_chest_probe.py     胸口三变体探针（连续步进 + 同机位采样）
+A reports/subai/M01/scripts/m01_compare.py         逐帧逐顶点差异统计
+A reports/subai/M01/scripts/m01_sleeve_probe.py    S5 袖筒 sanity/静态策略探针（逐帧转角）
+A reports/subai/M01/scripts/m01_shots.py           代表帧静态图（同帧同机位）
+A reports/subai/M01/scripts/m01_sheet.py           对比图拼版（PIL）
+A reports/subai/M01/scripts/m01_collect.py         汇总 measurements.json / 复算源哈希
+
+## 报告（6）
+A reports/subai/M01/result.md           统一回报（PARTIAL）
+A reports/subai/M01/measurements.json   全部数值、源哈希、实验计数
+A reports/subai/M01/patch_manifest.json 补丁清单（与 out 下同名文件一致）
+A reports/subai/M01/changed_files.txt   本文件
+A reports/subai/M01/reproduce.md        复现命令
+A reports/subai/M01/handoff.md          给总控/M02/M04 的接口与风险
+
+## 实验产物（out/subai/M01，全部新增）
+A out/subai/M01/baseline.json                         阶段 A 结构基线
+A out/subai/M01/baseline.md                           阶段 A 可读摘要
+A out/subai/M01/env_feixiao.json                      Blender 建链事实
+A out/subai/M01/飞霄_s3_mode0.pmx                      S3 副本（源长度一致，6 字节差异）
+A out/subai/M01/patch_manifest.json                   补丁/字节偏移清单
+A out/subai/M01/probe/{probe_baseline,probe_static,probe_mode0}.json  clip1 三变体采样
+A out/subai/M01/probe/{comparison.json,comparison.md}                clip1 对照
+A out/subai/M01/probe2/{...同上...}                                  clip2 独立确认
+A out/subai/M01/sleeve/{sleeve_base,sleeve_static}.json              S5 两变体
+A out/subai/M01/shots_chest{,2,3}/*.png                              胸口代表帧（3 轮机位/材质迭代）
+A out/subai/M01/shots_sleeve/*.png                                    袖筒代表帧
+A out/subai/M01/compare_chest.png                                     胸口对比拼版（交付图）
+A out/subai/M01/compare_sleeve.png                                    袖筒对比拼版（交付图）
+
+## 未触碰
+- 源 PMX / VMD / 任何 .blend（两个源 PMX 的 SHA256 首尾一致）
+- mmdpipe/stage.py、mmdpipe/physics.py、mmdpipe/runner.py、addon/mmd_pipeline/**
+- git 历史（没有 commit / reset / clean / push）
+
+## 注意：工作树里还有**其它模块**的未提交改动（不是 M01 写的）
+M mmdpipe/chain_nla.py, mmdpipe/chainplan.py, mmdpipe/concatvmd.py, mmdpipe/runner.py, mmdpipe/vmd.py
+?? mmdpipe/diagnose.py, mmdpipe/diagnose_blender.py, tests/test_chain.py, tests/test_diagnose.py
+   这些在 M01 会话开始时并不存在（首次 `git status` 为空），是并行模块在同一工作树里写的。
+   M01 的 60 项回归只覆盖 tests.test_pmx_patch/test_physics/test_params/test_vmd/test_layout/
+   test_align/test_statefile，不包含上述新测试。
+
+## 共同工作区补充（C:\Users\zzc\Desktop\ai用\dsh use\gongtonggzq，不是 git 仓库）
+M M01_F3冻结类修复_胸口与袖子.md   末尾追加「补充 · M01 执行记录」（158 行 → 307 行，正文未改）
+M M02_F4下摆与F6碰撞映射.md        末尾追加「补充 · M01 → M02 交接」（131 行 → 192 行，正文未改）
+A reports/subai/M01/scripts/m01_append_shared_doc.py   幂等追加脚本（--check / --replace），
+                                                        由 E:\dsh pr\woker2 运行，写上面两个文件
+注：两份任务书只追加、不改既有正文；路径已从双反斜杠还原为单反斜杠。
+注：00_总控索引与执行顺序.md、09_模板、M03–M08 任务书**未改动**。

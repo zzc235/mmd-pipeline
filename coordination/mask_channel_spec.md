@@ -109,10 +109,49 @@ Blender 语义（`rigid_body.collision_collections`，20 位布尔）——**以
 
 ## 4. 验收（D0 会逐条执行，缺一条不算过）
 
+### 4.0 `WIRED` 的唯一定义（`D-20261116-145`，两份实现都必须实现这一条）
+
+`WIRED` ⟺ **四条同时成立**：
+
+1. `distinct_pattern_count >= 2`（位型不止一种）；
+2. **逐刚体回读全符**（`readback_mismatch == 0`）——写进去的位与算出来的位一致；
+3. **覆盖面齐全**：PMX 说不该碰的每一对，都被分开（位或约束），即 `nocollide_pairs_still_colliding == 0` 且 `blocked_and_should_collide == 0`；
+4. **没有被 cap、没有被跳过**：`constraints_capped == false` 且 `skipped == []`。
+
+任一条不成立 ⇒ `PARTIAL`（能指出命中哪一条）或 `EMPTY`（一条位都没读到）。
+
+**为什么要把第 3、4 条写死**：`m02_mask_channel_probe.py` 旧口径是「位型 ≥2 **且** 至少一对该分而被分开」，它在 `constraints_capped=true` 的场景上**照样报 `WIRED`**（`D-145` 的实测分歧：同一份 capped 场景，探头 `WIRED`、`stage_mask` `PARTIAL`+`capped=true`+`skipped_count=4298`）。**两根仪器各读一半，读起来都像绿。**
+
+允许**两份独立实现**（独立性要保留），但不许**两套判据**；词表统一用 `WIRED / PARTIAL / EMPTY`，探头的 `0/1/2/3` 保留但在输出里映射到这三个词。**两仪器分歧时只报分歧，那个数不许用。**
+
+### 4.0b 退出码：判词与闸门分开，数字不兼职（`D-20261116-148`，出处：1号 在真 Blender 上量的矩阵）
+
+| 退出码 | 含义 |
+|---:|---|
+| 0 | `WIRED` |
+| 1 | 判词不是 WIRED，**且**调用方给了 `--expect wired` ⇒ 闸门不通过 |
+| 2 | 判词不是 WIRED（`PARTIAL`/`UNWIRED`/`EMPTY`），没要求闸门 ⇒ 这是**读数**，不是失败 |
+| 3 | `CANNOT`：读不到 / 参数错 / 脚本异常 |
+
+理由：同一个数字曾被三份说法同时占用（`EMPTY→3`、`CANNOT→3`、旧 spec 的 `0/2/1`），而**一个数三个意思**正是本 spec 要治的族。判词本身永远在 `verdict` 字段与 `VERDICT …` 那行里，读的人不必从数字反推。
+
+**退出码不是成败判据**（`D-20261116-148`）：Blender 上两个方向都不可信——脚本抛异常可以是 **0**（1号 最小复现），正常跑完在退出清理阶段崩可以是 **0xC0000005 / -1073741819**（2号 两次探针，`per_frame` 240 帧齐全）。所以**唯一可信的是产物完整性**：帧数齐 + 字段在 + 该有的键都在，退出码**原样记录、不折算**。
+
+### 4.0c 读数分两类，各自自报来源（`D-20261116-151`）
+
+| 类别 | 例子 | 受 `point_cache` 缓存回放影响吗 | 自报字段 |
+|---|---|---|---|
+| **静态 RNA 读** | `collision_collections` 位型、`mmd_rigid.collision_group_mask`、约束的 `disable_collisions` 布尔 | **不受**（无 `frame_set`、不触发 depsgraph 求值） | `pose_source: "not_applicable_static_read"`（**字段必须写出来，不许省**） |
+| **动态姿态读** | 穿透深度、裙摆摆动、位移差 | **受**：`frame_set` 顺序走帧读的是已烘焙的缓存姿态 | `pose_source: "cache_replay"` / `"fresh_solve"` |
+
+⇒ 掩码通道的判词（`WIRED / PARTIAL / EMPTY`）属静态读，**不受缓存回放影响**；凡「干预前后读数相同」的动态结论，若 `pose_source=cache_replay`，**不构成证据**——那可能只是「谁都没动」。
+
+**清缓存后必须再验一次**：`free_bake_all()` 之后 `frame_set` 走一遍，场景设置有可能把缓存**重新烘上**，于是「自由解算臂」静默变回回放臂。跑前与读数前各验一次 `cache_state.is_baked`，任一为真 ⇒ exit 3、不出数。
+
 | # | 判据 | 应当被拒 / 应当区分的输入 |
 |---|---|---|
 | 1 | 逐刚体回读：`collision_collections` 与源掩码一致 | **全 0 掩码与全 1 掩码必须给出不同的位**（4号 自己提的那种单元级判据） |
-| 1b | **场景级**：`reports/subai/M02/scripts/m02_mask_channel_probe.py`（1号 交；**判词与闸门分开**，退出码 0 `WIRED` / 1 判词不是 `WIRED` 且调用方给了 `--expect wired`（闸门不通过）/ 2 判词不是 `WIRED` 但没要求闸门（**这是读数，不是失败**）/ 3 `CANNOT`：读不到、参数错、脚本异常） | 通道落地后必须从 `UNWIRED separated=0` 变成 `WIRED`，且 `separated` 相对 40418 的差能被解释。**判词本身永远在 `verdict` 字段与 `VERDICT …` 那行里，读的人不必从数字反推**（同一版本早期曾写成「三态 0/2/1」，一个数字带两种含义，已作废） |
+| 1b | **场景级**：`reports/subai/M02/scripts/m02_mask_channel_probe.py`（1号 交；**退出码见 §4.0b，判词见 `verdict` 字段**） | 通道落地后必须从 `UNWIRED separated=0` 变成 `WIRED`，且 `separated` 相对 40418 的差能被解释。**判据按 §4.0 四条**，不是「位型 ≥2 且至少分开一对」 |
 | 1c | **差额分三桶报**（`D-114`/`D-115` 修正）：`separated_by_bits` / `separated_by_constraint` / `unseparated` | **三桶相加 == 40 418**，否则这个数说不清是「没接上」「表达不了」还是「早就被 ncc 挡住」。另须**分开归因**：`separated_by_constraint` 里哪些来自**通道新增**的约束、哪些是**落地前就存在**的——否则会把 2196 条被放掉的旧约束与新增的混成同一件事 |
 | 2 | 源数据未被改动 | 跑前跑后 `mmd_rigid.collision_group`/`collision_group_mask` 逐刚体快照相同；源 `.blend` sha256 前后一致 |
 | 3 | 非对称掩码被报出 | 合成场景里放一对非对称掩码，返回值 `asymmetric_pairs > 0` 且 `skipped[]` 非空 |

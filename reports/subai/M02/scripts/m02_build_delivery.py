@@ -1,0 +1,144 @@
+"""按**指定的代码树**重建交付场景：`m02_rebuild_scene_v3.py` 的包装器。
+
+    MMDPIPE_TREE=<树> blender -b -P m02_build_delivery.py -- <preset> <pmx> <out_dir> [--build]
+
+为什么要有这个包装器（2026-11-16 15:03 的实证）：
+`m02_rebuild_scene_v3.py` 里写死了 `A1 = E:\\code\\mmdpipe-ai\\A1` 并 `sys.path.insert(0, A1)`，
+所以在 main 工作树里跑它，**导入的仍是我自己分支的 `mmdpipe`**。那次重建出来的
+`delivery_v1.blend` 因此没有掩码通道，探头 `--expect wired` 判 **FAIL（patterns=1，分开 0）**——
+探头的判据是对的，错的是「我以为我在跑 main 的代码」。
+
+`m02_rebuild_scene_v3.py` 已被 `evidence/1:d2950f36…` 的 artifacts 哈希过，**不能改**；
+所以这里用「先按指定树导入并占住 `sys.modules`，再 runpy 那个脚本」的方式换树：
+脚本里那句 `from mmdpipe import stage` 会命中缓存，拿到的就是我指定树里的模块。
+
+三道自证，缺一条这次重建就不该被引用：
+1. 打印 `mmdpipe.stage.__file__` 与 `mmdpipe.mask.__file__`（若存在）；
+2. 断言 `stage.__file__` 在 `MMDPIPE_TREE` 之下——**不是的话直接退出，不出 .blend**；
+3. 打印 `stage.py` / `mask.py` 的 sha256，报告里引这个 sha，而不是引「main」这个词。
+
+**这三道同时写进产物**（不只是 stdout，`D-20261116-147`）：`<out_dir>\\build_identity_<时间>.json`。
+理由：三个月后有人只读产物时，也得能看出那一次跑的是哪棵树、哪个 sha。文件在**开跑之前**就写一次
+（崩了也留得下），跑完再补一个 `outcome`。
+
+`M02_BUILD_DRYRUN=1` 只写身份记录、不跑重建（用来验这一层本身）。
+"""
+import hashlib
+import json
+import os
+import runpy
+import sys
+import time
+
+TREE = os.environ.get("MMDPIPE_TREE") or r"E:\dsh pr\woker2"
+V3 = r"E:\dsh pr\woker2\reports\subai\M02\scripts\m02_rebuild_scene_v3.py"
+
+
+def sha256_file(path):
+    h = hashlib.sha256()
+    with open(path, "rb") as fh:
+        for chunk in iter(lambda: fh.read(1 << 20), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def norm(path):
+    return os.path.normcase(os.path.abspath(path))
+
+
+def write_json(path, rec):
+    """原子写：先写 .tmp 再 replace，避免半截 JSON 被后来者当成一份记录。"""
+    tmp = path + ".tmp"
+    with open(tmp, "w", encoding="utf-8", newline="\n") as fh:
+        json.dump(rec, fh, ensure_ascii=False, indent=1, sort_keys=True)
+        fh.write("\n")
+    os.replace(tmp, path)
+
+
+def main():
+    argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
+    out_dir = argv[2] if len(argv) > 2 else "."
+    stamp = time.strftime("%Y%m%d_%H%M%S")
+    ident_path = os.path.join(out_dir, "build_identity_%s.json" % stamp)
+    rec = {
+        "tool": "m02_build_delivery",
+        "started_at": time.strftime("%Y-%m-%dT%H:%M:%S%z"),
+        "mmdpipe_tree_env": os.environ.get("MMDPIPE_TREE"),
+        "tree": TREE,
+        "argv": argv,
+        "python": sys.version.split()[0],
+        "wrapper": os.path.abspath(__file__),
+        "wrapper_sha256": sha256_file(os.path.abspath(__file__)),
+        "v3_script": V3,
+        "v3_sha256": sha256_file(V3) if os.path.exists(V3) else None,
+    }
+    try:
+        import bpy  # noqa: F401  —— 只为了把 Blender 版本也记进去
+        rec["blender"] = ".".join(str(v) for v in bpy.app.version)
+    except Exception:                                   # noqa: BLE001 — 不在 Blender 里也能写记录
+        rec["blender"] = None
+
+    sys.path.insert(0, TREE)
+    from mmdpipe import stage  # noqa: E402   —— 先按指定树导入并占住 sys.modules
+
+    stage_path = stage.__file__
+    inside = norm(stage_path).startswith(norm(TREE) + os.sep)
+    rec["stage_file"] = stage_path
+    rec["stage_sha256"] = sha256_file(stage_path)
+    rec["stage_inside_tree"] = inside
+    print("MMDPIPE_TREE = %s" % TREE)
+    print("stage.py     = %s" % stage_path)
+    print("stage.py sha = %s" % rec["stage_sha256"])
+    try:
+        from mmdpipe import mask as mask_mod  # noqa: E402
+        rec["mask_file"] = mask_mod.__file__
+        rec["mask_sha256"] = sha256_file(mask_mod.__file__)
+        print("mask.py      = %s" % rec["mask_file"])
+        print("mask.py  sha = %s" % rec["mask_sha256"])
+    except ImportError:
+        rec["mask_file"] = None
+        rec["mask_sha256"] = None
+        print("mask.py      = 不存在（这棵树没有掩码通道）")
+
+    write_json(ident_path, rec)          # 开跑之前先落一份：崩了也留得下
+    print("IDENTITY 记录 = %s" % ident_path)
+
+    if not inside:
+        rec["outcome"] = "aborted:stage_outside_tree"
+        write_json(ident_path, rec)
+        print("ABORT 导入的 stage.py 不在 MMDPIPE_TREE 之下——拒绝出 .blend")
+        return 2
+
+    if os.environ.get("M02_BUILD_DRYRUN") == "1":
+        rec["outcome"] = "dryrun:身份记录已写，未跑重建"
+        write_json(ident_path, rec)
+        print("DRYRUN 只写了身份记录，没有跑重建")
+        return 0
+
+    rec["outcome"] = "started"
+    write_json(ident_path, rec)
+    try:
+        sys.argv = [V3] + ["--"] + argv
+        runpy.run_path(V3, run_name="__main__")
+        rec["outcome"] = "completed"
+    except SystemExit as exc:
+        # v3 自己调 `sys.exit(0)` 是正常收工；非 0 才是它判了「不能出」
+        code = exc.code
+        rec["outcome"] = "sys_exit:%r" % (code,)
+        if code not in (0, None):
+            rec["finished_at"] = time.strftime("%Y-%m-%dT%H:%M:%S%z")
+            write_json(ident_path, rec)
+            raise
+    except BaseException as exc:                    # noqa: BLE001 — 任何异常都要进记录再抛
+        rec["outcome"] = "raised:%s" % type(exc).__name__
+        rec["error"] = str(exc)[:2000]
+        rec["finished_at"] = time.strftime("%Y-%m-%dT%H:%M:%S%z")
+        write_json(ident_path, rec)
+        raise
+    rec["finished_at"] = time.strftime("%Y-%m-%dT%H:%M:%S%z")
+    write_json(ident_path, rec)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

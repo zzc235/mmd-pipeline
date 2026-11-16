@@ -1,0 +1,73 @@
+{
+ "new_x_rad": {
+  "as_float32": 0.699999988079071,
+  "requested": 0.7
+ },
+ "only_rot_x_changed": {
+  "changed_byte_count": 108,
+  "changed_byte_offsets": [
+   3264144,
+   3264156,
+   3264283,
+   3264295,
+   3264422,
+   3264434,
+   3264561,
+   3264573,
+   3264700,
+   3264712,
+   3264839,
+   3264851,
+   3264978,
+   3264990,
+   3265117,
+   3265129,
+   3265256,
+   3265268,
+   3265395,
+   3265407,
+   3265538,
+   3265550,
+   3265681,
+   3265693,
+   3265824,
+   3265836,
+   3265967,
+   3265979,
+   3266110,
+   3266122,
+   3266253,
+   3266265,
+   3266396,
+   3266408,
+   3266539,
+   3266551
+  ],
+  "note": "每字段窗口 4 字节；-1.5708 → -0.7 在内存里是 f9 0f c9 bf → 33 33 33 bf，最高字节（符号+指数，0xBF）恰好相同，故实际差异 3 字节/字段：18×2×3=108。窗口上界 144 只是「4 字节全变」的极限，不是漏改",
+  "pass": true,
+  "unexpected_bytes": [],
+  "window_byte_count_upper_bound": 144
+ },
+ "output": {
+  "bytes": 3316950,
+  "path": "E:\\dsh pr\\woker2\\out\\subai\\M02\\飞霄_s2_x07.pmx",
+  "sha256": "d7d507801dc0ec10c093f70cf7e07794a1fee5b257da39ff9642d7e8a44f547e"
+ },
+ "reparse": {
+  "field_exact_targets": 18,
+  "field_mismatch": [],
+  "file_length_equal": true,
+  "non_target_joints_byte_identical": true,
+  "tail_error": null,
+  "targets_with_exact_new_limits": true
+ },
+ "source": {
+  "path": "E:\\blender模型\\没有外套本家模型\\星穹铁道—飞霄（无外套）.pmx",
+  "sha256_after": "2db720a2281a9ea954082fc4d7f42f0d50a6ca72235d345566fbf5a28549a267",
+  "sha256_before": "2db720a2281a9ea954082fc4d7f42f0d50a6ca72235d345566fbf5a28549a267",
+  "unchanged": true
+ },
+ "stage": "B-offline",
+ "targets": 18,
+ "task": "M02"
+}

@@ -1,0 +1,990 @@
+{
+ "a_dir": "E:\\dsh pr\\woker2\\out\\subai\\M02\\s8\\P0",
+ "b_dir": "E:\\dsh pr\\woker2\\out\\subai\\M02\\s8\\P10",
+ "criterion": {
+  "primary_set": "s2_targets.json 的 18 根下摆骨",
+  "threshold_m": 0.001
+ },
+ "distribution_hem_m": {
+  "max": 0.005714589,
+  "nonzero_frames": 235,
+  "p50": 0.000186495,
+  "p95": 0.00420817,
+  "p99": 0.004616009
+ },
+ "label": "P0 vs P10 (只隔离 11 个占位刚体)",
+ "main": {
+  "D_all_m": 1.652268506,
+  "D_hem_m": 0.005714589,
+  "first_frame_over_1mm_hem": null,
+  "frames": 240,
+  "hem_bones_missing": [],
+  "hem_objects": 18,
+  "max_at_frame_all": 61,
+  "objects": 324
+ },
+ "per_frame_hem_m": [
+  {
+   "frame": 1,
+   "max_hem_m": 0.0
+  },
+  {
+   "frame": 2,
+   "max_hem_m": 0.0
+  },
+  {
+   "frame": 3,
+   "max_hem_m": 0.0
+  },
+  {
+   "frame": 4,
+   "max_hem_m": 0.0
+  },
+  {
+   "frame": 5,
+   "max_hem_m": 0.0
+  },
+  {
+   "frame": 6,
+   "max_hem_m": 1.5524e-05
+  },
+  {
+   "frame": 7,
+   "max_hem_m": 9.0388e-05
+  },
+  {
+   "frame": 8,
+   "max_hem_m": 0.000293437
+  },
+  {
+   "frame": 9,
+   "max_hem_m": 0.000215116
+  },
+  {
+   "frame": 10,
+   "max_hem_m": 0.000282492
+  },
+  {
+   "frame": 11,
+   "max_hem_m": 0.000230098
+  },
+  {
+   "frame": 12,
+   "max_hem_m": 0.000219977
+  },
+  {
+   "frame": 13,
+   "max_hem_m": 0.000415742
+  },
+  {
+   "frame": 14,
+   "max_hem_m": 0.000218705
+  },
+  {
+   "frame": 15,
+   "max_hem_m": 0.000366519
+  },
+  {
+   "frame": 16,
+   "max_hem_m": 0.00057187
+  },
+  {
+   "frame": 17,
+   "max_hem_m": 0.001463684
+  },
+  {
+   "frame": 18,
+   "max_hem_m": 0.002528791
+  },
+  {
+   "frame": 19,
+   "max_hem_m": 0.000747278
+  },
+  {
+   "frame": 20,
+   "max_hem_m": 0.000326038
+  },
+  {
+   "frame": 21,
+   "max_hem_m": 0.000608714
+  },
+  {
+   "frame": 22,
+   "max_hem_m": 0.000413186
+  },
+  {
+   "frame": 23,
+   "max_hem_m": 0.000160443
+  },
+  {
+   "frame": 24,
+   "max_hem_m": 0.000467476
+  },
+  {
+   "frame": 25,
+   "max_hem_m": 0.000395471
+  },
+  {
+   "frame": 26,
+   "max_hem_m": 0.000594761
+  },
+  {
+   "frame": 27,
+   "max_hem_m": 0.000666964
+  },
+  {
+   "frame": 28,
+   "max_hem_m": 0.002797233
+  },
+  {
+   "frame": 29,
+   "max_hem_m": 0.003810388
+  },
+  {
+   "frame": 30,
+   "max_hem_m": 0.002831071
+  },
+  {
+   "frame": 31,
+   "max_hem_m": 0.003032126
+  },
+  {
+   "frame": 32,
+   "max_hem_m": 0.002463533
+  },
+  {
+   "frame": 33,
+   "max_hem_m": 0.003173993
+  },
+  {
+   "frame": 34,
+   "max_hem_m": 0.00389581
+  },
+  {
+   "frame": 35,
+   "max_hem_m": 0.00391025
+  },
+  {
+   "frame": 36,
+   "max_hem_m": 0.004579751
+  },
+  {
+   "frame": 37,
+   "max_hem_m": 0.001976554
+  },
+  {
+   "frame": 38,
+   "max_hem_m": 0.001357876
+  },
+  {
+   "frame": 39,
+   "max_hem_m": 0.001302848
+  },
+  {
+   "frame": 40,
+   "max_hem_m": 0.002187197
+  },
+  {
+   "frame": 41,
+   "max_hem_m": 0.002084839
+  },
+  {
+   "frame": 42,
+   "max_hem_m": 0.001300762
+  },
+  {
+   "frame": 43,
+   "max_hem_m": 0.001711928
+  },
+  {
+   "frame": 44,
+   "max_hem_m": 0.00109723
+  },
+  {
+   "frame": 45,
+   "max_hem_m": 0.000888077
+  },
+  {
+   "frame": 46,
+   "max_hem_m": 0.001247967
+  },
+  {
+   "frame": 47,
+   "max_hem_m": 0.001442959
+  },
+  {
+   "frame": 48,
+   "max_hem_m": 0.000830168
+  },
+  {
+   "frame": 49,
+   "max_hem_m": 0.001071352
+  },
+  {
+   "frame": 50,
+   "max_hem_m": 0.00098262
+  },
+  {
+   "frame": 51,
+   "max_hem_m": 0.000818546
+  },
+  {
+   "frame": 52,
+   "max_hem_m": 0.001198242
+  },
+  {
+   "frame": 53,
+   "max_hem_m": 0.001169773
+  },
+  {
+   "frame": 54,
+   "max_hem_m": 0.00144835
+  },
+  {
+   "frame": 55,
+   "max_hem_m": 0.004093737
+  },
+  {
+   "frame": 56,
+   "max_hem_m": 0.004503509
+  },
+  {
+   "frame": 57,
+   "max_hem_m": 0.004152151
+  },
+  {
+   "frame": 58,
+   "max_hem_m": 0.004387681
+  },
+  {
+   "frame": 59,
+   "max_hem_m": 0.004435079
+  },
+  {
+   "frame": 60,
+   "max_hem_m": 0.004203104
+  },
+  {
+   "frame": 61,
+   "max_hem_m": 0.004369889
+  },
+  {
+   "frame": 62,
+   "max_hem_m": 0.004899287
+  },
+  {
+   "frame": 63,
+   "max_hem_m": 0.003243023
+  },
+  {
+   "frame": 64,
+   "max_hem_m": 0.001014988
+  },
+  {
+   "frame": 65,
+   "max_hem_m": 0.002075103
+  },
+  {
+   "frame": 66,
+   "max_hem_m": 0.001792194
+  },
+  {
+   "frame": 67,
+   "max_hem_m": 0.001813993
+  },
+  {
+   "frame": 68,
+   "max_hem_m": 0.001712813
+  },
+  {
+   "frame": 69,
+   "max_hem_m": 0.003404008
+  },
+  {
+   "frame": 70,
+   "max_hem_m": 0.004304431
+  },
+  {
+   "frame": 71,
+   "max_hem_m": 0.004077008
+  },
+  {
+   "frame": 72,
+   "max_hem_m": 0.004609887
+  },
+  {
+   "frame": 73,
+   "max_hem_m": 0.003693021
+  },
+  {
+   "frame": 74,
+   "max_hem_m": 0.004312042
+  },
+  {
+   "frame": 75,
+   "max_hem_m": 0.00461001
+  },
+  {
+   "frame": 76,
+   "max_hem_m": 0.004619844
+  },
+  {
+   "frame": 77,
+   "max_hem_m": 0.005714589
+  },
+  {
+   "frame": 78,
+   "max_hem_m": 0.002569531
+  },
+  {
+   "frame": 79,
+   "max_hem_m": 0.003079899
+  },
+  {
+   "frame": 80,
+   "max_hem_m": 0.003080671
+  },
+  {
+   "frame": 81,
+   "max_hem_m": 0.002632777
+  },
+  {
+   "frame": 82,
+   "max_hem_m": 0.002317201
+  },
+  {
+   "frame": 83,
+   "max_hem_m": 0.001850032
+  },
+  {
+   "frame": 84,
+   "max_hem_m": 0.001611431
+  },
+  {
+   "frame": 85,
+   "max_hem_m": 0.001399794
+  },
+  {
+   "frame": 86,
+   "max_hem_m": 0.000929097
+  },
+  {
+   "frame": 87,
+   "max_hem_m": 0.000773876
+  },
+  {
+   "frame": 88,
+   "max_hem_m": 0.000772785
+  },
+  {
+   "frame": 89,
+   "max_hem_m": 0.00087125
+  },
+  {
+   "frame": 90,
+   "max_hem_m": 0.00079502
+  },
+  {
+   "frame": 91,
+   "max_hem_m": 0.000740488
+  },
+  {
+   "frame": 92,
+   "max_hem_m": 0.000506072
+  },
+  {
+   "frame": 93,
+   "max_hem_m": 0.000635862
+  },
+  {
+   "frame": 94,
+   "max_hem_m": 0.000474091
+  },
+  {
+   "frame": 95,
+   "max_hem_m": 0.000476686
+  },
+  {
+   "frame": 96,
+   "max_hem_m": 0.000530432
+  },
+  {
+   "frame": 97,
+   "max_hem_m": 0.000397087
+  },
+  {
+   "frame": 98,
+   "max_hem_m": 0.000436645
+  },
+  {
+   "frame": 99,
+   "max_hem_m": 0.000462639
+  },
+  {
+   "frame": 100,
+   "max_hem_m": 0.000395182
+  },
+  {
+   "frame": 101,
+   "max_hem_m": 0.00042524
+  },
+  {
+   "frame": 102,
+   "max_hem_m": 0.000351797
+  },
+  {
+   "frame": 103,
+   "max_hem_m": 0.000319917
+  },
+  {
+   "frame": 104,
+   "max_hem_m": 0.000350912
+  },
+  {
+   "frame": 105,
+   "max_hem_m": 0.000339084
+  },
+  {
+   "frame": 106,
+   "max_hem_m": 0.000423729
+  },
+  {
+   "frame": 107,
+   "max_hem_m": 0.000509437
+  },
+  {
+   "frame": 108,
+   "max_hem_m": 0.000535168
+  },
+  {
+   "frame": 109,
+   "max_hem_m": 0.000512008
+  },
+  {
+   "frame": 110,
+   "max_hem_m": 0.000485928
+  },
+  {
+   "frame": 111,
+   "max_hem_m": 0.000437242
+  },
+  {
+   "frame": 112,
+   "max_hem_m": 0.00040138
+  },
+  {
+   "frame": 113,
+   "max_hem_m": 0.000396196
+  },
+  {
+   "frame": 114,
+   "max_hem_m": 0.000393937
+  },
+  {
+   "frame": 115,
+   "max_hem_m": 0.000374259
+  },
+  {
+   "frame": 116,
+   "max_hem_m": 0.000379248
+  },
+  {
+   "frame": 117,
+   "max_hem_m": 0.000382386
+  },
+  {
+   "frame": 118,
+   "max_hem_m": 0.000198857
+  },
+  {
+   "frame": 119,
+   "max_hem_m": 0.000162096
+  },
+  {
+   "frame": 120,
+   "max_hem_m": 0.000153235
+  },
+  {
+   "frame": 121,
+   "max_hem_m": 0.000134198
+  },
+  {
+   "frame": 122,
+   "max_hem_m": 0.000138744
+  },
+  {
+   "frame": 123,
+   "max_hem_m": 0.000174092
+  },
+  {
+   "frame": 124,
+   "max_hem_m": 0.000244886
+  },
+  {
+   "frame": 125,
+   "max_hem_m": 0.000251038
+  },
+  {
+   "frame": 126,
+   "max_hem_m": 0.000174548
+  },
+  {
+   "frame": 127,
+   "max_hem_m": 6.8264e-05
+  },
+  {
+   "frame": 128,
+   "max_hem_m": 5.3141e-05
+  },
+  {
+   "frame": 129,
+   "max_hem_m": 8.375e-05
+  },
+  {
+   "frame": 130,
+   "max_hem_m": 0.000130054
+  },
+  {
+   "frame": 131,
+   "max_hem_m": 0.000180502
+  },
+  {
+   "frame": 132,
+   "max_hem_m": 0.000201854
+  },
+  {
+   "frame": 133,
+   "max_hem_m": 0.000218986
+  },
+  {
+   "frame": 134,
+   "max_hem_m": 0.000252184
+  },
+  {
+   "frame": 135,
+   "max_hem_m": 0.000256864
+  },
+  {
+   "frame": 136,
+   "max_hem_m": 0.000242565
+  },
+  {
+   "frame": 137,
+   "max_hem_m": 0.000254986
+  },
+  {
+   "frame": 138,
+   "max_hem_m": 0.000230109
+  },
+  {
+   "frame": 139,
+   "max_hem_m": 0.00018877
+  },
+  {
+   "frame": 140,
+   "max_hem_m": 0.00018422
+  },
+  {
+   "frame": 141,
+   "max_hem_m": 0.000142808
+  },
+  {
+   "frame": 142,
+   "max_hem_m": 9.0383e-05
+  },
+  {
+   "frame": 143,
+   "max_hem_m": 7.5452e-05
+  },
+  {
+   "frame": 144,
+   "max_hem_m": 6.9318e-05
+  },
+  {
+   "frame": 145,
+   "max_hem_m": 6.5924e-05
+  },
+  {
+   "frame": 146,
+   "max_hem_m": 6.319e-05
+  },
+  {
+   "frame": 147,
+   "max_hem_m": 6.3514e-05
+  },
+  {
+   "frame": 148,
+   "max_hem_m": 8.2517e-05
+  },
+  {
+   "frame": 149,
+   "max_hem_m": 6.9836e-05
+  },
+  {
+   "frame": 150,
+   "max_hem_m": 8.7321e-05
+  },
+  {
+   "frame": 151,
+   "max_hem_m": 0.000109389
+  },
+  {
+   "frame": 152,
+   "max_hem_m": 9.4027e-05
+  },
+  {
+   "frame": 153,
+   "max_hem_m": 0.000109366
+  },
+  {
+   "frame": 154,
+   "max_hem_m": 0.000133162
+  },
+  {
+   "frame": 155,
+   "max_hem_m": 0.000110585
+  },
+  {
+   "frame": 156,
+   "max_hem_m": 9.8173e-05
+  },
+  {
+   "frame": 157,
+   "max_hem_m": 9.6115e-05
+  },
+  {
+   "frame": 158,
+   "max_hem_m": 6.0341e-05
+  },
+  {
+   "frame": 159,
+   "max_hem_m": 4.2367e-05
+  },
+  {
+   "frame": 160,
+   "max_hem_m": 5.6356e-05
+  },
+  {
+   "frame": 161,
+   "max_hem_m": 3.5454e-05
+  },
+  {
+   "frame": 162,
+   "max_hem_m": 2.7911e-05
+  },
+  {
+   "frame": 163,
+   "max_hem_m": 5.4443e-05
+  },
+  {
+   "frame": 164,
+   "max_hem_m": 5.5955e-05
+  },
+  {
+   "frame": 165,
+   "max_hem_m": 5.9983e-05
+  },
+  {
+   "frame": 166,
+   "max_hem_m": 5.4443e-05
+  },
+  {
+   "frame": 167,
+   "max_hem_m": 6.4668e-05
+  },
+  {
+   "frame": 168,
+   "max_hem_m": 8.1646e-05
+  },
+  {
+   "frame": 169,
+   "max_hem_m": 6.7007e-05
+  },
+  {
+   "frame": 170,
+   "max_hem_m": 7.2353e-05
+  },
+  {
+   "frame": 171,
+   "max_hem_m": 8.4036e-05
+  },
+  {
+   "frame": 172,
+   "max_hem_m": 5.8686e-05
+  },
+  {
+   "frame": 173,
+   "max_hem_m": 5.7341e-05
+  },
+  {
+   "frame": 174,
+   "max_hem_m": 6.0183e-05
+  },
+  {
+   "frame": 175,
+   "max_hem_m": 4.2732e-05
+  },
+  {
+   "frame": 176,
+   "max_hem_m": 3.7417e-05
+  },
+  {
+   "frame": 177,
+   "max_hem_m": 4.1773e-05
+  },
+  {
+   "frame": 178,
+   "max_hem_m": 4.1773e-05
+  },
+  {
+   "frame": 179,
+   "max_hem_m": 3.838e-05
+  },
+  {
+   "frame": 180,
+   "max_hem_m": 4.0817e-05
+  },
+  {
+   "frame": 181,
+   "max_hem_m": 5.7775e-05
+  },
+  {
+   "frame": 182,
+   "max_hem_m": 5.6116e-05
+  },
+  {
+   "frame": 183,
+   "max_hem_m": 4.6141e-05
+  },
+  {
+   "frame": 184,
+   "max_hem_m": 7.1365e-05
+  },
+  {
+   "frame": 185,
+   "max_hem_m": 6.5399e-05
+  },
+  {
+   "frame": 186,
+   "max_hem_m": 4.8083e-05
+  },
+  {
+   "frame": 187,
+   "max_hem_m": 5.1342e-05
+  },
+  {
+   "frame": 188,
+   "max_hem_m": 5.5955e-05
+  },
+  {
+   "frame": 189,
+   "max_hem_m": 4.134e-05
+  },
+  {
+   "frame": 190,
+   "max_hem_m": 3.7014e-05
+  },
+  {
+   "frame": 191,
+   "max_hem_m": 4.4654e-05
+  },
+  {
+   "frame": 192,
+   "max_hem_m": 3.6701e-05
+  },
+  {
+   "frame": 193,
+   "max_hem_m": 2.7221e-05
+  },
+  {
+   "frame": 194,
+   "max_hem_m": 5.004e-05
+  },
+  {
+   "frame": 195,
+   "max_hem_m": 2.8178e-05
+  },
+  {
+   "frame": 196,
+   "max_hem_m": 2.2825e-05
+  },
+  {
+   "frame": 197,
+   "max_hem_m": 5.1e-05
+  },
+  {
+   "frame": 198,
+   "max_hem_m": 3.4029e-05
+  },
+  {
+   "frame": 199,
+   "max_hem_m": 2.99e-05
+  },
+  {
+   "frame": 200,
+   "max_hem_m": 5.1e-05
+  },
+  {
+   "frame": 201,
+   "max_hem_m": 4.272e-05
+  },
+  {
+   "frame": 202,
+   "max_hem_m": 3.6592e-05
+  },
+  {
+   "frame": 203,
+   "max_hem_m": 5.1284e-05
+  },
+  {
+   "frame": 204,
+   "max_hem_m": 3.8445e-05
+  },
+  {
+   "frame": 205,
+   "max_hem_m": 2.6382e-05
+  },
+  {
+   "frame": 206,
+   "max_hem_m": 5.224e-05
+  },
+  {
+   "frame": 207,
+   "max_hem_m": 2.8178e-05
+  },
+  {
+   "frame": 208,
+   "max_hem_m": 2.2825e-05
+  },
+  {
+   "frame": 209,
+   "max_hem_m": 5.1962e-05
+  },
+  {
+   "frame": 210,
+   "max_hem_m": 2.8178e-05
+  },
+  {
+   "frame": 211,
+   "max_hem_m": 2.2825e-05
+  },
+  {
+   "frame": 212,
+   "max_hem_m": 5.1962e-05
+  },
+  {
+   "frame": 213,
+   "max_hem_m": 2.8178e-05
+  },
+  {
+   "frame": 214,
+   "max_hem_m": 2.3108e-05
+  },
+  {
+   "frame": 215,
+   "max_hem_m": 5.0735e-05
+  },
+  {
+   "frame": 216,
+   "max_hem_m": 2.8178e-05
+  },
+  {
+   "frame": 217,
+   "max_hem_m": 2.3108e-05
+  },
+  {
+   "frame": 218,
+   "max_hem_m": 5.1e-05
+  },
+  {
+   "frame": 219,
+   "max_hem_m": 2.8478e-05
+  },
+  {
+   "frame": 220,
+   "max_hem_m": 2.3108e-05
+  },
+  {
+   "frame": 221,
+   "max_hem_m": 5.1e-05
+  },
+  {
+   "frame": 222,
+   "max_hem_m": 2.8178e-05
+  },
+  {
+   "frame": 223,
+   "max_hem_m": 2.2825e-05
+  },
+  {
+   "frame": 224,
+   "max_hem_m": 5.1e-05
+  },
+  {
+   "frame": 225,
+   "max_hem_m": 2.8178e-05
+  },
+  {
+   "frame": 226,
+   "max_hem_m": 2.2825e-05
+  },
+  {
+   "frame": 227,
+   "max_hem_m": 5.1e-05
+  },
+  {
+   "frame": 228,
+   "max_hem_m": 2.8178e-05
+  },
+  {
+   "frame": 229,
+   "max_hem_m": 2.3791e-05
+  },
+  {
+   "frame": 230,
+   "max_hem_m": 5.1e-05
+  },
+  {
+   "frame": 231,
+   "max_hem_m": 2.7911e-05
+  },
+  {
+   "frame": 232,
+   "max_hem_m": 2.3791e-05
+  },
+  {
+   "frame": 233,
+   "max_hem_m": 5.1e-05
+  },
+  {
+   "frame": 234,
+   "max_hem_m": 2.7911e-05
+  },
+  {
+   "frame": 235,
+   "max_hem_m": 2.3791e-05
+  },
+  {
+   "frame": 236,
+   "max_hem_m": 5.224e-05
+  },
+  {
+   "frame": 237,
+   "max_hem_m": 2.7911e-05
+  },
+  {
+   "frame": 238,
+   "max_hem_m": 2.4062e-05
+  },
+  {
+   "frame": 239,
+   "max_hem_m": 5.224e-05
+  },
+  {
+   "frame": 240,
+   "max_hem_m": 2.7911e-05
+  }
+ ],
+ "stage": "E-s8",
+ "verdict": "EFFECTIVE"
+}

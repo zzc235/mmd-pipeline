@@ -1,0 +1,37 @@
+{
+ "armature": "星穹铁道—飞霄（无外套）_arm",
+ "bone_constraints_after": {
+  "by_type": {
+   "COPY_ROTATION": 264,
+   "COPY_TRANSFORMS": 31,
+   "DAMPED_TRACK": 4,
+   "IK": 4,
+   "LIMIT_ROTATION": 2,
+   "TRANSFORM": 32
+  },
+  "total": 337
+ },
+ "bone_constraints_before": {
+  "by_type": {
+   "COPY_TRANSFORMS": 31,
+   "DAMPED_TRACK": 4,
+   "IK": 4,
+   "LIMIT_ROTATION": 2,
+   "TRANSFORM": 32
+  },
+  "total": 73
+ },
+ "built_now": true,
+ "is_built_after": true,
+ "is_built_before": false,
+ "mmd_root": "星穹铁道—飞霄（无外套）",
+ "out_blend": "E:\\dsh pr\\woker2\\out\\subai\\M02\\blend\\prepared_baseline.blend",
+ "rigid_body_objects": 313,
+ "scene_frames": [
+  1,
+  240
+ ],
+ "source_blend": "E:\\dsh pr\\woker2\\out\\subai\\M02\\blend\\baseline.blend",
+ "stage": "C-prepare",
+ "task": "M02"
+}

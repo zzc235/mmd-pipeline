@@ -1,0 +1,43 @@
+{
+  "reportVersion": 1,
+  "taskId": "2026-11-01-disable-default-model",
+  "title": "禁用 dsh-subagent-default-model：官方 Claude Code 链路打通 + 普通 subagent 通道恢复",
+  "capturedAt": "2026-11-01T19:30:00+08:00",
+  "executor": "furina (dsh desktop 0.2.1-rc.3)",
+  "change": {
+    "file": "C:\\Users\\zzc\\.dsh\\profiles\\desktop\\cordis.patch.yml",
+    "bytesBefore": 11239,
+    "bytesAfter": 11963,
+    "sha256After": "94F68AA6B476A73E679FB6FAA287FB0634DD6A3B9A0C8CA06386236A0CA3C095",
+    "diff": "added 'disabled: true' to dsh-subagent-default-model entry + 7 comment lines",
+    "backup": "C:\\Users\\zzc\\.dsh\\profiles\\desktop\\cordis.patch.yml.bak_20261101_disable_defaultmodel",
+    "restartRequired": false,
+    "rollback": "delete the 'disabled: true' line (config block preserved)"
+  },
+  "state": {
+    "dshDefaultModel": { "enabled": false, "fiberPhase": null },
+    "claudeCodePlugin": { "enabled": true, "fiberPhase": "active" },
+    "subagentDefaultRoute": "inherit parent: deepseek-account/deepseek-flash"
+  },
+  "verification": [
+    { "probe": "subagent_claude_code", "result": "WORKER-OK", "subagent": "bf87fe04-6707-471b-a000-52e933f9b8e0" },
+    { "probe": "subagent", "result": "SUBAGENT-OK", "subagent": "d2cddb16-5ebe-434b-ae00-d92abcfbb327" }
+  ],
+  "untouched": [
+    "C:\\Users\\zzc\\.claude\\settings.json (read-only diagnosis)",
+    "C:\\Users\\zzc\\.claude.json (read-only)",
+    "claude code workspace / sessions / CLAUDE.md",
+    "~/.dsh/AGENTS.md",
+    "other plugin entries and profile package.json"
+  ],
+  "tradeoffs": {
+    "lost": ["free model pool round-robin", "cross-provider failover", "fork prefix-cache optimization"],
+    "gained": ["official subagent_claude_code works", "generic subagent worker channel works"],
+    "newRisk": "subagents share parent route; parent route outage takes subagents down with no failover"
+  },
+  "deliverables": [
+    { "path": "E:\\dsh pr\\woker2\\tools\\claude-worker.ps1", "note": "direct-call fallback, kept" },
+    { "path": "E:\\dsh pr\\woker2\\reports\\2026-11-01_disable-default-model_任务报告.md" }
+  ],
+  "openItems": ["free channels availability not re-checked", "upstream issue for capability-aware injection", "claude-code cost tracking on the same DeepSeek key"]
+}

@@ -1,0 +1,31 @@
+{
+ "api": "bpy.ops.ptcache.bake_all(bake=True)",
+ "bake_error": null,
+ "bodies": 324,
+ "cache_after_bake": {
+  "frame_end": 326,
+  "frame_start": 1,
+  "info": "326 frames in memory (2.9 MiB).",
+  "is_baked": true,
+  "is_outdated": false,
+  "use_disk_cache": false
+ },
+ "cache_before": {
+  "frame_end": 326,
+  "frame_start": 1,
+  "info": "240 frames in memory (2.1 MiB), cache is outdated!",
+  "is_baked": false,
+  "is_outdated": true,
+  "use_disk_cache": false
+ },
+ "dst": "E:\\dsh pr\\woker2\\out\\subai\\M02\\s8\\J_baked.blend",
+ "dst_sha256": "e22e03f5d3dee72547ab323f6e82ccb186a5f2592a569958ce5477a2af4f7980",
+ "elapsed_s": 33.19,
+ "mode": "bake",
+ "save_error": null,
+ "single_attempt": true,
+ "src": "E:\\dsh pr\\woker2\\out\\subai\\M02\\s8\\J_src.blend",
+ "src_sha256_after": "26f39baa86895269c385fc7f8cb9b28c66efe67f6c9ff1fffd561cf847e23801",
+ "src_sha256_before": "26f39baa86895269c385fc7f8cb9b28c66efe67f6c9ff1fffd561cf847e23801",
+ "src_untouched": true
+}

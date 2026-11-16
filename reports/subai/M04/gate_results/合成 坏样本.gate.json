@@ -1,0 +1,70 @@
+{
+  "diagnosis_ref": null,
+  "evidence_mode": "synthetic",
+  "evidence_paths": [
+    "E:\\dsh pr\\woker2\\reports\\subai\\M04\\gate_results\\合成 坏样本.json"
+  ],
+  "failed_gates": [
+    "frozen",
+    "overshoot",
+    "penetration"
+  ],
+  "gate_results": {
+    "frozen": {
+      "evidence": {
+        "consecutive_frames": 60,
+        "frames": 120,
+        "min_consecutive_frames": 5,
+        "parent_delta_deg": 66.41,
+        "parent_delta_min_deg": 15.0,
+        "target_delta_deg": 0.0,
+        "target_delta_max_deg": 1.0
+      },
+      "gate": "frozen",
+      "missing": [],
+      "reason": "父链动 66.410° 而目标只动 0.000°，连续 60 帧：判冻结",
+      "status": "FAIL"
+    },
+    "overshoot": {
+      "evidence": {
+        "bones": 420,
+        "frames": 120,
+        "max_abs_floor_deg": 200.0,
+        "max_deg": 638.0,
+        "median_deg": 46.3,
+        "p95_deg": 242.0,
+        "p95_max_deg": 120.0,
+        "spike_count": 17,
+        "spike_count_max": 3
+      },
+      "gate": "overshoot",
+      "missing": [],
+      "reason": "p95 242.000° > 120.000° 且峰值 638.000° 超过绝对下限 200.000°",
+      "status": "FAIL"
+    },
+    "penetration": {
+      "evidence": {
+        "bones": 11,
+        "epsilon_m": 0.02,
+        "frames": 31,
+        "max_depth_m": -0.202,
+        "roi": "row11",
+        "sign_convention": "negative_depth_is_penetration"
+      },
+      "gate": "penetration",
+      "missing": [],
+      "reason": "ROI row11 最深穿入 -0.2020 m，超过 epsilon 0.0200 m",
+      "status": "FAIL"
+    }
+  },
+  "gate_version": "physics_gate/1",
+  "profile_id": "exploratory_v0",
+  "profile_status": "exploratory",
+  "sample_id": "synthetic-bad",
+  "status": "FAIL",
+  "threshold_version": "pg/0.1-exploratory",
+  "unknown_gates": [],
+  "warnings": [
+    "profile_status=exploratory：阈值未经生产标定，结论只能当探索性证据"
+  ]
+}

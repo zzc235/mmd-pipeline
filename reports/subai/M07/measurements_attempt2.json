@@ -1,0 +1,143 @@
+{
+  "task": "M07",
+  "attempt": 2,
+  "head": "d059a7fffad11ddce7ca01823cbd6ed11cf516dd",
+  "base_main_tip": "35b31b87b1f4a78479eadd534a3ec8ae655bd0ad",
+  "base_note": "main 在写报告期间从 4d033e4a 前进到 35b31b87；三点式差集恒为 5 文件，覆盖闸门 5 == 5",
+  "measured_at": "2026-11-16T13:19+08:00",
+  "blender": "5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:37:04)",
+  "D_build": {
+    "exit": 0,
+    "seconds": 2.24,
+    "validate_output": "Success parsing TOML",
+    "staged_files": 42,
+    "zip_bytes": 144742,
+    "zip_sha256": "981ce1a38229ab2878bb087c9e7b6c9f8aa1700ce5b0d09fb8f501f3d5a7d21f",
+    "previous_zip_bytes": 144495,
+    "previous_zip_sha256": "1a6d6f80915302601b2ac7ee1a274ebffa63095a597c30f77c9cea1468312918",
+    "package_entries": 42,
+    "package_entries_equal_to_head": 42,
+    "package_content_digest": "47288fd51fb9154d2b64d78300322d8250f6c309786c277e8ea01abaeb28a883"
+  },
+  "D_reject": {
+    "input": "staged copy with unclosed quote in blender_manifest.toml",
+    "exit": 1,
+    "seconds": 0.99,
+    "message": "Error parsing TOML / Invalid statement (at line 1, column 1)",
+    "zip_artifacts": 0
+  },
+  "E_isolated": {
+    "env": "BLENDER_USER_EXTENSIONS=<TEMP>\\m07_ext",
+    "extensions_user_resource": "C:\\Users\\zzc\\AppData\\Local\\Temp\\m07_ext",
+    "install_exit": 0,
+    "install_status": "Installed \"mmd_pipeline\"",
+    "install_seconds": 1.19,
+    "smoke_exit": 0,
+    "smoke_checks_passed": 8,
+    "smoke_checks_failed": 0,
+    "smoke_seconds": 1.17,
+    "global_dir_mtime_unchanged": true,
+    "global_entry_sha256_unchanged": true,
+    "userpref_mtime_unchanged": true
+  },
+  "E_global_side_effects": {
+    "note": "first two installs (13:09:52 and 13:14:26) did NOT isolate; they wrote the user's real extension dir and prefs",
+    "global_install_path": "%APPDATA%\\Blender Foundation\\Blender\\5.2\\extensions\\user_default\\mmd_pipeline",
+    "global_version": "1.3.0",
+    "global_entry_sha256": "973c531a1f0a66d05d9974e2cd0676b532bebb7b4f7a4a82b5b32d8966b68de2",
+    "userpref_mtime": "2026-11-16T13:14:26.8869788+08:00",
+    "userpref_enabled_entry_occurrences": 1,
+    "userpref_mmd_tools_occurrences": 0,
+    "reverted": false,
+    "options": ["keep_current_1_3_0", "remove_package", "restore_1_2_0"]
+  },
+  "F_e2e": [
+    {
+      "entry": "tests_bpy/run_e2e.py (repo scaffold)",
+      "started": "2026-11-16T13:16:56+08:00",
+      "exit": 0,
+      "seconds": 16.51,
+      "stages_passed": 15,
+      "stages_failed": 0,
+      "png_frames": 12,
+      "png_list_digest": "f05f2d943a17606310b7ee9d720c1a99fc6fcf7dbb984b58fb6e8a3a21bb7cfd",
+      "mp4_bytes": 27600,
+      "mp4_sha256": "b985a15d2ea90bfd13ac28b04831415f4fb514c100851e5acbee59cf11e2f99c",
+      "width": 720,
+      "height": 576,
+      "r_frame_rate": "30/1",
+      "duration": 0.4,
+      "nb_read_frames": 12,
+      "run_id": "20261116_131656"
+    },
+    {
+      "entry": "<TEMP>\\m07_repo_e\\user_default\\mmd_pipeline\\run_pipeline.py (installed package)",
+      "started": "2026-11-16T13:18:30+08:00",
+      "exit": 0,
+      "seconds": 16.1,
+      "stages_passed": 15,
+      "stages_failed": 0,
+      "png_frames": 12,
+      "png_list_digest": "2a8dbff62ba7525e78fc028c5fd1e52974aeaf6e32934a2d24b311347b01b88b",
+      "mp4_bytes": 27675,
+      "mp4_sha256": "6798bcd8aeb89643da5de10bdbcd1ba388cd340a10666f69cfb96890792f2734",
+      "width": 720,
+      "height": 576,
+      "r_frame_rate": "30/1",
+      "duration": 0.4,
+      "nb_read_frames": 12,
+      "run_id": "20261116_131830"
+    }
+  ],
+  "F_reproducibility": {
+    "byte_reproducible": false,
+    "evidence": "same entry twice: png list digests differ (f05f2d94 vs 2a8dbff6), mp4 27600 vs 27675 bytes",
+    "stable_across_runs": ["stage sequence and PASS set", "png_frames=12", "720x576", "30/1", "duration 0.4s", "nb_read_frames=12"]
+  },
+  "F_controlled_failure": [
+    {
+      "entry": "run_pipeline.py (repo)",
+      "exit": 1,
+      "pipeline_exit": 1,
+      "final_exists": false,
+      "state_exists": false
+    },
+    {
+      "entry": "installed package run_pipeline.py",
+      "exit": 1,
+      "pipeline_exit": 1,
+      "final_exists": false,
+      "state_exists": false
+    }
+  ],
+  "F_isolation_collision": {
+    "scenario": "packaged entry run with BLENDER_USER_EXTENSIONS pointed at temp repo",
+    "exit": 2,
+    "blocked_stage": "S2_import",
+    "detail": "E-16 PMX 导入失败：Calling operator bpy.ops.mmd_tools.import_model error, could not be found",
+    "png_frames": 0,
+    "cause": "temp repo shadows the real user_default repo, so mmd_tools is not visible"
+  },
+  "tests": {
+    "cmd": "python -m unittest discover -s tests -t tests -p test_*.py",
+    "exit": 0,
+    "passed": 242,
+    "failed": 0,
+    "skipped": 15,
+    "seconds": 16.37
+  },
+  "lock_windows_seconds": [
+    {"window": "D rebuild", "from": "13:14:08", "to": "13:14:10", "seconds": 2.5},
+    {"window": "E first (not isolated)", "from": "13:14:25", "to": "13:14:28", "seconds": 2.6},
+    {"window": "E isolated", "from": "13:15:43", "to": "13:15:47", "seconds": 3.6},
+    {"window": "D reject", "from": "13:16:06", "to": "13:16:08", "seconds": 1.3},
+    {"window": "F repo entry + controlled failure", "from": "13:16:54", "to": "13:17:12", "seconds": 17.8},
+    {"window": "E+F continuous (F failed per isolation collision)", "from": "13:17:46", "to": "13:17:51", "seconds": 4.8},
+    {"window": "F installed package entry", "from": "13:18:28", "to": "13:18:45", "seconds": 16.6}
+  ],
+  "lock_total_seconds": 49.2,
+  "source_sha256": {
+    "pmx": "287a55563c5ec027127ce7289a022bddffac4cf4a67f175301de35e36de51f0e",
+    "vmd": "a2e5f978ca2811c8c63ee57f5a0b33ea4d432a12d23d6c85cdf96db85f7754a0"
+  }
+}

@@ -46,3 +46,12 @@ out/
 /coordination/*.db-wal
 /coordination/*.db-shm
 /coordination/dispatch.json
+# 改造前快照里的 sqlite 副本不入库（二进制，且可由 `python -m coordination.sync_board`
+# 从 task_status.json 重建）；同目录的 snapshot_sha256.json 仍然入库，谁改过什么可查。
+/coordination/_snapshots/**/*.db
+
+# ---- 报告与证据（Human 2026-11-16 16:44 定：纳入 git；D-159 ③）----
+# 理由：被 evidence 引用的 artifact 不进版本控制，哈希就只能证明"那一刻的字节"，
+# 文件一改名/移走/改写就永久失效（known_limits.md 的 7ac68dd6… 就是这么没的）。
+# 体量：399 个文件 / 4.07 MB，最大单文件 190 KB，全部为文本（md/json/py/txt/ps1），无二进制。
+!/reports/

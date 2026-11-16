@@ -37,6 +37,20 @@ HASH_BASES = ("lf_normalized_v1",)
 COMMIT_RE = re.compile(r"^[0-9a-f]{7,40}$")
 # measurements 序列化后的字节上限（D-072）：超了就该拆成 artifact 文件
 MEASUREMENTS_LIMIT = 16 * 1024
+# 真值档（`14 号令 §3-I`）：这份数是在什么尺度上测出来的。**可选**——老记录不带它，
+# 加了也不改它们的哈希；带了就必须是枚举里的拼法（大小写不改，错一个字就拒）。
+#   T0 单元/合成  T1 真实小场景  T2 代表性逐帧  T3 交付尺度
+#   T_DESCRIPTIVE 只能描述、不能当结论（缓存回放读数就落这一档）
+TRUTH_TIERS = ("T0", "T1", "T2", "T3", "T_DESCRIPTIVE")
+TIER_MEANING = {
+    "T0": "单元/合成：证明逻辑，不证明场景",
+    "T1": "真实小场景：证明能跑通，不证明尺度",
+    "T2": "代表性逐帧：能出「结论级变化」",
+    "T3": "交付尺度：M08 只认这一档",
+    "T_DESCRIPTIVE": "只作描述：不得作为结论依据（含 cache_replay 读数）",
+}
+#: 只有这一档能进交付验收
+DELIVERY_TIER = "T3"
 
 
 class EvidenceError(ValueError):
@@ -210,6 +224,20 @@ def normalize(obj: dict) -> dict:
             raise EvidenceError("scope 必须是字符串或 null", "WRONG_SCOPE")
         scope = " ".join(scope.split()) or None
 
+    # truth_tier（14 号令 §3-I）：**可选**，枚举内逐字匹配。
+    # 为什么可选：162 条历史记录没有它，若设成必填，`check_file` 会把它们全判 exit 3
+    # ——迁移历史等于篡改历史（D-157 的教训）。不写 = 「这份记录没声明尺度」，
+    # 那本身就是可读的事实，而缺省的语义由闸门决定（M08 缺档即拒）。
+    truth_tier = obj.get("truth_tier")
+    if truth_tier is not None:
+        if not isinstance(truth_tier, str):
+            raise EvidenceError("truth_tier 必须是字符串或 null", "WRONG_TRUTH_TIER")
+        text = truth_tier.strip()
+        if text not in TRUTH_TIERS:
+            raise EvidenceError("truth_tier 只能是 %s；收到 %r（逐字匹配，大小写不改）"
+                                % (" / ".join(TRUTH_TIERS), truth_tier), "WRONG_TRUTH_TIER")
+        truth_tier = text
+
     normalized = {
         "spec": SPEC,
         "task_id": obj["task_id"],
@@ -229,6 +257,8 @@ def normalize(obj: dict) -> dict:
         normalized["commit"] = commit
     if scope is not None:
         normalized["scope"] = scope
+    if truth_tier is not None:
+        normalized["truth_tier"] = truth_tier
     return _check_floats(normalized)
 
 
@@ -264,7 +294,8 @@ REASON_UNREADABLE = "UNREADABLE"
 
 # 进哈希的顶层键（`normalize()` 之后能出现在 canonical 里的全部）
 HASHED_KEYS = ("spec", "task_id", "attempt", "status", "files", "tests", "artifacts",
-               "known_risks", "interface", "hash_basis", "measurements", "commit", "scope")
+               "known_risks", "interface", "hash_basis", "measurements", "commit", "scope",
+               "truth_tier")
 # `tests[]` 每行只有这五个字段进 canonical（行会被**重建**，其余字段被丢掉）。
 # `files[]` / `artifacts[]` 的行是**整行保留**的，多写字段会进哈希，所以不在此列。
 TESTS_KEYS = ("cmd", "exit", "passed", "failed", "skipped")

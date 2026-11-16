@@ -1,0 +1,218 @@
+{
+ "E:\\dsh pr\\woker2\\out\\subai\\M02\\blend\\B_from_blend1.blend": {
+  "bodies": 324,
+  "cache_frames": [
+   1,
+   326
+  ],
+  "exists": true,
+  "exit": 3,
+  "info": "240 frames in memory (2.1 MiB), cache is outdated!",
+  "is_baked": true,
+  "is_outdated": true,
+  "path": "E:\\dsh pr\\woker2\\out\\subai\\M02\\blend\\B_from_blend1.blend",
+  "reason": "回放（默认路径）与解烘焙重算会给出两条不同动画；产物要么重算后重新烘焙并保存（is_baked=true && is_outdated=false），要么不烘焙（is_baked=false）并在 handoff 写明首次 frame_set 会重算",
+  "verdict": "DEFECT_BAKED_OUTDATED"
+ },
+ "E:\\dsh pr\\woker2\\out\\subai\\M02\\blend\\B_x07.blend": {
+  "bodies": 324,
+  "cache_frames": [
+   1,
+   326
+  ],
+  "exists": true,
+  "exit": 3,
+  "info": "240 frames in memory (2.1 MiB), cache is outdated!",
+  "is_baked": true,
+  "is_outdated": true,
+  "path": "E:\\dsh pr\\woker2\\out\\subai\\M02\\blend\\B_x07.blend",
+  "reason": "回放（默认路径）与解烘焙重算会给出两条不同动画；产物要么重算后重新烘焙并保存（is_baked=true && is_outdated=false），要么不烘焙（is_baked=false）并在 handoff 写明首次 frame_set 会重算",
+  "verdict": "DEFECT_BAKED_OUTDATED"
+ },
+ "E:\\dsh pr\\woker2\\out\\subai\\M02\\blend\\B_y07.blend": {
+  "bodies": 324,
+  "cache_frames": [
+   1,
+   326
+  ],
+  "exists": true,
+  "exit": 3,
+  "info": "240 frames in memory (2.1 MiB), cache is outdated!",
+  "is_baked": true,
+  "is_outdated": true,
+  "path": "E:\\dsh pr\\woker2\\out\\subai\\M02\\blend\\B_y07.blend",
+  "reason": "回放（默认路径）与解烘焙重算会给出两条不同动画；产物要么重算后重新烘焙并保存（is_baked=true && is_outdated=false），要么不烘焙（is_baked=false）并在 handoff 写明首次 frame_set 会重算",
+  "verdict": "DEFECT_BAKED_OUTDATED"
+ },
+ "E:\\dsh pr\\woker2\\out\\subai\\M02\\blend\\B_z07.blend": {
+  "bodies": 324,
+  "cache_frames": [
+   1,
+   326
+  ],
+  "exists": true,
+  "exit": 3,
+  "info": "240 frames in memory (2.1 MiB), cache is outdated!",
+  "is_baked": true,
+  "is_outdated": true,
+  "path": "E:\\dsh pr\\woker2\\out\\subai\\M02\\blend\\B_z07.blend",
+  "reason": "回放（默认路径）与解烘焙重算会给出两条不同动画；产物要么重算后重新烘焙并保存（is_baked=true && is_outdated=false），要么不烘焙（is_baked=false）并在 handoff 写明首次 frame_set 会重算",
+  "verdict": "DEFECT_BAKED_OUTDATED"
+ },
+ "E:\\dsh pr\\woker2\\out\\subai\\M02\\blend\\baseline.blend": {
+  "bodies": 313,
+  "cache_frames": [
+   1,
+   240
+  ],
+  "exists": true,
+  "exit": 0,
+  "info": "240 frames in memory (2.0 MiB), cache is outdated!",
+  "is_baked": false,
+  "is_outdated": true,
+  "path": "E:\\dsh pr\\woker2\\out\\subai\\M02\\blend\\baseline.blend",
+  "verdict": "OK_UNBAKED"
+ },
+ "E:\\dsh pr\\woker2\\out\\subai\\M02\\blend\\prepared_baseline.blend": {
+  "bodies": 313,
+  "cache_frames": [
+   1,
+   240
+  ],
+  "exists": true,
+  "exit": 0,
+  "info": "240 frames in memory (2.0 MiB), cache is outdated!",
+  "is_baked": false,
+  "is_outdated": true,
+  "path": "E:\\dsh pr\\woker2\\out\\subai\\M02\\blend\\prepared_baseline.blend",
+  "verdict": "OK_UNBAKED"
+ },
+ "E:\\dsh pr\\woker2\\out\\subai\\M02\\blend\\prepared_x07.blend": {
+  "bodies": 313,
+  "cache_frames": [
+   1,
+   240
+  ],
+  "exists": true,
+  "exit": 0,
+  "info": "240 frames in memory (2.0 MiB), cache is outdated!",
+  "is_baked": false,
+  "is_outdated": true,
+  "path": "E:\\dsh pr\\woker2\\out\\subai\\M02\\blend\\prepared_x07.blend",
+  "verdict": "OK_UNBAKED"
+ },
+ "E:\\dsh pr\\woker2\\out\\subai\\M02\\blend\\s2_x07.blend": {
+  "bodies": 313,
+  "cache_frames": [
+   1,
+   240
+  ],
+  "exists": true,
+  "exit": 0,
+  "info": "240 frames in memory (2.0 MiB), cache is outdated!",
+  "is_baked": false,
+  "is_outdated": true,
+  "path": "E:\\dsh pr\\woker2\\out\\subai\\M02\\blend\\s2_x07.blend",
+  "verdict": "OK_UNBAKED"
+ },
+ "E:\\dsh pr\\woker2\\out\\subai\\M02\\s8\\E_base.blend": {
+  "bodies": 324,
+  "cache_frames": [
+   1,
+   326
+  ],
+  "exists": true,
+  "exit": 3,
+  "info": "240 frames in memory (2.1 MiB), cache is outdated!",
+  "is_baked": true,
+  "is_outdated": true,
+  "path": "E:\\dsh pr\\woker2\\out\\subai\\M02\\s8\\E_base.blend",
+  "reason": "回放（默认路径）与解烘焙重算会给出两条不同动画；产物要么重算后重新烘焙并保存（is_baked=true && is_outdated=false），要么不烘焙（is_baked=false）并在 handoff 写明首次 frame_set 会重算",
+  "verdict": "DEFECT_BAKED_OUTDATED"
+ },
+ "E:\\dsh pr\\woker2\\out\\subai\\M02\\s8\\G_base.blend": {
+  "bodies": 324,
+  "cache_frames": [
+   1,
+   326
+  ],
+  "exists": true,
+  "exit": 3,
+  "info": "240 frames in memory (2.1 MiB), cache is outdated!",
+  "is_baked": true,
+  "is_outdated": true,
+  "path": "E:\\dsh pr\\woker2\\out\\subai\\M02\\s8\\G_base.blend",
+  "reason": "回放（默认路径）与解烘焙重算会给出两条不同动画；产物要么重算后重新烘焙并保存（is_baked=true && is_outdated=false），要么不烘焙（is_baked=false）并在 handoff 写明首次 frame_set 会重算",
+  "verdict": "DEFECT_BAKED_OUTDATED"
+ },
+ "E:\\dsh pr\\woker2\\out\\subai\\M05\\probe12b\\work\\20261115_213159\\scene.blend": {
+  "bodies": 145,
+  "cache_frames": [
+   1,
+   393
+  ],
+  "exists": true,
+  "exit": 0,
+  "info": "12 frames in memory (49 KiB), cache is outdated!",
+  "is_baked": false,
+  "is_outdated": true,
+  "path": "E:\\dsh pr\\woker2\\out\\subai\\M05\\probe12b\\work\\20261115_213159\\scene.blend",
+  "verdict": "OK_UNBAKED"
+ },
+ "E:\\dsh pr\\woker2\\out\\subai\\M05\\probe2_tail\\final\\20261115_213301\\scene.blend": {
+  "bodies": 145,
+  "cache_frames": [
+   1,
+   393
+  ],
+  "exists": true,
+  "exit": 0,
+  "info": "2 frames in memory (8 KiB), cache is outdated!",
+  "is_baked": false,
+  "is_outdated": true,
+  "path": "E:\\dsh pr\\woker2\\out\\subai\\M05\\probe2_tail\\final\\20261115_213301\\scene.blend",
+  "verdict": "OK_UNBAKED"
+ },
+ "E:\\dsh pr\\woker2\\out\\subai\\M05\\probe2_tail\\final\\20261115_213335\\scene.blend": {
+  "bodies": 145,
+  "cache_frames": [
+   1,
+   393
+  ],
+  "exists": true,
+  "exit": 0,
+  "info": "2 frames in memory (8 KiB), cache is outdated!",
+  "is_baked": false,
+  "is_outdated": true,
+  "path": "E:\\dsh pr\\woker2\\out\\subai\\M05\\probe2_tail\\final\\20261115_213335\\scene.blend",
+  "verdict": "OK_UNBAKED"
+ },
+ "E:\\dsh pr\\woker2\\out\\subai\\M05\\probe2_tail\\work\\20261115_213301\\scene.blend": {
+  "bodies": 145,
+  "cache_frames": [
+   1,
+   393
+  ],
+  "exists": true,
+  "exit": 0,
+  "info": "2 frames in memory (8 KiB), cache is outdated!",
+  "is_baked": false,
+  "is_outdated": true,
+  "path": "E:\\dsh pr\\woker2\\out\\subai\\M05\\probe2_tail\\work\\20261115_213301\\scene.blend",
+  "verdict": "OK_UNBAKED"
+ },
+ "E:\\dsh pr\\woker2\\out\\subai\\M05\\probe2_tail\\work\\20261115_213335\\scene.blend": {
+  "bodies": 145,
+  "cache_frames": [
+   1,
+   393
+  ],
+  "exists": true,
+  "exit": 0,
+  "info": "2 frames in memory (8 KiB), cache is outdated!",
+  "is_baked": false,
+  "is_outdated": true,
+  "path": "E:\\dsh pr\\woker2\\out\\subai\\M05\\probe2_tail\\work\\20261115_213335\\scene.blend",
+  "verdict": "OK_UNBAKED"
+ }
+}

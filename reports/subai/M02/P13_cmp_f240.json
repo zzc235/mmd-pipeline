@@ -1,0 +1,50 @@
+{
+ "bodies": 324,
+ "cache_after_step": {
+  "frame_end": 326,
+  "frame_start": 1,
+  "info": "326 frames in memory (2.9 MiB).",
+  "is_baked": true,
+  "is_outdated": true,
+  "use_disk_cache": false
+ },
+ "cache_at_open": {
+  "frame_end": 326,
+  "frame_start": 1,
+  "info": "326 frames in memory (2.9 MiB).",
+  "is_baked": true,
+  "is_outdated": true,
+  "use_disk_cache": false
+ },
+ "cold_jump": true,
+ "comparisons": [
+  {
+   "D_all": 0.0,
+   "D_hem_max": 0.0,
+   "D_hem_sum": 0.0,
+   "D_max": 0.0,
+   "D_max_bone": "000_$name_j",
+   "bitwise_identical": true,
+   "bodies_compared": 324,
+   "label": "P0recompute（frames.jsonl@240）",
+   "nonzero": 0,
+   "only_in_a": [],
+   "only_in_b": []
+  },
+  {
+   "D_all": 214.376032,
+   "D_hem_max": 0.908456,
+   "D_hem_sum": 15.248989,
+   "D_max": 1.068522,
+   "D_max_bone": "156_下擺_8_7",
+   "bitwise_identical": false,
+   "bodies_compared": 324,
+   "label": "A1replay（frames.jsonl@240）",
+   "nonzero": 275,
+   "only_in_a": [],
+   "only_in_b": []
+  }
+ ],
+ "frame": 240,
+ "probe": "P13_probe_f240.json"
+}

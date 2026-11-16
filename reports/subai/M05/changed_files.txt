@@ -1,0 +1,47 @@
+源码
+  mmdpipe/vmd.py            concat 自动 offsets 累加自身偏移；报告新增 total_frames
+  mmdpipe/chainplan.py      段首偏移纳入 span；新增 junctions（每个相邻对）；nla_segments_check()
+  mmdpipe/concatvmd.py      frames= 参数；显式截断记账
+  mmdpipe/runner.py         NLA N>2 写文件前 BLOCK；S3_chain 帧数守恒字段与渲染帧回填；
+                            --motions 分支 paths → seg_paths（收尾 TypeError 修复）
+  mmdpipe/chain_nla.py      新增 extend_upper_strip()：淡化延伸写成恒等帧映射；CLI 帮助写明只支持 2 段
+
+测试
+  tests/test_chain.py       新增 15 条（三段账本/交接对/守恒/截断/NLA 门禁/表情与 IK 轨道/路径）
+
+报告
+  reports/subai/M05/result.md
+  reports/subai/M05/measurements.json
+  reports/subai/M05/changed_files.txt
+  reports/subai/M05/reproduce.md
+  reports/subai/M05/handoff.md
+  reports/subai/M05/frame_ledger_baseline.json
+  reports/subai/M05/frame_ledger_final.json
+  reports/subai/M05/nla_stage_probe.json
+  reports/subai/M05/nla_stage_probe_cmd.md
+  reports/subai/M05/nla_stage_probe_run1.json
+  reports/subai/M05/nla_stage_probe_run2.json
+  reports/subai/M05/nla_stage_probe_run4.json
+  reports/subai/M05/nla_stage_probe_run5.json
+
+实验脚本（out/subai/M05）
+  make_fixtures.py          从已登记 VMD 切片生成 91/91/151 夹具
+  make_probe_scripts.py     生成 Blender 探针用 PowerShell 脚本（UTF-8 BOM）
+  ledger.py                 纯 Python 帧账本
+  nla_stage_probe.py        NLA 分阶段世界姿态探针（复用 chain_nla.extend_upper_strip）
+  probe12_splice.ps1        12 帧三段 splice 探针
+  probe2_tail.ps1           2 帧收尾回归（验证 promote）
+  probe_nla.ps1             NLA 探针 gap6 blend0
+  probe_nla2.ps1            NLA 探针 gap20 blend20（旧代码复现）
+  probe_nla4.ps1            无效修法验证（保留作反例）
+  probe_nla5.ps1            修复后验证
+
+实验产物（out/subai/M05）
+  fixtures/seg1_91.vmd、seg2_91.vmd、seg3_151.vmd
+  chain_baseline_overlap.vmd（244 帧，旧代码）
+  chain_fixed_337.vmd、chain_fixed_337_b.vmd（337 帧，两次一致）
+  splice_ref_gap20.vmd（A+B gap20 参照）
+  nla_export_run1.vmd（修复后 NLA 导出，23 MB）
+  probe12b/pipeline_state.json（收尾崩溃前）
+  probe2_tail/pipeline_state.json（ok=true, final=true）
+  probe12b.log、probe2_tail.log、nla_probe*.log、nla_export.log

@@ -1,0 +1,16 @@
+{
+ "E:\\dsh pr\\woker2\\out\\subai\\M02\\s8\\H_nobake.blend": {
+  "bodies": 324,
+  "cache_frames": [
+   1,
+   326
+  ],
+  "exists": true,
+  "exit": 0,
+  "info": "240 frames in memory (2.1 MiB), cache is outdated!",
+  "is_baked": false,
+  "is_outdated": true,
+  "path": "E:\\dsh pr\\woker2\\out\\subai\\M02\\s8\\H_nobake.blend",
+  "verdict": "OK_UNBAKED"
+ }
+}

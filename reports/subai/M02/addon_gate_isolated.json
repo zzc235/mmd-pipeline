@@ -1,0 +1,38 @@
+{
+ "enable": {
+  "bl_ext.user_default.mmd_tools": {
+   "ok": true,
+   "value": null
+  },
+  "mmd_tools": {
+   "ok": true,
+   "value": null
+  }
+ },
+ "enabled_pref": [
+  "bl_pkg",
+  "cycles",
+  "io_anim_bvh",
+  "io_curve_svg",
+  "io_mesh_uv_layout",
+  "io_scene_fbx",
+  "io_scene_gltf2",
+  "pose_library"
+ ],
+ "extensions_repo": "C:\\Users\\zzc\\AppData\\Local\\Temp\\mmd_empty_ext_342cba49",
+ "operator": {
+  "get_rna_type": {
+   "error": "KeyError: 'get_rna_type(\"MMD_TOOLS_OT_import_model\") not found'",
+   "ok": false
+  },
+  "hasattr_import_model": {
+   "ok": true,
+   "value": true
+  },
+  "module_resolved": true,
+  "poll": {
+   "error": "AttributeError: Polling operator \"bpy.ops.mmd_tools.import_model\" error, could not be found",
+   "ok": false
+  }
+ }
+}

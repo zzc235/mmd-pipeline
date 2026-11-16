@@ -1,0 +1,93 @@
+{
+  "reportVersion": 1,
+  "taskId": "2026-11-01-superagent-lite",
+  "title": "Super-agent 本机版落地 + 原型摸底 + GitHub 通道诊断",
+  "capturedAt": "2026-11-01T19:06:12+08:00",
+  "operator": "zzc",
+  "executor": "furina (dsh desktop 0.2.1-rc.3)",
+  "host": {
+    "computer": "DESKTOP-UI4EH47",
+    "user": "zzc",
+    "os": "Microsoft Windows NT 10.0.26200",
+    "powershell": "5.1.26100",
+    "hasPwsh": false,
+    "executionPolicy": "Restricted"
+  },
+  "runtime": {
+    "dshDesktop": "0.2.1-rc.3",
+    "node": "24.15.0",
+    "pnpm": "11.20.0",
+    "pnpmInRepo": "11.7.0",
+    "git": "2.54.0.windows.1",
+    "gh": "2.100.0",
+    "ghAccount": "zzc235",
+    "python": "3.13.13"
+  },
+  "missing": ["tmux", "lark-cli", "jq", "dedicated-github-agent-account", "superagent-profile", "worker-channel"],
+  "profile": {
+    "name": "desktop",
+    "bundles": [
+      "@deepseek-ai/dsh-base",
+      "@deepseek-ai/dsh-web-app",
+      "dsh-our-free-model",
+      "dsh-subagent-default-model",
+      "@deepseek-ai/dsh-experimental-agent-team-profile",
+      "@deepseek-ai/dsh-experimental-tool-worktree",
+      "@deepseek-ai/dsh-experimental-plugin-market-bundle",
+      "@deepseek-ai/dsh-subagent-claude-code",
+      "@deepseek-ai/dsh-experimental-voice-input-bundle",
+      "@2nd1st/dsh-plugin-open-app",
+      "@vfvrpq/dsh-pinned-sessions"
+    ],
+    "cordisPatchSha256": "4C4E214AB10557DABB386A402FC5301C8A1E1E9DA1A45EF5BA4149B8E86FA488"
+  },
+  "deliverables": [
+    { "path": "E:\\dsh pr\\woker2\\superagent-lite\\router.ps1", "bytes": 7913, "sha256_16": "EC70B70F86F85996" },
+    { "path": "E:\\dsh pr\\woker2\\superagent-lite\\watchdog.ps1", "bytes": 1882, "sha256_16": "8F69FA1D14ABB6EB" },
+    { "path": "E:\\dsh pr\\woker2\\superagent-lite\\POLICY.json", "bytes": 312, "sha256_16": "5691605E3776C0D2" },
+    { "path": "E:\\dsh pr\\woker2\\superagent-lite\\ROUTER.md", "bytes": 1874, "sha256_16": "BF9EDC89FCC9A356" },
+    { "path": "E:\\dsh pr\\woker2\\superagent-lite\\README.md", "bytes": 2493, "sha256_16": "28B0F013D8AF0FAF" },
+    { "path": "E:\\dsh pr\\woker2\\superagent-lite\\GITHUB-ONBOARDING.md", "bytes": 5901, "sha256_16": "FBBDA884FCA54669" },
+    { "path": "E:\\dsh pr\\woker2\\superagent-lite\\reports\\T-0001.md", "bytes": 7809, "sha256_16": "9A3B8D2E8F7E3F3E" },
+    { "path": "E:\\dsh pr\\woker2\\superagent-lite\\tickets\\T-0001.json", "bytes": 1697, "sha256_16": "4F63B2444E02C834" },
+    { "path": "E:\\dsh pr\\woker2\\superagent-lite\\threads\\superagent-win.json", "bytes": 1334, "sha256_16": "7AF16B940ED69132" },
+    { "path": "E:\\dsh pr\\woker2\\tools\\fetch-github-repo.mjs", "bytes": null, "sha256_16": null }
+  ],
+  "prototypeRepo": {
+    "path": "E:\\dsh pr\\woker2\\dsh-superagent",
+    "commit": "6337fc823ce20251c8de8085948165c81aaa701e",
+    "commitDate": "2026-10-31T20:05:39+08:00",
+    "files": 216,
+    "gitStatus": "clean",
+    "pnpmInstall": "ok (11.3s)",
+    "pnpmBuild": "failed: tsdown cannot resolve obug (2.1.4 vs 3.0.0), Node 24",
+    "enginesDsh": "^0.2.1-alpha.2"
+  },
+  "superagentLite": {
+    "mode": "act",
+    "tickets": { "T-0001": "done" },
+    "threads": ["superagent-win"],
+    "watchdog": "verdict OK",
+    "scheduleId": "schedule-9d7e874f-acd4-4676-be53-de48a827c1ed",
+    "scheduleCron": "0 * * * *",
+    "scheduleTz": "Asia/Hong_Kong"
+  },
+  "workerChannel": {
+    "subagent": "failed x2",
+    "subagentClaudeCode": "unsupported: agentOptions",
+    "teammate": "worker-win inactive, no artifact",
+    "verdict": "unavailable"
+  },
+  "network": {
+    "gitCloneSchannel": "fail SEC_E_NO_CREDENTIALS",
+    "gitCloneOpensslShallow": "3/3 ok (~2.4s)",
+    "ghApi": "ok 678ms",
+    "raw": "flaky 747ms -> timeout",
+    "jsdelivr": "flaky 843ms -> timeout",
+    "tcp443": "all open",
+    "ssh443": "reachable (publickey denied, no key)",
+    "fetchScript": "216/216 files, 11.8s"
+  },
+  "decisions": ["D1 six-tenths version first", "D2 stop worker after 3 failures", "D3 ASCII-only PS5.1 scripts", "D4 cmd wrappers", "D5 no global git config without approval", "D6 stop-semantics left to user"],
+  "openItems": ["stop semantics A/B/C", "register agent github account", "fix pnpm build", "restore worker channel", "security baseline (RocksVPN, LNK)"]
+}
