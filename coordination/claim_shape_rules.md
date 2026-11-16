@@ -160,7 +160,20 @@
 | `2026-11-16` `M05` | `3号` 三个探针脚本都显式写了 `sys.path.insert(0, ROOT)` 且 `ROOT` 由 `__file__` 上溯四级 —— 这是对的做法 |
 
 落地：任何调 `coordination` 的脚本，头部显式插仓库根（`__file__` 上溯，**不要**依赖 cwd），
-并加一条「插根之后确实 import 到了本仓模块（而不是同名的别的东西）」的测试。
+**并先验根、再 import** —— 只插根还不够，根算错了仍然只抛 `ImportError`，形状与「模块不存在」一样：
+
+```python
+if not (isdir(ROOT / "coordination") and isdir(ROOT / "mmdpipe")):
+    raise SystemExit("ROOT 算错了：%r 里没有 coordination/ 与 mmdpipe/ ..." % ROOT)
+```
+
+区别是：**前者告诉你根算错了并打印它算出来的路径，后者让你去查一个根本不缺的模块。**
+
+| 事故 | 形状 |
+|---|---|
+| `2026-11-16` `M05` | `3号` 18:51 自己栽过一次：`out/subai/M05` 到根是 **3 层**，他写了 4 层 ⇒ `ModuleNotFoundError` |
+| `2026-11-16` `M05` | 修好之后他补了「先验根」；负控把两个脚本拷到临时目录再跑，**两个都被拦住**、报的是「ROOT 算错了」而不是 `ImportError` |
+| `2026-11-16` `M04` | `2号` 把 `comparability.py` 接进 `m04_segment_table.py`，**第一次没接上**：`cut_sensitivity()` 根本没被调用，报告照旧，没有任何一处红 |
 
 ---
 
