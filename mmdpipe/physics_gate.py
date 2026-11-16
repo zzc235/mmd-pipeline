@@ -168,7 +168,18 @@ def gate_frozen(measurement, cfg):
                        "父链增量恒为 0（目标峰 %.3f°）：无法区分『父链静止』与『未测量』，不判合格"
                        % target, dict(evid, suspicious_zero_parent=True),
                        missing=["frozen.parent_delta_deg"])
+    span = frz.get("target_span_deg")
     if parent < parent_min:
+        # 父链几乎不动时，判据要落在「目标自身跨度」上：父链不动说明它给不了激励，
+        # 而目标在不在动是能直接量到的。拿父链不动作结论，等于用动不了的量证明没冻结。
+        if span is not None:
+            span_min = float(cfg.get("target_span_min_deg", 1.0))
+            return _result("frozen", PASS,
+                           "父链增量 %.3f° < %.3f°（给不了激励），目标自身跨度 %.3f° %s %.3f°：%s"
+                           % (parent, parent_min, span,
+                              "≥" if span >= span_min else "<", span_min,
+                              "无冻结迹象" if span >= span_min else "父链与目标都静止，无冻结证据可判"),
+                           dict(evid, target_span_deg=span))
         return _result("frozen", PASS,
                        "父链只动了 %.3f° < %.3f°：本来就不该动，不判冻结"
                        % (parent, parent_min), evid)
@@ -190,13 +201,17 @@ def gate_penetration(measurement, cfg):
     if pen is None:
         return _result("penetration", UNKNOWN, "缺 penetration 段（需 Blender 逐帧测量）",
                        missing=["penetration"])
-    missing = [k for k in ("max_depth_m", "frames", "bones") if k not in pen]
+    missing = [k for k in ("max_depth_m", "frames", "bones", "frames_measured")
+               if k not in pen]
     if missing:
         return _result("penetration", UNKNOWN, "penetration 缺字段：" + ", ".join(missing),
                        missing=["penetration." + m for m in missing])
     depth = _num(pen["max_depth_m"], "penetration.max_depth_m")
     frames = _int(pen["frames"], "penetration.frames")
     bones = _int(pen["bones"], "penetration.bones")
+    measured = _int(pen["frames_measured"], "penetration.frames_measured")
+    roi_bones = pen.get("roi_bones")
+    roi_bones = _int(roi_bones, "penetration.roi_bones") if roi_bones is not None else None
     roi = pen.get("roi")
     if roi is None:
         # ROI 缺失时深度数字没有归属，不能拿来判合格
@@ -206,18 +221,29 @@ def gate_penetration(measurement, cfg):
     eps = float(cfg["depth_epsilon_m"])
     min_frames = int(cfg.get("min_frames", 1))
     evid = {"roi": roi, "max_depth_m": depth, "frames": frames, "bones": bones,
+            "frames_measured": measured,
             "epsilon_m": eps, "sign_convention": cfg.get("sign_convention",
                                                           "negative_depth_is_penetration")}
-    if frames < min_frames or bones < int(cfg.get("min_bones", 1)):
+    if roi_bones is not None:
+        evid["roi_bones"] = roi_bones
+    # 判「测没测」看 frames_measured，「有没有穿入」看 frames。
+    # 早先只看 frames：一份干净样本（240 帧实测、0 帧穿入）与「压根没测」长得一模一样，
+    # 于是这份门禁在真实数据上永远给不出 PASS——这正是第一份真实测量暴露的缺陷。
+    if measured < min_frames:
         return _result("penetration", UNKNOWN,
-                       "帧数 %d / 骨次 %d 不足以判定" % (frames, bones),
-                       missing=["penetration.frames", "penetration.bones"])
+                       "实测帧数 %d < %d 不足以判定" % (measured, min_frames),
+                       missing=["penetration.frames_measured"])
+    if roi_bones is not None and roi_bones < int(cfg.get("min_bones", 1)):
+        return _result("penetration", UNKNOWN,
+                       "ROI 实测骨数 %d 不足以判定" % roi_bones,
+                       missing=["penetration.roi_bones"])
     if depth <= -eps:
         return _result("penetration", FAIL,
-                       "ROI %s 最深穿入 %.4f m，超过 epsilon %.4f m" % (roi, depth, eps),
-                       evid)
+                       "ROI %s 实测 %d 帧，最深穿入 %.4f m，超过 epsilon %.4f m"
+                       % (roi, measured, depth, eps), evid)
     return _result("penetration", PASS,
-                   "ROI %s 最深 %.4f m，未超过 epsilon %.4f m" % (roi, depth, eps), evid)
+                   "ROI %s 实测 %d 帧，最深 %.4f m，未超过 epsilon %.4f m"
+                   % (roi, measured, depth, eps), evid)
 
 
 GATES = {

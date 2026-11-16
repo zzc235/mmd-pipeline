@@ -120,6 +120,9 @@ class TestPenetration(unittest.TestCase):
         self.assertAlmostEqual(m["penetration"]["max_depth_m"], -0.2)
         self.assertEqual(m["penetration"]["frames"], 2)
         self.assertEqual(m["penetration"]["bones"], 2)
+        self.assertEqual(m["penetration"]["frames_measured"], 3,
+                         "测了 3 帧、其中 2 帧穿入：两个数必须分开记")
+        self.assertEqual(m["penetration"]["roi_bones"], 3)
 
     def test_absent_section_when_no_rows(self):
         m = measure.assemble(rows([(f, "b", 1.0) for f in range(1, 11)]), [],

@@ -239,8 +239,14 @@ def assemble(dynamics_rows, penetration_rows, *, sample_id, evidence_mode,
             _require(row, ("frame", "roi", "max_depth_m"), "penetration")
             roi = str(row["roi"])
             depth = float(row["max_depth_m"])
-            entry = by_roi.setdefault(roi, {"deepest": depth, "frames": set(), "bones": set()})
+            entry = by_roi.setdefault(roi, {"deepest": depth, "frames": set(), "bones": set(),
+                                             "frames_seen": set(), "bones_seen": set()})
             entry["deepest"] = min(entry["deepest"], depth)
+            # 「测了多少帧」与「有多少帧穿入」是两件事，必须分开落盘：
+            # 只有后者时，一份干净样本（0 帧穿入）与「压根没测」在门禁眼里长得一模一样。
+            entry["frames_seen"].add(int(row["frame"]))
+            if row.get("bone"):
+                entry["bones_seen"].add(str(row["bone"]))
             if depth <= -eps_m:
                 entry["frames"].add(int(row["frame"]))
                 if row.get("bone"):
@@ -254,6 +260,8 @@ def assemble(dynamics_rows, penetration_rows, *, sample_id, evidence_mode,
             "max_depth_m": round(entry["deepest"], 6),
             "frames": len(entry["frames"]),
             "bones": len(entry["bones"]),
+            "frames_measured": len(entry["frames_seen"]),
+            "roi_bones": len(entry["bones_seen"]),
             "epsilon_m": eps_m,
         }
     return measurement

@@ -36,7 +36,8 @@ def measurement(**over):
                      "spike_count": 0, "bones": 420},
         "frozen": {"parent_delta_deg": 2.0, "target_delta_deg": 20.0,
                    "consecutive_frames": 0},
-        "penetration": {"roi": "row11", "max_depth_m": 0.01, "frames": 5, "bones": 11},
+        "penetration": {"roi": "row11", "max_depth_m": 0.01, "frames": 5, "bones": 11,
+                    "frames_measured": 240, "roi_bones": 18},
     }
     base.update(over)
     return base
@@ -149,6 +150,25 @@ class TestFrozen(unittest.TestCase):
         self.assertEqual(pg.evaluate(m, profile())["gate_results"]["frozen"]["status"],
                          pg.PASS)
 
+    def test_static_parent_pass_reason_is_target_span_not_parent(self):
+        """父链不动时，PASS 的理由必须落在目标自身跨度上（结论对、理由错也是错）。"""
+        m = measurement(frozen={"parent_delta_deg": 0.0, "target_delta_deg": 0.0,
+                                "consecutive_frames": 0, "parent_all_zero": True,
+                                "target_span_deg": 66.297, "suspicious_zero_parent": False})
+        out = pg.evaluate(m, profile())["gate_results"]["frozen"]
+        self.assertEqual(out["status"], pg.PASS)
+        self.assertIn("target_span_deg", out["reason"].replace("目标自身跨度", "target_span_deg"))
+        self.assertIn("66.297", out["reason"])
+        self.assertNotIn("本来就不该动", out["reason"],
+                         "旧口径的文字不能再出现在 PASS 理由里")
+
+    def test_reason_falls_back_when_span_missing(self):
+        m = measurement(frozen={"parent_delta_deg": 2.0, "target_delta_deg": 0.0,
+                                "consecutive_frames": 60})
+        out = pg.evaluate(m, profile())["gate_results"]["frozen"]
+        self.assertEqual(out["status"], pg.PASS)
+        self.assertIn("本来就不该动", out["reason"], "旧生产者没给跨度，仍走旧文字")
+
     def test_suspicious_zero_parent_is_unknown_not_pass(self):
         """父链恒 0 + 目标角不小 → UNKNOWN。判 PASS 等于把没测过的量当合格。"""
         m = measurement(frozen={"parent_delta_deg": 0.0, "target_delta_deg": 40.0,
@@ -164,26 +184,49 @@ class TestFrozen(unittest.TestCase):
 class TestPenetration(unittest.TestCase):
     def test_fail_on_history_depth(self):
         m = measurement(penetration={"roi": "row11", "max_depth_m": -0.202,
-                                     "frames": 31, "bones": 11})
+                                     "frames": 31, "bones": 11,
+                                     "frames_measured": 240})
         self.assertEqual(pg.evaluate(m, profile())["gate_results"]["penetration"]["status"],
                          pg.FAIL)
 
     def test_epsilon_boundary(self):
         eps = profile()["gates"]["penetration"]["depth_epsilon_m"]
         at = measurement(penetration={"roi": "r", "max_depth_m": -eps,
-                                      "frames": 3, "bones": 5})
+                                      "frames": 3, "bones": 5, "frames_measured": 240})
         inside = measurement(penetration={"roi": "r", "max_depth_m": -eps + 0.001,
-                                          "frames": 3, "bones": 5})
+                                          "frames": 3, "bones": 5,
+                                          "frames_measured": 240})
         self.assertEqual(pg.evaluate(at, profile())["gate_results"]["penetration"]["status"],
                          pg.FAIL)
         self.assertEqual(pg.evaluate(inside, profile())["gate_results"]["penetration"]["status"],
                          pg.PASS)
 
     def test_missing_roi_is_unknown(self):
-        m = measurement(penetration={"max_depth_m": -0.3, "frames": 9, "bones": 4})
+        m = measurement(penetration={"max_depth_m": -0.3, "frames": 9, "bones": 4,
+                                     "frames_measured": 240})
         out = pg.evaluate(m, profile())["gate_results"]["penetration"]
         self.assertEqual(out["status"], pg.UNKNOWN)
         self.assertIn("penetration.roi", out["missing"])
+
+    def test_measured_without_penetration_is_pass(self):
+        """第一份真实数据：240 帧全测、0 帧穿入（最深 -0.0171 < 0.02），必须 PASS。
+
+        改前这里返回 UNKNOWN（判据错用 frames，把「测了没穿入」当成「没测」），
+        等于这份门禁在干净样本上永远给不出 PASS。
+        """
+        m = measurement(penetration={"roi": "18_skirt_rigid", "max_depth_m": -0.017064,
+                                     "frames": 0, "bones": 0, "frames_measured": 240,
+                                     "roi_bones": 18})
+        out = pg.evaluate(m, profile())["gate_results"]["penetration"]
+        self.assertEqual(out["status"], pg.PASS)
+        self.assertIn("240", out["reason"])
+
+    def test_missing_frames_measured_is_unknown(self):
+        m = measurement(penetration={"roi": "r", "max_depth_m": 0.0,
+                                     "frames": 3, "bones": 5})
+        out = pg.evaluate(m, profile())["gate_results"]["penetration"]
+        self.assertEqual(out["status"], pg.UNKNOWN)
+        self.assertIn("penetration.frames_measured", out["missing"])
 
     def test_absent_section_is_unknown(self):
         m = measurement()
@@ -206,7 +249,7 @@ class TestErrors(unittest.TestCase):
 
     def test_nan_is_rejected(self):
         m = measurement(penetration={"roi": "r", "max_depth_m": float("nan"),
-                                     "frames": 1, "bones": 1})
+                                     "frames": 1, "bones": 1, "frames_measured": 1})
         with self.assertRaises(pg.GateInputError):
             pg.evaluate(m, profile())
 
@@ -246,7 +289,8 @@ class TestCli(unittest.TestCase):
             meas = os.path.join(tmp, "m.json")
             with open(meas, "w", encoding="utf-8") as fh:
                 json.dump(measurement(penetration={"roi": "r", "max_depth_m": -0.5,
-                                                   "frames": 3, "bones": 9}), fh)
+                                                   "frames": 3, "bones": 9,
+                                                   "frames_measured": 240}), fh)
             proc = subprocess.run(
                 [sys.executable, "-m", "mmdpipe.physics_gate",
                  "--measurement", meas, "--profile", PROFILE_PATH],
