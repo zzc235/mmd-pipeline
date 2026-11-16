@@ -35,13 +35,15 @@ IGNORE = shutil.ignore_patterns("__pycache__", "*.pyc", "*.pyo")
 def read_version() -> str:
     """从 blender_manifest.toml 取 version，并与 __init__.py 的 bl_info 对齐。"""
     manifest = os.path.join(SRC, "blender_manifest.toml")
-    text = open(manifest, "r", encoding="utf-8").read()
+    with open(manifest, "r", encoding="utf-8") as fh:
+        text = fh.read()
     m = re.search(r'^\s*version\s*=\s*"([^"]+)"', text, re.MULTILINE)
     if not m:
         raise SystemExit("!! 清单里找不到 version：%s" % manifest)
     version = m.group(1)
 
-    init = open(os.path.join(SRC, "__init__.py"), "r", encoding="utf-8").read()
+    with open(os.path.join(SRC, "__init__.py"), "r", encoding="utf-8") as fh:
+        init = fh.read()
     bm = re.search(r'"version"\s*:\s*\((\d+),\s*(\d+),\s*(\d+)\)', init)
     if not bm:
         raise SystemExit("!! __init__.py 里找不到 bl_info version")
@@ -96,6 +98,11 @@ def build() -> int:
     return r.returncode
 
 
+def expected_zip(version: str) -> str:
+    """本次版本应该产出的那个包。dist 里的旧 zip 不算产物（旧行为把它们全打印出来）。"""
+    return os.path.join(DIST, "mmd_pipeline-%s.zip" % version)
+
+
 def sha256(path: str) -> str:
     digest = hashlib.sha256()
     with open(path, "rb") as fh:
@@ -114,7 +121,7 @@ def main() -> int:
     if build() != 0:
         print("!! 打包失败")
         return 3
-    zip_path = os.path.join(DIST, "mmd_pipeline-%s.zip" % version)
+    zip_path = expected_zip(version)
     if not os.path.isfile(zip_path):
         print("!! 没找到预期产物 %s（dist 里可能有旧版本残留，别拿它们当本次结果）"
               % zip_path)
