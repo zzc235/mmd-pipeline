@@ -40,3 +40,8 @@ out/
 
 # ---- 协调层（调度器与任务板，M00 产物）----
 !/coordination/
+# 任务板是运行时状态，不是源码：board.db 四棵树共享一份，放主工作树 out/subai/coordination/
+/coordination/*.db
+/coordination/*.db-wal
+/coordination/*.db-shm
+/coordination/dispatch.json

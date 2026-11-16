@@ -7,6 +7,7 @@
 import hashlib
 import json
 import os
+import pathlib
 import shutil
 import subprocess
 import sys
@@ -17,6 +18,8 @@ from datetime import datetime, timedelta, timezone
 from coordination import board as board_mod
 from coordination import dispatcher as dispatcher_mod
 from coordination import evidence as evidence_mod
+from coordination import gate as gate_mod
+from coordination import paths as paths_mod
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -369,6 +372,94 @@ class TestEvidenceHash(unittest.TestCase):
         a = evidence(risks=["  F4  无真阳性 ", "", "F4 无真阳性"])
         b = evidence(risks=["F4 无真阳性"])
         self.assertEqual(evidence_mod.digest(a), evidence_mod.digest(b))
+
+
+class TestCoverageGate(unittest.TestCase):
+    """D-20261116-022：files[] 必须覆盖 git diff base..HEAD，缺即 MISSING_EVIDENCE。"""
+
+    def setUp(self):
+        self.repo = tempfile.mkdtemp(prefix="mm00_repo_")
+        self.git("init", "-q")
+        self.git("config", "user.email", "test@example.com")
+        self.git("config", "user.name", "test")
+        self.git("config", "commit.gpgsign", "false")
+        (pathlib.Path(self.repo) / "a.py").write_text("a = 1\n", encoding="utf-8")
+        self.git("add", "a.py")
+        self.git("commit", "-qm", "base")
+        self.base = self.git("rev-parse", "HEAD").strip()
+        (pathlib.Path(self.repo) / "b.py").write_text("b = 2\n", encoding="utf-8")
+        self.git("add", "b.py")
+        self.git("commit", "-qm", "second")
+
+    def tearDown(self):
+        shutil.rmtree(self.repo, ignore_errors=True)
+
+    def git(self, *args):
+        out = subprocess.run(["git", "-C", self.repo, *args], capture_output=True, text=True)
+        self.assertEqual(out.returncode, 0, out.stderr)
+        return out.stdout
+
+    def test_changed_files_is_from_git(self):
+        self.assertEqual(gate_mod.changed_files(self.base, repo=self.repo), ["b.py"])
+
+    def test_missing_file_rejected(self):
+        files = [{"path": "a.py", "sha256": sha("a"), "tracked": True}]
+        with self.assertRaises(gate_mod.CoverageError) as ctx:
+            gate_mod.check_coverage(files, self.base, repo=self.repo)
+        self.assertEqual(ctx.exception.missing, ["b.py"])
+        self.assertEqual(ctx.exception.reason_code, "MISSING_EVIDENCE")
+
+    def test_full_coverage_passes(self):
+        files = [{"path": "a.py", "sha256": sha("a"), "tracked": True},
+                 {"path": "b.py", "sha256": sha("b"), "tracked": True}]
+        result = gate_mod.check_coverage(files, self.base, repo=self.repo)
+        self.assertEqual(result["changed"], ["b.py"])
+
+    def test_windows_separator_still_covers(self):
+        files = [{"path": ".\\b.py", "sha256": sha("b"), "tracked": True}]
+        self.assertEqual(gate_mod.check_coverage(files, self.base, repo=self.repo)["changed"], ["b.py"])
+
+    def test_bad_base_is_evidence_error_not_pass(self):
+        with self.assertRaises(evidence_mod.EvidenceError):
+            gate_mod.check_coverage([], "deadbeef", repo=self.repo)
+
+    def test_submit_enforces_gate(self):
+        board = board_mod.Board(os.path.join(tempfile.mkdtemp(prefix="mm00_gate_"), "b.db"))
+        board.init()
+        try:
+            board.add_task("M01", "M01", "A1", status="ready", base_commit=self.base)
+            board.claim("A1", "A1")
+            board.start("M01")
+            partial = evidence(files=[{"path": "a.py", "sha256": sha("a"), "tracked": True}])
+            with self.assertRaises(evidence_mod.EvidenceError):
+                board.submit("M01", partial, repo=self.repo)
+            self.assertEqual(board.db.execute(
+                "SELECT COUNT(*) FROM submission_queue").fetchone()[0], 0)
+            full = evidence(files=[{"path": "a.py", "sha256": sha("a"), "tracked": True},
+                                   {"path": "b.py", "sha256": sha("b"), "tracked": True}])
+            self.assertEqual(board.submit("M01", full, repo=self.repo)["state"], "submitted")
+        finally:
+            board.close()
+
+
+class TestSharedBoardPath(unittest.TestCase):
+    """board.db 是四棵工作树共享的单实例（D-20261116-012），不是每棵树各存一份。"""
+
+    def test_worktrees_agree_on_one_path(self):
+        main_root = paths_mod.main_worktree_root(ROOT)
+        if not main_root:
+            self.skipTest("不在 git 工作树里")
+        here = paths_mod.board_path(start=ROOT)
+        there = paths_mod.board_path(start=main_root)
+        self.assertEqual(here, there)
+        self.assertTrue(here.replace("\\", "/").endswith("/out/subai/coordination/board.db"))
+
+    def test_two_processes_same_cwd_agree(self):
+        code = ("import sys;sys.path.insert(0,%r);from coordination import paths;"
+                "print(paths.board_path())") % ROOT
+        a = subprocess.run([sys.executable, "-c", code], cwd=ROOT, capture_output=True, text=True)
+        b = subprocess.run([sys.executable, "-c", code], cwd=ROOT, capture_output=True, text=True)
+        self.assertEqual(a.stdout.strip(), b.stdout.strip())
 
 
 if __name__ == "__main__":

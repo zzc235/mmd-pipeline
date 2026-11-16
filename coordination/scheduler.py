@@ -30,7 +30,7 @@ def build_parser() -> argparse.ArgumentParser:
     ap.add_argument("command", choices=("init", "add-task", "claim", "start", "heartbeat",
                                         "submit", "verify-begin", "decide", "merge-begin",
                                         "merge-done", "reap", "status", "events"))
-    ap.add_argument("--board", default="coordination/board.db")
+    ap.add_argument("--board", default=None, help="缺省用主工作树 out/subai/coordination/board.db")
     ap.add_argument("--task", default="")
     ap.add_argument("--module", default="")
     ap.add_argument("--lane", default="")
@@ -38,6 +38,9 @@ def build_parser() -> argparse.ArgumentParser:
     ap.add_argument("--status", default="ready")
     ap.add_argument("--resource", default="none")
     ap.add_argument("--evidence", default="")
+    ap.add_argument("--base", default="", help="覆盖校验的基线提交（缺省用任务行的 base_commit）")
+    ap.add_argument("--head", default="HEAD")
+    ap.add_argument("--repo", default="", help="git 仓库路径（缺省当前目录）")
     ap.add_argument("--decision", default="")
     ap.add_argument("--reason", default="")
     ap.add_argument("--merge-commit", default="")
@@ -69,9 +72,11 @@ def main(argv=None) -> int:
             with open(args.evidence, "r", encoding="utf-8") as fh:
                 payload = json.load(fh)
             try:
-                _out(b.submit(args.task, payload))
+                _out(b.submit(args.task, payload, base=args.base or None,
+                              head=args.head, repo=args.repo or None))
             except evidence_mod.EvidenceError as exc:
-                _out({"state": "REJECTED", "reason_code": exc.reason_code, "why": str(exc)})
+                _out({"state": "REJECTED", "reason_code": exc.reason_code, "why": str(exc),
+                      "missing": getattr(exc, "missing", None)})
                 return 2
         elif args.command == "verify-begin":
             _out(b.verify_begin() or {"state": "IDLE"})

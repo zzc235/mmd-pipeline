@@ -15,6 +15,7 @@ import json
 import os
 
 from . import board as board_mod
+from . import paths as paths_mod
 
 LANES = {
     "A1": ("M01", "M02"),
@@ -92,8 +93,8 @@ def write(plan_dict: dict, path: str) -> str:
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(prog="coordination.dispatcher")
-    ap.add_argument("--board", default="coordination/board.db")
-    ap.add_argument("--out", default="coordination/dispatch.json")
+    ap.add_argument("--board", default=None, help="缺省用主工作树 out/subai/coordination/board.db")
+    ap.add_argument("--out", default=None, help="缺省写主工作树 out/subai/coordination/dispatch.json")
     ap.add_argument("--write", action="store_true", help="把计划写入 --out")
     args = ap.parse_args(argv)
     b = board_mod.Board(args.board)
@@ -103,7 +104,7 @@ def main(argv=None) -> int:
     finally:
         b.close()
     if args.write:
-        write(plan_dict, args.out)
+        write(plan_dict, args.out or paths_mod.dispatch_path())
     print(json.dumps(plan_dict, ensure_ascii=False, sort_keys=True))
     return 0
 

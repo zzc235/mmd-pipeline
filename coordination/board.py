@@ -17,6 +17,8 @@ import sqlite3
 from datetime import datetime, timedelta, timezone
 
 from . import evidence as evidence_mod
+from . import gate as gate_mod
+from . import paths as paths_mod
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS tasks (
@@ -126,8 +128,9 @@ def _iso(dt: datetime) -> str:
 
 
 class Board:
-    def __init__(self, path: str, clock=None):
-        self.path = os.path.abspath(path)
+    def __init__(self, path: str | None = None, clock=None):
+        # 缺省走共享单实例：四棵工作树算出的都是主工作树 out/subai/coordination/board.db
+        self.path = os.path.abspath(path or paths_mod.board_path())
         os.makedirs(os.path.dirname(self.path) or ".", exist_ok=True)
         self._clock = clock or (lambda: datetime.now(timezone.utc))
         self.db = sqlite3.connect(self.path, timeout=5.0, isolation_level=None,
@@ -335,18 +338,21 @@ class Board:
 
     # ---------- 动作：提交 ----------
 
-    def submit(self, task_id, payload, reason_hint=""):
+    def submit(self, task_id, payload, base=None, head="HEAD", repo=None):
         """收一份证据。返回 {state, token, evidence_hash, reason}。
 
         * 证据不合规（含 NaN）→ EvidenceError（不落库）
+        * `base` 给定时（或任务行里记着 base_commit）→ 先过格式闸门：
+          `files[]` 必须覆盖 `git diff base..head` 的每个文件，缺即 MISSING_EVIDENCE
+          （D-20261116-022：增量冒充覆盖面的入口在这里堵死）
         * 队列已满 2 → BACKPRESSURE，任务保持 running
         * 同一 task 同一 hash → DUPLICATE，不排队
         """
-        try:
-            normalized = evidence_mod.validate(payload)
-        except evidence_mod.EvidenceError:
-            raise
+        normalized = evidence_mod.validate(payload)
         digest = evidence_mod.digest(normalized)
+        base = base or self.task(task_id).get("base_commit") or ""
+        if base:
+            gate_mod.check_coverage(normalized["files"], base, head=head, repo=repo)
         now = self.now()
         with self.tx() as c:
             task = self.task(task_id)
