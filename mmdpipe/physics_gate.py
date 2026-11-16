@@ -201,11 +201,17 @@ def gate_penetration(measurement, cfg):
     if pen is None:
         return _result("penetration", UNKNOWN, "缺 penetration 段（需 Blender 逐帧测量）",
                        missing=["penetration"])
-    missing = [k for k in ("max_depth_m", "frames", "bones", "frames_measured")
+    missing = [k for k in ("max_depth_m", "frames", "bones", "frames_measured", "basis")
                if k not in pen]
     if missing:
         return _result("penetration", UNKNOWN, "penetration 缺字段：" + ", ".join(missing),
                        missing=["penetration." + m for m in missing])
+    basis = pen.get("basis")
+    if basis not in ("mesh", "capsule"):
+        # 不默认成 mesh：胶囊口径的数字贴不上网格的 epsilon，混用等于换个名字借可信度
+        return _result("penetration", UNKNOWN,
+                       "穿透口径缺失或未知（basis=%r）：无法确定该用哪套 epsilon" % (basis,),
+                       missing=["penetration.basis"])
     depth = _num(pen["max_depth_m"], "penetration.max_depth_m")
     frames = _int(pen["frames"], "penetration.frames")
     bones = _int(pen["bones"], "penetration.bones")
@@ -218,9 +224,10 @@ def gate_penetration(measurement, cfg):
         return _result("penetration", UNKNOWN, "缺 ROI：深度数字无归属",
                        missing=["penetration.roi"])
 
-    eps = float(cfg["depth_epsilon_m"])
+    eps = float(cfg.get("depth_epsilon_%s_m" % basis, cfg["depth_epsilon_m"]))
     min_frames = int(cfg.get("min_frames", 1))
-    evid = {"roi": roi, "max_depth_m": depth, "frames": frames, "bones": bones,
+    label = "网格口径" if basis == "mesh" else "刚体胶囊口径"
+    evid = {"roi": roi, "basis": basis, "max_depth_m": depth, "frames": frames, "bones": bones,
             "frames_measured": measured,
             "epsilon_m": eps, "sign_convention": cfg.get("sign_convention",
                                                           "negative_depth_is_penetration")}
@@ -231,19 +238,25 @@ def gate_penetration(measurement, cfg):
     # 于是这份门禁在真实数据上永远给不出 PASS——这正是第一份真实测量暴露的缺陷。
     if measured < min_frames:
         return _result("penetration", UNKNOWN,
-                       "实测帧数 %d < %d 不足以判定" % (measured, min_frames),
+                       "%s：实测帧数 %d < %d 不足以判定" % (label, measured, min_frames),
                        missing=["penetration.frames_measured"])
     if roi_bones is not None and roi_bones < int(cfg.get("min_bones", 1)):
         return _result("penetration", UNKNOWN,
-                       "ROI 实测骨数 %d 不足以判定" % roi_bones,
+                       "%s：ROI 实测骨数 %d 不足以判定" % (label, roi_bones),
                        missing=["penetration.roi_bones"])
     if depth <= -eps:
         return _result("penetration", FAIL,
-                       "ROI %s 实测 %d 帧，最深穿入 %.4f m，超过 epsilon %.4f m"
-                       % (roi, measured, depth, eps), evid)
-    return _result("penetration", PASS,
-                   "ROI %s 实测 %d 帧，最深 %.4f m，未超过 epsilon %.4f m"
-                   % (roi, measured, depth, eps), evid)
+                       "%s：ROI %s 实测 %d 帧，最深重叠/穿入 %.4f m，超过 epsilon %.4f m"
+                       % (label, roi, measured, depth, eps), evid)
+    if basis == "capsule":
+        # 胶囊没覆盖的骨在这套口径里等于不存在，所以只能声明「胶囊无重叠」
+        reason = ("%s：ROI %s 实测 %d 帧，最深重叠 %.4f m，未超过 epsilon %.4f m"
+                  "（仅表示刚体胶囊无重叠，不代表模型无穿入）"
+                  % (label, roi, measured, depth, eps))
+    else:
+        reason = ("%s：ROI %s 实测 %d 帧，最深 %.4f m，未超过 epsilon %.4f m"
+                  % (label, roi, measured, depth, eps))
+    return _result("penetration", PASS, reason, evid)
 
 
 GATES = {
