@@ -25,6 +25,7 @@ from coordination import gates as gates_mod
 from coordination import human_gate as human_gate_mod
 from coordination import lock as lock_mod
 from coordination import preflight as preflight_mod
+from coordination import provenance as provenance_mod
 from coordination import status as status_mod
 from coordination import taxonomy as taxonomy_mod
 
@@ -365,6 +366,74 @@ class HumanGateTest(TempDirTest):
         self.assertEqual(status_mod.pending_human([early, later, closing]), [])
 
 
+# --------------------------------------------------------------- 产地判定（gates 与 preflight 共用）
+class ProvenanceTest(TempDirTest):
+    """一条判据两处用，必须同一实现；外部树要显式声明，且声明不能被用来洗白树内路径。"""
+
+    def setUp(self):
+        super().setUp()
+        self.external = self.path("external_tree")
+        self.inner = os.path.join(ROOT, "mmdpipe", "stage.py")
+
+    def check(self, provenance, external_roots=None):
+        return provenance_mod.check(provenance, ROOT, external_roots)
+
+    def test_worktree_only_by_default(self):
+        self.assertTrue(self.check({"stage": self.inner})["ok"])
+
+    def test_declared_external_root_is_accepted_and_visible(self):
+        result = self.check({"manifest": os.path.join(self.external, "tools", "manifest.py")},
+                            [self.external])
+        self.assertTrue(result["ok"])
+        self.assertEqual(len(result["external"]), 1)
+        self.assertIn("外部树种", result["external"][0])      # 可见，不是静默放行
+
+    def test_undeclared_external_path_is_rejected(self):
+        result = self.check({"manifest": os.path.join(self.external, "tools", "manifest.py")})
+        self.assertEqual(result["reason_code"], "PROVENANCE_INVALID")
+        self.assertIn("external_roots", result["detail"])
+
+    def test_external_root_inside_worktree_is_misuse(self):
+        result = self.check({"stage": self.inner}, [ROOT])
+        self.assertEqual(result["reason_code"], "GATE_FAILED")
+        self.assertIn("洗白", result["detail"])
+
+    def test_relative_external_root_is_misuse(self):
+        self.assertEqual(self.check({"stage": self.inner}, ["relative/path"])["reason_code"],
+                         "GATE_FAILED")
+
+    def test_empty_provenance_is_rejected(self):
+        self.assertEqual(self.check({})["reason_code"], "PROVENANCE_INVALID")
+
+    def test_gate_uses_external_roots_from_bundle(self):
+        bundle = {"evidence_check_exit": 0, "coverage_check": "PASS", "acceptance_result": "PASS",
+                  "truth_tier": "T0", "snapshot_paths": [], "resource_lease_valid": True,
+                  "module_provenance": {"manifest": os.path.join(self.external, "tools", "m.py")},
+                  "external_roots": [self.external]}
+        self.assertEqual(gates_mod.check_bundle(bundle, ev(), worktree=ROOT)["reason_code"],
+                         "EVIDENCE_COMPLETE")
+        del bundle["external_roots"]
+        self.assertEqual(gates_mod.check_bundle(bundle, ev(), worktree=ROOT)["reason_code"],
+                         "PROVENANCE_INVALID")
+
+    def test_preflight_uses_external_roots_from_request(self):
+        request = {"task_id": "M06", "needs": 1, "cap": 2, "skipped": 0, "lease": False,
+                   "provenance": {"manifest": os.path.join(self.external, "tools", "m.py")},
+                   "external_roots": [self.external]}
+        self.assertEqual(preflight_mod.check(request, worktree=ROOT)["state"], "READY")
+        del request["external_roots"]
+        self.assertEqual(preflight_mod.check(request, worktree=ROOT)["reason_code"],
+                         "PROVENANCE_INVALID")
+
+    def test_outside_fixture_used_by_other_tests_is_really_outside(self):
+        # A2 2026-11-16 17:32 提的：别让「树外」只是一个需要相信的名字——
+        # 用例自己构造的路径要用判据同一个函数断言一次。
+        candidate = os.path.join(OUTSIDE, "mmdpipe", "stage.py")
+        self.assertFalse(provenance_mod._under(candidate, ROOT))
+        self.assertEqual(provenance_mod.check({"x": candidate}, ROOT)["reason_code"],
+                         "PROVENANCE_INVALID")
+
+
 # --------------------------------------------------------------- 阶段 I：真值档
 class TruthTierTest(unittest.TestCase):
     def test_all_tiers_accepted(self):
@@ -388,7 +457,8 @@ class TruthTierTest(unittest.TestCase):
 
     def test_m08_only_accepts_delivery_tier(self):
         bundle = {"evidence_check_exit": 0, "coverage_check": "PASS", "acceptance_result": "PASS",
-                  "truth_tier": "T3", "snapshot_paths": [], "module_provenance": {},
+                  "truth_tier": "T3", "snapshot_paths": [],
+                  "module_provenance": {"stage": os.path.join(ROOT, "mmdpipe", "stage.py")},
                   "resource_lease_valid": True}
         ok = gates_mod.check_bundle(dict(bundle, task_id="M08"), {"task_id": "M08"}, worktree=ROOT)
         self.assertEqual(ok["reason_code"], "EVIDENCE_COMPLETE")
@@ -399,7 +469,8 @@ class TruthTierTest(unittest.TestCase):
 
     def test_other_modules_accept_non_delivery_tiers(self):
         bundle = {"evidence_check_exit": 0, "coverage_check": "PASS", "acceptance_result": "PASS",
-                  "truth_tier": "T1", "snapshot_paths": [], "module_provenance": {},
+                  "truth_tier": "T1", "snapshot_paths": [],
+                  "module_provenance": {"stage": os.path.join(ROOT, "mmdpipe", "stage.py")},
                   "resource_lease_valid": True}
         self.assertEqual(gates_mod.check_bundle(dict(bundle, task_id="M02"),
                                                 {"task_id": "M02"}, worktree=ROOT)["reason_code"],
@@ -407,7 +478,8 @@ class TruthTierTest(unittest.TestCase):
 
     def test_cache_replay_cannot_report_t2_or_t3(self):
         bundle = {"evidence_check_exit": 0, "coverage_check": "PASS", "acceptance_result": "PASS",
-                  "truth_tier": "T3", "snapshot_paths": [], "module_provenance": {},
+                  "truth_tier": "T3", "snapshot_paths": [],
+                  "module_provenance": {"stage": os.path.join(ROOT, "mmdpipe", "stage.py")},
                   "resource_lease_valid": True, "task_id": "M04", "pose_source": "cache_replay"}
         self.assertEqual(gates_mod.check_bundle(bundle, {"task_id": "M04"},
                                                 worktree=ROOT)["reason_code"],

@@ -51,6 +51,18 @@ L1  状态    out/subai/coordination/board.db（sqlite，唯一状态事实源�
 闸门包（`gate`）八条判据、前置五条判据都在各自模块的 docstring 里逐条写明，
 **每条都有红样本 + 绿样本测试**（`tests/test_coordination_architecture.py`）。
 
+**产地（provenance）有一个正式出口：`external_roots`。** 起因是实测缺陷：M06 的正本工具与产物
+按 `evidence_hash_v1 §4.1` 就在外部树（`E:\flowhmr-test\tools\manifest.py`），而产地判据原来只有
+「在 worktree 下」一条路 ⇒ 对 M06 车道**结构性误杀**。现在的规矩（`coordination/provenance.py`，
+两个闸门共用一份实现）：
+
+- 默认仍只认 worktree；
+- 外部树必须**显式声明** `external_roots`（绝对路径列表），落在其下的路径判过、但在结论里记为
+  「外部树种」——可见，不是静默放行；
+- 不声明 ⇒ 照旧 `PROVENANCE_INVALID`；
+- 外部根是相对路径、或落在 worktree **内** ⇒ `GATE_FAILED`（不许用「外部」给树内路径洗白）；
+- `module_provenance` 为空 ⇒ 判红（空对象能过是漏洞）。
+
 向后兼容不是静默放行：老证据（没有 `truth_tier`、没有 `gate`）走 legacy 通道，
 并在 board 上记 `gate.legacy_skipped` 事件——「这份提交没有闸门」这个事实必须可见。
 
