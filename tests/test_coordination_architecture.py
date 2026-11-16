@@ -632,6 +632,65 @@ class TaxonomyTest(unittest.TestCase):
                      "OWNERSHIP_VIOLATION", "EVIDENCE_SCOPE_MISMATCH", "SNAPSHOT_INVALID"):
             self.assertIn(code, reasons)
 
+    def _history(self, rows):
+        path = os.path.join(tempfile.mkdtemp(prefix="tax-"), "decisions.jsonl")
+        self.addCleanup(shutil.rmtree, os.path.dirname(path), True)
+        with io.open(path, "w", encoding="utf-8") as fh:
+            for row in rows:
+                fh.write(json.dumps(row, ensure_ascii=False) + "\n")
+        return path
+
+    BAD_ROW = {"decision_id": "D-20261116-901", "task_id": "M02",
+               "decision": "RULING", "reason_code": "MADE_UP"}
+
+    def _fix_row(self, supersedes, decision="RETURN_FIX", reason_code="CORRECTION"):
+        return {"decision_id": "D-20261116-902", "task_id": "SPEC",
+                "decision": decision, "reason_code": reason_code, "supersedes": supersedes}
+
+    # 2026-11-16 18:44 真实发生过：D0 绕过 append() 手写五条，decision="RULING" 与自造
+    # reason_code 都在表外。以下五条钉住「只有被后续合规记录点名更正才算交代」，
+    # 且四条各自能红——不许退化成白名单。
+    def test_out_of_vocabulary_row_is_cleared_only_by_a_named_correction(self):
+        fix = self._fix_row({"D-20261116-901": {"decision": "REASSIGN", "reason_code": "RULING"}})
+        report = taxonomy_mod.check_history(self._history([self.BAD_ROW, fix]))
+        self.assertEqual(report["missing_mapping"], [])
+        self.assertEqual(report["bad_supersedes"], [])
+        self.assertEqual(len(report["corrected_out_of_vocabulary"]), 1)
+        item = report["corrected_out_of_vocabulary"][0]
+        self.assertEqual(item["decision_id"], "D-20261116-901")
+        self.assertEqual(item["was"], {"decision": "RULING", "reason_code": "MADE_UP"})
+        self.assertEqual((item["decision"], item["reason_code"]), ("REASSIGN", "RULING"))
+        self.assertEqual(item["by"], "D-20261116-902")
+
+    def test_without_the_correction_row_the_bad_row_is_red_again(self):
+        report = taxonomy_mod.check_history(self._history([self.BAD_ROW]))
+        self.assertEqual(report["missing_mapping"], ["D-20261116-901"])
+        self.assertEqual(report["corrected_out_of_vocabulary"], [])
+
+    def test_superseding_an_absent_id_is_reported(self):
+        fix = self._fix_row({"D-20261116-999": {"decision": "REASSIGN", "reason_code": "RULING"}})
+        report = taxonomy_mod.check_history(self._history([fix]))
+        self.assertEqual(report["missing_mapping"], [])
+        self.assertEqual(len(report["bad_supersedes"]), 1)
+        self.assertIn("不在历史里", report["bad_supersedes"][0]["why"])
+
+    def test_out_of_vocabulary_row_cannot_clear_another(self):
+        bad_fix = {"decision_id": "D-20261116-902", "task_id": "SPEC",
+                   "decision": "RULING", "reason_code": "MADE_UP",
+                   "supersedes": {"D-20261116-901": {"decision": "REASSIGN",
+                                                     "reason_code": "RULING"}}}
+        report = taxonomy_mod.check_history(self._history([self.BAD_ROW, bad_fix]))
+        self.assertEqual(report["missing_mapping"], ["D-20261116-901", "D-20261116-902"])
+        self.assertEqual(len(report["bad_supersedes"]), 1)
+        self.assertIn("声明行自身不在词表闭集里", report["bad_supersedes"][0]["why"])
+
+    def test_corrected_kind_must_stay_in_the_closed_set(self):
+        fix = self._fix_row({"D-20261116-901": {"decision": "RULING", "reason_code": "RULING"}})
+        report = taxonomy_mod.check_history(self._history([self.BAD_ROW, fix]))
+        self.assertEqual(report["missing_mapping"], ["D-20261116-901"])
+        self.assertEqual(len(report["bad_supersedes"]), 1)
+        self.assertIn("更正后的 kind 仍不在闭集里", report["bad_supersedes"][0]["why"])
+
 
 # --------------------------------------------------------------- 阶段 D：派工
 class DispatcherP0Test(TempDirTest):
