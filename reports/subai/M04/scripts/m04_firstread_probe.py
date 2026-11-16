@@ -30,14 +30,65 @@
         --frames 1:240 --frozen-baseline <baseline_C_W1.json> --out <json>
 """
 import argparse
-import hashlib
+import io
 import json
 import os
 import sys
 import time
 
-import addon_utils
-import bpy
+# ---- 前置守卫：判目标 → 判输入，**都发生在 import bpy 之前** --------------------
+# `3号` 20:09 的教训：他第一版把守卫排在测量之后，负控崩在更早的 `bpy.data.filepath == ''`
+# 上、拿到 `rc=3` —— 那「不是守卫有效，是守卫根本没被走到」。而且 rc 非零会把「崩了」
+# 读成「拒绝了」。所以顺序是：判目标 → 判输入身份 → 干活 → 落盘，前三步在 import bpy 之前。
+EXIT_NOT_MEASURED = 10
+EXIT_BAD_INPUT = 11
+EXIT_REFUSED_OVERWRITE = 10
+
+
+def _opt(argv, name):
+    for i, tok in enumerate(argv):
+        if tok == name and i + 1 < len(argv):
+            return argv[i + 1]
+        if tok.startswith(name + "="):
+            return tok.split("=", 1)[1]
+    return None
+
+
+def _utf8_stdio():
+    """编码契约是两头的：父进程按 UTF-8 解码 ⇒ 子进程必须按 UTF-8 写。
+
+    `PYTHONIOENCODING=gbk` 时子进程的 `stderr` 是 GBK，父进程解码成 UTF-8 就变成乱码，
+    于是「REFUSE 的文案里有没有那个路径」这类断言会**在三环境中的一档里假红**。
+    """
+    for stream in (sys.stdout, sys.stderr):
+        try:
+            stream.reconfigure(encoding="utf-8")
+        except Exception:  # noqa: BLE001  Blender 的流未必支持 reconfigure
+            pass
+
+
+def preflight(argv):
+    """目标/输入前置检查；不通过就带语义码退出（Blender 不必参与）。"""
+    _utf8_stdio()
+    out = _opt(argv, "--out")
+    blend = _opt(argv, "--blend")
+    force = "--force" in argv
+    if not out:
+        sys.stderr.write("REFUSE 缺 --out\n")
+        raise SystemExit(EXIT_BAD_INPUT)
+    if blend and not os.path.exists(blend):
+        sys.stderr.write("REFUSE 输入件不在：%s\n" % blend)
+        raise SystemExit(EXIT_BAD_INPUT)
+    if os.path.exists(out) and not force:
+        sys.stderr.write("REFUSE 已有读数：%s（确需重测加 --force）\n" % out)
+        raise SystemExit(EXIT_REFUSED_OVERWRITE)
+    return {"out": out, "blend": blend, "force": force}
+
+
+_PREFLIGHT = preflight(sys.argv[sys.argv.index("--") + 1:]) if "--" in sys.argv else None
+
+import addon_utils  # noqa: E402
+import bpy  # noqa: E402
 
 sys.path.insert(0, r"E:\dsh pr\woker2")
 sys.path.insert(0, r"E:\code\mmdpipe-ai\A2")
@@ -101,6 +152,7 @@ def _compare(a, b):
 
 def main():
     a = _args()
+    _utf8_stdio()
     t0 = time.time()
     for mod in ("bl_ext.user_default.mmd_tools", "mmd_tools"):
         try:
