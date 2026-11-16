@@ -71,6 +71,8 @@ def main():
     ap = argparse.ArgumentParser(prog="probe_fcurve_write_shape")
     ap.add_argument("--owner", required=True)
     ap.add_argument("--json", required=True)
+    ap.add_argument("--force", action="store_true",
+                    help="目标 json 已存在时允许覆盖（默认拒绝：那份读数是报告引用的物证）")
     args = ap.parse_args(argv)
 
     import bpy
@@ -143,6 +145,11 @@ def main():
     rep["blend_untouched"] = sha_after == sha_before
 
     out = args.json if os.path.isabs(args.json) else os.path.join(ROOT, args.json)
+    # 报告引用这份读数，而它在 `out/` 里、git 看不见 ⇒ 被重跑覆盖就只剩「记忆」。
+    # 默认拒绝覆盖：目标已存在就 exit 2，要重测必须显式 `--force`（`D-225`：不可逆的用拒绝）。
+    if os.path.exists(out) and not args.force:
+        # `blender -b` 里 `SystemExit` 不改退出码（实测 exit 0）⇒ 抛异常交给 `--python-exit-code`。
+        raise RuntimeError("REFUSE 已有读数：%s（确需重测加 --force）" % out)
     os.makedirs(os.path.dirname(out), exist_ok=True)
     with open(out, "w", encoding="utf-8") as fh:
         json.dump(rep, fh, ensure_ascii=False, indent=2, sort_keys=True)

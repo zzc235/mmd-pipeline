@@ -456,3 +456,31 @@ digest 不同是**对的**：证据的输入里有 `apply_action.py`、`tests/te
 2. **`--out` 只重定向了证据、没重定向闸门包**：第一次验证就把已提交的 `gate_m05_attempt11.json`
    改了一个 snapshot 路径，被 `git status` 抓到、已 `git checkout --` 还原。现在闸门包跟着 `--out` 走
    —— **验证性运行必须能完全落在临时目录里**，否则「只验证一次」就是一次改写。
+
+### 第十三条的另一面：`git status` 看不见 `out/` 里的东西（`4号` 点的）
+
+我给 `4号` 的验收断言是「验证性运行之后 `git status --porcelain` 必须为空」。他指出这条**只覆盖仓库内的文件** ——
+而产物树里的读数不在 git 视野里，被覆盖了也不会红。他说得对，而且这条正好咬我：**报告引用的两份读数就住在 `out/`**：
+
+| 脚本 | 输出 | 原状态 | 现在 |
+|---|---|---|---|
+| `readback_324_arms.py` | `out/subai/M05/arms/20261116_324/readback_arms.json` | 重跑**静默覆盖** | 目标存在即拒绝，`--force` 才覆盖 |
+| `probe_fcurve_write_shape.py` | `out/subai/M05/probe_fcurve_write_shape.json`（默认） | 重跑**静默覆盖** | 同上 |
+
+之所以要拒：这两份是**报告 §十一/§十三 的数字出处**，而它们在 `out/` 里没有第二份 —— 覆盖掉就只剩「记忆」。
+`D-225` 的判据在这里同样适用：**不可逆的用拒绝，可补的用记录**（生成器那两支写的是 git 里的交付件，一样拒）。
+
+### 真机负控（不是「应该会拒」）
+
+`guard` 代持锁、`blender -b --factory-startup --python-exit-code 3`、目标文件已存在：
+
+```
+REFUSE 已有读数：…\readback_arms.json（确需重测加 --force）
+GUARD_DONE rc=3
+readback_arms.json sha256 前后同为 eaf82204…（一个字节没写）
+```
+
+**这里撞到一个必须记的形状**：第一版守卫写的是 `return 2`（`SystemExit`），真机跑出来 **`rc=0`** ——
+`blender -b` 不把 `SystemExit` 的码带出去。改成 `raise RuntimeError(...)` 交给 `--python-exit-code` 才是 `rc=3`。
+**凡在 Blender 里做「拒绝/失败」的守卫，别用退出码返回值，要抛异常。** 顺带一句：真正保证「没写」的是
+文件 sha 前后同值，不是退出码 —— 退出码只是让调用方停下。
