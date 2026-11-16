@@ -167,6 +167,65 @@ class TestThreeSegmentLedger(unittest.TestCase):
         ok, _ = chainplan.nla_segments_check(1)
         self.assertFalse(ok)
 
+    # --- gap 默认值同源 + 预检可见（D-040） --------------------------------
+    def test_gap_default_declared_once(self):
+        """两个 CLI / 两个函数签名的 gap 默认值必须是同一个常量。"""
+        import inspect
+
+        from mmdpipe import chain_defaults
+        self.assertEqual(inspect.signature(chainplan.plan).parameters["gap"].default,
+                         chain_defaults.DEFAULT_GAP)
+        self.assertEqual(inspect.signature(concatvmd.concat_vmd).parameters["gap"].default,
+                         chain_defaults.DEFAULT_GAP)
+
+    def test_both_clis_agree_without_gap(self):
+        """不传 --gap 时，预检与真拼接必须得到同一个帧数（以前是 188 vs 182）。"""
+        import contextlib
+        import io
+        import json
+
+        from mmdpipe import chain_defaults
+        pj = os.path.join(self.tmp, "cli_plan.json")
+        cj = os.path.join(self.tmp, "cli_concat.json")
+        out = os.path.join(self.tmp, "cli_chain.vmd")
+        self.assertEqual(chainplan.main(self.segs + ["--quiet", "--json", pj]), 0)
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            self.assertEqual(concatvmd.main(self.segs + ["--out", out, "--json", cj]), 0)
+        with open(pj, encoding="utf-8") as fh:
+            pre = json.load(fh)
+        with open(cj, encoding="utf-8") as fh:
+            con = json.load(fh)
+        self.assertEqual(pre["gap"], chain_defaults.DEFAULT_GAP)
+        self.assertEqual(pre["total_frames"], con["total_frames"])
+        # 91+91+151 段内合计 333，gap 只影响段间
+        self.assertEqual(pre["total_frames"], 333 + chain_defaults.DEFAULT_GAP * 2)
+
+    def test_preflight_shows_both_gap_ledgers(self):
+        """gap 与默认值不同时，预检必须把两个帧数并列出来并标出差额。"""
+        rep = chainplan.plan(self.segs[:2], gap=6)      # 两段 91+91
+        self.assertEqual(rep["total_frames"], 188)      # 182 + 6×1
+        self.assertEqual(chainplan.total_frames_for_gap(rep, 0), 182)
+        text = chainplan.render_text(rep)
+        self.assertIn("帧账校核", text)
+        self.assertIn("差 6 帧", text)
+        self.assertIn("188", text)
+
+    def test_preflight_says_consistent_when_gap_matches_default(self):
+        rep = chainplan.plan(self.segs[:2], gap=0)
+        text = chainplan.render_text(rep)
+        self.assertIn("与默认 gap=0 的真拼接一致", text)
+        self.assertNotIn("差 ", text)
+
+    def test_json_carries_default_gap_frames(self):
+        """M07 只吃 JSON：'换默认 gap 会得多少帧' 必须在 JSON 里，不能只在文本里。"""
+        rep = chainplan.plan(self.segs[:2], gap=6)      # 188 帧
+        self.assertEqual(rep["total_frames"], 188)
+        self.assertEqual(rep["frames_if_default_gap"], 182)
+        # gap 与默认一致时两列相等
+        rep0 = chainplan.plan(self.segs[:2])
+        self.assertEqual(rep0["frames_if_default_gap"], rep0["total_frames"])
+
 
 if __name__ == "__main__":
     unittest.main()
