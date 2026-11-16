@@ -39,9 +39,9 @@
     },
     "M05": {
       "status": "PARTIAL",
-      "reason": "接口 chain/junctions+frames+nla_guard@1 已验收并入基线，exit 2 语义分工具写明、--gap 默认值收成单一声源；模块书其余条目（覆盖率体检等）未逐条复核",
-      "next": "A3 待 4号 开始写 chainplan 解析时给绝对路径 + 哈希清单；M08 前补逐条复核",
-      "updated": "2026-11-16T13:25+08:00"
+      "reason": "接口 chain/junctions+frames+nla_guard@1 已验收；丢段 PASS（§6 四条 4/4，本轮又加真跑）；NLA 姿态 1 绿 / 1 部分 / 2 没有；D4 第一处交接已补（像素步差 4.3 倍支持 E-16），第二处待补",
+      "next": "A3：第二处交接 pair[1,2] 同四样（gap=0 步差/常态/gap=22 步差/图）；NLA 三面（导出重导入、blend>gap、悬空坐姿视觉）未验；--chain-gap 默认保持 0（D-112）",
+      "updated": "2026-11-16T14:16+08:00"
     },
     "M06": {
       "status": "PARTIAL",
