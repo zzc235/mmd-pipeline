@@ -81,6 +81,35 @@ def build_commands(batch_id, in_blend, blender, allow_overwrite=False):
     return cmds
 
 
+def read_health(path):
+    """读交付件体检 JSON，回答「这份输入上有动作吗」。
+
+    体检本身用 `2号` 的 `m04_delivery_health.py`（一次 Blender 会话 ~20 秒，给
+    actions / NLA / frame_end / 刚体数 / ROI / is_baked / 掩码三元组），本函数**只读它的输出**，
+    不重造一份体检。上一轮就是在最后一步才发现 `actions == []`，白占一个窗口。
+
+    **看不清就当红**：字段名字找不到时不放行 —— 那说明体检输出换了形状，先把形状对齐再跑臂。
+    """
+    # `utf-8-sig`：别人家的工具在 Windows 上落 JSON 很可能带 BOM（PowerShell 的
+    # `Set-Content -Encoding utf8` 就带），裸 `utf-8` 会直接 `Unexpected UTF-8 BOM` 崩掉。
+    with open(path, encoding="utf-8-sig") as fh:
+        doc = json.load(fh)
+    keys = ("actions", "action_names", "actions_all", "nla_tracks", "frame_end", "is_baked")
+    found = {k: doc[k] for k in keys if k in doc}
+    actions = None
+    for k in ("actions", "action_names", "actions_all"):
+        if isinstance(doc.get(k), list):
+            actions = doc[k]
+            break
+    if actions is None:
+        return {"ok": False, "why": "体检 JSON 里找不到 actions 列表（现有键：%s）" % sorted(doc)[:12],
+                "fields": found}
+    if not actions:
+        return {"ok": False, "why": "输入场景 actions == []：不在这份上空跑（读数会是水平线）",
+                "fields": found}
+    return {"ok": True, "why": "%d 条动作" % len(actions), "fields": found}
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(prog="run_arms", description="M05 批次驱动（版本化 + 冻结 + 锁闸门）")
     ap.add_argument("--batch-id", required=True)
@@ -88,7 +117,16 @@ def main(argv=None):
     ap.add_argument("--blender", default=r"E:\code\Blender\blender-5.2.2-windows-x64\blender.exe")
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--allow-overwrite", action="store_true")
+    ap.add_argument("--health-json", default=None,
+                    help="交付件体检输出（2号 m04_delivery_health.py 的 JSON）；给了就先看有没有动作")
     args = ap.parse_args(argv)
+
+    health = None
+    if args.health_json:
+        health = read_health(args.health_json)
+        print("体检：%s —— %s" % ("通过" if health["ok"] else "不通过", health["why"]))
+        if not health["ok"] and not args.dry_run:
+            raise SystemExit("拒绝起臂：输入场景没通过体检（上面那句）。先在输入上把动作装好再说。")
 
     cmds = build_commands(args.batch_id, args.in_blend, args.blender, args.allow_overwrite)
     if args.dry_run:
@@ -118,7 +156,7 @@ def main(argv=None):
                                            "" if rec["ok"] else "   <<< 不符"))
 
     report = {"schema": "m05.batch/1", "batch_id": args.batch_id, "in_blend": args.in_blend,
-              "owner": OWNER, "arms": results}
+              "owner": OWNER, "health": health, "arms": results}
     os.makedirs(os.path.join(ARMS_DIR, args.batch_id), exist_ok=True)
     path = os.path.join(ARMS_DIR, args.batch_id, "batch_report.json")
     with open(path, "w", encoding="utf-8", newline="\n") as fh:
