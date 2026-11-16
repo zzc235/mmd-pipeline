@@ -4,8 +4,8 @@
       "frozen_eps_deg": 0.5,
       "parent_min_deg": 15.0,
       "source": "父链至少动 15° 才谈得上『该动』；目标角度 ≤0.5° 视为零变化。两个值都是探索性取值，等 M01 的 S3/S5 实测回归",
-      "suspicious_zero_parent_angle_deg": 10.0,
-      "suspicious_zero_parent_note": "父链增量恒为 0 而目标角超过该值时，装配器标记 suspicious_zero_parent，冻结门禁返回 UNKNOWN（M02 首采实测：240 帧 parent_delta_deg 全 0.0，angle 1.74~67.2）",
+      "suspicious_zero_parent_note": "父链增量恒 0 且目标跨度也≈0 时标记 suspicious_zero_parent → 冻结门禁 UNKNOWN。父链恒 0 但目标在动是「物理在跑」的正面证据，不得误报",
+      "suspicious_zero_parent_span_deg": 1.0,
       "unit": "deg"
     },
     "penetration": {

@@ -161,27 +161,31 @@ class TestNullTolerance(unittest.TestCase):
                          "父链全部不可比时不能编造冻结候选")
         self.assertEqual(m["frozen"]["parent_delta_deg"], 0.0)
 
-    def test_zero_parent_with_large_angle_is_flagged(self):
-        """父链增量恒 0 但目标角 40°：分不清「静止」和「没测」，必须打标记。
+    def test_zero_parent_with_moving_target_is_not_flagged(self):
+        """父链恒 0 但目标在扫（1.74°→67.2°）：这是「物理在跑」，不是缺陷。
 
-        来源是真实数据：M02 首采 240 帧 × 18 骨，parent_delta_deg 全 0.0，
-        而 angle 从 1.74° 变到 67.2°。不打标记，冻结门禁会凭一个 0 就判 PASS。
+        1号 复核 B_from_blend1.blend 时给出四元数证据：下半身 240 帧的
+        [w,x,y,z] 八个有效位完全相同（静止根），子骨飘带照样甩到 67.2°。
+        早先按「目标角大就告警」的写法会把这个正常样本打成 UNKNOWN。
         """
-        data = [{"frame": f, "bone": "b", "angle_deg": 40.0, "parent_delta_deg": 0.0}
-                for f in range(1, 11)]
+        angles = [1.74, 10.0, 30.0, 55.0, 67.199] * 2
+        data = [{"frame": i + 1, "bone": "b", "angle_deg": a, "parent_delta_deg": 0.0}
+                for i, a in enumerate(angles)]
         m = measure.assemble(data, None, sample_id="t", evidence_mode="stepped",
                              frames=FRAMES, assembly=assembly())
         self.assertTrue(m["frozen"]["parent_all_zero"])
-        self.assertTrue(m["frozen"]["suspicious_zero_parent"])
-        self.assertAlmostEqual(m["frozen"]["target_delta_deg"], 40.0)
+        self.assertFalse(m["frozen"]["suspicious_zero_parent"],
+                         "父骨静止、子骨在动＝物理引擎在工作，不能当未测量")
+        self.assertAlmostEqual(m["frozen"]["target_span_deg"], 67.199 - 1.74, places=6)
 
-    def test_zero_parent_with_small_angle_is_not_flagged(self):
+    def test_zero_parent_with_static_target_is_flagged(self):
+        """父链恒 0 且目标跨度≈0：分不清「真静止」和「这一列没测」，只能打标记。"""
         data = [{"frame": f, "bone": "b", "angle_deg": 1.0, "parent_delta_deg": 0.0}
                 for f in range(1, 11)]
         m = measure.assemble(data, None, sample_id="t", evidence_mode="stepped",
                              frames=FRAMES, assembly=assembly())
-        self.assertFalse(m["frozen"]["suspicious_zero_parent"],
-                         "目标本来就不动时，恒 0 的父链不值得告警")
+        self.assertTrue(m["frozen"]["suspicious_zero_parent"])
+        self.assertAlmostEqual(m["frozen"]["target_span_deg"], 0.0)
 
     def test_null_angle_is_an_error_not_zero(self):
         data = [{"frame": f, "bone": "b", "angle_deg": 1.0, "parent_delta_deg": 1.0}
