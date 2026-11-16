@@ -19,6 +19,8 @@ import math
 
 SPEC = "evidence/1"
 STATUSES = ("PASS", "PARTIAL", "BLOCKED")
+# 允许的哈希基数。省略 = 旧基数（按原始字节算）；写了就必须是这里的一个值。
+HASH_BASES = ("lf_normalized_v1",)
 
 
 class EvidenceError(ValueError):
@@ -129,12 +131,18 @@ def normalize(obj: dict) -> dict:
         raise EvidenceError("interface 必须是字符串或 null")
 
     # 哈希基数（D0 2026-11-16 定：文本先 \r\n → \n 再 sha256）。
-    # **可选且只在不写时才补默认**：给了就进 hash，不给就完全不出现——
-    # 这样改动之前算出来的证据哈希一个都不变（有测试钉住）。
+    # **可选**：不给就是旧基数（原始字节），哈希与加这个字段之前逐字节相同；
+    # 给了就必须是枚举里的值——自由文本等于没标准，所以不认识的基数直接抛。
     hash_basis = obj.get("hash_basis")
     if hash_basis is not None and not isinstance(hash_basis, str):
         raise EvidenceError("hash_basis 必须是字符串或 null")
-    if isinstance(hash_basis, str) and not hash_basis.strip():
+    if isinstance(hash_basis, str):
+        text = " ".join(hash_basis.split())
+        if text and text not in HASH_BASES:
+            raise EvidenceError("hash_basis 只能是 %s，或省略表示旧基数；收到 %r"
+                                % ("/".join(HASH_BASES), text), "WRONG_HASH_BASIS")
+        hash_basis = text or None
+    else:
         hash_basis = None
 
     normalized = {
