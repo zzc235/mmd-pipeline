@@ -7,8 +7,12 @@ M03 `diagnose/1` 报告（diagnosis），阈值全部来自外置 profile，代�
 判定语义
 --------
 * 门禁判的是**物理质量**：`PASS` = 没抓到这类问题。
-* 三类门禁各自独立求值，最后聚合；**一个门禁 UNKNOWN 不会被别的 PASS 淹没**
-  （聚合顺序 ERROR > FAIL > UNKNOWN > PASS）。
+* 三类门禁各自独立求值，最后聚合；**一个门禁 UNKNOWN 不会被别的 PASS 淹没**。
+  聚合只在 `PASS / FAIL / UNKNOWN` 三级之间发生，优先级 `FAIL > UNKNOWN > PASS`；
+  `OUT_OF_SCOPE` 在聚合前被排除（三类全范围外时结果为 `UNKNOWN`）。
+  **`ERROR` 不是聚合结果**：它是 `GateInputError` 异常，一路冒到 `main()` 返回
+  退出码 2 且**不产出任何 gate JSON**。消费方只能看退出码，别写「ERROR 状态」的解析分支
+  ——那条分支永远到不了。
 * 缺字段一律 `UNKNOWN`，不当 PASS —— 这是本模块最容易写错、也最贵的一处。
 
 状态与退出码

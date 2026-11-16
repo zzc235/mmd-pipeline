@@ -242,6 +242,29 @@ class TestCli(unittest.TestCase):
                 cwd=REPO_ROOT, capture_output=True, text=True, encoding="utf-8")
             self.assertEqual(proc.returncode, pg.EXIT_FAIL, proc.stderr)
 
+    def test_config_error_exits_2_and_writes_no_json(self):
+        """ERROR 不是聚合结果：退出码 2 且不产出 gate JSON。
+
+        这条钉住的是「消费方别写 ERROR 状态的解析分支」——
+        D-024 指出的那句错注释就错在这里：把 ERROR 当成第三级聚合，
+        会让人写出一个永不可达的分支，然后以为自己处理了错误路径。
+        """
+        with tempfile.TemporaryDirectory() as tmp:
+            meas = os.path.join(tmp, "m.json")
+            with open(meas, "w", encoding="utf-8") as fh:
+                json.dump(measurement(), fh)
+            bad = os.path.join(tmp, "bad_profile.json")
+            with open(bad, "w", encoding="utf-8") as fh:
+                json.dump({"profile_id": "x"}, fh)  # 缺 threshold_version / gates
+            out = os.path.join(tmp, "gate.json")
+            proc = subprocess.run(
+                [sys.executable, "-m", "mmdpipe.physics_gate",
+                 "--measurement", meas, "--profile", bad, "--out", out],
+                cwd=REPO_ROOT, capture_output=True, text=True, encoding="utf-8")
+            self.assertEqual(proc.returncode, pg.EXIT_ERROR, proc.stderr)
+            self.assertFalse(os.path.exists(out),
+                             "配置错误时不许留下半成品 JSON，否则消费方会读到不完整结果")
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
