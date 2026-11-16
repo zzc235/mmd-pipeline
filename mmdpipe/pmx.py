@@ -8,6 +8,7 @@
 """
 from __future__ import annotations
 
+import math
 import os
 import struct
 from dataclasses import dataclass, field
@@ -109,6 +110,7 @@ class Joint:
     limit_span: float          # 六个限位值的最大绝对值；0 = 限位全 0
     spring_max: float          # 六个弹簧刚度的最大绝对值；0 = 弹簧全 0
     position: tuple = (0.0, 0.0, 0.0)
+    fields: dict = field(default_factory=dict)   # 六个限位/弹簧字段的原始值，见 JOINT_LIMIT_OFFSETS
 
     @property
     def limits_zero(self) -> bool:
@@ -454,6 +456,11 @@ def parse(data: bytes, path: str = "<memory>") -> PMXModel:
                 limit_span=max([abs(v) for v in lpm + lpx + lrm + lrx], default=0.0),
                 spring_max=max([abs(v) for v in sp + sr], default=0.0),
                 position=jpos,
+                fields={
+                    "move_min": tuple(lpm), "move_max": tuple(lpx),
+                    "rot_min": tuple(lrm), "rot_max": tuple(lrx),
+                    "spring_move": tuple(sp), "spring_rot": tuple(sr),
+                },
             ))
         model.joints = joints
     except PMXError as exc:
@@ -472,11 +479,86 @@ def parse(data: bytes, path: str = "<memory>") -> PMXModel:
 # 刚体 mode 语义（PMX 2.0）：0 = 跟随骨骼（不做物理），1 = 物理演算，2 = 物理演算 + 回填骨骼旋转
 RIGID_MODES = (0, 1, 2)
 
+# 关节限位 / 弹簧字段相对 joint_pos_offsets[i] 的字节偏移。
+# 顺序取自解析器实际读法（position 12B → rotation 12B → 六段各 12B，关节尾部共 96 B），
+# 逐字节实测过，不按 PMX 规范推断。**spring_rot 是 +84**：初版写 +78 会落在
+# spring_move 第 3 个 float 内部，写进去 PMX 仍能解析、spring_max 仍读 0.0，语义字段看不出异常
+# （2026-11-16 勘误，证据见 tests/test_pmx_patch.py 的窗口断言）。
+JOINT_LIMIT_OFFSETS = {
+    "move_min": 24,
+    "move_max": 36,
+    "rot_min": 48,
+    "rot_max": 60,
+    "spring_move": 72,
+    "spring_rot": 84,
+}
+JOINT_LIMIT_WIDTH = 12          # 3f
+
+
+def diff_offsets(a: bytes, b: bytes) -> list:
+    """逐字节比较，返回所有不同字节的偏移。长度不同直接报错——补丁不许改文件长度。"""
+    if len(a) != len(b):
+        raise PMXError("字节长度不同：%d vs %d" % (len(a), len(b)))
+    return [i for i in range(len(a)) if a[i] != b[i]]
+
+
+def _check_joint_limit(model, joint_limit) -> dict:
+    """校验并预打包 joint_limit 补丁：{关节索引: {字段名: (字节偏移, 12 字节载荷)}}。
+
+    写前用解析时记下的原始值回读比对（按 bytes，不比 float——NaN / ±0.0 都要逐位对齐），
+    不一致说明偏移过期（模型换过），拒绝写，而不是把别的字段改坏。
+    """
+    limits: dict = {}
+    for idx, spec in (joint_limit or {}).items():
+        if isinstance(idx, bool) or not isinstance(idx, int):
+            raise PMXError("关节索引必须是整数，收到 %r" % (idx,))
+        if not (0 <= idx < len(model.joints)):
+            raise PMXError("关节索引越界 %d（joint_limit 补丁，共 %d 个关节）"
+                           % (idx, len(model.joints)))
+        if not isinstance(spec, dict):
+            raise PMXError("关节 %d 的 joint_limit 必须是 dict，收到 %s"
+                           % (idx, type(spec).__name__))
+        unknown = sorted(k for k in spec if k not in JOINT_LIMIT_OFFSETS)
+        if unknown:
+            raise PMXError("关节 %d 含未知字段 %s（只接受 %s）"
+                           % (idx, unknown, sorted(JOINT_LIMIT_OFFSETS)))
+        base = model.joint_pos_offsets[idx]
+        parsed_fields = model.joints[idx].fields
+        packed: dict = {}
+        for name, val in spec.items():
+            if isinstance(val, (str, bytes)) or not hasattr(val, "__len__"):
+                raise PMXError("关节 %d 的 %s 必须是 3 个数，收到 %r" % (idx, name, val))
+            vals = tuple(val)
+            if len(vals) != 3:
+                raise PMXError("关节 %d 的 %s 必须正好 3 个数，收到 %d 个"
+                               % (idx, name, len(vals)))
+            for v in vals:
+                if isinstance(v, bool) or not isinstance(v, (int, float)):
+                    raise PMXError("关节 %d 的 %s 含非法值 %r（只接受 int/float，bool 拒绝）"
+                                   % (idx, name, v))
+                if not math.isfinite(v):
+                    raise PMXError("关节 %d 的 %s 含非有限值 %r（拒绝写 NaN/Inf）"
+                                   % (idx, name, v))
+            off = base + JOINT_LIMIT_OFFSETS[name]
+            if off + JOINT_LIMIT_WIDTH > len(model.raw):
+                raise PMXError("关节 %d 的 %s 偏移越界：%d（文件 %d 字节）"
+                               % (idx, name, off, len(model.raw)))
+            parsed = parsed_fields.get(name)
+            if parsed is None:
+                raise PMXError("关节 %d 缺少 %s 的解析记录，无法校验偏移" % (idx, name))
+            if struct.pack("<3f", *parsed) != model.raw[off:off + JOINT_LIMIT_WIDTH]:
+                raise PMXError("关节 %d 的 %s 偏移过期：字节里 %s，解析记录 %r"
+                               % (idx, name, list(model.raw[off:off + JOINT_LIMIT_WIDTH]), parsed))
+            packed[name] = (off, struct.pack("<3f", *(float(v) for v in vals)))
+        limits[idx] = packed
+    return limits
+
 
 def patch_save(model, dst: str, rigid_pos: dict | None = None,
                joint_pos: dict | None = None,
-               rigid_mode: dict | None = None) -> str:
-    """只改指定刚体的 mode / 刚体与关节的位置浮点数，其余字节原样保留。
+               rigid_mode: dict | None = None,
+               joint_limit: dict | None = None) -> str:
+    """只改指定刚体的 mode / 刚体与关节的位置浮点数 / 关节限位与弹簧，其余字节原样保留。
 
     不做整份重序列化——那是"写坏文件"的主要来源（附加 UV、morph 偏移都对不上）。
 
@@ -484,6 +566,9 @@ def patch_save(model, dst: str, rigid_pos: dict | None = None,
     rigid_pos / joint_pos: {index: (x, y, z)}
     rigid_mode: {index: 0/1/2}，只改那一个字节；写之前用解析时记下的偏移回读旧值，
                 不一致说明偏移过期（模型换过）→ 拒绝写，而不是把别的字段改坏。
+    joint_limit: {index: {"move_min": (x, y, z), "move_max": ..., "rot_min": ..., 
+                 "rot_max": ..., "spring_move": ..., "spring_rot": ...}}，字段名照
+                 JOINT_LIMIT_OFFSETS；缺字段不写，传 None 不写。同样写前回读校验。
     """
     if not model.raw:
         raise PMXError("解析时没保留原始字节，不能安全写回")
@@ -504,6 +589,7 @@ def patch_save(model, dst: str, rigid_pos: dict | None = None,
         if old != model.rigids[idx].mode:
             raise PMXError("刚体 %d 的 mode 偏移过期：字节里是 %d，解析记录是 %d"
                            % (idx, old, model.rigids[idx].mode))
+    limits = _check_joint_limit(model, joint_limit)
 
     buf = bytearray(model.raw)
     for idx, mode in modes.items():
@@ -516,6 +602,9 @@ def patch_save(model, dst: str, rigid_pos: dict | None = None,
         if not (0 <= idx < len(model.joint_pos_offsets)):
             raise PMXError("关节索引越界 %d" % idx)
         struct.pack_into("<3f", buf, model.joint_pos_offsets[idx], *pos)
+    for _idx, fields in limits.items():
+        for _name, (off, payload) in fields.items():
+            buf[off:off + JOINT_LIMIT_WIDTH] = payload
     os.makedirs(os.path.dirname(os.path.abspath(dst)) or ".", exist_ok=True)
     with open(dst, "wb") as fh:
         fh.write(bytes(buf))
