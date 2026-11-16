@@ -58,6 +58,9 @@ BAKE_FRAME_END_MISMATCH = 7
 BAKE_GATE_RED = 8
 BAKE_FPS_MISMATCH = 9
 BAKE_PROBE_UNINFORMATIVE = 10
+BAKE_EXCEPTION = 11
+BAKE_RIGIDS_MISMATCH = 12
+BAKE_MASK_MISMATCH = 13
 
 MIN_FCURVES = 100          # 与 3号 的 `A1_action_applied` 同一道门槛（725/700 都远大于它）
 
@@ -98,28 +101,45 @@ def opt(argv, name, default=None):
 
 
 def constraint_census():
-    """场景里到底有多少个刚体约束对象 —— 独立数，不是掩码的账。"""
+    """场景里到底有多少个**刚体约束** —— 独立数，不是掩码的账。
+
+    实测踩到的坑：`obj.type == 'RIGID_BODY_CONSTRAINT'` 在 Blender 5.2 里**永远数到 0**，
+    因为对象类型枚举里没有这一项（约束是挂在 Empty 上的 `obj.rigid_body_constraint`）。
+    按类型名数会得到「0 个约束」这种假装量过的读数，所以这里两条口径都量：
+    ①属性口径：`rigid_body_constraint is not None`；②世界口径：`rigidbody_world.constraints`。
+    """
     total = 0
     disable_true = 0
     disable_false = 0
     types = {}
     for obj in bpy.data.objects:
-        if obj.type != "RIGID_BODY_CONSTRAINT":
+        rbc = getattr(obj, "rigid_body_constraint", None)
+        if rbc is None:
             continue
         total += 1
-        rbc = getattr(obj, "rigid_body_constraint", None)
         kind = getattr(rbc, "type", None)
         types[kind] = types.get(kind, 0) + 1
-        if rbc is not None and getattr(rbc, "disable_collisions", False):
+        if getattr(rbc, "disable_collisions", False):
             disable_true += 1
         else:
             disable_false += 1
-    scene_scoped = sum(1 for obj in bpy.context.scene.objects
-                       if obj.type == "RIGID_BODY_CONSTRAINT")
-    return {"total": total, "in_scene": scene_scoped,
+    scene = bpy.context.scene
+    rbw = getattr(scene, "rigidbody_world", None)
+    world, world_err = None, None
+    if rbw is not None:
+        try:
+            world = len(list(getattr(rbw, "constraints", [])))
+        except Exception as exc:  # noqa: BLE001  实测 `RigidBodyWorld.constraints` 不是可 len 的序列
+            world_err = "%s: %s" % (type(exc).__name__, exc)
+    scoped = sum(1 for obj in scene.objects
+                 if getattr(obj, "rigid_body_constraint", None) is not None)
+    return {"total": total, "in_scene": scoped, "rigidbody_world_constraints": world,
+            "rigidbody_world_constraints_error": world_err,
             "disable_collisions_true": disable_true,
             "disable_collisions_false": disable_false,
-            "by_type": types}
+            "by_type": types,
+            "type_enum_hit": sum(1 for o in bpy.data.objects
+                                 if o.type == "RIGID_BODY_CONSTRAINT")}
 
 
 def action_readback():
@@ -165,25 +185,6 @@ def cache_readback():
             "use_disk_cache": bool(getattr(cache, "use_disk_cache", False))}
 
 
-def reference_moved(frames):
-    """采样帧之间刚体姿态有没有真的不同 —— 探针的**区分力**。
-
-    静态件上 `matched=true / max_delta=0.0` 只证明「两次读到同一个值」，不证明缓存忠实
-    （4号 18:56 在无动作件上实测撞到的形状）。4号 已把它做成 `bake_checks()` 的
-    `probe_informative`；我这条是同一判据在**调用点**的独立复算，因为 `stage.py` 的那条
-    还没并进我这棵树。两次都留，谁先并都红。
-    """
-    seen = {}
-    for frame in frames:
-        bpy.context.scene.frame_set(int(frame))
-        snap = stage.pose_snapshot(stage.rigid_bodies())
-        key = json.dumps({k: [round(float(v), 9) for v in vals]
-                          for k, vals in sorted(snap.items())}, sort_keys=True)
-        seen[key] = [frame]
-    return {"frames": list(frames), "distinct": len(seen),
-            "moved": len(seen) > 1}
-
-
 def main():
     argv = argv_after_dashes()
     in_blend = opt(argv, "--in-blend")
@@ -192,8 +193,13 @@ def main():
     run_id = opt(argv, "--run-id")
     expect_fps = int(opt(argv, "--expect-fps", "24"))
     built_report = opt(argv, "--built-report")
+    expect_readback = opt(argv, "--expect-readback")
+    disk_cache = "--disk-cache" in argv
     if not in_blend or not report_path:
         raise SystemExit("必给 --in-blend 与 --report")
+    if not expect_readback:
+        raise SystemExit("必给 --expect-readback：烘前五项里的刚体数/掩码四条要跟冻结回读对账，"
+                         "期望值不写死（总控 18:59）")
 
     report = {
         "stage": "bake-delivery-v1",
@@ -225,10 +231,69 @@ def main():
     scene = bpy.context.scene
     report["scene"] = {"fps": int(scene.render.fps), "fps_base": round(float(scene.render.fps_base), 6),
                        "frame_start": int(scene.frame_start), "frame_end": int(scene.frame_end)}
-    report["rigids"] = {"all": len(stage.rigid_bodies()),
-                        "scope": len(stage.collision_scope())}
+    report["rigids"] = {
+        # `stage.rigid_bodies()` = `mmd_type == 'RIGID_BODY'`（= U323）；`collision_scope()`
+        # 返回的是 **(inside, outside) 二元组**，直接 len 会数成 2 —— 实测踩过。
+        "u323": len(stage.rigid_bodies()),
+        "u324": sum(1 for o in bpy.data.objects if getattr(o, "rigid_body", None) is not None),
+        "scope_inside": len(stage.collision_scope()[0]),
+        "scope_outside": [o.name for o in stage.collision_scope()[1]],
+    }
     report["constraints_before"] = constraint_census()
     report["cache_before"] = cache_readback()
+
+    # 总控 18:59 的烘前五项之 4/5：刚体数、掩码四条 —— 期望值**从冻结回读读**，不写死
+    # （833 都不许写死，323/324/8298 同理）。冻结件是只读的，读它跟读 D 臂等价，
+    # 而且这条链上每一步都有 sha。
+    if expect_readback and os.path.exists(expect_readback):
+        with open(expect_readback, encoding="utf-8") as fh:
+            exp = json.load(fh)
+        triple = exp.get("mask_triple") or {}
+        expect = {"u323": exp.get("rigids_u323_rigid_bodies"),
+                  "u324": exp.get("rigids_u324_rigid_body_attr"),
+                  "mask_verdict": triple.get("verdict"),
+                  "constraints_needed": triple.get("constraints_needed"),
+                  "constraints_added": triple.get("constraints_added"),
+                  "capped": triple.get("constraints_capped"),
+                  "skipped": triple.get("skipped_count"),
+                  "readback_mismatch": triple.get("readback_mismatch")}
+        report["expect_from"] = {"path": os.path.abspath(expect_readback),
+                                 "sha256": sha256_file(expect_readback), **expect}
+        got = {"u323": report["rigids"]["u323"], "u324": report["rigids"]["u324"]}
+        report["rigids_check"] = {"expect": {"u323": expect["u323"], "u324": expect["u324"]},
+                                  "got": got,
+                                  "ok": got["u323"] == expect["u323"] and got["u324"] == expect["u324"]}
+        # 掩码装上的约束还在不在：`disable_collisions=True` 的对象数必须覆盖掩码的 `constraints_added`
+        con = report["constraints_before"]
+        report["mask_check"] = {
+            "frozen_verdict": expect["mask_verdict"],
+            "frozen_identity": (None if None in (expect["constraints_needed"], expect["constraints_added"])
+                                else expect["constraints_added"] + con.get("disable_collisions_true", 0)),
+            "frozen_constraints_added": expect["constraints_added"],
+            "scene_disable_collisions_true": con["disable_collisions_true"],
+            "covered": (expect["constraints_added"] is not None
+                        and con["disable_collisions_true"] >= expect["constraints_added"]),
+            "frozen_capped": expect["capped"], "frozen_skipped": expect["skipped"],
+            "frozen_readback_mismatch": expect["readback_mismatch"],
+        }
+        if not report["rigids_check"]["ok"]:
+            report["status"] = "REFUSED"
+            report["reason_code"] = "BAKE_RIGIDS_MISMATCH"
+            report["reason"] = ("D 臂刚体数与冻结回读不一致：期望 u323=%s/u324=%s，实测 %s/%s"
+                                "（动作那一步增删了刚体？）"
+                                % (expect["u323"], expect["u324"], got["u323"], got["u324"]))
+            return finish(report, report_path, BAKE_RIGIDS_MISMATCH)
+        if expect["mask_verdict"] != "WIRED" or not report["mask_check"]["covered"]:
+            report["status"] = "REFUSED"
+            report["reason_code"] = "BAKE_MASK_MISMATCH"
+            report["reason"] = ("掩码在 D 臂上不成立：冻结判词 %s、掩码装上 %s 条，"
+                                "场景里 `disable_collisions=True` 只有 %d 个（动作那一步弄坏了掩码？）"
+                                % (expect["mask_verdict"], expect["constraints_added"],
+                                   report["constraints_before"]["disable_collisions_true"]))
+            return finish(report, report_path, BAKE_MASK_MISMATCH)
+    else:
+        report["expect_from"] = None
+        report["rigids_check"] = {"ok": None, "reason": "没给 --expect-readback：刚体/掩码两项无从对账"}
 
     act = action_readback()
     report["animation"] = act
@@ -254,9 +319,14 @@ def main():
         return finish(report, report_path, BAKE_FPS_MISMATCH)
 
     fe = int(round(float(action["frame_range"][1])))
+    # `stage.bake_request()` 只认三个键（实测：多给一个 `frame_end_source` 就 ValueError），
+    # 所以来源说明放在请求**外面**，请求本身保持最小形状。
     report["bake_request"] = {"frame_start": 1, "frame_end": fe,
-                              "fps": int(scene.render.fps),
-                              "frame_end_source": "readback:action.frame_range[1]"}
+                              "fps": int(scene.render.fps)}
+    report["bake_request_note"] = {
+        "frame_end": "readback:action.frame_range[1]（不是导入后的场景值）",
+        "fps": "readback:scene.render.fps",
+    }
     if int(scene.frame_end) != fe:
         report["status"] = "REFUSED"
         report["reason_code"] = "BAKE_FRAME_END_MISMATCH"
@@ -264,20 +334,36 @@ def main():
                             "烘进去的会是另一段。" % (int(scene.frame_end), fe))
         return finish(report, report_path, BAKE_FRAME_END_MISMATCH)
 
-    # 探针区分力：采样帧之间的刚体姿态必须真的不同，否则烘完的 `matched` 是空证据
-    info = reference_moved([1, max(1, fe // 2), fe])
-    report["probe_informative"] = info
-    if not info["moved"]:
-        report["status"] = "REFUSED"
-        report["reason_code"] = "BAKE_PROBE_UNINFORMATIVE"
-        report["reason"] = ("采样帧 1/%d/%d 上刚体姿态逐位相同 ⇒ 探针无区分力，"
-                            "烘完的 matched 只证明「两次读到同一个值」。" % (fe // 2, fe))
-        return finish(report, report_path, BAKE_PROBE_UNINFORMATIVE)
+    # 探针区分力现在由 `stage.bake_checks()` 的 `probe_informative` 判（main `f1e6047` 已并入）：
+    # 同一判据只留一份实现（`D-186`），我那份本地复算在 19:02 那次烘之后就删了。
+    if "probe_informative" not in stage.bake_checks({}):
+        report["probe_informative_source"] = "stage.bake_checks() 里没有这条判据"
+    if disk_cache:
+        # 内存缓存**不随 .blend 落盘**（19:02 那次实测：存完重开 `is_baked=true / is_outdated=true`，
+        # `use_disk_cache=false`）。要交一件「烘过的件」，缓存必须写盘、并在件里指向它。
+        cache_dir = os.path.join(os.path.dirname(os.path.abspath(out_blend or report_path)),
+                                 "blendcache")
+        os.makedirs(cache_dir, exist_ok=True)
+        pc = scene.rigidbody_world.point_cache
+        pc.use_disk_cache = True
+        pc.directory = cache_dir
+        report["disk_cache"] = {"requested": True, "directory_abs": cache_dir,
+                                "directory_in_blend": "//blendcache"}
 
     record = stage.stage_bake(scene, report["bake_request"])
     report["bake"] = record
     report["constraints_after"] = constraint_census()
     report["cache_after"] = cache_readback()
+    # 烘不许增删约束对象：前后不一致说明这不是「同一条边界条件下的烘」
+    before = report["constraints_before"]
+    after = report["constraints_after"]
+    report["constraints_stable"] = {
+        "total": (before["total"], after["total"]),
+        "disable_collisions_true": (before["disable_collisions_true"],
+                                    after["disable_collisions_true"]),
+        "ok": before["total"] == after["total"]
+        and before["disable_collisions_true"] == after["disable_collisions_true"],
+    }
     reason = stage.bake_gate_reason(record)
     report["bake_gate"] = {"reason": reason, "checks": stage.bake_checks(record),
                            "missing": stage.bake_missing(record)}
@@ -286,9 +372,21 @@ def main():
         report["reason_code"] = "BAKE_GATE_RED"
         report["reason"] = reason
         return finish(report, report_path, BAKE_GATE_RED)     # 判红不出件
+    if not report["constraints_stable"]["ok"]:
+        report["status"] = "BLOCKED"
+        report["reason_code"] = "BAKE_CONSTRAINTS_CHANGED"
+        report["reason"] = ("烘前/烘后约束对象数不一致：total %s→%s，disable_collisions %s→%s"
+                            % (before["total"], after["total"],
+                               before["disable_collisions_true"],
+                               after["disable_collisions_true"]))
+        return finish(report, report_path, BAKE_GATE_RED)
 
     if out_blend:
         os.makedirs(os.path.dirname(os.path.abspath(out_blend)), exist_ok=True)
+        if disk_cache:
+            # 存件前把路径改成相对（`//blendcache`）：绝对路径换个盘就失效，
+            # 而 `//` 在**读取时**才解析，落盘时刻不会往别人目录里写。
+            scene.rigidbody_world.point_cache.directory = "//blendcache"
         bpy.ops.wm.save_as_mainfile(filepath=os.path.abspath(out_blend), copy=True)
         report["output"] = {"path": os.path.abspath(out_blend),
                             "bytes": os.path.getsize(out_blend),
@@ -317,4 +415,26 @@ def finish(report, report_path, code):
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except SystemExit:
+        raise
+    except BaseException as exc:                       # noqa: BLE001
+        # Blender 5.2.2 把 `-P` 脚本的异常吞掉照样 exit 0（D-135，实测过多次）：
+        # 所以这里自己收尾，落一份 ERROR 报告并给非零退出码，别让「崩了」和「跑完了」长得一样。
+        import traceback
+        traceback.print_exc()
+        _rep = opt(argv_after_dashes(), "--report")
+        if _rep:
+            try:
+                os.makedirs(os.path.dirname(os.path.abspath(_rep)), exist_ok=True)
+                with open(_rep, "w", encoding="utf-8", newline="\n") as fh:
+                    json.dump({"stage": "bake-delivery-v1", "status": "ERROR",
+                               "reason_code": "BAKE_EXCEPTION",
+                               "error": "%s: %s" % (type(exc).__name__, exc)},
+                              fh, ensure_ascii=False, indent=1, sort_keys=True)
+                    fh.write("\n")
+            except Exception:                          # noqa: BLE001
+                pass
+        sys.stdout.flush()
+        os._exit(BAKE_EXCEPTION)

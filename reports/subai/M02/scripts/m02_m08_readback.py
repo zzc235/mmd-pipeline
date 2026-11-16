@@ -200,6 +200,26 @@ def collect(blend_path):
         except Exception as exc:                       # noqa: BLE001
             body_errors.append({"name": o.name, "error": "%s: %s" % (type(exc).__name__, exc)})
 
+    # 场景里到底有多少个**刚体约束对象**（总控 `D-207③`：`added=8298` 是掩码自己的账，
+    # 不算独立计数；而下面的 `constraints_by_type` 数的是**骨骼约束**，两者不是一回事）。
+    rb_con = {"total": 0, "in_scene": 0, "disable_collisions_true": 0,
+              "disable_collisions_false": 0, "by_type": {}}
+    for obj in bpy.data.objects:
+        rbc = getattr(obj, "rigid_body_constraint", None)
+        if rbc is None:
+            # **不要**按 `obj.type == 'RIGID_BODY_CONSTRAINT'` 数：5.2 的对象类型枚举里没有
+            # 这一项，按名字数恒为 0（19:10 实测：属性口径 12 338，类型名口径 0）。
+            continue
+        kind = getattr(rbc, "type", None)
+        rb_con["total"] += 1
+        rb_con["by_type"][kind] = rb_con["by_type"].get(kind, 0) + 1
+        if getattr(rbc, "disable_collisions", False):
+            rb_con["disable_collisions_true"] += 1
+        else:
+            rb_con["disable_collisions_false"] += 1
+    rb_con["in_scene"] = sum(1 for obj in bpy.context.scene.objects
+                             if getattr(obj, "rigid_body_constraint", None) is not None)
+
     return {
         "blend": os.path.abspath(blend_path),
         "blend_sha256": sha256_file(blend_path),
@@ -208,6 +228,7 @@ def collect(blend_path):
         "rigids_u324_rigid_body_attr": len(rigids_u324),
         "bodies": bodies,
         "body_read_errors": body_errors,
+        "rigid_body_constraints": rb_con,
         "constraints_by_type": by_type,
         "actions": actions,
         "active_action": active_action,
