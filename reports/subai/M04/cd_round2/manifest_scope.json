@@ -2,12 +2,12 @@
   "base": "E:/dsh pr/woker2/out/subai/M04/penetration/round2_324b",
   "base_in_git": false,
   "carriers": {
-    "frames_over_epsilon 与同域 1..240 对比、差 46.198 mm": "同上三份 meta（同域切片）+ reports/subai/M04/cd_round2/cmp_round2.json",
-    "pairs_without_baseline = 0/0/0": "三份 meta 的逐帧字段",
-    "三组读数（帧数/越判据帧/最深帧/最深值/中位数）": "reports/subai/M04/cd_round2/C_W1.meta.json|C_W2.meta.json|D.meta.json（逐帧 per_frame，报告 §二 由 ad631d3 的测试逐项重算）",
-    "保持段分段数（post_hoc，只解释）": "由 m04_segment_table.py 从 C_W2.meta.json 现算，不单独落账",
-    "批次 35 项的 bytes/sha256/只读位": "manifest.json（在仓）+ base（不在仓；由 m04_snapshot_scope.py 三态核，base 不在本机记 UNMEASURED）",
-    "每臂基线 5076 对（zero 5020）": "reports/subai/M04/cd_round2/baseline_C_W1.json|baseline_C_W2.json|baseline_D.json",
+    "frames_over_epsilon 与同域 1..240 对比、差 46.198 mm": "C_W1.meta.json|C_W2.meta.json|D.meta.json|cmp_round2.json",
+    "pairs_without_baseline = 0/0/0": "C_W1.meta.json|C_W2.meta.json|D.meta.json|cmp_round2.json",
+    "三组读数（帧数/越判据帧/最深帧/最深值/中位数）": "C_W1.meta.json|C_W2.meta.json|D.meta.json",
+    "保持段分段数（post_hoc，只解释）": "reports/subai/M04/scripts/m04_segment_table.py（现算，不单独落账）",
+    "批次 35 项的 bytes/sha256/只读位": "manifest.json（在仓）+ base（out/ 批次目录，不在仓；由 m04_snapshot_scope.py 三态核，base 不在本机记 UNMEASURED）",
+    "每臂基线 5076 对（zero 5020）": "baseline_C_W1.json|baseline_C_W2.json|baseline_D.json",
     "首读偏差判别四趟读数": "reports/subai/M04/firstread/firstread_C_W1.json"
   },
   "carriers_note": "豁免 ≠ 可核的转手（3号 20:17）：每条「不在仓里」的引用都必须写出「这个数在仓里由哪一份承载」，并由测试断言过。这里列的就是那张表。",
