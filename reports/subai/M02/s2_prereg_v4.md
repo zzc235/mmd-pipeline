@@ -1,4 +1,4 @@
-﻿# S2 预注册 v4（M02）：**换轴** —— 变量轴由 X 改为 Y
+# S2 预注册 v4（M02）：**换轴** —— 变量轴由 X 改为 Y
 
 **取代 `s2_prereg_v3.md`**（8 981 B，`sha256 = d1ef353d3c68059f7b749c6b9c7438aca1534d729343cd27edbfb52d1af49c27`），
 其又取代 `s2_prereg_v2.md`（7 324 B / `0a29f664…`）与 `s2_prereg.md`（4 827 B / `dbb30ee0…`）。
