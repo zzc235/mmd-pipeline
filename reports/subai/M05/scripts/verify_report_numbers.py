@@ -31,8 +31,12 @@ EXPECT_FRAME_END = {"C@W1.blend": 301, "C@W1-rerun.blend": 301, "C@W2.blend": 83
 EXPECT_FPS = 24
 EXPECT_ARMS = 5
 
-# 报告引用、但按 `out/` 的既定性质不入仓的路径。**豁免必须写出理由，并且写出「那个数在仓里哪一份」**
-# —— 不是「我们决定不查」，而是「这个数由 X 承载，X 在仓里、且本脚本已断言过」。
+# 报告引用、但按 `out/` 的既定性质不入仓的路径。**豁免不是「不查」，是「可核的转手」**：
+# 每条必须写出「这个数由仓里哪一份承载」，而且那句话是 **schema 硬约束**（下面 assert 长度与非空），
+# 不是表格里的一行备注 —— `4号` 20:21 的话：白名单会单调增长，加一行是「最小的绿」。
+# 所以另加一条棘轮：豁免条数写死，要加一条就得动这个常量（留下 diff 与理由）。
+EXPECT_EXEMPTIONS = 3
+MIN_REASON_CHARS = 12
 ALLOWED_NOT_IN_GIT = {
     "out/subai/M05/arms/20261116_324/manifest.json":
         "冻结账本本身；其 sha 结论由 reports/subai/M05/arms_audit_324.json 承载（本脚本断言 state/listed/drift）",
@@ -43,6 +47,12 @@ ALLOWED_NOT_IN_GIT = {
         "探针原件；其四条形状读数已写进报告 §十三 的表格，摘要口径由 summary.json 与"
         " evidence_m05_attempt11.json 承载",
 }
+for _k, _why in ALLOWED_NOT_IN_GIT.items():
+    assert isinstance(_why, str) and len(_why) >= MIN_REASON_CHARS, \
+        "豁免 %s 的「承载方」理由太短或为空（不许拿空话换一个不查）" % _k
+assert len(ALLOWED_NOT_IN_GIT) == EXPECT_EXEMPTIONS, \
+    "豁免条数变了（%d != %d）：要加豁免就得连 EXPECT_EXEMPTIONS 一起改，并写清承载方" % (
+        len(ALLOWED_NOT_IN_GIT), EXPECT_EXEMPTIONS)
 
 
 def find_repo_root(start):
