@@ -55,7 +55,12 @@ def _kwarg_true(node, name) -> bool:
 
 
 def scan_source(source: str, filename: str = "<string>") -> list:
-    """返回违规行号（升序）。违规 = 文本模式（要解码）却没说用什么编码，且没有 opt-out 注释。"""
+    """返回违规行号（升序）。违规 = 文本模式（要解码）却没说用什么编码，且没有 opt-out 注释。
+
+    `ast.Call.lineno` 是**调用第一行**，而豁免注释通常写在**最后一行**（多行调用时）。
+    1号 2026-11-16 13:47 踩过：只查 `lineno` 那行会把豁免判成违规。所以查 `lineno..end_lineno`
+    **整段**——整段里任何一行写了 opt-out 都算。
+    """
     tree = ast.parse(source, filename)
     lines = source.splitlines()
     bad = []
@@ -67,7 +72,10 @@ def scan_source(source: str, filename: str = "<string>") -> list:
             continue
         if any(kw.arg == "encoding" for kw in node.keywords):
             continue
-        if 0 < node.lineno <= len(lines) and OPT_OUT in lines[node.lineno - 1]:
+        start = max(1, node.lineno)
+        end = max(start, getattr(node, "end_lineno", start) or start)
+        span = lines[start - 1:min(end, len(lines))]
+        if any(OPT_OUT in line for line in span):
             continue
         bad.append(node.lineno)
     return sorted(bad)
@@ -148,6 +156,23 @@ class TestGuard(unittest.TestCase):
         source = ('import subprocess\n'
                   'subprocess.run(["x"], text=True)  # noqa: subprocess-bytes\n')
         self.assertEqual(scan_source(source), [])
+
+    def test_opt_out_on_last_line_of_multiline_call(self):
+        """多行调用的豁免注释常写在**最后一行**；只查 `lineno` 会把豁免判成违规（1号 踩过）。"""
+        source = ('import subprocess\n'
+                  'subprocess.run(\n'
+                  '    ["x"],\n'
+                  '    text=True,\n'
+                  ')  # noqa: subprocess-bytes\n')
+        self.assertEqual(scan_source(source), [])
+
+    def test_multiline_call_without_opt_out_is_reported(self):
+        source = ('import subprocess\n'
+                  'subprocess.run(\n'
+                  '    ["x"],\n'
+                  '    text=True,\n'
+                  ')\n')
+        self.assertEqual(scan_source(source), [2])
 
     def test_temp_tree_is_found(self):
         """走一遍 scan_tree（不是只测 scan_source）：临时目录里放一份违规文件必须被抓到。"""

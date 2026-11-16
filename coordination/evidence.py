@@ -21,6 +21,8 @@ SPEC = "evidence/1"
 STATUSES = ("PASS", "PARTIAL", "BLOCKED")
 # 允许的哈希基数。省略 = 旧基数（按原始字节算）；写了就必须是这里的一个值。
 HASH_BASES = ("lf_normalized_v1",)
+# measurements 序列化后的字节上限（D-072）：超了就该拆成 artifact 文件
+MEASUREMENTS_LIMIT = 16 * 1024
 
 
 class EvidenceError(ValueError):
@@ -145,6 +147,21 @@ def normalize(obj: dict) -> dict:
     else:
         hash_basis = None
 
+    # measurements（D-072，2026-11-16）：**可选** JSON 对象，原样进 canonical 参与哈希。
+    # 为什么要有：之前「数」只能塞进正文，而正文不进 hash —— 最要紧的那批数
+    # （eval_policy、网格自检 0.9933/0.9867/77.01%）全落在哈希之外，等于没被证明。
+    # 为什么限 16 KiB：证据是给人核的，不是数据库；超了说明该拆成 artifact 文件。
+    measurements = obj.get("measurements")
+    if measurements is not None:
+        if not isinstance(measurements, dict):
+            raise EvidenceError("measurements 必须是 JSON 对象（收到 %s）"
+                                % type(measurements).__name__, "BAD_MEASUREMENTS")
+        blob = canonical_bytes(measurements)
+        if len(blob) > MEASUREMENTS_LIMIT:
+            raise EvidenceError("measurements 序列化后 %d 字节，超过上限 %d 字节——"
+                                "大块数据请放 artifacts[] 并在这里放摘要"
+                                % (len(blob), MEASUREMENTS_LIMIT), "BAD_MEASUREMENTS")
+
     normalized = {
         "spec": SPEC,
         "task_id": obj["task_id"],
@@ -158,6 +175,8 @@ def normalize(obj: dict) -> dict:
     }
     if hash_basis is not None:
         normalized["hash_basis"] = " ".join(hash_basis.split())
+    if measurements is not None:
+        normalized["measurements"] = measurements
     return _check_floats(normalized)
 
 
@@ -174,3 +193,66 @@ def digest(obj: dict) -> str:
 def validate(obj: dict) -> dict:
     """规范化并返回；不合规抛 EvidenceError。"""
     return normalize(obj)
+
+
+# ---------------------------------------------------------------- 提交前自查（D-080）
+EXIT_OK = 0
+EXIT_SCHEMA = 3
+EXIT_UNREADABLE = 4
+
+
+def check_file(path: str) -> tuple:
+    """读一份 canonical 证据文件并自查，返回 (退出码, 说明)。
+
+    判两件事，缺一不可：
+      1. **schema**：能 `normalize()`（`interface` 是字符串、`measurements` 是对象…）；
+      2. **字节**：磁盘上的字节必须**就是** canonical 序列化结果——否则「文件 sha256 == digest」
+         这条大家用来核验的等式不成立，等于这份记录没法被别人复算。
+
+    退出码按 D-080：`0` 合规 / `3` schema 或 canonical 违规 / `4` 读不到。
+    """
+    import os
+    if not os.path.exists(path):
+        return EXIT_UNREADABLE, "读不到：%s 不存在" % path
+    try:
+        with open(path, "rb") as fh:
+            raw = fh.read()
+    except OSError as exc:
+        return EXIT_UNREADABLE, "读不到：%s（%s）" % (path, exc)
+    try:
+        obj = json.loads(raw.decode("utf-8-sig"))
+    except (UnicodeDecodeError, ValueError) as exc:
+        return EXIT_UNREADABLE, "不是合法 JSON：%s（%s）" % (path, exc)
+    try:
+        normal = normalize(obj)
+    except EvidenceError as exc:
+        return EXIT_SCHEMA, "schema 违规（%s）：%s" % (exc.reason_code, exc)
+    blob = canonical_bytes(normal)
+    digest = SPEC + ":" + hashlib.sha256(blob).hexdigest()
+    if raw != blob:
+        return EXIT_SCHEMA, ("不是 canonical 字节：磁盘 %d 字节 vs 规范 %d 字节；"
+                             "规范 digest 应为 %s" % (len(raw), len(blob), digest))
+    return EXIT_OK, digest
+
+
+def main(argv=None) -> int:
+    """`python -m coordination.evidence check <file>`（D-080 的提交前自查入口）。"""
+    import argparse
+    ap = argparse.ArgumentParser(prog="coordination.evidence",
+                                 description="evidence/1 提交前自查")
+    sub = ap.add_subparsers(dest="cmd", required=True)
+    chk = sub.add_parser("check", help="校验一份 canonical 证据文件")
+    chk.add_argument("file")
+    args = ap.parse_args(argv)
+    if args.cmd == "check":
+        code, message = check_file(args.file)
+        prefix = {EXIT_OK: "OK", EXIT_SCHEMA: "SCHEMA_INVALID",
+                  EXIT_UNREADABLE: "UNREADABLE"}[code]
+        print("%s %s" % (prefix, message))
+        return code
+    return 2
+
+
+if __name__ == "__main__":
+    import sys
+    raise SystemExit(main())

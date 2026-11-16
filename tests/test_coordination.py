@@ -411,6 +411,80 @@ class TestEvidenceHash(unittest.TestCase):
             evidence_mod.digest(bad)
         self.assertEqual(ctx.exception.reason_code, "WRONG_HASH_BASIS")
 
+    # ---------------------------------------------------------- measurements（D-072）
+    def test_measurements_absent_keeps_old_digest(self):
+        """缺席时与加这个字段之前逐字节相同——旧证据哈希一个都不许变。"""
+        payload = {
+            "spec": "evidence/1", "task_id": "M00", "attempt": 1, "status": "PASS",
+            "files": [{"path": "a.py", "sha256": "0" * 64, "tracked": True}],
+            "tests": [{"cmd": "x", "exit": 0, "passed": 1, "failed": 0, "skipped": 0}],
+            "artifacts": [], "known_risks": [], "interface": "i",
+        }
+        self.assertNotIn("measurements", evidence_mod.normalize(payload))
+        self.assertEqual(
+            evidence_mod.digest(payload),
+            "evidence/1:0863ecaa9f799f78b20ac87af69291dd5a971934c6662d62bb48d15566ac4186")
+
+    def test_measurements_enter_hash(self):
+        a = evidence()
+        b = evidence()
+        b["measurements"] = {"eval_policy": {"warmup_frames": 2, "visited": 5}}
+        self.assertEqual(evidence_mod.normalize(b)["measurements"], b["measurements"])
+        self.assertNotEqual(evidence_mod.digest(a), evidence_mod.digest(b))
+        # 改一个数就必须换一个 hash
+        c = evidence()
+        c["measurements"] = {"eval_policy": {"warmup_frames": 2, "visited": 6}}
+        self.assertNotEqual(evidence_mod.digest(b), evidence_mod.digest(c))
+
+    def test_measurements_nested_key_order_irrelevant(self):
+        """嵌套 dict 的插入顺序不该影响 hash（canonical 是递归排序的）。"""
+        a = evidence()
+        a["measurements"] = {"outer": {"b": 1, "a": {"y": 2, "x": 3}}}
+        b = evidence()
+        b["measurements"] = {"outer": {"a": {"x": 3, "y": 2}, "b": 1}}
+        self.assertEqual(evidence_mod.digest(a), evidence_mod.digest(b))
+
+    def test_measurements_nan_rejected(self):
+        bad = evidence()
+        bad["measurements"] = {"mesh_v2_selftest": {"depth_median_m": float("nan")}}
+        with self.assertRaises(evidence_mod.EvidenceError):
+            evidence_mod.digest(bad)
+        inf = evidence()
+        inf["measurements"] = {"per_frame": [{"depth_m": float("-inf")}]}
+        with self.assertRaises(evidence_mod.EvidenceError):
+            evidence_mod.digest(inf)
+
+    def test_measurements_non_object_rejected(self):
+        for bad_value in ([1, 2, 3], "3.14", 42, True):
+            bad = evidence()
+            bad["measurements"] = bad_value
+            with self.assertRaises(evidence_mod.EvidenceError) as ctx:
+                evidence_mod.digest(bad)
+            self.assertEqual(ctx.exception.reason_code, "BAD_MEASUREMENTS")
+
+    def test_measurements_oversize_rejected_by_bytes(self):
+        """上限按**序列化后的字节**判，不是按键数/字符数（D-072，2号 提的第 3 条）。"""
+        big = evidence()
+        # 单键塞满中文：字符数 ≈ 字节数的 1/3，按字符数判会放过它
+        big["measurements"] = {"blob": "汉" * (evidence_mod.MEASUREMENTS_LIMIT // 2)}
+        with self.assertRaises(evidence_mod.EvidenceError) as ctx:
+            evidence_mod.digest(big)
+        self.assertEqual(ctx.exception.reason_code, "BAD_MEASUREMENTS")
+        # 刚好在上限内的要能过
+        ok = evidence()
+        payload = {"blob": "x" * 4096}
+        self.assertLessEqual(len(evidence_mod.canonical_bytes(payload)),
+                             evidence_mod.MEASUREMENTS_LIMIT)
+        ok["measurements"] = payload
+        self.assertIn("measurements", evidence_mod.normalize(ok))
+
+    def test_measurements_negative_zero_normalized_inside(self):
+        a = evidence()
+        a["measurements"] = {"delta": -0.0}
+        b = evidence()
+        b["measurements"] = {"delta": 0.0}
+        self.assertEqual(evidence_mod.digest(a), evidence_mod.digest(b))
+
     def test_hash_basis_type_checked(self):
         bad = evidence()
         bad["hash_basis"] = 1
@@ -560,6 +634,85 @@ class TestSharedBoardPath(unittest.TestCase):
         self.assertTrue(a.stdout.strip(), "第一次运行没有输出，比较无意义")
         self.assertTrue(b.stdout.strip(), "第二次运行没有输出，比较无意义")
         self.assertEqual(a.stdout.strip(), b.stdout.strip())
+
+
+class TestEvidenceCheck(unittest.TestCase):
+    """`python -m coordination.evidence check <file>`（D-080 的提交前自查入口）。
+
+    退出码：0 合规 / 3 schema 或 canonical 违规 / 4 读不到。
+    **D-080 点名要的拒绝例**：`interface` 是对象 → 必须 exit 3。
+    """
+
+    def setUp(self):
+        self.tmp = tempfile.mkdtemp(prefix="m00_evcheck_")
+
+    def tearDown(self):
+        shutil.rmtree(self.tmp, ignore_errors=True)
+
+    def write(self, payload, canonical=True, name="ev.json"):
+        path = os.path.join(self.tmp, name)
+        if canonical:
+            blob = evidence_mod.canonical_bytes(evidence_mod.normalize(payload))
+        else:
+            blob = json.dumps(payload, ensure_ascii=False, indent=2).encode("utf-8")
+        with open(path, "wb") as fh:
+            fh.write(blob)
+        return path
+
+    def run_cli(self, path):
+        return subprocess.run([sys.executable, "-m", "coordination.evidence", "check", path],
+                              cwd=ROOT, capture_output=True, text=True, encoding="utf-8",
+                              timeout=60)
+
+    def test_canonical_file_is_ok(self):
+        path = self.write(evidence())
+        code, message = evidence_mod.check_file(path)
+        self.assertEqual(code, evidence_mod.EXIT_OK)
+        self.assertEqual(message, evidence_mod.digest(evidence()))
+        out = self.run_cli(path)
+        self.assertEqual(out.returncode, 0, out.stderr)
+        self.assertIn("OK evidence/1:", out.stdout)
+
+    def test_interface_object_is_schema_violation(self):
+        """D-080 点名要的这个拒绝例：`interface` 必须是版本串。"""
+        payload = evidence()
+        payload["interface"] = {"version": "cache_state/1", "struct": {"a": 1}}
+        path = os.path.join(self.tmp, "obj.json")
+        with open(path, "wb") as fh:
+            fh.write(json.dumps(payload, ensure_ascii=False).encode("utf-8"))
+        code, message = evidence_mod.check_file(path)
+        self.assertEqual(code, evidence_mod.EXIT_SCHEMA)
+        self.assertIn("interface", message)
+        out = self.run_cli(path)
+        self.assertEqual(out.returncode, 3, out.stdout + out.stderr)
+        self.assertIn("SCHEMA_INVALID", out.stdout)
+
+    def test_non_canonical_bytes_are_rejected(self):
+        path = self.write(evidence(), canonical=False)
+        code, message = evidence_mod.check_file(path)
+        self.assertEqual(code, evidence_mod.EXIT_SCHEMA)
+        self.assertIn("canonical", message)
+
+    def test_missing_file_is_unreadable(self):
+        code, _ = evidence_mod.check_file(os.path.join(self.tmp, "nope.json"))
+        self.assertEqual(code, evidence_mod.EXIT_UNREADABLE)
+        out = self.run_cli(os.path.join(self.tmp, "nope.json"))
+        self.assertEqual(out.returncode, 4)
+        self.assertIn("UNREADABLE", out.stdout)
+
+    def test_broken_json_is_unreadable(self):
+        path = os.path.join(self.tmp, "broken.json")
+        with open(path, "w", encoding="utf-8") as fh:
+            fh.write("{not json")
+        self.assertEqual(evidence_mod.check_file(path)[0], evidence_mod.EXIT_UNREADABLE)
+
+    def test_measurements_roundtrip_through_check(self):
+        payload = evidence()
+        payload["measurements"] = {"eval_policy": {"visited": 5}, "selftest": {"rate": 0.9933}}
+        path = self.write(payload)
+        code, message = evidence_mod.check_file(path)
+        self.assertEqual(code, evidence_mod.EXIT_OK)
+        self.assertEqual(message, evidence_mod.digest(payload))
 
 
 if __name__ == "__main__":
