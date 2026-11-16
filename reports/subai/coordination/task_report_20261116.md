@@ -555,8 +555,12 @@ AssertionError: Lists differ: [('reports/subai/M05/scripts/verify_report_numbers
 | 分支 | 提交 | 内容 | 明天的处理 |
 |---|---|---|---|
 | `ai/a3` | **`db82a6e`**（含 `f27c3c8`） | `verify_report_numbers.py` 豁免改「条数棘轮 + 理由最小长度」，负控（理由改成 `"短"` ⇒ 退出码 1、还原 ⇒ 0）；又加一笔：豁免表按 `4号` 的三档 `carrier` 做成 schema 硬约束（`kind` 闭集 / `path` 非空 / `kind: git` 必过 `git ls-files --error-unmatch`），负控把载体改成仓里没有的路径 ⇒ 恰好一行 `carrier … MISMATCH`、退出码 1 | 开工第一笔并入 `db82a6e`（**不是 `f27c3c8`** —— 他 20:29 专门来更正过这个 sha） |
-| `ai/a2` | `ab928e7` / `8fbe279` / `10010f0` | ①`302..354` 全套标 `post_hoc`（可当判据的只剩同域 `f1..240` `3:17` / `0.046198 m` 与 `D` 的分布量；`--rule-kind` 非法值 exit 2；「对切点稳健」改由 `cut_sensitivity()` 算，给 `UNSTABLE`）；②`manifest_scope` 升 `spec/5`，`carriers` 每条带 `kind`（`git` / `out` / `input` 三档各自机器判真假 + `EXPECT_CARRIERS = 7` 条数棘轮）；③棘轮扫「流进 `sys.exit` 的那条链」（变量中转能抓到）+ `SystemExit(非整数)` 单列 | 与上一笔一起并入，重跑三环境 |
+| `ai/a2` | `ab928e7` / `8fbe279` / `10010f0`（到他 20:28 那刻为止；之后又加了 `2649052` 对齐基线 + `760202a` 负控补「拒绝恰好一条」） | ①`302..354` 全套标 `post_hoc`（可当判据的只剩同域 `f1..240` `3:17` / `0.046198 m` 与 `D` 的分布量；`--rule-kind` 非法值 exit 2；「对切点稳健」改由 `cut_sensitivity()` 算，给 `UNSTABLE`）；②`manifest_scope` 升 `spec/5`，`carriers` 每条带 `kind`（`git` / `out` / `input` 三档各自机器判真假 + `EXPECT_CARRIERS = 7` 条数棘轮）；③棘轮扫「流进 `sys.exit` 的那条链」（变量中转能抓到）+ `SystemExit(非整数)` 单列 | 与上一笔一起并入，重跑三环境 |
 
-`2号` 报的分支读数是 **886 tests × 三环境**（他那一支的基线比 main 旧），**不是 main 的数**；
-main 封版读数是 §12.1 的 **911**。两个数并列时不构成冲突，但引用时必须带分支名。
+**这张表的 tip 一律以明天 `fetch` 时的分支尖为准，不以本表为准** —— 席位在封版后仍在各自分支上做事（对齐基线、补断言），
+本表记的是「封版那一刻已知的队列」，写死 sha 只会让我每次都得回来改一次。
+
+同理，**分支读数不写进本报告**（本报告只认 main 上的数）：`ai/a2` 那条分支在合并 main 后测到 914（main 封版 911 + 净增 3 条），
+`ai/a3` 那边是 778（他那支有自己的测试基线）—— **两个数并列不构成冲突，但引用时必须带分支名与那一刻的 sha**，
+否则就成了今天被裁过五次的那个形状：**把某一处的局部数字当成整体。**
 
