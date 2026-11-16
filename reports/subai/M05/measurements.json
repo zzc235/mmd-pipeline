@@ -1,0 +1,126 @@
+{
+  "module": "M05",
+  "schema": 2,
+  "date": "2026-11-15",
+  "status": "PARTIAL",
+  "faults": {
+    "A_three_segment_frame_loss": {
+      "status": "PASS",
+      "baseline": {
+        "inputs": ["out/subai/M05/fixtures/seg1_91.vmd", "out/subai/M05/fixtures/seg2_91.vmd", "out/subai/M05/fixtures/seg3_151.vmd"],
+        "gap": 2,
+        "expected_total_frames": 337,
+        "actual_total_frames": 244,
+        "unexplained_gap_frames": 93,
+        "auto_offsets": [0, 93, 93],
+        "spans_dst": [[0, 90], [93, 183], [93, 243]],
+        "overlaps": [["seg2_91.vmd", "seg3_151.vmd"]],
+        "bone_records": [18196, 18196],
+        "bone_records_conserved": true,
+        "artifact": "out/subai/M05/chain_baseline_overlap.vmd",
+        "sha256": "7f4196b6c042117f671716292cc92b2eafd0ceba5272686907086bc820012fe1"
+      },
+      "root_cause": {
+        "file": "mmdpipe/vmd.py",
+        "function": "concat",
+        "explanation": "自动 offsets 未累加自身偏移；第 2 段后 cursor 停在 93，第 3 段压在第 2 段上。记录守恒、时间轴少 93 帧。",
+        "why_244": "91 + 2 + 151 = 244"
+      },
+      "after_fix": {
+        "expected_total_frames": 337,
+        "actual_total_frames": 337,
+        "auto_offsets": [0, 93, 186],
+        "spans_dst": [[0, 90], [93, 183], [186, 336]],
+        "overlaps": [],
+        "bone_records": 18196,
+        "artifact": "out/subai/M05/chain_fixed_337.vmd",
+        "sha256": "38b788f758d294326940da56c8a243e0b43a287178856bc7d61b344345758f48"
+      },
+      "independent_confirm": {"repeat_run_sha256": "38b788f758d294326940da56c8a243e0b43a287178856bc7d61b344345758f48", "identical": true},
+      "truncation_vs_loss": {"requested_render_frames": 244, "explicit_truncated_frames": 93, "unexplained_gap_frames": 0}
+    },
+    "B_nla_frame_mapping": {
+      "status": "PASS",
+      "first_error_stage": "5_blend（B 条带 frame_start / action_frame 映射）",
+      "baseline": {
+        "run": "reports/subai/M05/nla_stage_probe_run2.json",
+        "args": {"gap": 20, "blend": 20, "align": "auto"},
+        "strip": {"frame_start": 448, "frame_end": 847, "action_frame_start": 448, "action_frame_end": 827, "blend_in": 20},
+        "delta_4align_to_6bake_m": {"846": 1.00696, "847": 0.04059, "468": 0.0}
+      },
+      "after_fix": {
+        "run": "reports/subai/M05/nla_stage_probe_run5.json",
+        "strip": {"frame_start": 448, "frame_end": 867, "action_frame_start": 448, "action_frame_end": 867, "blend_in": 20},
+        "delta_4align_to_6bake_m": {"1": 0.01296, "447": 0.00007, "448": 0.00007, "468": 0.0, "469": 0.00001, "846": 0.00007, "847": 0.00007}
+      },
+      "invalid_fix": {
+        "run": "reports/subai/M05/nla_stage_probe_run4.json",
+        "finding": "只前移 action 起点会被 Blender 联动抵消，条带变 [448,867]→[448,847]，误差移到 f847=1.00335 m"
+      },
+      "export_vs_splice": {
+        "nla": "out/subai/M05/nla_export_run1.vmd",
+        "splice": "out/subai/M05/splice_ref_gap20.vmd",
+        "センター": {"common_frames": 380, "max_abs_delta": 0.0},
+        "上半身": {"common_frames": 827, "max_abs_delta": 0.0},
+        "下半身": {"common_frames": 827, "max_abs_delta": 0.0}
+      },
+      "not_proven": "「悬空坐姿」无原始坏样本，未做同机位视觉复现"
+    },
+    "C_multisegment_tail_crash": {
+      "status": "PASS",
+      "symptom": "带 --motions 的流水线跑完全部阶段后 TypeError: list indices must be integers, not str（runner.py 收尾 paths[\"final\"]）",
+      "cause": "S3_chain 分支把 layout 的 paths(dict) 复用作动作路径列表(list)，遮蔽了收尾要用的 layout dict",
+      "fix": "该分支内改名为 seg_paths",
+      "evidence": {
+        "before": "out/subai/M05/probe12b/pipeline_state.json（ok=false, final=false，渲了 12 帧却没落地）",
+        "after": "out/subai/M05/probe2_tail/pipeline_state.json（ok=true, final=true，result.mp4 已 promote）"
+      }
+    }
+  },
+  "blender_probes": {
+    "splice12": {
+      "state": "out/subai/M05/probe12b/pipeline_state.json",
+      "metrics": {"expected_total_frames": 393, "chain_total_frames": 393, "requested_render_frames": 12, "rendered_frames": 12, "frame_conservation": "ok"},
+      "note": "渲 12 帧成功，但收尾崩溃（见 fault C），state.ok=false"
+    },
+    "splice2_tail": {
+      "state": "out/subai/M05/probe2_tail/pipeline_state.json",
+      "metrics": {"expected_total_frames": 393, "chain_total_frames": 393, "requested_render_frames": 2, "rendered_frames": 2, "frame_conservation": "truncated", "explicit_truncated_frames": 391},
+      "final_mp4": "out/subai/M05/probe2_tail/final/20261115_213301/result.mp4"
+    },
+    "env_note": "--factory-startup 会禁用 Blender 扩展仓库，mmd_tools 加载失败，S2_import 直接失败；必须用普通 -b 启动"
+  },
+  "tests": {
+    "new_file": "tests/test_chain.py",
+    "new_cases": 15,
+    "regression_command": "python -m unittest tests.test_chain tests.test_vmd tests.test_align tests.test_params tests.test_layout tests.test_statefile tests.test_pmx_patch",
+    "regression_result": "71 tests OK",
+    "rounds_used": 3,
+    "limit": 2,
+    "note": "第 3 轮只是收尾复跑，未失败、未改测试"
+  },
+  "changed_files": {
+    "source": ["mmdpipe/vmd.py", "mmdpipe/chainplan.py", "mmdpipe/concatvmd.py", "mmdpipe/runner.py", "mmdpipe/chain_nla.py"],
+    "tests": ["tests/test_chain.py"],
+    "hashes": {
+      "mmdpipe/vmd.py": "6b4cb4f3268a143ef5e11895afcb11439732e2c6a89998932e5d56daecdf1ac8",
+      "mmdpipe/chainplan.py": "6ed0f0924b87d2ff8c3e3ca5f57498079e8fc649d82aa490b8fbc0fc56e7f7e1",
+      "mmdpipe/concatvmd.py": "5e4fef43e46d7ac0aae493f19d7881a2fa8e6051190f87079d99122a6025356d",
+      "mmdpipe/runner.py": "623d69be6571a2843685482379c788b40130602e78dee4f114c97d5d7a360078",
+      "mmdpipe/chain_nla.py": "39679b9ab1d40ccb10f70d48c557b2754e61bdcbf1507a3bfa1a158d0c7d0c70",
+      "tests/test_chain.py": "0c50bdc43f763e699fe180d5c8b68ee966e5481c7fa0b53040165f67218b48e0"
+    }
+  },
+  "sources_readonly": {
+    "E:/blender模型/星穹铁道—卡芙卡无外套_by_崩坏：星穹铁道_31cc0fe7cc29460474ff5e5cd7188309/星穹铁道—卡芙卡无外套/卡芙卡3.0.pmx": "287a55563c5ec027127ce7289a022bddffac4cf4a67f175301de35e36de51f0e",
+    "E:/blender模型/原神摇_by_ChildeDuck_c658aa3daba96482861d466e1f1868c7/原神摇/原神摇.vmd": "a2e5f978ca2811c8c63ee57f5a0b33ea4d432a12d23d6c85cdf96db85f7754a0",
+    "E:/blender模型/活着dj_by_lucky破_923ad74feee8ea23a61ed34b5798a78e/活着dj/活着dj_VMD-TDA.vmd": "7ed53b1400792f5d7e0c2db7200cf0fb8e6bf9e679ce4d99e3b3d8e914573798"
+  },
+  "locks": {
+    "held_by_me": false,
+    "acquired": "2026-11-15 21:31:03",
+    "released": "2026-11-15 21:38",
+    "owner_at_release": "M05|E:/dsh pr/woker2|34293|2026-11-15T21:31:03+0800|probe12_splice+probe_nla",
+    "note": "释放前核对 owner.txt 为本模块；未触碰其他模块的锁"
+  }
+}

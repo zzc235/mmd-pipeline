@@ -1,0 +1,103 @@
+{
+ "designs": {
+  "A": {
+   "changed": "0",
+   "expect": "与重复跑逐位相同",
+   "how": "无",
+   "what": "不改任何属性；烘焙回放基线"
+  },
+  "B": {
+   "changed": "324",
+   "expect": "应当改变（若解算真在跑）",
+   "how": "刚体对象（全部）",
+   "what": "全部刚体 collision_collections 置全 0（全局关碰撞）"
+  },
+  "C": {
+   "changed": "1",
+   "expect": "应当改变",
+   "how": "刚体世界",
+   "what": "effector_weights.gravity = 0"
+  },
+  "D": {
+   "changed": "265",
+   "expect": "应当改变",
+   "how": "刚体对象",
+   "what": "全部刚体 kinematic = True"
+  },
+  "E": {
+   "changed": "1",
+   "expect": "应当改变",
+   "how": "场景",
+   "what": "scene.use_gravity=False + gravity=(0,0,0)"
+  },
+  "F": {
+   "changed": "1",
+   "expect": "应当改变；恰好 1 cm 全段恒定 = 回放指纹",
+   "how": "042_下擺_0_0",
+   "what": "一根下摆刚体物体坐标 +1 cm"
+  },
+  "P0": {
+   "changed": "0",
+   "expect": "与 P1 逐位相同",
+   "how": "无",
+   "what": "解烘焙后重算（±1.5708 基线）"
+  },
+  "P1": {
+   "changed": "0",
+   "expect": "与 P0 逐位相同",
+   "how": "无",
+   "what": "同 P0 重复一遍"
+  },
+  "P10": {
+   "changed": "11",
+   "expect": "应当改变（跨骨架耦合非零）→ 实测 5.71 mm",
+   "how": "对象名含 $name_j",
+   "what": "解烘焙 + 11 个 $name_j 占位刚体挪到 bit1"
+  },
+  "P2": {
+   "changed": "324",
+   "expect": "应当改变",
+   "how": "刚体对象（全部）",
+   "what": "解烘焙 + 324 刚体集合全 0"
+  },
+  "P3": {
+   "changed": "1",
+   "expect": "应当改变且非恒定平移",
+   "how": "042_下擺_0_0",
+   "what": "解烘焙 + 一根下摆刚体 +1 cm"
+  },
+  "P4": {
+   "changed": "18",
+   "expect": "预注册为「可能不变」→ 实测逐位 0",
+   "how": "rigid_body_constraint（|limit|≈π/2 结构筛）",
+   "what": "解烘焙 + 18 根关节 limit_ang_x ±1.5708 → ±0.7"
+  },
+  "P5": {
+   "changed": "323",
+   "expect": "应当改变",
+   "how": "按 rigid_body.type 分",
+   "what": "解烘焙 + PASSIVE 留 bit0 / ACTIVE 挪 bit1（只断地面）"
+  },
+  "P6": {
+   "changed": "18",
+   "expect": "应当改变（限位若已接线）→ 实测 5.53 mm",
+   "how": "同 P4",
+   "what": "解烘焙 + 18 根 limit_ang_x → ±0.001 rad"
+  },
+  "P8": {
+   "changed": "18",
+   "expect": "机制探针：亚毫米级改变 → 实测 0.385 mm",
+   "how": "同 P4",
+   "what": "解烘焙 + 18 根 limit_ang_x → ±0.5 rad"
+  },
+  "P9": {
+   "changed": "视数量",
+   "expect": "应当改变（掩码若起作用）；已接线未运行",
+   "how": "rigid_body_constraint.type=='DISABLE_COLLISIONS'",
+   "what": "解烘焙 + DISABLE_COLLISIONS 约束 enabled=False"
+  }
+ },
+ "note": "本文件事后补写（2026-11-16T13:19 之后），时间晚于各次运行；各 meta.json 里未回改，靠 changed_bodies / kinematic_changed_bodies / limits_changed_count / placeholder_bodies / disable_collisions_changed_count 做身份指纹。",
+ "stage": "variant-designs",
+ "written_after_runs": true
+}

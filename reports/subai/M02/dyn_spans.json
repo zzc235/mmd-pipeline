@@ -1,0 +1,82 @@
+{
+ "E:\\dsh pr\\woker2\\out\\subai\\M02\\dyn\\B2_baseline": {
+  "bones": 18,
+  "elapsed_s": 3.9,
+  "max_span_bone": "下擺_0_0",
+  "max_span_deg": 42.771795,
+  "point_cache_baked_meta": null,
+  "span_下擺_0_0": 42.771795
+ },
+ "E:\\dsh pr\\woker2\\out\\subai\\M02\\dyn\\B2_x07": {
+  "bones": 18,
+  "elapsed_s": 3.6,
+  "max_span_bone": "下擺_0_0",
+  "max_span_deg": 42.771795,
+  "point_cache_baked_meta": null,
+  "span_下擺_0_0": 42.771795
+ },
+ "E:\\dsh pr\\woker2\\out\\subai\\M02\\dyn\\B2r_baseline": {
+  "bones": 18,
+  "elapsed_s": 4.1,
+  "max_span_bone": "下擺_0_0",
+  "max_span_deg": 42.771795,
+  "point_cache_baked_meta": null,
+  "span_下擺_0_0": 42.771795
+ },
+ "E:\\dsh pr\\woker2\\out\\subai\\M02\\dyn\\B2r_x07": {
+  "bones": 18,
+  "elapsed_s": 4.1,
+  "max_span_bone": "下擺_0_0",
+  "max_span_deg": 42.771795,
+  "point_cache_baked_meta": null,
+  "span_下擺_0_0": 42.771795
+ },
+ "E:\\dsh pr\\woker2\\out\\subai\\M02\\dyn\\B_baseline": {
+  "bones": 18,
+  "elapsed_s": 4.2,
+  "max_span_bone": "下擺_0_0",
+  "max_span_deg": 42.771795,
+  "point_cache_baked_meta": null,
+  "span_下擺_0_0": 42.771795
+ },
+ "E:\\dsh pr\\woker2\\out\\subai\\M02\\dyn\\B_x07": {
+  "bones": 18,
+  "elapsed_s": 3.7,
+  "max_span_bone": "下擺_0_0",
+  "max_span_deg": 42.771795,
+  "point_cache_baked_meta": null,
+  "span_下擺_0_0": 42.771795
+ },
+ "E:\\dsh pr\\woker2\\out\\subai\\M02\\dyn\\baseline": {
+  "bones": 18,
+  "elapsed_s": 27.4,
+  "max_span_bone": "下擺_0_1",
+  "max_span_deg": 7.7e-05,
+  "point_cache_baked_meta": null,
+  "span_下擺_0_0": 0.0
+ },
+ "E:\\dsh pr\\woker2\\out\\subai\\M02\\dyn\\prepared_baseline": {
+  "bones": 18,
+  "elapsed_s": 22.3,
+  "max_span_bone": "下擺_0_14",
+  "max_span_deg": 9.727365,
+  "point_cache_baked_meta": null,
+  "span_下擺_0_0": 1.359863
+ },
+ "E:\\dsh pr\\woker2\\out\\subai\\M02\\dyn\\prepared_x07": {
+  "bones": 18,
+  "elapsed_s": 21.6,
+  "max_span_bone": "下擺_0_14",
+  "max_span_deg": 9.727365,
+  "point_cache_baked_meta": null,
+  "span_下擺_0_0": 1.359863
+ },
+ "E:\\dsh pr\\woker2\\out\\subai\\M02\\dyn\\x07": {
+  "bones": 18,
+  "elapsed_s": 19.7,
+  "max_span_bone": "下擺_0_1",
+  "max_span_deg": 7.7e-05,
+  "point_cache_baked_meta": null,
+  "span_下擺_0_0": 0.0
+ }
+}

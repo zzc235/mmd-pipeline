@@ -1,0 +1,423 @@
+"""Blender 互斥锁：`acquire` / `release` / `status`（纯标准库，不 import bpy）。
+
+    python -m coordination.lock status
+    python -m coordination.lock acquire  --owner "模块负责4|A4" --note "M07 D 段打包"
+    python -m coordination.lock release  --owner "模块负责4|A4"
+
+为什么要有这一层：原来四个人各自手写 `New-Item` / `Remove-Item`，今天撞出两次事故——
+
+* `New-Item -ItemType Directory -Force` 在目录**已存在**时不报错：以为取到了锁，其实没有，
+  两个人真的并行跑过 Blender（1号 自报）；
+* `finally { Remove-Item -Recurse -Force }` 无条件删：**删掉的是别人的锁**，
+  等于替别人宣布"跑完了"（1号 13:32/13:34 两把，2号 13:31/13:33 两把）。
+
+所以规矩落进代码，而不是靠自觉：
+
+| 动作 | 行为 | 失败时 |
+|---|---|---|
+| `acquire` | `os.mkdir` 原子建目录（**存在即失败，绝不覆盖**），成功后写 `owner.txt` | `LockHeld`：打印持锁人的 `owner.txt` 原文 |
+| `release` | 先读 `owner.txt` 校验 `--owner` 前缀一致才删 | `NotOwner`：打印实际持有者，**不删** |
+| `status` | 打印持有者、PID、取得时间、已占用秒数 | 目录在但没 `owner.txt` → `IncompleteLock`（**当异常退出，不当空闲**） |
+
+退出码：`0` 正常 / `2` 用法 / `3` 冲突（别人持有、或不是自己的锁）/ `4` 锁状态不可判定（残缺或不可读）。
+
+`owner.txt` 格式（一行，`|` 分隔，尽量兼容大家已经在写的写法）：
+
+    <模块|工作树>|<PID>|<ISO 取得时间>|<说明>
+
+校验只看**前三段里的前两段**（`模块|工作树`）：PID 每次进程不同，拿它比就永远比不中。
+
+## 2026-11-16 14:19 的三处加固（D0 派，起因是一次真实的误判）
+
+现场：`lock status` 报 `PID=28940`，那个 PID 已经死了，**但 Blender 还活着**（另一个 PID，
+14:15:35 起）。有人按「PID 死了」判过期就会把锁拿走，而真正干活的进程还在跑——正是全队
+在防的那件事。所以：
+
+1. **记真正干活的 PID**：`acquire --work-pid <pid>` 可显式登记（Blender 是子进程，跟取锁的
+   shell 不是同一个 PID）；不登记就只记自己的。多个用逗号分隔。
+2. **心跳**：`acquire` 写 `heartbeat` 文件，`touch` 子命令刷新它，长跑期间应当周期性调用。
+   **过期判定的主依据是心跳 mtime**，PID 只作辅助——PID 不活不代表人走了，反过来也一样。
+3. **回收只能是「搬走」**：`reclaim --owner ... ` 要求**三条同时成立**才允许：
+   ① 记录的 PID 全都不活 **且** ② 当前没有任何 blender 进程 **且** ③ 心跳超过 `--stale-minutes`
+   （默认 10 分钟）。回收把整个锁目录移到 `locks/_reclaimed/<时间戳>-<owner>/`，
+   **保留 `owner.txt` 作为证据**，并打印一行日志。任何一条不成立就 `LockHeld` 且不动它。
+"""
+from __future__ import annotations
+
+import argparse
+import datetime as dt
+import os
+import shutil
+import sys
+import time
+
+from . import paths
+
+EXIT_OK = 0
+EXIT_USAGE = 2
+EXIT_CONFLICT = 3
+EXIT_UNKNOWN = 4
+
+OWNER_FILE = "owner.txt"
+HEARTBEAT_FILE = "heartbeat"
+RECLAIM_SUBDIR = "_reclaimed"
+DEFAULT_STALE_MINUTES = 10.0
+
+
+class LockError(RuntimeError):
+    exit_code = EXIT_CONFLICT
+
+
+class LockHeld(LockError):
+    """锁已经被别人持有。"""
+
+
+class NotOwner(LockError):
+    """想释放的锁不是自己的。"""
+
+
+class IncompleteLock(LockError):
+    """锁目录在，但读不出持有者——当作异常，不当空闲。"""
+
+    exit_code = EXIT_UNKNOWN
+
+
+def _now() -> str:
+    return dt.datetime.now().astimezone().isoformat(timespec="seconds")
+
+
+def _format_owner(owner: str, note: str = "", work_pids=()) -> str:
+    pids = [str(os.getpid())] + [str(p) for p in work_pids if str(p).strip()]
+    return "%s|PID=%s|%s|%s" % (owner, ",".join(pids), _now(), note)
+
+
+def _write_heartbeat(lock_dir: str, note: str = "") -> str:
+    """写/刷心跳文件（mtime 就是"最后一次活着"的证据）。"""
+    path = os.path.join(lock_dir, HEARTBEAT_FILE)
+    with open(path, "w", encoding="utf-8", newline="\n") as fh:
+        fh.write("%s %s\n" % (_now(), note or ""))
+    return path
+
+
+def heartbeat_age_seconds(lock_dir: str) -> float:
+    """心跳多久没跳了（秒）。**没有心跳文件时返回 `inf`**，不是 0——
+
+    返回 0 会让"从来没写过心跳"看起来"刚刚还活着"，那是最坏方向的假绿。
+    """
+    path = os.path.join(lock_dir, HEARTBEAT_FILE)
+    try:
+        mtime = os.path.getmtime(path)
+    except OSError:
+        return float("inf")
+    return max(0.0, time.time() - mtime)
+
+
+def pid_alive(pid: int) -> bool:
+    """这个 PID 还活着吗。
+
+    **Windows 上不能用 `os.kill(pid, 0)`**：CPython 在 Windows 把 `os.kill` 实现成
+    `TerminateProcess(handle, sig)`，所以 `os.kill(pid, 0)` 是**把那个进程杀掉**
+    （2026-11-16 我自己踩了：测试里传自己的 PID，测试进程当场消失、一个字节输出都没有，
+    看起来像"无声崩溃"）。改成两条安全探针：
+
+    * Windows：`tasklist /FI "PID eq N"`，看输出里有没有这个 PID；
+    * 其它平台：`os.kill(pid, 0)` 在那里确实是探活。
+
+    探针本身失败（命令不可用/超时）一律返回 **False**，由调用方的另两条判据兜底——
+    不要因为"问不出来"就当"活着"。
+    """
+    try:
+        pid = int(pid)
+    except (TypeError, ValueError):
+        return False
+    if pid <= 0:
+        return False
+    if os.name != "nt":
+        try:
+            os.kill(pid, 0)
+        except ProcessLookupError:
+            return False
+        except PermissionError:
+            return True
+        except OSError:
+            return False
+        return True
+    try:
+        import subprocess
+        proc = subprocess.run(["tasklist", "/FI", "PID eq %d" % pid, "/NH"],
+                              capture_output=True, text=True, encoding="utf-8",
+                              errors="replace", timeout=20)
+    except (OSError, ValueError, Exception):        # noqa: BLE001 - 探针失败一律当"不活"
+        return False
+    text = (proc.stdout or "")
+    return ("%d" % pid) in text
+
+
+def blender_running() -> list:
+    """系统里有没有 blender 进程（有 = 一定有人在算，不许回收）。返回 PID 列表。
+
+    Windows 上用 `tasklist`；没有该命令（或非 Windows）时返回空列表，并让调用方
+    知道"这条判据不可用"——由 `reclaim` 把它写进说明里。
+    """
+    out = []
+    try:
+        import subprocess
+        proc = subprocess.run(["tasklist", "/FI", "IMAGENAME eq blender.exe", "/NH"],
+                              capture_output=True, text=True, encoding="utf-8",
+                              errors="replace", timeout=20)
+    except (OSError, ValueError, subprocess.SubprocessError):
+        return out
+    for line in (proc.stdout or "").splitlines():
+        parts = line.split()
+        if len(parts) >= 2 and parts[0].lower().startswith("blender"):
+            try:
+                out.append(int(parts[1]))
+            except ValueError:
+                continue
+    return out
+
+
+def parse_owner_line(text: str) -> dict:
+    """把 `owner.txt` 拆成 dict；拆不出来抛 IncompleteLock。"""
+    line = (text or "").strip()
+    if not line:
+        raise IncompleteLock("owner.txt 是空的")
+    parts = line.split("|")
+    if len(parts) < 2 or not parts[0].strip():
+        raise IncompleteLock("owner.txt 格式不对（至少要 `模块|工作树`）：%r" % line)
+    ident = "|".join(p.strip() for p in parts[:2])
+    pid = ""
+    stamp = ""
+    note = ""
+    for part in parts[2:]:
+        part = part.strip()
+        if part.upper().startswith("PID="):
+            pid = part[4:]
+        elif part[:2].isdigit() and "-" in part:
+            stamp = part
+        elif part:
+            note = part
+    return {"ident": ident, "pid": pid, "acquired_at": stamp, "note": note, "raw": line}
+
+
+def read_owner(lock_dir: str) -> dict:
+    if not os.path.isdir(lock_dir):
+        raise IncompleteLock("锁目录不存在：%s" % lock_dir)
+    path = os.path.join(lock_dir, OWNER_FILE)
+    try:
+        with open(path, "r", encoding="utf-8-sig") as fh:
+            text = fh.read()
+    except OSError as exc:
+        raise IncompleteLock("锁目录在，但 owner.txt 读不到：%s（%s）" % (path, exc))
+    return parse_owner_line(text)
+
+
+def held_seconds(lock_dir: str, owner_info: dict | None = None) -> float:
+    info = owner_info or read_owner(lock_dir)
+    stamp = info.get("acquired_at") or ""
+    if not stamp:
+        return 0.0
+    try:
+        started = dt.datetime.fromisoformat(stamp)
+    except ValueError:
+        return 0.0
+    now = dt.datetime.now().astimezone()
+    if started.tzinfo is None:
+        started = started.replace(tzinfo=now.tzinfo)
+    return max(0.0, (now - started).total_seconds())
+
+
+def status(lock_dir: str | None = None) -> dict:
+    """返回 {held, ident, pid, acquired_at, held_seconds, heartbeat_age, note}。"""
+    lock_dir = lock_dir or paths.lock_dir()
+    if not os.path.isdir(lock_dir):
+        return {"held": False, "lock_dir": lock_dir}
+    info = read_owner(lock_dir)
+    info.update({"held": True, "lock_dir": lock_dir,
+                 "held_seconds": held_seconds(lock_dir, info),
+                 "heartbeat_age": heartbeat_age_seconds(lock_dir)})
+    return info
+
+
+def acquire(owner: str, note: str = "", lock_dir: str | None = None,
+            wait_s: float = 0.0, poll_s: float = 0.5, work_pids=()) -> dict:
+    """原子取锁。锁存在即失败——**绝不覆盖**，`mkdir` 的原子性就是互斥本身。"""
+    if not owner or "|" not in owner:
+        raise ValueError("owner 必须写成 `模块|工作树`，例如 `模块负责4|A4`")
+    lock_dir = lock_dir or paths.lock_dir()
+    os.makedirs(os.path.dirname(lock_dir), exist_ok=True)
+    deadline = time.time() + max(0.0, wait_s)
+    while True:
+        try:
+            os.mkdir(lock_dir)          # 已存在 → FileExistsError，这就是"fail closed"
+        except FileExistsError:
+            if time.time() >= deadline:
+                try:
+                    info = read_owner(lock_dir)
+                except IncompleteLock:
+                    raise IncompleteLock(
+                        "锁目录在但没有可读的 owner.txt：%s（先人工确认，别删）" % lock_dir)
+                raise LockHeld("锁已被持有：%s" % info["raw"])
+            time.sleep(poll_s)
+            continue
+        line = _format_owner(owner, note, work_pids)
+        with open(os.path.join(lock_dir, OWNER_FILE), "w", encoding="utf-8", newline="\n") as fh:
+            fh.write(line + "\n")
+        # 心跳从取锁那一刻就开始：过期判定以它的 mtime 为主依据
+        _write_heartbeat(lock_dir, note)
+        return {"held": True, "ident": "|".join(owner.split("|")[:2]), "raw": line,
+                "lock_dir": lock_dir}
+
+
+def touch(owner: str = "", lock_dir: str | None = None, note: str = "") -> dict:
+    """刷心跳。长跑请周期性调用（例如每 2–3 分钟一次）。
+
+    `owner` 给了就校验一次（刷别人的锁的头跳是在替别人续命，不许）；不给就不校验，
+    留给"我只想看一眼自己还活着"的场景。
+    """
+    lock_dir = lock_dir or paths.lock_dir()
+    info = read_owner(lock_dir)
+    if owner:
+        mine = "|".join(owner.split("|")[:2])
+        if info["ident"] != mine:
+            raise NotOwner("这把锁不是你的：持有者 %r，你是 %r（未刷心跳）"
+                           % (info["raw"], mine))
+    _write_heartbeat(lock_dir, note or info.get("note") or "")
+    return {"held": True, "ident": info["ident"], "heartbeat_age": heartbeat_age_seconds(lock_dir)}
+
+
+def reclaim(lock_dir: str | None = None, stale_minutes: float = DEFAULT_STALE_MINUTES,
+            blender_pids=None) -> dict:
+    """把**确实没人管**的锁搬走（不是删）。
+
+    三条同时成立才允许，任何一条不成立就 `LockHeld` 且原地不动：
+
+    1. `owner.txt` 记录的 PID 全部不活；
+    2. 当前没有任何 blender 进程（`blender_pids` 可注入，测试用它造"还活着"）；
+    3. 心跳超过 `stale_minutes` 分钟（没有心跳文件按 `inf` 算，即"从来没跳过"）。
+
+    回收动作：整个锁目录 `shutil.move` 到 `locks/_reclaimed/<时间戳>-<ident>/`，
+    **`owner.txt` 原样保留**作为证据（"证据不删、只搬走"）。
+    """
+    lock_dir = lock_dir or paths.lock_dir()
+    info = read_owner(lock_dir)                       # 残缺锁在这里抛
+    pids = [p for p in (info.get("pid") or "").split(",") if p.strip()]
+    alive = [p for p in pids if pid_alive(p)]
+    running = blender_running() if blender_pids is None else list(blender_pids)
+    age = heartbeat_age_seconds(lock_dir)
+    reasons = []
+    if alive:
+        reasons.append("记录的 PID 还活着：%s" % ",".join(alive))
+    if running:
+        reasons.append("系统里有 blender 进程：%s" % ",".join(str(p) for p in running))
+    if age < stale_minutes * 60.0:
+        reasons.append("心跳只有 %.0f s 没跳（阈值 %.0f min）" % (age, stale_minutes))
+    if reasons:
+        raise LockHeld("不许回收（%s）：%s" % ("；".join(reasons), info["raw"]))
+
+    parent = os.path.dirname(lock_dir)
+    stamp = dt.datetime.now().strftime("%Y%m%d-%H%M%S")
+    safe_ident = info["ident"].replace("|", "_").replace("/", "_")
+    target = os.path.join(parent, RECLAIM_SUBDIR, "%s-%s" % (stamp, safe_ident))
+    os.makedirs(os.path.dirname(target), exist_ok=True)
+    shutil.move(lock_dir, target)
+    sys.stderr.write("RECLAIMED %s -> %s（心跳 %.0f s 未跳，PID 全不活，无 blender 进程）\n"
+                     % (lock_dir, target, age))
+    return {"held": False, "reclaimed": info["raw"], "moved_to": target,
+            "heartbeat_age": age}
+
+
+
+def release(owner: str, lock_dir: str | None = None) -> dict:
+    """释放锁。**只删自己的**：`owner.txt` 里的 `模块|工作树` 与 `--owner` 不一致就抛。"""
+    if not owner or "|" not in owner:
+        raise ValueError("owner 必须写成 `模块|工作树`")
+    lock_dir = lock_dir or paths.lock_dir()
+    info = read_owner(lock_dir)                     # 残缺锁在这里抛 IncompleteLock
+    mine = "|".join(owner.split("|")[:2])
+    if info["ident"] != mine:
+        raise NotOwner("这把锁不是你的：持有者 %r，你是 %r（未删除）"
+                       % (info["raw"], mine))
+    for name in (OWNER_FILE, HEARTBEAT_FILE):
+        try:
+            os.remove(os.path.join(lock_dir, name))
+        except OSError:
+            pass
+    try:
+        os.rmdir(lock_dir)
+    except OSError as exc:
+        raise IncompleteLock("owner.txt 已删但目录删不掉（可能有人在里面放了文件）：%s" % exc)
+    return {"held": False, "released": info["raw"], "lock_dir": lock_dir}
+
+
+def render_status(info: dict) -> str:
+    if not info.get("held"):
+        return "空闲：%s" % info.get("lock_dir", "")
+    age = info.get("heartbeat_age")
+    if age is None:
+        beat = "心跳 ?"
+    elif age == float("inf"):
+        beat = "心跳 从未"
+    else:
+        beat = "心跳 %.0f s 前" % age
+    return ("持有：%s｜PID=%s｜取得 %s｜已占用 %.1f s｜%s｜%s"
+            % (info["ident"], info.get("pid") or "?", info.get("acquired_at") or "?",
+               info.get("held_seconds", 0.0), beat, info.get("note") or "-"))
+
+
+def main(argv=None) -> int:
+    from .cli import ensure_utf8_stdio
+    ensure_utf8_stdio()
+    ap = argparse.ArgumentParser(
+        prog="coordination.lock",
+        description="Blender 互斥锁（acquire/release/status/touch/reclaim，fail-closed）",
+        epilog="退出码：0 正常 / 2 用法 / 3 冲突或拒绝回收 / 4 锁状态不可判定。\n"
+               "回收（reclaim）三条同时成立才允许：记录的 PID 全不活、系统里没有 blender 进程、"
+               "心跳超过阈值；回收是**搬到** locks/_reclaimed/ 下，不删，owner.txt 原样保留。")
+    ap.add_argument("action", choices=("acquire", "release", "status", "touch", "reclaim"))
+    ap.add_argument("--lock", default=None, help="锁目录（缺省 out/subai/locks/blender.lock）")
+    ap.add_argument("--owner", default="", help="`模块|工作树`，如 `模块负责4|A4`")
+    ap.add_argument("--note", default="", help="一句话说明这次要跑什么")
+    ap.add_argument("--wait", type=float, default=0.0, help="等锁秒数（默认 0＝不排队，直接失败）")
+    ap.add_argument("--work-pid", default="",
+                    help="真正干活的 PID（逗号分隔，例如 Blender 子进程的 PID）")
+    ap.add_argument("--stale-minutes", type=float, default=DEFAULT_STALE_MINUTES,
+                    help="心跳超过这么多分钟才算过期（默认 %.0f）" % DEFAULT_STALE_MINUTES)
+    args = ap.parse_args(argv)
+
+    work_pids = [p.strip() for p in args.work_pid.split(",") if p.strip()]
+    try:
+        if args.action == "acquire":
+            info = acquire(args.owner, args.note, args.lock, args.wait, work_pids=work_pids)
+            print("ACQUIRED %s" % info["raw"])
+            return EXIT_OK
+        if args.action == "release":
+            info = release(args.owner, args.lock)
+            print("RELEASED %s" % info["released"])
+            return EXIT_OK
+        if args.action == "touch":
+            info = touch(args.owner, args.lock, args.note)
+            print("HEARTBEAT 已刷新（%.1f s 前那次）" % info["heartbeat_age"])
+            return EXIT_OK
+        if args.action == "reclaim":
+            info = reclaim(args.lock, args.stale_minutes)
+            print("RECLAIMED %s -> %s" % (info["reclaimed"], info["moved_to"]))
+            return EXIT_OK
+        print(render_status(status(args.lock)))
+        return EXIT_OK
+    except IncompleteLock as exc:
+        print("LOCK_UNKNOWN %s" % exc)
+        return EXIT_UNKNOWN
+    except LockHeld as exc:
+        print("LOCK_HELD %s" % exc)
+        return EXIT_CONFLICT
+    except NotOwner as exc:
+        print("LOCK_NOT_YOURS %s" % exc)
+        return EXIT_CONFLICT
+    except ValueError as exc:
+        print("LOCK_USAGE %s" % exc)
+        return EXIT_USAGE
+
+
+if __name__ == "__main__":
+    sys.exit(main())

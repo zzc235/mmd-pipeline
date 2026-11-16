@@ -1,0 +1,432 @@
+{
+  "counts": {
+    "extra_confirmed_total": 3,
+    "match_confirmed": 3,
+    "match_suspected": 3,
+    "mismatch": 2,
+    "replay_identical": 19,
+    "replayable_fixtures": 20,
+    "samples_total": 8
+  },
+  "extra_confirmed_detail": [
+    {
+      "confirmed_beyond_expected": [
+        "F2"
+      ],
+      "sample": "S1"
+    },
+    {
+      "confirmed_beyond_expected": [
+        "F2"
+      ],
+      "sample": "S5"
+    },
+    {
+      "confirmed_beyond_expected": [
+        "F2"
+      ],
+      "sample": "S7"
+    }
+  ],
+  "extra_confirmed_note": "这些不是误报：没有阴性样本就无法判定「故障不存在」；F2（未烘焙）在别的主故障场景里同时成立是事实，按项目书允许多故障共存。真正缺的是 F2/F4/F5/R0 的阴性样本。",
+  "generated_from": [
+    "reports/subai/M03/sample_manifest.json",
+    "reports/subai/M03/evidence/**"
+  ],
+  "m04_handoff": {
+    "blocking_gaps": [
+      "F4",
+      "F5",
+      "OUT_OF_TAXONOMY",
+      "UNKNOWN",
+      "INSUFFICIENT_EVIDENCE"
+    ],
+    "consume_schema": "diagnose/1",
+    "fields": [
+      "primary",
+      "secondary[]",
+      "confidence",
+      "diagnostics[].matched/confidence/evidence_keys",
+      "missing_evidence[]",
+      "judgment_fingerprint",
+      "config.thresholds"
+    ],
+    "must_not": "M04 不得自改 M03 schema；字段不足走变更申请，由 M03 出 v2"
+  },
+  "matrix": {
+    "F1": {
+      "gap": "",
+      "labelled_samples": [
+        "S7"
+      ],
+      "real_confirmed_samples": [
+        "S7"
+      ],
+      "real_suspected_samples": [],
+      "synthetic_fixture": 1
+    },
+    "F2": {
+      "gap": "",
+      "labelled_samples": [],
+      "real_confirmed_samples": [
+        "S1",
+        "S5",
+        "S7"
+      ],
+      "real_suspected_samples": [],
+      "synthetic_fixture": 1
+    },
+    "F3": {
+      "gap": "",
+      "labelled_samples": [
+        "S3",
+        "S5"
+      ],
+      "real_confirmed_samples": [
+        "S5"
+      ],
+      "real_suspected_samples": [
+        "S1",
+        "S2",
+        "S3",
+        "S4",
+        "S5",
+        "S6",
+        "S7",
+        "S8"
+      ],
+      "synthetic_fixture": 1
+    },
+    "F4": {
+      "gap": "无真阳性样本：f4_angle_deg=60 未标定，正常舞蹈实测 179.231° 证明单调角度阈值区分不了正常与异常；须等 M02 的 S2 单变量修复实测",
+      "labelled_samples": [
+        "S2"
+      ],
+      "real_confirmed_samples": [],
+      "real_suspected_samples": [
+        "S1",
+        "S2",
+        "S3",
+        "S4",
+        "S5",
+        "S6",
+        "S7",
+        "S8"
+      ],
+      "synthetic_fixture": 1
+    },
+    "F5": {
+      "gap": "无真阳性样本：缺 evidence.blender.penetration（逐帧穿入深度 + 穿入骨 + 帧号），该测量属 M04",
+      "labelled_samples": [
+        "S4"
+      ],
+      "real_confirmed_samples": [],
+      "real_suspected_samples": [
+        "S1",
+        "S2",
+        "S3",
+        "S4",
+        "S5",
+        "S6",
+        "S7",
+        "S8"
+      ],
+      "synthetic_fixture": 1
+    },
+    "F6": {
+      "gap": "",
+      "labelled_samples": [
+        "S8"
+      ],
+      "real_confirmed_samples": [
+        "S8"
+      ],
+      "real_suspected_samples": [],
+      "synthetic_fixture": 1
+    },
+    "INSUFFICIENT_EVIDENCE": {
+      "gap": "只有合成 fixture，无真实样本",
+      "labelled_samples": [],
+      "real_confirmed_samples": [],
+      "real_suspected_samples": [],
+      "synthetic_fixture": 1
+    },
+    "OUT_OF_TAXONOMY": {
+      "gap": "R0 无真实测量文件：S1/S6 都缺逐帧穿透数据，只有合成 fixture",
+      "labelled_samples": [
+        "S1",
+        "S6"
+      ],
+      "real_confirmed_samples": [],
+      "real_suspected_samples": [],
+      "synthetic_fixture": 1
+    },
+    "UNKNOWN": {
+      "gap": "只有合成 fixture，无真实样本",
+      "labelled_samples": [],
+      "real_confirmed_samples": [],
+      "real_suspected_samples": [],
+      "synthetic_fixture": 1
+    }
+  },
+  "mismatch_detail": [
+    "S1",
+    "S6"
+  ],
+  "notes": [
+    "分母按样本条数算，不按证据文件数算：同一 PMX 被 7 条样本复用，去重会虚增。",
+    "F2 无独立标签样本（8 条里没有一条标 F2）；两份 F2 真实证据来自别的故障现场，已进 TestRealEvidenceRegression 作可重放回归。",
+    "known_risks / 未验证项不写进 evidence hash；数值由产物文件 sha256 覆盖。"
+  ],
+  "replayable_regression": [
+    {
+      "confidence": "suspected",
+      "note": "判定结论未变（primary/confidence 相同），但指纹与当前代码不一致：该文件早于 F3 候选过滤修正，已被同目录更新的证据取代",
+      "path": "reports/subai/M03/evidence/S3_static.json",
+      "primary": "F3",
+      "replay_identical": false
+    },
+    {
+      "confidence": "suspected",
+      "path": "reports/subai/M03/evidence/blend/S3_chest_60f.json",
+      "primary": "F4",
+      "replay_identical": true
+    },
+    {
+      "confidence": "confirmed",
+      "path": "reports/subai/M03/evidence/blend/S5_sleeve_60f.json",
+      "primary": "F3",
+      "replay_identical": true
+    },
+    {
+      "confidence": "confirmed",
+      "path": "reports/subai/M03/evidence/blend/probe_combined_v3.json",
+      "primary": "F2",
+      "replay_identical": true
+    },
+    {
+      "confidence": "confirmed",
+      "path": "reports/subai/M03/evidence/blend/probe_kafuka_all.json",
+      "primary": "F2",
+      "replay_identical": true
+    },
+    {
+      "confidence": "confirmed",
+      "path": "reports/subai/M03/evidence/blend/probe_kafuka_chain.json",
+      "primary": "F2",
+      "replay_identical": true
+    },
+    {
+      "confidence": "confirmed",
+      "path": "reports/subai/M03/evidence/blend/probe_v1.json",
+      "primary": "F1",
+      "replay_identical": true
+    },
+    {
+      "confidence": "insufficient",
+      "path": "reports/subai/M03/evidence/blend/probe_v2_damp075.json",
+      "primary": "INSUFFICIENT_EVIDENCE",
+      "replay_identical": true
+    },
+    {
+      "confidence": "insufficient",
+      "path": "reports/subai/M03/evidence/blend/probe_v2_hsr.json",
+      "primary": "INSUFFICIENT_EVIDENCE",
+      "replay_identical": true
+    },
+    {
+      "confidence": "suspected",
+      "path": "reports/subai/M03/evidence/repeat/det_1.json",
+      "primary": "F3",
+      "replay_identical": true
+    },
+    {
+      "confidence": "suspected",
+      "path": "reports/subai/M03/evidence/repeat/det_2.json",
+      "primary": "F3",
+      "replay_identical": true
+    },
+    {
+      "confidence": "suspected",
+      "path": "reports/subai/M03/evidence/static/S1.json",
+      "primary": "F3",
+      "replay_identical": true
+    },
+    {
+      "confidence": "suspected",
+      "path": "reports/subai/M03/evidence/static/S2.json",
+      "primary": "F3",
+      "replay_identical": true
+    },
+    {
+      "confidence": "suspected",
+      "path": "reports/subai/M03/evidence/static/S3.json",
+      "primary": "F3",
+      "replay_identical": true
+    },
+    {
+      "confidence": "suspected",
+      "path": "reports/subai/M03/evidence/static/S4.json",
+      "primary": "F3",
+      "replay_identical": true
+    },
+    {
+      "confidence": "suspected",
+      "path": "reports/subai/M03/evidence/static/S5.json",
+      "primary": "F3",
+      "replay_identical": true
+    },
+    {
+      "confidence": "suspected",
+      "path": "reports/subai/M03/evidence/static/S6.json",
+      "primary": "F3",
+      "replay_identical": true
+    },
+    {
+      "confidence": "suspected",
+      "path": "reports/subai/M03/evidence/static/S7.json",
+      "primary": "F3",
+      "replay_identical": true
+    },
+    {
+      "confidence": "suspected",
+      "path": "reports/subai/M03/evidence/static/S8.json",
+      "primary": "F3",
+      "replay_identical": true
+    },
+    {
+      "confidence": "confirmed",
+      "path": "reports/subai/M03/evidence/static/S8_f6.json",
+      "primary": "F6",
+      "replay_identical": true
+    }
+  ],
+  "samples": [
+    {
+      "availability": "available",
+      "confidence": "confirmed",
+      "confirmed_classes": [
+        "F2"
+      ],
+      "evidence_files": [
+        "reports\\subai\\M03\\evidence\\blend\\probe_combined_v3.json",
+        "reports\\subai\\M03\\evidence\\static\\S1.json"
+      ],
+      "expected_label": "OUT_OF_TAXONOMY",
+      "false_positives": [
+        "F2"
+      ],
+      "id": "S1",
+      "primary": "F2",
+      "verdict": "mismatch"
+    },
+    {
+      "availability": "available",
+      "confidence": "suspected",
+      "confirmed_classes": [],
+      "evidence_files": [
+        "reports\\subai\\M03\\evidence\\blend\\S3_chest_60f.json",
+        "reports\\subai\\M03\\evidence\\static\\S2.json"
+      ],
+      "expected_label": "F4",
+      "false_positives": [],
+      "id": "S2",
+      "primary": "F4",
+      "verdict": "match_suspected"
+    },
+    {
+      "availability": "available",
+      "confidence": "suspected",
+      "confirmed_classes": [],
+      "evidence_files": [
+        "reports\\subai\\M03\\evidence\\static\\S3.json"
+      ],
+      "expected_label": "F3",
+      "false_positives": [],
+      "id": "S3",
+      "primary": "F3",
+      "verdict": "match_suspected"
+    },
+    {
+      "availability": "available",
+      "confidence": "suspected",
+      "confirmed_classes": [],
+      "evidence_files": [
+        "reports\\subai\\M03\\evidence\\static\\S4.json"
+      ],
+      "expected_label": "F5",
+      "false_positives": [],
+      "id": "S4",
+      "primary": "F3",
+      "verdict": "match_suspected"
+    },
+    {
+      "availability": "available",
+      "confidence": "confirmed",
+      "confirmed_classes": [
+        "F2",
+        "F3"
+      ],
+      "evidence_files": [
+        "reports\\subai\\M03\\evidence\\blend\\S5_sleeve_60f.json",
+        "reports\\subai\\M03\\evidence\\static\\S5.json"
+      ],
+      "expected_label": "F3",
+      "false_positives": [
+        "F2"
+      ],
+      "id": "S5",
+      "primary": "F3",
+      "verdict": "match_confirmed"
+    },
+    {
+      "availability": "available",
+      "confidence": "suspected",
+      "confirmed_classes": [],
+      "evidence_files": [
+        "reports\\subai\\M03\\evidence\\static\\S6.json"
+      ],
+      "expected_label": "OUT_OF_TAXONOMY",
+      "false_positives": [],
+      "id": "S6",
+      "primary": "F3",
+      "verdict": "mismatch"
+    },
+    {
+      "availability": "available",
+      "confidence": "confirmed",
+      "confirmed_classes": [
+        "F1",
+        "F2"
+      ],
+      "evidence_files": [
+        "reports\\subai\\M03\\evidence\\blend\\probe_v1.json",
+        "reports\\subai\\M03\\evidence\\static\\S7.json"
+      ],
+      "expected_label": "F1",
+      "false_positives": [
+        "F2"
+      ],
+      "id": "S7",
+      "primary": "F1",
+      "verdict": "match_confirmed"
+    },
+    {
+      "availability": "available",
+      "confidence": "confirmed",
+      "confirmed_classes": [
+        "F6"
+      ],
+      "evidence_files": [
+        "reports\\subai\\M03\\evidence\\static\\S8_f6.json"
+      ],
+      "expected_label": "F6",
+      "false_positives": [],
+      "id": "S8",
+      "primary": "F6",
+      "verdict": "match_confirmed"
+    }
+  ],
+  "schema_version": "diagnose/1",
+  "taxonomy_version": "F1-F6+R0/1"
+}

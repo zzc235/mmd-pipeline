@@ -1,0 +1,71 @@
+# M03 实际修改/新增文件（2026-11-15）
+# 只列 M03 动过的；仓库里 pmx.py/chainplan.py/chain_nla.py/concatvmd.py/runner.py/vmd.py
+# 的 M 状态来自并行的 M01/M05，不是本模块。
+
+[源码]
+mmdpipe/diagnose.py
+mmdpipe/diagnose_blender.py
+
+[测试]
+tests/test_diagnose.py
+
+[报告脚本]
+reports/subai/M03/scripts/m03_manifest.py
+reports/subai/M03/scripts/m03_examples.py
+
+[报告]
+reports/subai/M03/result.md
+reports/subai/M03/known_limits.md
+reports/subai/M03/schema.md
+reports/subai/M03/handoff.md
+reports/subai/M03/reproduce.md
+reports/subai/M03/changed_files.txt
+reports/subai/M03/sample_manifest.json
+reports/subai/M03/coverage.json
+reports/subai/M03/summary.json
+reports/subai/M03/measurements.json
+reports/subai/M03/schema_example_confirmed.json
+reports/subai/M03/schema_example_insufficient.json
+
+[实验产物·静态归因]
+reports/subai/M03/evidence/static/S1.json
+reports/subai/M03/evidence/static/S2.json
+reports/subai/M03/evidence/static/S3.json
+reports/subai/M03/evidence/static/S4.json
+reports/subai/M03/evidence/static/S5.json
+reports/subai/M03/evidence/static/S6.json
+reports/subai/M03/evidence/static/S7.json
+reports/subai/M03/evidence/static/S8.json
+reports/subai/M03/evidence/static/S8_f6.json
+
+[实验产物·Blender 证据]
+reports/subai/M03/evidence/blend/S3_chest_60f.json
+reports/subai/M03/evidence/blend/S5_sleeve_60f.json
+reports/subai/M03/evidence/blend/probe_combined_v3.json
+reports/subai/M03/evidence/blend/probe_kafuka_all.json
+reports/subai/M03/evidence/blend/probe_kafuka_chain.json
+reports/subai/M03/evidence/blend/probe_v1.json
+reports/subai/M03/evidence/blend/probe_v2_damp075.json
+reports/subai/M03/evidence/blend/probe_v2_hsr.json
+
+[实验产物·A/B 测量]
+reports/subai/M03/evidence/ab/S8_A_render.json
+reports/subai/M03/evidence/ab/S8_B_render.json
+
+[未修改·只读]
+mmdpipe/pmx.py
+mmdpipe/physics.py
+mmdpipe/stage.py
+E:/blender模型/.../*.pmx（2 个）
+E:/code/Blender/feixiao_short/.../*.blend（3 个）
+E:/dsh pr/woker2/kafuka_all/scene.blend
+
+[回写共享工作区（2026-11-15 21:28–21:40）]
+# 目标目录：C:\Users\zzc\Desktop\ai用\dsh use\gongtonggzq
+M03_归因判据自动化与坏样本标签.md        （文末追加「附录 A · 执行记录」，19,808 B）
+M05_三段拼接丢帧与NLA坏姿态.md            （文末追加「A.8 补充 · 锁状态更新」，19,229 B）
+00_总控索引与执行顺序.md                 （只改 M03 自己那一行：L136 回报登记）
+reports/subai/M03/appendix_for_book.md   （附录 A 的可 diff 源稿）
+reports/subai/M03/backwrite.md           （回写记录本体）
+reports/subai/M03/scripts/m03_append_book.py    （幂等拼接脚本）
+reports/subai/M03/scripts/m03_fix_m05_order.py  （修 M05 追加交错，幂等）

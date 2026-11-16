@@ -1,0 +1,1631 @@
+{
+  "schema_version": "diagnose/1",
+  "taxonomy_version": "F1-F6+R0/1",
+  "tool_version": "0.1.0",
+  "thresholds": {
+    "spring_zero_eps": {
+      "value": 1e-09,
+      "unit": "rad",
+      "source": "pmx.py Joint.springs_zero 同一口径"
+    },
+    "f3_frozen_deg": {
+      "value": 0.5,
+      "unit": "deg",
+      "source": "项目书 S3 证据① baked_increment2 = 0.00000°"
+    },
+    "f3_parent_motion_deg": {
+      "value": 5.0,
+      "unit": "deg",
+      "source": "未标定（保守下限），待 M04 用门禁数据复核",
+      "calibrated": false
+    },
+    "f4_wide_limit_rad": {
+      "value": 1.2,
+      "unit": "rad",
+      "source": "项目书 S2 根部限位 ±1.5708 rad（±90°）"
+    },
+    "f4_angle_deg": {
+      "value": 60.0,
+      "unit": "deg",
+      "source": "未标定（暂按『接近水平』的保守下限）",
+      "calibrated": false
+    },
+    "f5_gap_ratio": {
+      "value": 0.5,
+      "unit": "row",
+      "source": "S4 第 11 行 11/11 根骨无刚体（实测 ratio=1.0）"
+    },
+    "f6_numeric_eps": {
+      "value": 1e-09,
+      "unit": "raw",
+      "source": "S8 A/B 逐位相同（两次结果完全一样）"
+    }
+  },
+  "static": {
+    "S3_feixiao_pmx": {
+      "input_path": "E:\\blender模型\\没有外套本家模型\\星穹铁道—飞霄（无外套）.pmx",
+      "input_sha256": "2db720a2281a9ea954082fc4d7f42f0d50a6ca72235d345566fbf5a28549a267",
+      "model": {
+        "name": "星穹铁道—飞霄",
+        "version": 2.0,
+        "encoding": "utf-16-le",
+        "bones": 420,
+        "rigids": 312,
+        "joints": 389
+      },
+      "rigid_modes": {
+        "0": 48,
+        "2": 264
+      },
+      "joints": 389,
+      "joints_zero_spring": 389,
+      "joints_zero_limit": 15,
+      "welded_joints": 15,
+      "max_limit_span_rad": 1.570796,
+      "wide_limit_joints": 53,
+      "frozen_roots": [
+        {
+          "joint": 0,
+          "joint_name": "右胸",
+          "target_bone": "右胸",
+          "anchor_bone": "上半身2"
+        },
+        {
+          "joint": 3,
+          "joint_name": "左胸",
+          "target_bone": "左胸",
+          "anchor_bone": "上半身2"
+        },
+        {
+          "joint": 304,
+          "joint_name": "馬尾1",
+          "target_bone": "馬尾1",
+          "anchor_bone": "頭"
+        },
+        {
+          "joint": 335,
+          "joint_name": "左耳1",
+          "target_bone": "左耳1",
+          "anchor_bone": "頭"
+        },
+        {
+          "joint": 339,
+          "joint_name": "右耳1",
+          "target_bone": "右耳1",
+          "anchor_bone": "頭"
+        },
+        {
+          "joint": 346,
+          "joint_name": "左側髪1-1",
+          "target_bone": "左側髪1-1",
+          "anchor_bone": "頭"
+        },
+        {
+          "joint": 368,
+          "joint_name": "右側髪1-1",
+          "target_bone": "右側髪1-1",
+          "anchor_bone": "頭"
+        }
+      ],
+      "wide_limit_units": [
+        {
+          "uid": 4,
+          "anchor_bone": "下半身",
+          "bodies": 154,
+          "modes": {
+            "0": 1,
+            "2": 153
+          },
+          "spring_max": 0.0,
+          "limit_span_rad": 1.570796
+        }
+      ],
+      "coverage_gaps": [
+        {
+          "family": "下擺",
+          "row": 11,
+          "missing_count": 11,
+          "bones_total": 11
+        },
+        {
+          "family": "腰带",
+          "row": 6,
+          "missing_count": 1,
+          "bones_total": 1
+        }
+      ],
+      "coverage_sparse": [
+        {
+          "family": "下擺",
+          "row": 2,
+          "missing_count": 1
+        },
+        {
+          "family": "下擺",
+          "row": 3,
+          "missing_count": 6
+        },
+        {
+          "family": "下擺",
+          "row": 9,
+          "missing_count": 1
+        }
+      ],
+      "primary": "F3",
+      "confidence": "suspected",
+      "fingerprint": "5d71d1431cad5fc0e8a435dc15935768ca1e62e2982b5c6436e658a33443e532"
+    },
+    "S5_kafuka_pmx": {
+      "input_path": "E:\\blender模型\\星穹铁道—卡芙卡无外套_by_崩坏：星穹铁道_31cc0fe7cc29460474ff5e5cd7188309\\星穹铁道—卡芙卡无外套\\卡芙卡3.0.pmx",
+      "input_sha256": "287a55563c5ec027127ce7289a022bddffac4cf4a67f175301de35e36de51f0e",
+      "model": {
+        "name": "卡芙卡",
+        "version": 2.0,
+        "encoding": "utf-16-le",
+        "bones": 246,
+        "rigids": 145,
+        "joints": 182
+      },
+      "rigid_modes": {
+        "0": 24,
+        "1": 119,
+        "2": 2
+      },
+      "joints": 182,
+      "joints_zero_spring": 182,
+      "joints_zero_limit": 57,
+      "welded_joints": 57,
+      "max_limit_span_rad": 1.570796,
+      "wide_limit_joints": 1,
+      "frozen_roots": [
+        {
+          "joint": 50,
+          "joint_name": "左胸_後1",
+          "target_bone": "",
+          "anchor_bone": "左胸変形"
+        },
+        {
+          "joint": 53,
+          "joint_name": "左胸_前1",
+          "target_bone": "",
+          "anchor_bone": "左胸変形"
+        },
+        {
+          "joint": 56,
+          "joint_name": "左胸_前後1",
+          "target_bone": "",
+          "anchor_bone": "左胸変形"
+        },
+        {
+          "joint": 59,
+          "joint_name": "右胸_後1",
+          "target_bone": "",
+          "anchor_bone": "右胸変形"
+        },
+        {
+          "joint": 62,
+          "joint_name": "右胸_前1",
+          "target_bone": "",
+          "anchor_bone": "右胸変形"
+        },
+        {
+          "joint": 65,
+          "joint_name": "右胸_前後1",
+          "target_bone": "",
+          "anchor_bone": "右胸変形"
+        },
+        {
+          "joint": 69,
+          "joint_name": "zxk__1",
+          "target_bone": "zxk__1",
+          "anchor_bone": "右ひじ"
+        },
+        {
+          "joint": 70,
+          "joint_name": "zxk__2",
+          "target_bone": "zxk__2",
+          "anchor_bone": "右ひじ"
+        },
+        {
+          "joint": 71,
+          "joint_name": "zxk__3",
+          "target_bone": "zxk__3",
+          "anchor_bone": "右ひじ"
+        },
+        {
+          "joint": 72,
+          "joint_name": "zxk__4",
+          "target_bone": "zxk__4",
+          "anchor_bone": "右ひじ"
+        },
+        {
+          "joint": 73,
+          "joint_name": "zxk__5",
+          "target_bone": "zxk__5",
+          "anchor_bone": "右ひじ"
+        },
+        {
+          "joint": 74,
+          "joint_name": "zxk__6",
+          "target_bone": "zxk__6",
+          "anchor_bone": "右ひじ"
+        },
+        {
+          "joint": 75,
+          "joint_name": "zxk__7",
+          "target_bone": "zxk__7",
+          "anchor_bone": "右ひじ"
+        },
+        {
+          "joint": 76,
+          "joint_name": "zxk__8",
+          "target_bone": "zxk__8",
+          "anchor_bone": "右ひじ"
+        },
+        {
+          "joint": 117,
+          "joint_name": "xk_0_0",
+          "target_bone": "xk_0_0",
+          "anchor_bone": "左ひじ"
+        },
+        {
+          "joint": 118,
+          "joint_name": "xk_0_1",
+          "target_bone": "xk_0_1",
+          "anchor_bone": "左ひじ"
+        },
+        {
+          "joint": 119,
+          "joint_name": "xk_0_2",
+          "target_bone": "xk_0_2",
+          "anchor_bone": "左ひじ"
+        },
+        {
+          "joint": 120,
+          "joint_name": "xk_0_3",
+          "target_bone": "xk_0_3",
+          "anchor_bone": "左ひじ"
+        },
+        {
+          "joint": 121,
+          "joint_name": "xk_0_4",
+          "target_bone": "xk_0_4",
+          "anchor_bone": "左ひじ"
+        },
+        {
+          "joint": 122,
+          "joint_name": "xk_0_5",
+          "target_bone": "xk_0_5",
+          "anchor_bone": "左ひじ"
+        },
+        {
+          "joint": 123,
+          "joint_name": "xk_0_6",
+          "target_bone": "xk_0_6",
+          "anchor_bone": "左ひじ"
+        },
+        {
+          "joint": 124,
+          "joint_name": "xk_0_7",
+          "target_bone": "xk_0_7",
+          "anchor_bone": "左ひじ"
+        }
+      ],
+      "wide_limit_units": [
+        {
+          "uid": 144,
+          "anchor_bone": "右ひざD",
+          "bodies": 2,
+          "modes": {
+            "0": 1,
+            "1": 1
+          },
+          "spring_max": 0.0,
+          "limit_span_rad": 1.570796
+        }
+      ],
+      "coverage_gaps": [
+        {
+          "family": "xj",
+          "row": 6,
+          "missing_count": 1,
+          "bones_total": 1
+        },
+        {
+          "family": "xk",
+          "row": 3,
+          "missing_count": 8,
+          "bones_total": 8
+        },
+        {
+          "family": "zb",
+          "row": 6,
+          "missing_count": 1,
+          "bones_total": 1
+        }
+      ],
+      "coverage_sparse": [],
+      "primary": "F3",
+      "confidence": "suspected",
+      "fingerprint": "7b90b4161c937eda2ba183402e3a29ed0b0d6d8741fe811022d6d89644b5ce4a"
+    },
+    "S8_ab_f6": {
+      "input_path": "E:\\blender模型\\没有外套本家模型\\星穹铁道—飞霄（无外套）.pmx",
+      "input_sha256": "2db720a2281a9ea954082fc4d7f42f0d50a6ca72235d345566fbf5a28549a267",
+      "primary": "F6",
+      "confidence": "confirmed",
+      "fingerprint": "f918267aaf4f00e3866f88df6e1d19533ac046e9545ac1a72d02048c768ee208",
+      "ab": {
+        "fields_compared": [
+          "render.f110.height",
+          "render.f110.pixels_sha256",
+          "render.f110.width",
+          "render.f140.height",
+          "render.f140.pixels_sha256",
+          "render.f140.width",
+          "render.f170.height",
+          "render.f170.pixels_sha256",
+          "render.f170.width",
+          "variable_changed"
+        ],
+        "identical_fields": [
+          "render.f110.height",
+          "render.f110.pixels_sha256",
+          "render.f110.width",
+          "render.f140.height",
+          "render.f140.pixels_sha256",
+          "render.f140.width",
+          "render.f170.height",
+          "render.f170.pixels_sha256",
+          "render.f170.width",
+          "variable_changed"
+        ],
+        "differing_fields": [],
+        "result_identical": true,
+        "variable_changed": "collision_collections（A: 原始；B: 按 MMD 分组开双向掩码）",
+        "source": "compare_ab",
+        "pixel_pairs": [
+          {
+            "frame": 110,
+            "pixels_identical": true,
+            "bytes_identical": false,
+            "a": "..\\..\\code\\Blender\\feixiao_short\\03_shot\\physics_test\\mask_ab\\A_before_110.png",
+            "b": "..\\..\\code\\Blender\\feixiao_short\\03_shot\\physics_test\\mask_ab\\B_after_110.png"
+          },
+          {
+            "frame": 140,
+            "pixels_identical": true,
+            "bytes_identical": false,
+            "a": "..\\..\\code\\Blender\\feixiao_short\\03_shot\\physics_test\\mask_ab\\A_before_140.png",
+            "b": "..\\..\\code\\Blender\\feixiao_short\\03_shot\\physics_test\\mask_ab\\B_after_140.png"
+          },
+          {
+            "frame": 170,
+            "pixels_identical": true,
+            "bytes_identical": false,
+            "a": "..\\..\\code\\Blender\\feixiao_short\\03_shot\\physics_test\\mask_ab\\A_before_170.png",
+            "b": "..\\..\\code\\Blender\\feixiao_short\\03_shot\\physics_test\\mask_ab\\B_after_170.png"
+          }
+        ]
+      }
+    }
+  },
+  "blend": {
+    "S7_f1_f2_confirmed": {
+      "input_path": "E:\\code\\Blender\\feixiao_short\\03_shot\\physics_test\\飞霄_MMD物理_v1.blend",
+      "input_sha256": "b9ba95d3cab9faa9a8a2114939b9316efcc2bad47e3e77709b1249c40b1e1879",
+      "status": "partial",
+      "primary": "F1",
+      "confidence": "confirmed",
+      "fingerprint": "9650782fc695f70ebffaaa2ca69ae15789e77b6f6c434f10db97069eb5b65867",
+      "is_built": false,
+      "constraints": {
+        "TRANSFORM": 32,
+        "IK": 4,
+        "LIMIT_ROTATION": 2,
+        "DAMPED_TRACK": 4,
+        "COPY_TRANSFORMS": 31
+      },
+      "rigids": 312,
+      "point_cache": {
+        "is_baked": false,
+        "frame_start": 1,
+        "frame_end": 240
+      },
+      "substeps_per_frame": 10,
+      "solver_iterations": 20,
+      "collision_collections": {
+        "rigids": 312,
+        "distinct_collection_sets": 1,
+        "top_sets": [
+          {
+            "collections": [
+              0
+            ],
+            "count": 312
+          }
+        ],
+        "rigids_with_no_collection": 0,
+        "note": "全部 rigids 只有 (0,) 时，改 MMD 掩码不会改变 Blender 层碰撞"
+      },
+      "frame_range": {
+        "start": null,
+        "end": null,
+        "fps": 24.0,
+        "evidence_mode": "stepped"
+      },
+      "frozen_candidates": [],
+      "unit_angles": [],
+      "max_rotation_delta_deg": null
+    },
+    "S1_f2_confirmed": {
+      "input_path": "E:\\code\\Blender\\feixiao_short\\04_anim\\feixiao_combined_v3.blend",
+      "input_sha256": "dd6190947468ef2e5496ad8f9075421231228e0c456bfd2c0a0098240ce249db",
+      "status": "partial",
+      "primary": "F2",
+      "confidence": "confirmed",
+      "fingerprint": "3f1695bbb24c1c601d56e3dd4dcff8ef8413588a5933f1bef3d6cc192e4d8b71",
+      "is_built": true,
+      "constraints": {
+        "COPY_ROTATION": 321,
+        "COPY_TRANSFORMS": 84,
+        "COPY_SCALE": 53,
+        "TRANSFORM": 26,
+        "IK": 4,
+        "LIMIT_ROTATION": 2,
+        "DAMPED_TRACK": 4
+      },
+      "rigids": 312,
+      "point_cache": {
+        "is_baked": false,
+        "frame_start": 1,
+        "frame_end": 6570
+      },
+      "substeps_per_frame": 10,
+      "solver_iterations": 20,
+      "collision_collections": {
+        "rigids": 312,
+        "distinct_collection_sets": 1,
+        "top_sets": [
+          {
+            "collections": [
+              0
+            ],
+            "count": 312
+          }
+        ],
+        "rigids_with_no_collection": 0,
+        "note": "全部 rigids 只有 (0,) 时，改 MMD 掩码不会改变 Blender 层碰撞"
+      },
+      "frame_range": {
+        "start": null,
+        "end": null,
+        "fps": 24.0,
+        "evidence_mode": "stepped"
+      },
+      "frozen_candidates": [],
+      "unit_angles": [],
+      "max_rotation_delta_deg": null
+    },
+    "S2_f3_f4_f5_suspected": {
+      "input_path": "E:\\code\\Blender\\feixiao_short\\03_shot\\physics_test\\feixiao_v2_hsr.blend",
+      "input_sha256": "b957143a0b76cad7b565713be1cca65b355549f76df95a27e652c1ff75518586",
+      "status": "ok",
+      "primary": "F4",
+      "confidence": "suspected",
+      "fingerprint": "2819533922cdc3c7988cb3b1e027c3ddc25fa8b881a73e79057d845c0a765297",
+      "is_built": true,
+      "constraints": {
+        "TRANSFORM": 32,
+        "IK": 4,
+        "LIMIT_ROTATION": 2,
+        "DAMPED_TRACK": 4,
+        "COPY_TRANSFORMS": 31,
+        "COPY_ROTATION": 264
+      },
+      "rigids": 312,
+      "point_cache": {
+        "is_baked": true,
+        "frame_start": 1,
+        "frame_end": 240
+      },
+      "substeps_per_frame": 10,
+      "solver_iterations": 20,
+      "collision_collections": {
+        "rigids": 312,
+        "distinct_collection_sets": 1,
+        "top_sets": [
+          {
+            "collections": [
+              0
+            ],
+            "count": 312
+          }
+        ],
+        "rigids_with_no_collection": 0,
+        "note": "全部 rigids 只有 (0,) 时，改 MMD 掩码不会改变 Blender 层碰撞"
+      },
+      "frame_range": {
+        "start": 1,
+        "end": 60,
+        "fps": 24.0,
+        "evidence_mode": "baked"
+      },
+      "frozen_candidates": [
+        {
+          "bone": "馬尾1",
+          "parent": "頭",
+          "rot_delta_deg": 0.6091,
+          "parent_rot_delta_deg": 0.331
+        }
+      ],
+      "unit_angles": [
+        {
+          "uid": 4,
+          "anchor_bones": [
+            "下半身",
+            "下擺_0_0",
+            "下擺_0_1"
+          ],
+          "max_angle_deg": 179.231,
+          "bones_measured": 154,
+          "definition": "采样区间内该单元骨相对 f1 的世界旋转最大变化"
+        }
+      ],
+      "max_rotation_delta_deg": 179.231
+    },
+    "S5_f3_confirmed": {
+      "input_path": "E:\\dsh pr\\woker2\\kafuka_all\\scene.blend",
+      "input_sha256": "3df0e033205955b7c0635ed8e60a6c4df059d9efe42752f88690bfb04ab98977",
+      "status": "ok",
+      "primary": "F3",
+      "confidence": "confirmed",
+      "fingerprint": "fd960f16c1be6ba49f4e652733b83227fb385d5b453b79774e995e97a20a91a0",
+      "is_built": true,
+      "constraints": {
+        "TRANSFORM": 29,
+        "COPY_TRANSFORMS": 138,
+        "IK": 4,
+        "LIMIT_ROTATION": 2,
+        "DAMPED_TRACK": 4
+      },
+      "rigids": 145,
+      "point_cache": {
+        "is_baked": false,
+        "frame_start": 1,
+        "frame_end": 833
+      },
+      "substeps_per_frame": 10,
+      "solver_iterations": 20,
+      "collision_collections": {
+        "rigids": 145,
+        "distinct_collection_sets": 1,
+        "top_sets": [
+          {
+            "collections": [
+              0
+            ],
+            "count": 145
+          }
+        ],
+        "rigids_with_no_collection": 0,
+        "note": "全部 rigids 只有 (0,) 时，改 MMD 掩码不会改变 Blender 层碰撞"
+      },
+      "frame_range": {
+        "start": 1,
+        "end": 60,
+        "fps": 24.0,
+        "evidence_mode": "stepped"
+      },
+      "frozen_candidates": [
+        {
+          "bone": "xk_0_0",
+          "parent": "ひじ.L",
+          "rot_delta_deg": -0.0,
+          "parent_rot_delta_deg": 66.4123
+        },
+        {
+          "bone": "xk_0_1",
+          "parent": "ひじ.L",
+          "rot_delta_deg": 0.0,
+          "parent_rot_delta_deg": 66.4123
+        },
+        {
+          "bone": "xk_0_2",
+          "parent": "ひじ.L",
+          "rot_delta_deg": 0.0,
+          "parent_rot_delta_deg": 66.4123
+        },
+        {
+          "bone": "xk_0_3",
+          "parent": "ひじ.L",
+          "rot_delta_deg": 0.0,
+          "parent_rot_delta_deg": 66.4123
+        },
+        {
+          "bone": "xk_0_4",
+          "parent": "ひじ.L",
+          "rot_delta_deg": 0.0,
+          "parent_rot_delta_deg": 66.4123
+        },
+        {
+          "bone": "xk_0_5",
+          "parent": "ひじ.L",
+          "rot_delta_deg": 0.0,
+          "parent_rot_delta_deg": 66.4123
+        },
+        {
+          "bone": "xk_0_6",
+          "parent": "ひじ.L",
+          "rot_delta_deg": -0.0,
+          "parent_rot_delta_deg": 66.4123
+        },
+        {
+          "bone": "xk_0_7",
+          "parent": "ひじ.L",
+          "rot_delta_deg": -0.0,
+          "parent_rot_delta_deg": 66.4123
+        },
+        {
+          "bone": "zxk__1",
+          "parent": "ひじ.R",
+          "rot_delta_deg": 0.0,
+          "parent_rot_delta_deg": 125.8775
+        },
+        {
+          "bone": "zxk__2",
+          "parent": "ひじ.R",
+          "rot_delta_deg": 0.0,
+          "parent_rot_delta_deg": 125.8775
+        },
+        {
+          "bone": "zxk__3",
+          "parent": "ひじ.R",
+          "rot_delta_deg": 0.0,
+          "parent_rot_delta_deg": 125.8775
+        },
+        {
+          "bone": "zxk__4",
+          "parent": "ひじ.R",
+          "rot_delta_deg": 0.0,
+          "parent_rot_delta_deg": 125.8775
+        },
+        {
+          "bone": "zxk__5",
+          "parent": "ひじ.R",
+          "rot_delta_deg": 0.0,
+          "parent_rot_delta_deg": 125.8775
+        },
+        {
+          "bone": "zxk__6",
+          "parent": "ひじ.R",
+          "rot_delta_deg": 0.0,
+          "parent_rot_delta_deg": 125.8775
+        },
+        {
+          "bone": "zxk__7",
+          "parent": "ひじ.R",
+          "rot_delta_deg": 0.0,
+          "parent_rot_delta_deg": 125.8775
+        },
+        {
+          "bone": "zxk__8",
+          "parent": "ひじ.R",
+          "rot_delta_deg": 0.0,
+          "parent_rot_delta_deg": 125.8775
+        }
+      ],
+      "unit_angles": [
+        {
+          "uid": 144,
+          "anchor_bones": [
+            "PendantB1_JNT",
+            "右ひざD"
+          ],
+          "max_angle_deg": 37.203,
+          "bones_measured": 1,
+          "definition": "采样区间内该单元骨相对 f1 的世界旋转最大变化"
+        }
+      ],
+      "max_rotation_delta_deg": 152.414
+    }
+  },
+  "tests": {
+    "command": "python -m unittest tests.test_diagnose -v",
+    "count": 37,
+    "note": "37 条全绿；条数随用例增删，以实际输出为准"
+  },
+  "commands": [
+    {
+      "purpose": "单元测试",
+      "shell": "PowerShell",
+      "cmd": "python -m unittest tests.test_diagnose -v",
+      "exit": 0
+    },
+    {
+      "purpose": "静态归因（飞霄 PMX）",
+      "shell": "PowerShell",
+      "cmd": "python -m mmdpipe.diagnose --pmx \"E:\\blender模型\\没有外套本家模型\\星穹铁道—飞霄（无外套）.pmx\" --out \"reports\\subai\\M03\\evidence\\static\\S3.json\"",
+      "exit": 0
+    },
+    {
+      "purpose": "样本 manifest/覆盖/summary",
+      "shell": "PowerShell",
+      "cmd": "python reports/subai/M03/scripts/m03_manifest.py",
+      "exit": 0
+    },
+    {
+      "purpose": "schema 示例 + measurements",
+      "shell": "PowerShell",
+      "cmd": "python reports/subai/M03/scripts/m03_examples.py",
+      "exit": 0
+    },
+    {
+      "purpose": "Blender 元数据（F1/F2 现场）",
+      "shell": "PowerShell",
+      "cmd": "& \"E:\\code\\Blender\\blender-5.2.2-windows-x64\\blender.exe\" -b -P \"mmdpipe\\diagnose_blender.py\" -- --blend \"E:\\code\\Blender\\feixiao_short\\03_shot\\physics_test\\飞霄_MMD物理_v1.blend\" --out \"reports\\subai\\M03\\evidence\\blend\\probe_v1.json\" --frames 1",
+      "exit": 4
+    },
+    {
+      "purpose": "Blender 60 帧（S3 胸口现场）",
+      "shell": "PowerShell",
+      "cmd": "& \"E:\\code\\Blender\\blender-5.2.2-windows-x64\\blender.exe\" -b -P \"mmdpipe\\diagnose_blender.py\" -- --blend \"E:\\code\\Blender\\feixiao_short\\03_shot\\physics_test\\feixiao_v2_hsr.blend\" --pmx \"E:\\blender模型\\没有外套本家模型\\星穹铁道—飞霄（无外套）.pmx\" --out \"reports\\subai\\M03\\evidence\\blend\\S3_chest_60f.json\" --frames 60",
+      "exit": 0
+    },
+    {
+      "purpose": "Blender 60 帧（S5 袖子 F3 confirmed）",
+      "shell": "PowerShell",
+      "cmd": "& \"E:\\code\\Blender\\blender-5.2.2-windows-x64\\blender.exe\" -b -P \"mmdpipe\\diagnose_blender.py\" -- --blend \"E:\\dsh pr\\woker2\\kafuka_all\\scene.blend\" --pmx \"E:\\blender模型\\星穹铁道—卡芙卡无外套_by_崩坏：星穹铁道_31cc0fe7cc29460474ff5e5cd7188309\\星穹铁道—卡芙卡无外套\\卡芙卡3.0.pmx\" --out \"reports\\subai\\M03\\evidence\\blend\\S5_sleeve_60f.json\" --frames 60",
+      "exit": 0
+    }
+  ],
+  "repeat_runs": {
+    "files": [
+      "reports/subai/M03/evidence/repeat/det_1.json",
+      "reports/subai/M03/evidence/repeat/det_2.json"
+    ],
+    "same_fingerprint": true,
+    "note": "同一 PMX 连续跑两次静态 CLI，judgment_fingerprint 相同"
+  },
+  "manifest": {
+    "schema_version": "diagnose/1",
+    "taxonomy_version": "F1-F6+R0/1",
+    "generated_from": "m03_manifest.py",
+    "samples": [
+      {
+        "id": "S1",
+        "expected_label": "OUT_OF_TAXONOMY",
+        "expected_detail": "R0 头发穿模（强制初始穿透）",
+        "taxonomy_version": "F1-F6+R0/1",
+        "model": "星穹铁道—飞霄（无外套）",
+        "symptom": "头发插进头部/身体，首帧即穿",
+        "blend_path": "E:\\code\\Blender\\feixiao_short\\04_anim\\feixiao_combined_v3.blend",
+        "pmx_path": "E:\\blender模型\\没有外套本家模型\\星穹铁道—飞霄（无外套）.pmx",
+        "auxiliary_files": [],
+        "path_status": "available",
+        "required_evidence": [
+          "blender.penetration（逐帧穿入）"
+        ],
+        "known_numbers": {
+          "file_bytes": {
+            "value": 17433907,
+            "source": "项目书 S1（与磁盘实测一致）"
+          },
+          "closed_by": {
+            "value": "PMX v2（fixB 线作废）",
+            "source": "项目书 S1"
+          }
+        },
+        "source": "项目书 S1（已验证 · 已闭环）",
+        "availability": {
+          "pmx": true,
+          "blend": true,
+          "auxiliary_present": 0,
+          "auxiliary_total": 0,
+          "static_diagnosis": {
+            "available": true,
+            "file": "reports\\subai\\M03\\evidence\\static\\S1.json",
+            "primary": "F3",
+            "confidence": "suspected",
+            "fingerprint": "5d71d1431cad5fc0e8a435dc15935768ca1e62e2982b5c6436e658a33443e532",
+            "input_sha256": "2db720a2281a9ea954082fc4d7f42f0d50a6ca72235d345566fbf5a28549a267",
+            "matched": {
+              "F3": "suspected",
+              "F4": "suspected",
+              "F5": "suspected"
+            },
+            "diagnostics": {
+              "F1": "insufficient",
+              "F2": "insufficient",
+              "F3": "suspected",
+              "F4": "suspected",
+              "F5": "suspected",
+              "F6": "insufficient",
+              "OUT_OF_TAXONOMY": "insufficient"
+            }
+          },
+          "blend_diagnosis": {
+            "available": true,
+            "file": "reports\\subai\\M03\\evidence\\blend\\probe_combined_v3.json",
+            "status": "partial",
+            "primary": "F2",
+            "confidence": "confirmed",
+            "fingerprint": "3f1695bbb24c1c601d56e3dd4dcff8ef8413588a5933f1bef3d6cc192e4d8b71",
+            "input_sha256": "dd6190947468ef2e5496ad8f9075421231228e0c456bfd2c0a0098240ce249db",
+            "diagnostics": {
+              "F1": "insufficient",
+              "F2": "confirmed",
+              "F3": "insufficient",
+              "F4": "insufficient",
+              "F5": "insufficient",
+              "F6": "insufficient",
+              "OUT_OF_TAXONOMY": "insufficient"
+            },
+            "matched": {
+              "F2": "confirmed"
+            },
+            "is_built": true,
+            "constraints": {
+              "COPY_ROTATION": 321,
+              "COPY_TRANSFORMS": 84,
+              "COPY_SCALE": 53,
+              "TRANSFORM": 26,
+              "IK": 4,
+              "LIMIT_ROTATION": 2,
+              "DAMPED_TRACK": 4
+            },
+            "cache": {
+              "is_baked": false,
+              "frame_start": 1,
+              "frame_end": 6570
+            },
+            "frames_sampled": 0,
+            "evidence_mode": "stepped"
+          }
+        },
+        "verdict": {
+          "expected": "OUT_OF_TAXONOMY",
+          "outcome": "mismatch",
+          "observed": [
+            {
+              "source": "static",
+              "primary": "F3",
+              "confidence": "suspected",
+              "expected_level": "absent",
+              "file": "reports\\subai\\M03\\evidence\\static\\S1.json"
+            },
+            {
+              "source": "blend",
+              "primary": "F2",
+              "confidence": "confirmed",
+              "expected_level": "absent",
+              "file": "reports\\subai\\M03\\evidence\\blend\\probe_combined_v3.json"
+            }
+          ],
+          "note": "期望 OUT_OF_TAXONOMY，实际读到 ['F3', 'F2']"
+        },
+        "required_evidence_present": {
+          "blender.penetration（逐帧穿入）": false
+        },
+        "notes": "该文件是【修复后】的场景；R0 是历史症状，本轮没有穿透测量文件，不能用它证明 R0 仍存在。当前状态只能读到 F2（未烘焙）。"
+      },
+      {
+        "id": "S2",
+        "expected_label": "F4",
+        "expected_detail": "零弹簧 + ±90° 宽限位（下摆甩到接近水平）",
+        "taxonomy_version": "F1-F6+R0/1",
+        "model": "星穹铁道—飞霄（无外套）",
+        "symptom": "转身/甩发/弯腰时布片近水平",
+        "blend_path": "E:\\code\\Blender\\feixiao_short\\03_shot\\physics_test\\feixiao_v2_hsr.blend",
+        "pmx_path": "E:\\blender模型\\没有外套本家模型\\星穹铁道—飞霄（无外套）.pmx",
+        "auxiliary_files": [],
+        "path_status": "available",
+        "required_evidence": [
+          "structure.wide_limit_units",
+          "blender.unit_angles"
+        ],
+        "known_numbers": {
+          "skirt_rigids_mode2": {
+            "value": 153,
+            "source": "项目书 S2"
+          },
+          "root_mass_kg": {
+            "value": 20.0,
+            "source": "项目书 S2（pmx.py 不解析质量，本轮不可复核）"
+          },
+          "joint_springs_zero": {
+            "value": 272,
+            "source": "项目书 S2（本轮实测 PMX 全部 389 个关节弹簧为 0）"
+          },
+          "root_limit_x_rad": {
+            "value": 1.571,
+            "source": "项目书 S2（本轮实测 max_limit_span=1.570796）"
+          }
+        },
+        "source": "项目书 S2（已验证 · 待拍板）",
+        "availability": {
+          "pmx": true,
+          "blend": true,
+          "auxiliary_present": 0,
+          "auxiliary_total": 0,
+          "static_diagnosis": {
+            "available": true,
+            "file": "reports\\subai\\M03\\evidence\\static\\S2.json",
+            "primary": "F3",
+            "confidence": "suspected",
+            "fingerprint": "5d71d1431cad5fc0e8a435dc15935768ca1e62e2982b5c6436e658a33443e532",
+            "input_sha256": "2db720a2281a9ea954082fc4d7f42f0d50a6ca72235d345566fbf5a28549a267",
+            "matched": {
+              "F3": "suspected",
+              "F4": "suspected",
+              "F5": "suspected"
+            },
+            "diagnostics": {
+              "F1": "insufficient",
+              "F2": "insufficient",
+              "F3": "suspected",
+              "F4": "suspected",
+              "F5": "suspected",
+              "F6": "insufficient",
+              "OUT_OF_TAXONOMY": "insufficient"
+            }
+          },
+          "blend_diagnosis": {
+            "available": true,
+            "file": "reports\\subai\\M03\\evidence\\blend\\S3_chest_60f.json",
+            "status": "ok",
+            "primary": "F4",
+            "confidence": "suspected",
+            "fingerprint": "2819533922cdc3c7988cb3b1e027c3ddc25fa8b881a73e79057d845c0a765297",
+            "input_sha256": "b957143a0b76cad7b565713be1cca65b355549f76df95a27e652c1ff75518586",
+            "diagnostics": {
+              "F1": "insufficient",
+              "F2": "insufficient",
+              "F3": "suspected",
+              "F4": "suspected",
+              "F5": "suspected",
+              "F6": "insufficient",
+              "OUT_OF_TAXONOMY": "insufficient"
+            },
+            "matched": {
+              "F3": "suspected",
+              "F4": "suspected",
+              "F5": "suspected"
+            },
+            "is_built": true,
+            "constraints": {
+              "TRANSFORM": 32,
+              "IK": 4,
+              "LIMIT_ROTATION": 2,
+              "DAMPED_TRACK": 4,
+              "COPY_TRANSFORMS": 31,
+              "COPY_ROTATION": 264
+            },
+            "cache": {
+              "is_baked": true,
+              "frame_start": 1,
+              "frame_end": 240
+            },
+            "frames_sampled": 60,
+            "evidence_mode": "baked"
+          }
+        },
+        "verdict": {
+          "expected": "F4",
+          "outcome": "match_suspected",
+          "observed": [
+            {
+              "source": "static",
+              "primary": "F3",
+              "confidence": "suspected",
+              "expected_level": "suspected",
+              "file": "reports\\subai\\M03\\evidence\\static\\S2.json"
+            },
+            {
+              "source": "blend",
+              "primary": "F4",
+              "confidence": "suspected",
+              "expected_level": "suspected",
+              "file": "reports\\subai\\M03\\evidence\\blend\\S3_chest_60f.json"
+            }
+          ],
+          "note": "期望 F4，实测只到 suspected"
+        },
+        "required_evidence_present": {
+          "structure.wide_limit_units": true,
+          "blender.unit_angles": true
+        },
+        "notes": "下摆单元在 PMX 层实测 154 体 / 153 mode2 / 弹簧 0 / 限位 1.570796，与项目书一致；「大角度」阈值未标定，只能 suspected。"
+      },
+      {
+        "id": "S3",
+        "expected_label": "F3",
+        "expected_detail": "硬约束冻结（胸口鼓包/折叠）",
+        "taxonomy_version": "F1-F6+R0/1",
+        "model": "星穹铁道—飞霄（无外套）",
+        "symptom": "胸区折叠、凸起、穿插，首帧即存在",
+        "blend_path": null,
+        "pmx_path": "E:\\blender模型\\没有外套本家模型\\星穹铁道—飞霄（无外套）.pmx",
+        "auxiliary_files": [],
+        "path_status": "partial",
+        "required_evidence": [
+          "structure.frozen_roots",
+          "blender.frozen_pairs"
+        ],
+        "known_numbers": {
+          "chest_rigids": {
+            "value": "PMX idx 24–29",
+            "source": "项目书 S3（本轮静态实测同 6 体）"
+          },
+          "baked_increment_f1_f60_deg": {
+            "value": 0.0,
+            "source": "项目书 S3 证据①"
+          },
+          "constraint_toggle_vertex_delta_m": {
+            "value": 0.1837,
+            "source": "项目书 S3 证据②(f1)"
+          }
+        },
+        "source": "项目书 S3（高置信 · 待拍板）",
+        "availability": {
+          "pmx": true,
+          "blend": false,
+          "auxiliary_present": 0,
+          "auxiliary_total": 0,
+          "static_diagnosis": {
+            "available": true,
+            "file": "reports\\subai\\M03\\evidence\\static\\S3.json",
+            "primary": "F3",
+            "confidence": "suspected",
+            "fingerprint": "5d71d1431cad5fc0e8a435dc15935768ca1e62e2982b5c6436e658a33443e532",
+            "input_sha256": "2db720a2281a9ea954082fc4d7f42f0d50a6ca72235d345566fbf5a28549a267",
+            "matched": {
+              "F3": "suspected",
+              "F4": "suspected",
+              "F5": "suspected"
+            },
+            "diagnostics": {
+              "F1": "insufficient",
+              "F2": "insufficient",
+              "F3": "suspected",
+              "F4": "suspected",
+              "F5": "suspected",
+              "F6": "insufficient",
+              "OUT_OF_TAXONOMY": "insufficient"
+            }
+          },
+          "blend_diagnosis": {
+            "available": false,
+            "reason": "未采集 Blender 证据"
+          }
+        },
+        "verdict": {
+          "expected": "F3",
+          "outcome": "match_suspected",
+          "observed": [
+            {
+              "source": "static",
+              "primary": "F3",
+              "confidence": "suspected",
+              "expected_level": "suspected",
+              "file": "reports\\subai\\M03\\evidence\\static\\S3.json"
+            }
+          ],
+          "note": "期望 F3，实测只到 suspected"
+        },
+        "required_evidence_present": {
+          "structure.frozen_roots": true,
+          "blender.frozen_pairs": false
+        },
+        "notes": "静态已抓到 7 个焊接冻结根，其中 右胸/左胸 焊在 上半身2 上（6DOF 全锁），与项目书一致。可用候选场景里胸口骨没有 COPY_ROTATION（=不是胸口冻结现场），动态证据判为 UNAVAILABLE，不硬凑 confirmed。"
+      },
+      {
+        "id": "S4",
+        "expected_label": "F5",
+        "expected_detail": "骨无刚体（下摆第 11 行穿小腿）",
+        "taxonomy_version": "F1-F6+R0/1",
+        "model": "星穹铁道—飞霄（无外套）",
+        "symptom": "下摆穿小腿",
+        "blend_path": "E:\\code\\Blender\\feixiao_short\\03_shot\\physics_test\\feixiao_phys_row11.blend",
+        "pmx_path": "E:\\blender模型\\没有外套本家模型\\星穹铁道—飞霄（无外套）.pmx",
+        "auxiliary_files": [],
+        "path_status": "partial",
+        "required_evidence": [
+          "coverage.gaps",
+          "blender.penetration"
+        ],
+        "known_numbers": {
+          "row11_bones_without_rigid": {
+            "value": 11,
+            "source": "项目书 S4（本轮静态实测 11/11）"
+          },
+          "penetration_f150_m": {
+            "value": -0.202,
+            "source": "项目书 S4"
+          },
+          "rigids_before_after": {
+            "value": [
+              312,
+              323
+            ],
+            "source": "项目书 S4"
+          }
+        },
+        "source": "项目书 S4（已验证 · 效果已测）",
+        "availability": {
+          "pmx": true,
+          "blend": false,
+          "auxiliary_present": 0,
+          "auxiliary_total": 0,
+          "static_diagnosis": {
+            "available": true,
+            "file": "reports\\subai\\M03\\evidence\\static\\S4.json",
+            "primary": "F3",
+            "confidence": "suspected",
+            "fingerprint": "5d71d1431cad5fc0e8a435dc15935768ca1e62e2982b5c6436e658a33443e532",
+            "input_sha256": "2db720a2281a9ea954082fc4d7f42f0d50a6ca72235d345566fbf5a28549a267",
+            "matched": {
+              "F3": "suspected",
+              "F4": "suspected",
+              "F5": "suspected"
+            },
+            "diagnostics": {
+              "F1": "insufficient",
+              "F2": "insufficient",
+              "F3": "suspected",
+              "F4": "suspected",
+              "F5": "suspected",
+              "F6": "insufficient",
+              "OUT_OF_TAXONOMY": "insufficient"
+            }
+          },
+          "blend_diagnosis": {
+            "available": false,
+            "reason": "未采集 Blender 证据"
+          }
+        },
+        "verdict": {
+          "expected": "F5",
+          "outcome": "match_suspected",
+          "observed": [
+            {
+              "source": "static",
+              "primary": "F3",
+              "confidence": "suspected",
+              "expected_level": "suspected",
+              "file": "reports\\subai\\M03\\evidence\\static\\S4.json"
+            }
+          ],
+          "note": "期望 F5，实测只到 suspected"
+        },
+        "required_evidence_present": {
+          "coverage.gaps": true,
+          "blender.penetration": false
+        },
+        "notes": "规范文件 feixiao_phys_row11.blend 在磁盘上已不存在（只有 _废弃 与 .blend1），按准则不拿近似工程替代；覆盖缺口由 PMX 静态实测支撑，穿透证据留在 known_numbers。"
+      },
+      {
+        "id": "S5",
+        "expected_label": "F3",
+        "expected_detail": "硬约束冻结（卡芙卡袖子乱飞）",
+        "taxonomy_version": "F1-F6+R0/1",
+        "model": "星穹铁道—卡芙卡（无外套）",
+        "symptom": "袖子乱飞 / 被钉在世界空间",
+        "blend_path": "E:\\dsh pr\\woker2\\kafuka_all\\scene.blend",
+        "pmx_path": "E:\\blender模型\\星穹铁道—卡芙卡无外套_by_崩坏：星穹铁道_31cc0fe7cc29460474ff5e5cd7188309\\星穹铁道—卡芙卡无外套\\卡芙卡3.0.pmx",
+        "auxiliary_files": [],
+        "path_status": "available",
+        "required_evidence": [
+          "structure.frozen_roots",
+          "blender.frozen_pairs"
+        ],
+        "known_numbers": {
+          "welded_joints_pmx": {
+            "value": 57,
+            "source": "本轮静态实测"
+          },
+          "frozen_sleeve_bones": {
+            "value": 16,
+            "source": "本轮动态实测 f1→f60"
+          },
+          "sleeve_local_delta_deg": {
+            "value": 0.0,
+            "source": "本轮动态实测"
+          },
+          "parent_world_delta_deg": {
+            "value": 66.41,
+            "source": "本轮动态实测"
+          }
+        },
+        "source": "项目书 S5（高置信 · 待拍板）→ 本轮升级为 confirmed",
+        "availability": {
+          "pmx": true,
+          "blend": true,
+          "auxiliary_present": 0,
+          "auxiliary_total": 0,
+          "static_diagnosis": {
+            "available": true,
+            "file": "reports\\subai\\M03\\evidence\\static\\S5.json",
+            "primary": "F3",
+            "confidence": "suspected",
+            "fingerprint": "7b90b4161c937eda2ba183402e3a29ed0b0d6d8741fe811022d6d89644b5ce4a",
+            "input_sha256": "287a55563c5ec027127ce7289a022bddffac4cf4a67f175301de35e36de51f0e",
+            "matched": {
+              "F3": "suspected",
+              "F4": "suspected",
+              "F5": "suspected"
+            },
+            "diagnostics": {
+              "F1": "insufficient",
+              "F2": "insufficient",
+              "F3": "suspected",
+              "F4": "suspected",
+              "F5": "suspected",
+              "F6": "insufficient",
+              "OUT_OF_TAXONOMY": "insufficient"
+            }
+          },
+          "blend_diagnosis": {
+            "available": true,
+            "file": "reports\\subai\\M03\\evidence\\blend\\S5_sleeve_60f.json",
+            "status": "ok",
+            "primary": "F3",
+            "confidence": "confirmed",
+            "fingerprint": "fd960f16c1be6ba49f4e652733b83227fb385d5b453b79774e995e97a20a91a0",
+            "input_sha256": "3df0e033205955b7c0635ed8e60a6c4df059d9efe42752f88690bfb04ab98977",
+            "diagnostics": {
+              "F1": "insufficient",
+              "F2": "confirmed",
+              "F3": "confirmed",
+              "F4": "suspected",
+              "F5": "suspected",
+              "F6": "insufficient",
+              "OUT_OF_TAXONOMY": "insufficient"
+            },
+            "matched": {
+              "F2": "confirmed",
+              "F3": "confirmed",
+              "F4": "suspected",
+              "F5": "suspected"
+            },
+            "is_built": true,
+            "constraints": {
+              "TRANSFORM": 29,
+              "COPY_TRANSFORMS": 138,
+              "IK": 4,
+              "LIMIT_ROTATION": 2,
+              "DAMPED_TRACK": 4
+            },
+            "cache": {
+              "is_baked": false,
+              "frame_start": 1,
+              "frame_end": 833
+            },
+            "frames_sampled": 60,
+            "evidence_mode": "stepped"
+          }
+        },
+        "verdict": {
+          "expected": "F3",
+          "outcome": "match_confirmed",
+          "observed": [
+            {
+              "source": "static",
+              "primary": "F3",
+              "confidence": "suspected",
+              "expected_level": "suspected",
+              "file": "reports\\subai\\M03\\evidence\\static\\S5.json"
+            },
+            {
+              "source": "blend",
+              "primary": "F3",
+              "confidence": "confirmed",
+              "expected_level": "confirmed",
+              "file": "reports\\subai\\M03\\evidence\\blend\\S5_sleeve_60f.json"
+            }
+          ],
+          "note": "期望 F3，实测 confirmed"
+        },
+        "required_evidence_present": {
+          "structure.frozen_roots": true,
+          "blender.frozen_pairs": true
+        },
+        "notes": "项目书里 S5 只是「与 S3 同类」的推论；本轮用 16 根袖骨（xk_*）「父链 66.41° / 自身 0.0°」的实测把它升级为 confirmed。"
+      },
+      {
+        "id": "S6",
+        "expected_label": "OUT_OF_TAXONOMY",
+        "expected_detail": "R0 头发穿模不复位",
+        "taxonomy_version": "F1-F6+R0/1",
+        "model": "星穹铁道—飞霄（无外套）",
+        "symptom": "头发穿模后不复位",
+        "blend_path": null,
+        "pmx_path": "E:\\blender模型\\没有外套本家模型\\星穹铁道—飞霄（无外套）.pmx",
+        "auxiliary_files": [],
+        "path_status": "partial",
+        "required_evidence": [
+          "blender.penetration",
+          "r0.detected"
+        ],
+        "known_numbers": {
+          "mechanism": {
+            "value": "Bullet 初始穿透 R0",
+            "source": "项目书 S6"
+          }
+        },
+        "source": "项目书 S6（现象/定性完成）",
+        "availability": {
+          "pmx": true,
+          "blend": false,
+          "auxiliary_present": 0,
+          "auxiliary_total": 0,
+          "static_diagnosis": {
+            "available": true,
+            "file": "reports\\subai\\M03\\evidence\\static\\S6.json",
+            "primary": "F3",
+            "confidence": "suspected",
+            "fingerprint": "5d71d1431cad5fc0e8a435dc15935768ca1e62e2982b5c6436e658a33443e532",
+            "input_sha256": "2db720a2281a9ea954082fc4d7f42f0d50a6ca72235d345566fbf5a28549a267",
+            "matched": {
+              "F3": "suspected",
+              "F4": "suspected",
+              "F5": "suspected"
+            },
+            "diagnostics": {
+              "F1": "insufficient",
+              "F2": "insufficient",
+              "F3": "suspected",
+              "F4": "suspected",
+              "F5": "suspected",
+              "F6": "insufficient",
+              "OUT_OF_TAXONOMY": "insufficient"
+            }
+          },
+          "blend_diagnosis": {
+            "available": false,
+            "reason": "未采集 Blender 证据"
+          }
+        },
+        "verdict": {
+          "expected": "OUT_OF_TAXONOMY",
+          "outcome": "mismatch",
+          "observed": [
+            {
+              "source": "static",
+              "primary": "F3",
+              "confidence": "suspected",
+              "expected_level": "absent",
+              "file": "reports\\subai\\M03\\evidence\\static\\S6.json"
+            }
+          ],
+          "note": "期望 OUT_OF_TAXONOMY，实际读到 ['F3']"
+        },
+        "required_evidence_present": {
+          "blender.penetration": false,
+          "r0.detected": false
+        },
+        "notes": "没有逐帧穿透测量文件；本轮不启动长渲染，R0 判据用合成 fixture 覆盖，真实样本留缺（不宣称六类都有真实样本）。"
+      },
+      {
+        "id": "S7",
+        "expected_label": "F1",
+        "expected_detail": "没 build（下摆直筒不动）",
+        "taxonomy_version": "F1-F6+R0/1",
+        "model": "星穹铁道—飞霄（无外套）",
+        "symptom": "下摆完全不动、呈直筒",
+        "blend_path": "E:\\code\\Blender\\feixiao_short\\03_shot\\physics_test\\飞霄_MMD物理_v1.blend",
+        "pmx_path": "E:\\blender模型\\没有外套本家模型\\星穹铁道—飞霄（无外套）.pmx",
+        "auxiliary_files": [],
+        "path_status": "available",
+        "required_evidence": [
+          "blender.mmd_root.is_built",
+          "blender.constraints"
+        ],
+        "known_numbers": {
+          "is_built": {
+            "value": false,
+            "source": "本轮实测"
+          },
+          "copy_rotation": {
+            "value": 0,
+            "source": "本轮实测（约束直方图里没有 COPY_ROTATION）"
+          },
+          "expected_copy_rotation_after_build": {
+            "value": 264,
+            "source": "项目书 S7（仅飞霄）"
+          }
+        },
+        "source": "项目书 S7（已验证 · 已解决）",
+        "availability": {
+          "pmx": true,
+          "blend": true,
+          "auxiliary_present": 0,
+          "auxiliary_total": 0,
+          "static_diagnosis": {
+            "available": true,
+            "file": "reports\\subai\\M03\\evidence\\static\\S7.json",
+            "primary": "F3",
+            "confidence": "suspected",
+            "fingerprint": "5d71d1431cad5fc0e8a435dc15935768ca1e62e2982b5c6436e658a33443e532",
+            "input_sha256": "2db720a2281a9ea954082fc4d7f42f0d50a6ca72235d345566fbf5a28549a267",
+            "matched": {
+              "F3": "suspected",
+              "F4": "suspected",
+              "F5": "suspected"
+            },
+            "diagnostics": {
+              "F1": "insufficient",
+              "F2": "insufficient",
+              "F3": "suspected",
+              "F4": "suspected",
+              "F5": "suspected",
+              "F6": "insufficient",
+              "OUT_OF_TAXONOMY": "insufficient"
+            }
+          },
+          "blend_diagnosis": {
+            "available": true,
+            "file": "reports\\subai\\M03\\evidence\\blend\\probe_v1.json",
+            "status": "partial",
+            "primary": "F1",
+            "confidence": "confirmed",
+            "fingerprint": "9650782fc695f70ebffaaa2ca69ae15789e77b6f6c434f10db97069eb5b65867",
+            "input_sha256": "b9ba95d3cab9faa9a8a2114939b9316efcc2bad47e3e77709b1249c40b1e1879",
+            "diagnostics": {
+              "F1": "confirmed",
+              "F2": "confirmed",
+              "F3": "insufficient",
+              "F4": "insufficient",
+              "F5": "insufficient",
+              "F6": "insufficient",
+              "OUT_OF_TAXONOMY": "insufficient"
+            },
+            "matched": {
+              "F1": "confirmed",
+              "F2": "confirmed"
+            },
+            "is_built": false,
+            "constraints": {
+              "TRANSFORM": 32,
+              "IK": 4,
+              "LIMIT_ROTATION": 2,
+              "DAMPED_TRACK": 4,
+              "COPY_TRANSFORMS": 31
+            },
+            "cache": {
+              "is_baked": false,
+              "frame_start": 1,
+              "frame_end": 240
+            },
+            "frames_sampled": 0,
+            "evidence_mode": "stepped"
+          }
+        },
+        "verdict": {
+          "expected": "F1",
+          "outcome": "match_confirmed",
+          "observed": [
+            {
+              "source": "static",
+              "primary": "F3",
+              "confidence": "suspected",
+              "expected_level": "absent",
+              "file": "reports\\subai\\M03\\evidence\\static\\S7.json"
+            },
+            {
+              "source": "blend",
+              "primary": "F1",
+              "confidence": "confirmed",
+              "expected_level": "confirmed",
+              "file": "reports\\subai\\M03\\evidence\\blend\\probe_v1.json"
+            }
+          ],
+          "note": "期望 F1，实测 confirmed"
+        },
+        "required_evidence_present": {
+          "blender.mmd_root.is_built": true,
+          "blender.constraints": true
+        },
+        "notes": "实测 is_built=False、COPY_ROTATION=0、未烘焙 → F1 + F2 双命中。"
+      },
+      {
+        "id": "S8",
+        "expected_label": "F6",
+        "expected_detail": "改了不生效（碰撞掩码）",
+        "taxonomy_version": "F1-F6+R0/1",
+        "model": "星穹铁道—飞霄（无外套）",
+        "symptom": "按 MMD 分组开双向掩码，穿模毫无改善",
+        "blend_path": null,
+        "pmx_path": "E:\\blender模型\\没有外套本家模型\\星穹铁道—飞霄（无外套）.pmx",
+        "auxiliary_files": [
+          "E:\\code\\Blender\\feixiao_short\\03_shot\\physics_test\\mask_ab\\A_before_110.png",
+          "E:\\code\\Blender\\feixiao_short\\03_shot\\physics_test\\mask_ab\\A_before_140.png",
+          "E:\\code\\Blender\\feixiao_short\\03_shot\\physics_test\\mask_ab\\A_before_170.png",
+          "E:\\code\\Blender\\feixiao_short\\03_shot\\physics_test\\mask_ab\\B_after_110.png",
+          "E:\\code\\Blender\\feixiao_short\\03_shot\\physics_test\\mask_ab\\B_after_140.png",
+          "E:\\code\\Blender\\feixiao_short\\03_shot\\physics_test\\mask_ab\\B_after_170.png"
+        ],
+        "path_status": "partial",
+        "required_evidence": [
+          "ab.variable_changed",
+          "ab.fields_compared",
+          "ab.result_identical"
+        ],
+        "known_numbers": {
+          "penetration_frames": {
+            "value": 31,
+            "source": "项目书 S8（历史基线）"
+          },
+          "penetration_bone_hits": {
+            "value": 1068,
+            "source": "项目书 S8（历史基线）"
+          },
+          "max_depth_m": {
+            "value": -0.291,
+            "source": "项目书 S8（历史基线）"
+          },
+          "all_rigids_collision_collections": {
+            "value": "(0,)",
+            "source": "本轮实测 312/312"
+          }
+        },
+        "source": "项目书 S8（已验证 · 未解决）",
+        "availability": {
+          "pmx": true,
+          "blend": false,
+          "auxiliary_present": 6,
+          "auxiliary_total": 6,
+          "static_diagnosis": {
+            "available": true,
+            "file": "reports\\subai\\M03\\evidence\\static\\S8_f6.json",
+            "primary": "F6",
+            "confidence": "confirmed",
+            "fingerprint": "f918267aaf4f00e3866f88df6e1d19533ac046e9545ac1a72d02048c768ee208",
+            "input_sha256": "2db720a2281a9ea954082fc4d7f42f0d50a6ca72235d345566fbf5a28549a267",
+            "matched": {
+              "F3": "suspected",
+              "F4": "suspected",
+              "F5": "suspected",
+              "F6": "confirmed"
+            },
+            "diagnostics": {
+              "F1": "insufficient",
+              "F2": "insufficient",
+              "F3": "suspected",
+              "F4": "suspected",
+              "F5": "suspected",
+              "F6": "confirmed",
+              "OUT_OF_TAXONOMY": "insufficient"
+            },
+            "with_ab": true
+          },
+          "blend_diagnosis": {
+            "available": false,
+            "reason": "未采集 Blender 证据"
+          }
+        },
+        "verdict": {
+          "expected": "F6",
+          "outcome": "match_confirmed",
+          "observed": [
+            {
+              "source": "static",
+              "primary": "F6",
+              "confidence": "confirmed",
+              "expected_level": "confirmed",
+              "file": "reports\\subai\\M03\\evidence\\static\\S8_f6.json"
+            }
+          ],
+          "note": "期望 F6，实测 confirmed"
+        },
+        "required_evidence_present": {
+          "ab.variable_changed": true,
+          "ab.fields_compared": true,
+          "ab.result_identical": true
+        },
+        "notes": "A/B 三对渲染图在像素层逐位相同（0/512000 像素不同），PNG 字节不同只是编码元数据差异 —— 两种事实都记下来。"
+      }
+    ]
+  },
+  "sources_untouched": "所有 PMX/BLEND 只读；采集前后两次 SHA256 一致（见 blend 报告的 evidence.source.sha256_before/after）"
+}

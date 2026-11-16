@@ -1,0 +1,48 @@
+{
+ "A1_vs_P0": {
+  "all_max_m": 1.586699962,
+  "hem_max_m": 0.908710335
+ },
+ "P7_vs_A1": {
+  "all_max_m": 0.0,
+  "hem_max_m": 0.0
+ },
+ "P7_vs_P0": {
+  "all_max_m": 1.586699962,
+  "hem_max_m": 0.908710335
+ },
+ "cache_after_jump": {
+  "info": "240 frames in memory (2.1 MiB), cache is outdated!",
+  "is_baked": true,
+  "is_outdated": true
+ },
+ "cache_at_open": {
+  "frame_end": 326,
+  "frame_start": 1,
+  "info": "240 frames in memory (2.1 MiB), cache is outdated!",
+  "is_baked": true,
+  "is_outdated": true
+ },
+ "frame": 109,
+ "hem_bones": [
+  "042_下擺_0_0",
+  "043_下擺_0_1",
+  "044_下擺_0_2",
+  "045_下擺_0_3",
+  "046_下擺_0_4",
+  "047_下擺_0_5",
+  "048_下擺_0_6",
+  "049_下擺_0_7",
+  "050_下擺_0_8",
+  "051_下擺_0_9",
+  "052_下擺_0_10",
+  "053_下擺_0_11",
+  "054_下擺_0_12",
+  "055_下擺_0_13",
+  "056_下擺_0_14",
+  "057_下擺_0_15",
+  "058_下擺_0_16",
+  "059_下擺_0_17"
+ ],
+ "source_untouched": true
+}

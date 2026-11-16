@@ -1,4 +1,4 @@
-"""`stage.ensure_addons()` / `stage_import()` 的闸门实测（要开 Blender，需要锁）：
+r"""`stage.ensure_addons()` / `stage_import()` 的闸门实测（要开 Blender，需要锁）：
 
     # 应当被拒：把扩展仓库指到空目录 ⇒ mmd_tools 不可见 ⇒ 导入必须报 BLOCK，不许产出空场景
     $env:BLENDER_USER_EXTENSIONS = "$env:TEMP\empty_repo"

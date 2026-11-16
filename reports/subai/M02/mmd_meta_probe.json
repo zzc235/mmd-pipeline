@@ -1,0 +1,26 @@
+{
+ "armatures": {
+  "星穹铁道—飞霄（无外套）_arm": {
+   "bones": 482,
+   "sample_bone": "下擺_0_17",
+   "sample_bone_custom_props": [],
+   "sample_bone_mmd_attrs": [],
+   "sample_bone_rigid_body": false
+  },
+  "星穹铁道—飞霄（无外套）_arm_rig": {
+   "bones": 737,
+   "sample_bone": "root",
+   "sample_bone_custom_props": [],
+   "sample_bone_mmd_attrs": [],
+   "sample_bone_rigid_body": false
+  }
+ },
+ "blend": "E:\\dsh pr\\woker2\\out\\subai\\M02\\s8\\G_base.blend",
+ "rigid_objects": 324,
+ "sample_object": "000_$name_j",
+ "sample_object_custom_props": [
+  "__backup_location__",
+  "__backup_rotation_euler__"
+ ],
+ "sample_object_mmd_attrs": []
+}

@@ -1,0 +1,41 @@
+{
+ "candidates": [
+  {
+   "exists": false,
+   "name": "feixiao_phys_row11.blend"
+  },
+  {
+   "bytes": 11283023,
+   "exists": true,
+   "mtime": 1794027116.6958888,
+   "name": "feixiao_phys_row11.blend1",
+   "sha256": "dd7f6877ee9c8c03c5df7c39236e142e806e9b1c771bc35ac2df05a1cefb192e"
+  },
+  {
+   "bytes": 11059385,
+   "exists": true,
+   "mtime": 1794028698.2254937,
+   "name": "feixiao_phys_row11_废弃.blend",
+   "sha256": "a15a9d5a88f206b52bad0b459b25f48aa99d01160a0d4b0e03c4c436436e5d90"
+  },
+  {
+   "bytes": 6593564,
+   "exists": true,
+   "mtime": 1793973885.3960216,
+   "name": "飞霄_MMD物理_v1.blend",
+   "sha256": "b9ba95d3cab9faa9a8a2114939b9316efcc2bad47e3e77709b1249c40b1e1879"
+  },
+  {
+   "bytes": 7471590,
+   "exists": true,
+   "mtime": 1793975654.808134,
+   "name": "feixiao_phys_masked.blend1",
+   "sha256": "11f398bab361ba4301c40946b4588ba67d1ac55b2b8eae5d087977971f6a0538"
+  }
+ ],
+ "dir": "E:\\code\\Blender\\feixiao_short\\03_shot\\physics_test",
+ "stage": "A-env",
+ "task": "M02",
+ "taskbook_entry": "feixiao_phys_row11.blend（任务书 §2.6 指定入口）",
+ "taskbook_entry_exists": false
+}

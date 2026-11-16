@@ -1,0 +1,9 @@
+{
+  "no_fake_numbers": true,
+  "reason": "标定需要「好样本 pass、坏样本 fail」的 measurement 与标签配对；盘上没有一份已验证的 measurement。D-20261116-008 明令不得拿 M01/M02 未验收产物当标定数据，故不产出误导性的混淆矩阵。",
+  "status": "NOT_COMPUTED",
+  "would_need": [
+    "同一动作口径（fps/帧范围/骨集合）的好样本 measurement ≥1 与坏样本 measurement ≥1",
+    "holdout 至少留 1 条，且与 calibration 不同模型或不同动作"
+  ]
+}

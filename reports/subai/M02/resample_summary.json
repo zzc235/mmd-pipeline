@@ -1,0 +1,357 @@
+{
+ "comparability_vs_old_samples": {
+  "baseline": {
+   "max_abs_diff_deg": 0.0,
+   "rows_compared": 17280
+  },
+  "x07": {
+   "max_abs_diff_deg": 0.0,
+   "rows_compared": 17280
+  }
+ },
+ "note": "B2r 与 B2 只差新列：angle_deg / rot_x·y·z_deg 逐行最大差 0.0，新增列 `bone_world_delta_deg` 是同一份轨迹上的新观测量，不改旧列语义。",
+ "per_bone": {
+  "B2r_baseline": {
+   "下擺_0_0": {
+    "angle_span_deg": 42.771795,
+    "first_row_null": true,
+    "world_delta_max_deg": 3.496185,
+    "world_delta_nonzero_rows": 151,
+    "world_delta_p50_deg": 0.153233,
+    "world_delta_rows": 239
+   },
+   "下擺_0_1": {
+    "angle_span_deg": 41.317297,
+    "first_row_null": true,
+    "world_delta_max_deg": 3.899066,
+    "world_delta_nonzero_rows": 127,
+    "world_delta_p50_deg": 0.068528,
+    "world_delta_rows": 239
+   },
+   "下擺_0_10": {
+    "angle_span_deg": 21.895117,
+    "first_row_null": true,
+    "world_delta_max_deg": 2.408621,
+    "world_delta_nonzero_rows": 206,
+    "world_delta_p50_deg": 0.142653,
+    "world_delta_rows": 239
+   },
+   "下擺_0_11": {
+    "angle_span_deg": 18.050954,
+    "first_row_null": true,
+    "world_delta_max_deg": 6.268132,
+    "world_delta_nonzero_rows": 142,
+    "world_delta_p50_deg": 0.055953,
+    "world_delta_rows": 239
+   },
+   "下擺_0_12": {
+    "angle_span_deg": 14.283946,
+    "first_row_null": true,
+    "world_delta_max_deg": 9.302022,
+    "world_delta_nonzero_rows": 153,
+    "world_delta_p50_deg": 0.068528,
+    "world_delta_rows": 239
+   },
+   "下擺_0_13": {
+    "angle_span_deg": 9.94792,
+    "first_row_null": true,
+    "world_delta_max_deg": 7.102088,
+    "world_delta_nonzero_rows": 128,
+    "world_delta_p50_deg": 0.039565,
+    "world_delta_rows": 239
+   },
+   "下擺_0_14": {
+    "angle_span_deg": 11.603155,
+    "first_row_null": true,
+    "world_delta_max_deg": 4.064605,
+    "world_delta_nonzero_rows": 128,
+    "world_delta_p50_deg": 0.055953,
+    "world_delta_rows": 239
+   },
+   "下擺_0_15": {
+    "angle_span_deg": 16.778095,
+    "first_row_null": true,
+    "world_delta_max_deg": 5.050449,
+    "world_delta_nonzero_rows": 137,
+    "world_delta_p50_deg": 0.055953,
+    "world_delta_rows": 239
+   },
+   "下擺_0_16": {
+    "angle_span_deg": 19.005666,
+    "first_row_null": true,
+    "world_delta_max_deg": 4.932337,
+    "world_delta_nonzero_rows": 139,
+    "world_delta_p50_deg": 0.055953,
+    "world_delta_rows": 239
+   },
+   "下擺_0_17": {
+    "angle_span_deg": 27.598172,
+    "first_row_null": true,
+    "world_delta_max_deg": 3.833475,
+    "world_delta_nonzero_rows": 142,
+    "world_delta_p50_deg": 0.088469,
+    "world_delta_rows": 239
+   },
+   "下擺_0_2": {
+    "angle_span_deg": 38.504916,
+    "first_row_null": true,
+    "world_delta_max_deg": 6.736966,
+    "world_delta_nonzero_rows": 98,
+    "world_delta_p50_deg": 0.0,
+    "world_delta_rows": 239
+   },
+   "下擺_0_3": {
+    "angle_span_deg": 37.344041,
+    "first_row_null": true,
+    "world_delta_max_deg": 6.148687,
+    "world_delta_nonzero_rows": 76,
+    "world_delta_p50_deg": 0.0,
+    "world_delta_rows": 239
+   },
+   "下擺_0_4": {
+    "angle_span_deg": 37.307606,
+    "first_row_null": true,
+    "world_delta_max_deg": 5.083208,
+    "world_delta_nonzero_rows": 52,
+    "world_delta_p50_deg": 0.0,
+    "world_delta_rows": 239
+   },
+   "下擺_0_5": {
+    "angle_span_deg": 38.950195,
+    "first_row_null": true,
+    "world_delta_max_deg": 6.847767,
+    "world_delta_nonzero_rows": 39,
+    "world_delta_p50_deg": 0.0,
+    "world_delta_rows": 239
+   },
+   "下擺_0_6": {
+    "angle_span_deg": 38.796589,
+    "first_row_null": true,
+    "world_delta_max_deg": 8.837259,
+    "world_delta_nonzero_rows": 66,
+    "world_delta_p50_deg": 0.0,
+    "world_delta_rows": 239
+   },
+   "下擺_0_7": {
+    "angle_span_deg": 36.703939,
+    "first_row_null": true,
+    "world_delta_max_deg": 6.070247,
+    "world_delta_nonzero_rows": 101,
+    "world_delta_p50_deg": 0.0,
+    "world_delta_rows": 239
+   },
+   "下擺_0_8": {
+    "angle_span_deg": 33.486423,
+    "first_row_null": true,
+    "world_delta_max_deg": 2.538983,
+    "world_delta_nonzero_rows": 195,
+    "world_delta_p50_deg": 0.104678,
+    "world_delta_rows": 239
+   },
+   "下擺_0_9": {
+    "angle_span_deg": 29.617906,
+    "first_row_null": true,
+    "world_delta_max_deg": 2.394933,
+    "world_delta_nonzero_rows": 206,
+    "world_delta_p50_deg": 0.148037,
+    "world_delta_rows": 239
+   }
+  },
+  "B2r_x07": {
+   "下擺_0_0": {
+    "angle_span_deg": 42.771795,
+    "first_row_null": true,
+    "world_delta_max_deg": 3.496185,
+    "world_delta_nonzero_rows": 151,
+    "world_delta_p50_deg": 0.153233,
+    "world_delta_rows": 239
+   },
+   "下擺_0_1": {
+    "angle_span_deg": 41.317297,
+    "first_row_null": true,
+    "world_delta_max_deg": 3.899066,
+    "world_delta_nonzero_rows": 127,
+    "world_delta_p50_deg": 0.068528,
+    "world_delta_rows": 239
+   },
+   "下擺_0_10": {
+    "angle_span_deg": 21.895117,
+    "first_row_null": true,
+    "world_delta_max_deg": 2.408621,
+    "world_delta_nonzero_rows": 206,
+    "world_delta_p50_deg": 0.142653,
+    "world_delta_rows": 239
+   },
+   "下擺_0_11": {
+    "angle_span_deg": 18.050954,
+    "first_row_null": true,
+    "world_delta_max_deg": 6.268132,
+    "world_delta_nonzero_rows": 142,
+    "world_delta_p50_deg": 0.055953,
+    "world_delta_rows": 239
+   },
+   "下擺_0_12": {
+    "angle_span_deg": 14.283946,
+    "first_row_null": true,
+    "world_delta_max_deg": 9.302022,
+    "world_delta_nonzero_rows": 153,
+    "world_delta_p50_deg": 0.068528,
+    "world_delta_rows": 239
+   },
+   "下擺_0_13": {
+    "angle_span_deg": 9.94792,
+    "first_row_null": true,
+    "world_delta_max_deg": 7.102088,
+    "world_delta_nonzero_rows": 128,
+    "world_delta_p50_deg": 0.039565,
+    "world_delta_rows": 239
+   },
+   "下擺_0_14": {
+    "angle_span_deg": 11.603155,
+    "first_row_null": true,
+    "world_delta_max_deg": 4.064605,
+    "world_delta_nonzero_rows": 128,
+    "world_delta_p50_deg": 0.055953,
+    "world_delta_rows": 239
+   },
+   "下擺_0_15": {
+    "angle_span_deg": 16.778095,
+    "first_row_null": true,
+    "world_delta_max_deg": 5.050449,
+    "world_delta_nonzero_rows": 137,
+    "world_delta_p50_deg": 0.055953,
+    "world_delta_rows": 239
+   },
+   "下擺_0_16": {
+    "angle_span_deg": 19.005666,
+    "first_row_null": true,
+    "world_delta_max_deg": 4.932337,
+    "world_delta_nonzero_rows": 139,
+    "world_delta_p50_deg": 0.055953,
+    "world_delta_rows": 239
+   },
+   "下擺_0_17": {
+    "angle_span_deg": 27.598172,
+    "first_row_null": true,
+    "world_delta_max_deg": 3.833475,
+    "world_delta_nonzero_rows": 142,
+    "world_delta_p50_deg": 0.088469,
+    "world_delta_rows": 239
+   },
+   "下擺_0_2": {
+    "angle_span_deg": 38.504916,
+    "first_row_null": true,
+    "world_delta_max_deg": 6.736966,
+    "world_delta_nonzero_rows": 98,
+    "world_delta_p50_deg": 0.0,
+    "world_delta_rows": 239
+   },
+   "下擺_0_3": {
+    "angle_span_deg": 37.344041,
+    "first_row_null": true,
+    "world_delta_max_deg": 6.148687,
+    "world_delta_nonzero_rows": 76,
+    "world_delta_p50_deg": 0.0,
+    "world_delta_rows": 239
+   },
+   "下擺_0_4": {
+    "angle_span_deg": 37.307606,
+    "first_row_null": true,
+    "world_delta_max_deg": 5.083208,
+    "world_delta_nonzero_rows": 52,
+    "world_delta_p50_deg": 0.0,
+    "world_delta_rows": 239
+   },
+   "下擺_0_5": {
+    "angle_span_deg": 38.950195,
+    "first_row_null": true,
+    "world_delta_max_deg": 6.847767,
+    "world_delta_nonzero_rows": 39,
+    "world_delta_p50_deg": 0.0,
+    "world_delta_rows": 239
+   },
+   "下擺_0_6": {
+    "angle_span_deg": 38.796589,
+    "first_row_null": true,
+    "world_delta_max_deg": 8.837259,
+    "world_delta_nonzero_rows": 66,
+    "world_delta_p50_deg": 0.0,
+    "world_delta_rows": 239
+   },
+   "下擺_0_7": {
+    "angle_span_deg": 36.703939,
+    "first_row_null": true,
+    "world_delta_max_deg": 6.070247,
+    "world_delta_nonzero_rows": 101,
+    "world_delta_p50_deg": 0.0,
+    "world_delta_rows": 239
+   },
+   "下擺_0_8": {
+    "angle_span_deg": 33.486423,
+    "first_row_null": true,
+    "world_delta_max_deg": 2.538983,
+    "world_delta_nonzero_rows": 195,
+    "world_delta_p50_deg": 0.104678,
+    "world_delta_rows": 239
+   },
+   "下擺_0_9": {
+    "angle_span_deg": 29.617906,
+    "first_row_null": true,
+    "world_delta_max_deg": 2.394933,
+    "world_delta_nonzero_rows": 206,
+    "world_delta_p50_deg": 0.148037,
+    "world_delta_rows": 239
+   }
+  }
+ },
+ "samples": {
+  "B2r_baseline": {
+   "blend": "E:\\dsh pr\\woker2\\out\\subai\\M02\\blend\\B_from_blend1.blend",
+   "blend_sha256": "dd7f6877ee9c8c03c5df7c39236e142e806e9b1c771bc35ac2df05a1cefb192e",
+   "columns": [
+    "frame",
+    "bone",
+    "angle_deg",
+    "rot_x_deg",
+    "rot_y_deg",
+    "rot_z_deg",
+    "parent_delta_deg",
+    "bone_world_delta_deg"
+   ],
+   "frames": {
+    "fps": 30.0,
+    "from": 1,
+    "preroll": 0,
+    "to": 240
+   },
+   "point_cache_baked": null,
+   "rows": 4320,
+   "sha256": "c7c1ae9fc4f41f1ab3c37d5421be290631afd20a344c2ea920da03ae34a4d840",
+   "size": 818344
+  },
+  "B2r_x07": {
+   "blend": "E:\\dsh pr\\woker2\\out\\subai\\M02\\blend\\B_x07.blend",
+   "blend_sha256": "0ac41163e2e74f0bfa89c597073402bfc8fc10505544abaf741087500a0d2dee",
+   "columns": [
+    "frame",
+    "bone",
+    "angle_deg",
+    "rot_x_deg",
+    "rot_y_deg",
+    "rot_z_deg",
+    "parent_delta_deg",
+    "bone_world_delta_deg"
+   ],
+   "frames": {
+    "fps": 30.0,
+    "from": 1,
+    "preroll": 0,
+    "to": 240
+   },
+   "point_cache_baked": null,
+   "rows": 4320,
+   "sha256": "c7c1ae9fc4f41f1ab3c37d5421be290631afd20a344c2ea920da03ae34a4d840",
+   "size": 818344
+  }
+ }
+}

@@ -1,0 +1,47 @@
+{
+ "module": "M05",
+ "kind": "source_hashes",
+ "note": "任务书 §5-A2 要求的输入哈希。fixtures 是 M05 的真实输入（可逐字节重建）；两个源 VMD 的**起始**哈希在 2026-11-15 那次没有记录，本文件只能给今日值 + mtime 佐证，不得读成「起始哈希已补」。",
+ "fixtures": [
+  {
+   "path": "E:\\dsh pr\\woker2\\out\\subai\\M05\\fixtures\\seg1_91.vmd",
+   "bytes": 525326,
+   "mtime": "2026-11-16 12:54:30",
+   "sha256": "fd2d8b72d3b80ad77ddc24d8946bb317b774f962addd2e592437e63dc7456ce7"
+  },
+  {
+   "path": "E:\\dsh pr\\woker2\\out\\subai\\M05\\fixtures\\seg2_91.vmd",
+   "bytes": 567506,
+   "mtime": "2026-11-16 12:54:31",
+   "sha256": "b4d9fbd09b6910cb3c2b5cbfc07a05961887012055e82022e9bd501dc843a160"
+  },
+  {
+   "path": "E:\\dsh pr\\woker2\\out\\subai\\M05\\fixtures\\seg3_151.vmd",
+   "bytes": 927146,
+   "mtime": "2026-11-16 12:54:31",
+   "sha256": "6c657cdf68bcb0eca1729a6fbef3b6c680902afe7db6462cfb9988aa5c473579"
+  }
+ ],
+ "fixture_generator": {
+  "path": "E:\\dsh pr\\woker2\\out\\subai\\M05\\make_fixtures.py",
+  "bytes": 2792,
+  "mtime": "2026-11-15 21:07:55",
+  "sha256": "ed8e12e3f99f3914944c772ffdb13821f41c42029b8373749349aad3682d393f"
+ },
+ "sources_today": [
+  {
+   "path": "E:\\blender模型\\原神摇_by_ChildeDuck_c658aa3daba96482861d466e1f1868c7\\原神摇\\原神摇.vmd",
+   "bytes": 2580158,
+   "mtime": "2026-10-25 07:50:35",
+   "sha256": "a2e5f978ca2811c8c63ee57f5a0b33ea4d432a12d23d6c85cdf96db85f7754a0"
+  },
+  {
+   "path": "E:\\blender模型\\活着dj_by_lucky破_923ad74feee8ea23a61ed34b5798a78e\\活着dj\\活着dj_VMD-TDA.vmd",
+   "bytes": 2299772,
+   "mtime": "2026-11-02 18:01:40",
+   "sha256": "7ed53b1400792f5d7e0c2db7200cf0fb8e6bf9e679ce4d99e3b3d8e914573798"
+  }
+ ],
+ "source_immutability_basis": "两个源文件的 mtime 早于本轮工作（见上），且 M05 全部代码路径只读打开（无写路径、无暂存回写）；起始哈希缺失本身是 11-15 的过程失误，已在 handoff 记明。",
+ "fixtures_reproducible": "python out/subai/M05/make_fixtures.py 重跑后三个文件 sha256 与上表逐字节相同（2026-11-16 12:54 实测）"
+}

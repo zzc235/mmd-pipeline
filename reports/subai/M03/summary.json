@@ -1,0 +1,208 @@
+{
+  "schema_version": "diagnose/1",
+  "taxonomy_version": "F1-F6+R0/1",
+  "counts": {
+    "samples": 8,
+    "match_confirmed": 3,
+    "match_suspected": 3,
+    "mismatch": 2,
+    "unverified": 0,
+    "no_evidence": 0,
+    "missing_files": 4,
+    "out_of_taxonomy": 2,
+    "evidence_insufficient": 0
+  },
+  "false_positives": 0,
+  "false_positive_note": "本轮没有「confirmed 了一个与该样本已知事实冲突的故障」；S1/S5 上多出来的 F2（未烘焙）是实测状态，不是误报，单列在 additional_findings。",
+  "false_negatives": [
+    {
+      "sample": "S1",
+      "expected": "OUT_OF_TAXONOMY",
+      "outcome": "mismatch",
+      "note": "期望 OUT_OF_TAXONOMY，实际读到 ['F3', 'F2']"
+    },
+    {
+      "sample": "S2",
+      "expected": "F4",
+      "outcome": "match_suspected",
+      "note": "期望 F4，实测只到 suspected"
+    },
+    {
+      "sample": "S3",
+      "expected": "F3",
+      "outcome": "match_suspected",
+      "note": "期望 F3，实测只到 suspected"
+    },
+    {
+      "sample": "S4",
+      "expected": "F5",
+      "outcome": "match_suspected",
+      "note": "期望 F5，实测只到 suspected"
+    },
+    {
+      "sample": "S6",
+      "expected": "OUT_OF_TAXONOMY",
+      "outcome": "mismatch",
+      "note": "期望 OUT_OF_TAXONOMY，实际读到 ['F3']"
+    }
+  ],
+  "false_negative_note": "漏报按「期望 label 没到 confirmed」统计：S2/S3/S4 只到 suspected（阈值未标定或缺动态证据），S1/S6 期望 R0 但本轮没有逐帧穿透测量。",
+  "additional_findings": [
+    {
+      "sample": "S1",
+      "source": "blend",
+      "primary": "F2",
+      "note": "confirmed 了一个不是该样本 label 的故障；需确认它是新的真实发现"
+    }
+  ],
+  "per_sample": {
+    "S1": {
+      "expected": "OUT_OF_TAXONOMY",
+      "outcome": "mismatch",
+      "observed": [
+        {
+          "source": "static",
+          "primary": "F3",
+          "confidence": "suspected",
+          "expected_level": "absent",
+          "file": "reports\\subai\\M03\\evidence\\static\\S1.json"
+        },
+        {
+          "source": "blend",
+          "primary": "F2",
+          "confidence": "confirmed",
+          "expected_level": "absent",
+          "file": "reports\\subai\\M03\\evidence\\blend\\probe_combined_v3.json"
+        }
+      ]
+    },
+    "S2": {
+      "expected": "F4",
+      "outcome": "match_suspected",
+      "observed": [
+        {
+          "source": "static",
+          "primary": "F3",
+          "confidence": "suspected",
+          "expected_level": "suspected",
+          "file": "reports\\subai\\M03\\evidence\\static\\S2.json"
+        },
+        {
+          "source": "blend",
+          "primary": "F4",
+          "confidence": "suspected",
+          "expected_level": "suspected",
+          "file": "reports\\subai\\M03\\evidence\\blend\\S3_chest_60f.json"
+        }
+      ]
+    },
+    "S3": {
+      "expected": "F3",
+      "outcome": "match_suspected",
+      "observed": [
+        {
+          "source": "static",
+          "primary": "F3",
+          "confidence": "suspected",
+          "expected_level": "suspected",
+          "file": "reports\\subai\\M03\\evidence\\static\\S3.json"
+        }
+      ]
+    },
+    "S4": {
+      "expected": "F5",
+      "outcome": "match_suspected",
+      "observed": [
+        {
+          "source": "static",
+          "primary": "F3",
+          "confidence": "suspected",
+          "expected_level": "suspected",
+          "file": "reports\\subai\\M03\\evidence\\static\\S4.json"
+        }
+      ]
+    },
+    "S5": {
+      "expected": "F3",
+      "outcome": "match_confirmed",
+      "observed": [
+        {
+          "source": "static",
+          "primary": "F3",
+          "confidence": "suspected",
+          "expected_level": "suspected",
+          "file": "reports\\subai\\M03\\evidence\\static\\S5.json"
+        },
+        {
+          "source": "blend",
+          "primary": "F3",
+          "confidence": "confirmed",
+          "expected_level": "confirmed",
+          "file": "reports\\subai\\M03\\evidence\\blend\\S5_sleeve_60f.json"
+        }
+      ]
+    },
+    "S6": {
+      "expected": "OUT_OF_TAXONOMY",
+      "outcome": "mismatch",
+      "observed": [
+        {
+          "source": "static",
+          "primary": "F3",
+          "confidence": "suspected",
+          "expected_level": "absent",
+          "file": "reports\\subai\\M03\\evidence\\static\\S6.json"
+        }
+      ]
+    },
+    "S7": {
+      "expected": "F1",
+      "outcome": "match_confirmed",
+      "observed": [
+        {
+          "source": "static",
+          "primary": "F3",
+          "confidence": "suspected",
+          "expected_level": "absent",
+          "file": "reports\\subai\\M03\\evidence\\static\\S7.json"
+        },
+        {
+          "source": "blend",
+          "primary": "F1",
+          "confidence": "confirmed",
+          "expected_level": "confirmed",
+          "file": "reports\\subai\\M03\\evidence\\blend\\probe_v1.json"
+        }
+      ]
+    },
+    "S8": {
+      "expected": "F6",
+      "outcome": "match_confirmed",
+      "observed": [
+        {
+          "source": "static",
+          "primary": "F6",
+          "confidence": "confirmed",
+          "expected_level": "confirmed",
+          "file": "reports\\subai\\M03\\evidence\\static\\S8_f6.json"
+        }
+      ]
+    }
+  },
+  "coverage_gaps": [
+    "F4",
+    "F5",
+    "OUT_OF_TAXONOMY",
+    "UNKNOWN",
+    "INSUFFICIENT_EVIDENCE"
+  ],
+  "ab": {
+    "available": true,
+    "result_identical": true
+  },
+  "honesty": [
+    "没有「8/8 全部正确」这回事：本轮到 confirmed 的只有 S5(F3)、S7(F1)、S8(F6)。",
+    "S1/S6 期望 R0，但这两轮没有可用的逐帧穿透测量，按 unverified/mismatch 记，不算通过。",
+    "S2(F4)/S3(F3)/S4(F5) 都只到 suspected，阈值或动态证据缺失，已写进 missing_evidence。"
+  ]
+}

@@ -1,0 +1,12 @@
+{
+ "axis": "y",
+ "changed": [],
+ "matched_pmx_targets": [],
+ "new_limit_rad": 0.7,
+ "note": "只收紧指定轴的上下限并把该轴的 use_limit 置 True；其它轴、弹簧、质量、阻尼不动",
+ "out_blend": "E:\\dsh pr\\woker2\\out\\subai\\M02\\blend\\B_y07.blend",
+ "source_blend": "E:\\dsh pr\\woker2\\out\\subai\\M02\\blend\\B_from_blend1.blend",
+ "stage": "C-axis-probe",
+ "structural_count": 0,
+ "task": "M02"
+}

@@ -1,0 +1,68 @@
+{
+  "diagnosis_ref": null,
+  "evidence_mode": "stepped",
+  "evidence_paths": [
+    "E:\\dsh pr\\woker2\\out\\subai\\M04\\measurement_B2_baseline.json"
+  ],
+  "failed_gates": [],
+  "gate_results": {
+    "frozen": {
+      "evidence": {
+        "consecutive_frames": 0,
+        "frames": 240,
+        "min_consecutive_frames": 5,
+        "parent_delta_deg": 0.0,
+        "parent_delta_min_deg": 15.0,
+        "suspicious_zero_parent": true,
+        "target_delta_deg": 67.198611,
+        "target_delta_max_deg": 1.0
+      },
+      "gate": "frozen",
+      "missing": [
+        "frozen.parent_delta_deg"
+      ],
+      "reason": "父链增量恒为 0（目标峰 67.199°）：无法区分『父链静止』与『未测量』，不判合格",
+      "status": "UNKNOWN"
+    },
+    "overshoot": {
+      "evidence": {
+        "bones": 18,
+        "frames": 240,
+        "max_abs_floor_deg": 200.0,
+        "max_deg": 67.198611,
+        "median_deg": 67.09426,
+        "p95_deg": 67.187151,
+        "p95_max_deg": 120.0,
+        "spike_count": 0,
+        "spike_count_max": 3
+      },
+      "gate": "overshoot",
+      "missing": [],
+      "reason": "p95 67.187° ≤ 120.000°，尖峰 0 ≤ 3",
+      "status": "PASS"
+    },
+    "penetration": {
+      "evidence": {},
+      "gate": "penetration",
+      "missing": [
+        "penetration"
+      ],
+      "reason": "缺 penetration 段（需 Blender 逐帧测量）",
+      "status": "UNKNOWN"
+    }
+  },
+  "gate_version": "physics_gate/1",
+  "out_of_scope_gates": [],
+  "profile_id": "exploratory_v0",
+  "profile_status": "exploratory",
+  "sample_id": "B2_baseline",
+  "status": "UNKNOWN",
+  "threshold_version": "pg/0.1-exploratory",
+  "unknown_gates": [
+    "frozen",
+    "penetration"
+  ],
+  "warnings": [
+    "profile_status=exploratory：阈值未经生产标定，结论只能当探索性证据"
+  ]
+}

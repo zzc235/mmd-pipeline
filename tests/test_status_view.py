@@ -90,17 +90,33 @@ class Case(unittest.TestCase):
         ]) + "\n")
         self.assertEqual(self.run_status(), 0)
 
-    def test_pending_human_cleared_by_later_decision(self):
+    def test_pending_survives_a_later_unrelated_decision(self):
+        """**D0 13:50 要的那条**：早期有批项、后来有非批项裁决，批项必须仍在列表里。
+
+        旧实现按「同一任务后续任意裁决即清账」，于是 `D-20261116-075` 被 `D-083` 挤掉了——
+        没人回答过它，只是它不再是最新一条。消失得没有痕迹，是状态载体说谎里最坏的一种。
+        """
         _write(self.decisions_path, "\n".join([
             _row("M00", "D-1", human_approval_required=True),
-            _row("M00", "D-2"),
+            _row("M00", "D-9"),                       # 后来的普通裁决，没提 D-1
             _row("M01", "D-3", human_approval_required=True),
         ]) + "\n")
         decisions = st.load_decisions(self.decisions_path)
-        doc = st.load_status(self.status_path)
-        rec = st.reconcile(doc, decisions)
-        pending = st.pending_human(decisions, rec["history"])
-        self.assertEqual([r["decision_id"] for r in pending], ["D-3"])
+        pending = st.pending_human(decisions)
+        self.assertIn("D-1", [r["decision_id"] for r in pending])
+        self.assertIn("D-3", [r["decision_id"] for r in pending])
+
+    def test_pending_closed_only_by_explicit_reference(self):
+        """显式提到它的 id 才算关闭（`resolves` 字段、正文、evidence 列表都算）。"""
+        _write(self.decisions_path, "\n".join([
+            _row("M00", "D-1", human_approval_required=True),
+            _row("M00", "D-2", resolves="D-1"),
+            _row("M01", "D-3", human_approval_required=True),
+            _row("M01", "D-4", note="按 D-3 批的口径改了"),
+        ]) + "\n")
+        decisions = st.load_decisions(self.decisions_path)
+        pending = [r["decision_id"] for r in st.pending_human(decisions)]
+        self.assertEqual(pending, [], "两条都被显式关闭了")
 
     def test_last_decision_is_the_latest_row(self):
         _write(self.decisions_path, "\n".join([

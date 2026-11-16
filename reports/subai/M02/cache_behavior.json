@@ -1,0 +1,13 @@
+{
+ "B_from_blend1": {
+  "cold_jump_frame": 109,
+  "cold_jump_vs_recompute_m": 1.5867,
+  "tolerance_m": 1e-06
+ },
+ "J_baked": {
+  "cold_jump_frame": 109,
+  "cold_jump_vs_recompute_m": 0.0,
+  "tolerance_m": 1e-06
+ },
+ "_note": "键按文件名匹配（脚本按 basename 比对，见 m02_cache_gate.py 的 behaviors 循环）。B_from_blend1：P7 判定默认路径 == A1 回放，A1[109] vs P0[109] 全刚体最大位移 1.5867 m（P13_cmp）。J_baked：P13 冷跳 f109/f240 与 P0 逐位相等。"
+}

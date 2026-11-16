@@ -1,0 +1,14 @@
+# M00 实际改动（相对 A4 分支 ai/a4，基线 78d9c23）
+# 格式：状态<TAB>文件
+
+新增	coordination/__init__.py
+新增	coordination/board.py
+新增	coordination/scheduler.py
+新增	coordination/dispatcher.py
+新增	coordination/evidence.py
+新增	coordination/paths.py（attempt 2：四棵树共享单实例 board 定位）
+新增	coordination/gate.py（attempt 2：files[] 覆盖 git diff base..HEAD 的格式闸门）
+新增	tests/test_coordination.py（35 条：13 §10 十二条 + H1–H6 + 闸门 6 + 共享路径 2 + 5 条补充）
+修改	.gitignore（attempt 2：board.db / dispatch.json / -wal / -shm 不进版本控制）
+删除	coordination/board.db（attempt 2：git rm --cached；运行时放主工作树 out/subai/coordination/）
+删除	coordination/dispatch.json（同上）

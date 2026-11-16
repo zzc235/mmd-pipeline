@@ -1,0 +1,226 @@
+{
+ "closest": [
+  {
+   "a": "左馬尾2",
+   "a_group": 4,
+   "a_index": 239,
+   "a_mode": 2,
+   "b": "左馬尾3",
+   "b_group": 3,
+   "b_index": 240,
+   "b_mode": 2,
+   "distance_m": 1.1614173104036536
+  },
+  {
+   "a": "左馬尾1",
+   "a_group": 4,
+   "a_index": 238,
+   "a_mode": 2,
+   "b": "左馬尾3",
+   "b_group": 3,
+   "b_index": 240,
+   "b_mode": 2,
+   "distance_m": 2.233765798062696
+  },
+  {
+   "a": "後立領",
+   "a_group": 0,
+   "a_index": 219,
+   "a_mode": 2,
+   "b": "馬尾飾",
+   "b_group": 4,
+   "b_index": 222,
+   "b_mode": 2,
+   "distance_m": 2.7852975453954185
+  },
+  {
+   "a": "左馬尾3",
+   "a_group": 3,
+   "a_index": 240,
+   "a_mode": 2,
+   "b": "右馬尾2",
+   "b_group": 4,
+   "b_index": 247,
+   "b_mode": 2,
+   "distance_m": 2.959311222839298
+  },
+  {
+   "a": "右立領",
+   "a_group": 0,
+   "a_index": 220,
+   "a_mode": 2,
+   "b": "右耳1",
+   "b_group": 4,
+   "b_index": 258,
+   "b_mode": 2,
+   "distance_m": 3.010679926769218
+  },
+  {
+   "a": "左立領",
+   "a_group": 0,
+   "a_index": 218,
+   "a_mode": 2,
+   "b": "左耳1",
+   "b_group": 4,
+   "b_index": 254,
+   "b_mode": 2,
+   "distance_m": 3.0107386261545552
+  },
+  {
+   "a": "右立領",
+   "a_group": 0,
+   "a_index": 220,
+   "a_mode": 2,
+   "b": "馬尾飾",
+   "b_group": 4,
+   "b_index": 222,
+   "b_mode": 2,
+   "distance_m": 3.1074960301428
+  },
+  {
+   "a": "左立領",
+   "a_group": 0,
+   "a_index": 218,
+   "a_mode": 2,
+   "b": "馬尾飾",
+   "b_group": 4,
+   "b_index": 222,
+   "b_mode": 2,
+   "distance_m": 3.107543997325452
+  },
+  {
+   "a": "後立領",
+   "a_group": 0,
+   "a_index": 219,
+   "a_mode": 2,
+   "b": "右耳1",
+   "b_group": 4,
+   "b_index": 258,
+   "b_mode": 2,
+   "distance_m": 3.124715096585196
+  },
+  {
+   "a": "後立領",
+   "a_group": 0,
+   "a_index": 219,
+   "a_mode": 2,
+   "b": "左耳1",
+   "b_group": 4,
+   "b_index": 254,
+   "b_mode": 2,
+   "distance_m": 3.124722165316568
+  },
+  {
+   "a": "右立領",
+   "a_group": 0,
+   "a_index": 220,
+   "a_mode": 2,
+   "b": "右耳2",
+   "b_group": 4,
+   "b_index": 259,
+   "b_mode": 2,
+   "distance_m": 3.342068873244501
+  },
+  {
+   "a": "左立領",
+   "a_group": 0,
+   "a_index": 218,
+   "a_mode": 2,
+   "b": "左耳2",
+   "b_group": 4,
+   "b_index": 255,
+   "b_mode": 2,
+   "distance_m": 3.3421420535947823
+  },
+  {
+   "a": "右立領",
+   "a_group": 0,
+   "a_index": 220,
+   "a_mode": 2,
+   "b": "左耳1",
+   "b_group": 4,
+   "b_index": 254,
+   "b_mode": 2,
+   "distance_m": 3.354560899584465
+  },
+  {
+   "a": "左立領",
+   "a_group": 0,
+   "a_index": 218,
+   "a_mode": 2,
+   "b": "右耳1",
+   "b_group": 4,
+   "b_index": 258,
+   "b_mode": 2,
+   "distance_m": 3.3545997733658988
+  },
+  {
+   "a": "左馬尾3",
+   "a_group": 3,
+   "a_index": 240,
+   "a_mode": 2,
+   "b": "右馬尾1",
+   "b_group": 4,
+   "b_index": 246,
+   "b_mode": 2,
+   "distance_m": 3.3551124191634325
+  },
+  {
+   "a": "後立領",
+   "a_group": 0,
+   "a_index": 219,
+   "a_mode": 2,
+   "b": "右耳2",
+   "b_group": 4,
+   "b_index": 259,
+   "b_mode": 2,
+   "distance_m": 3.5087687452048315
+  },
+  {
+   "a": "後立領",
+   "a_group": 0,
+   "a_index": 219,
+   "a_mode": 2,
+   "b": "左耳2",
+   "b_group": 4,
+   "b_index": 255,
+   "b_mode": 2,
+   "distance_m": 3.5087893643307506
+  },
+  {
+   "a": "右立領",
+   "a_group": 0,
+   "a_index": 220,
+   "a_mode": 2,
+   "b": "左耳2",
+   "b_group": 4,
+   "b_index": 255,
+   "b_mode": 2,
+   "distance_m": 3.723500633071227
+  },
+  {
+   "a": "左立領",
+   "a_group": 0,
+   "a_index": 218,
+   "a_mode": 2,
+   "b": "右耳2",
+   "b_group": 4,
+   "b_index": 259,
+   "b_mode": 2,
+   "distance_m": 3.7235257499970023
+  },
+  {
+   "a": "右立領",
+   "a_group": 0,
+   "a_index": 220,
+   "a_mode": 2,
+   "b": "右耳3",
+   "b_group": 4,
+   "b_index": 260,
+   "b_mode": 2,
+   "distance_m": 3.832804771705156
+  }
+ ],
+ "pairs_ignored": 104,
+ "source": "E:\\blender模型\\没有外套本家模型\\星穹铁道—飞霄（无外套）.pmx"
+}
