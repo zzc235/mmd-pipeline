@@ -54,8 +54,12 @@ from __future__ import annotations
 import argparse
 import io
 import json
+import os
 import sys
 from statistics import median
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import m04_paths as _paths  # noqa: E402
 
 EPS_DEFAULT = 0.020
 
@@ -255,31 +259,22 @@ def render(block):
     return "\n".join(lines)
 
 
-def _check_root(root):
-    """先验根、再 import（`3号` 的写法，比我原来的硬一档）。
+def _find_repo_root(start):
+    """自定位：往上走到同时有 `coordination/` 与 `mmdpipe/` 的那一层（实现在 `m04_paths`）。"""
+    return _paths.find_repo_root(start)
 
-    我原来只把根插进 `sys.path`：**插错了会退化成「本地实现」继续跑**（`try/except` 兜底），
-    读的人看不出它其实没接上；而 `ImportError` 的形状又与「这段代码不存在」一样。
-    这里算出来的根里必须真有 `coordination/` 与 `mmdpipe/`，否则**打印它算出来的根并退出**
-    —— `SystemExit` 不是 `Exception`，`try/except Exception` 兜不住，不会静默降级。
-    """
-    import os
-    for need in ("coordination", "mmdpipe"):
-        if not os.path.isdir(os.path.join(root, need)):
-            raise SystemExit(
-                "ROOT 算错了：%r 里没有 %s/ —— 检查从 __file__ 往上数的层数"
-                % (root, need))
-    return root
+
+def _check_root(root):
+    """验根：两个目录都得在，否则**打印那个根**再退出（不是抛 `ImportError`）。"""
+    return _paths.check_root(root)
 
 
 def _ensure_repo_root_on_path():
     """`python path/to/script.py` 时 `sys.path[0]` 是**脚本目录**、不是仓库根 —— 直接
     `import coordination` 会失败，而失败在这里表现为「沉默地没接上」（今晚的老形状）。
-    所以显式把仓库根插进 `sys.path`，并**先验根**。"""
+    所以先自定位、再验根、再插进 `sys.path`（`m04_paths` 里一份实现，不各写一遍）。"""
     import os
-    root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(
-        os.path.dirname(os.path.abspath(__file__))))))
-    _check_root(root)
+    root = _paths.ensure_on_path(os.path.dirname(os.path.abspath(__file__)))
     if root not in sys.path:
         sys.path.insert(0, root)
     return root
