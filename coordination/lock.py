@@ -19,7 +19,14 @@
 | `release` | 先读 `owner.txt` 校验 `--owner` 前缀一致才删 | `NotOwner`：打印实际持有者，**不删** |
 | `status` | 打印持有者、PID、取得时间、已占用秒数 | 目录在但没 `owner.txt` → `IncompleteLock`（**当异常退出，不当空闲**） |
 
-退出码：`0` 正常 / `2` 用法 / `3` 冲突（别人持有、或不是自己的锁）/ `4` 锁状态不可判定（残缺或不可读）。
+退出码：`0` 正常 / `2` 用法 / `3` 冲突（别人持有、或不是自己的锁）/ `4` 锁状态不可判定（残缺或不可读）
+/ `5` `guard` 期间锁丢了（命令跑完了，但这次结果作废）。
+
+`guard` 子命令（2026-11-16 19:05 加，起因是同一天两个人的同一个错）：
+`python -m coordination.lock guard --owner "模块|工作树" --note "..." -- <命令...>`
+取锁 → 跑命令 → 必放锁，**取不到锁则命令根本不执行**，期间后台按 `--heartbeat-every` 刷心跳。
+`3号` 18:18 与 `2号` 19:00 都是「`acquire` 返回退出码 3、没判就往下跑」，各在别人窗口里起了
+Blender。工具强迫不了别人看退出码，那就把「看退出码」这件事做成命令行的形状。
 
 `owner.txt` 格式（一行，`|` 分隔，尽量兼容大家已经在写的写法）：
 
@@ -49,6 +56,7 @@ import datetime as dt
 import os
 import shutil
 import sys
+import threading
 import time
 
 from . import paths
@@ -57,6 +65,7 @@ EXIT_OK = 0
 EXIT_USAGE = 2
 EXIT_CONFLICT = 3
 EXIT_UNKNOWN = 4
+EXIT_LOCK_LOST = 5
 
 OWNER_FILE = "owner.txt"
 HEARTBEAT_FILE = "heartbeat"
@@ -377,6 +386,70 @@ def assert_owner(owner: str, lock_dir: str | None = None) -> dict:
             "heartbeat_age": heartbeat_age_seconds(lock_dir)}
 
 
+def guard(owner: str, command, note: str = "", lock_dir: str | None = None,
+          wait_s: float = 0.0, heartbeat_every: float = 120.0,
+          runner=None, toucher=None) -> dict:
+    """**取锁 → 判成败 → 跑命令 → 必放锁**，一条命令包住整个窗口。
+
+    为什么要有它（2026-11-16 19:00，`2号` 自报，与 `3号` 18:18 同一个错）：
+    `acquire` 在锁被占时返回退出码 3，**但退出码是调用方的事** —— 两个人都没判，
+    就各自在别人的窗口里起了 Blender。`assert-owner` 治的是「进程内」那一半
+    （起 bpy 之前先问一句），`guard` 治的是「进程外」那一半：
+    **取不到锁，命令行里的东西根本不执行**，退出码与心跳都由它代持。
+
+    行为：
+
+    | 情形 | 命令跑不跑 | 返回 |
+    |---|---|---|
+    | 取锁成功 | 跑 | 命令的退出码透传 |
+    | 锁被别人持有 / 锁残缺 | **不跑**（不是跑了才发现） | 抛 `LockHeld` / `IncompleteLock` |
+    | 跑的过程中锁丢了（被回收/被别人 release） | 已跑完，但结果作废 | `lock_lost` 有值；命令 rc==0 时判 `EXIT_LOCK_LOST` |
+    | 心跳 | 跑期间后台每 `heartbeat_every` 秒刷一次 | `heartbeats` 计数进返回值 |
+
+    `runner(command) -> int` 与 `toucher(owner, lock_dir, note)` 可注入（离屏测）。
+    """
+    command = list(command or [])
+    if not command:
+        raise ValueError("guard 需要一条要跑的命令（`-- <cmd> [args...]`）")
+    lock_dir = lock_dir or paths.lock_dir()
+    info = acquire(owner, note, lock_dir, wait_s)      # 失败直接抛：命令一个字节都不动
+    stop = threading.Event()
+    ticks = {"n": 0, "error": None}
+
+    def _beat():
+        while not stop.wait(max(0.01, float(heartbeat_every))):
+            try:
+                (toucher or touch)(owner, lock_dir, "guard")
+                ticks["n"] += 1
+            except Exception as exc:                   # noqa: BLE001 - 心跳失败要记账，别打死主进程
+                ticks["error"] = str(exc)
+                return
+
+    thread = None
+    if heartbeat_every and float(heartbeat_every) > 0:
+        thread = threading.Thread(target=_beat, daemon=True)
+        thread.start()
+    rc = 127
+    try:
+        rc = int((runner or _default_runner)(command))
+    finally:
+        stop.set()
+        if thread is not None:
+            thread.join(timeout=5.0)
+        lost = None
+        try:
+            release(owner, lock_dir)
+        except LockError as exc:
+            lost = str(exc)
+    return {"rc": rc, "command": command, "heartbeats": ticks["n"],
+            "heartbeat_error": ticks["error"], "lock_lost": lost, "acquirer": info}
+
+
+def _default_runner(command) -> int:
+    import subprocess
+    return subprocess.call(list(command))               # 继承 stdio：Blender 的输出直接看得到
+
+
 def render_status(info: dict) -> str:
     if not info.get("held"):
         return "空闲：%s" % info.get("lock_dir", "")
@@ -392,26 +465,46 @@ def render_status(info: dict) -> str:
                info.get("held_seconds", 0.0), beat, info.get("note") or "-"))
 
 
+def _split_dashdash(argv) -> tuple:
+    """在第一个 `--` 处把参数切成两段：前段交给 argparse，后段是要跑的命令。
+
+    为什么不用 `argparse.REMAINDER`：它会把**第一个位置参数之后的一切**都吞掉，
+    于是最自然的写法 `lock guard --owner X -- python a.py` 里 `--owner` 被吞进命令、
+    `owner` 变成空串 ⇒ 报「owner 必须写成 模块|工作树」（2026-11-16 19:05 我自己撞的）。
+    那种失败虽然是 fail-closed（命令没跑），但它把「用法错」伪装成「参数错」，
+    而正确的形状只需要先切一刀。
+    """
+    argv = list(sys.argv[1:] if argv is None else argv)
+    if "--" in argv:
+        cut = argv.index("--")
+        return argv[:cut], argv[cut + 1:]
+    return argv, []
+
+
 def main(argv=None) -> int:
     from .cli import ensure_utf8_stdio
     ensure_utf8_stdio()
+    head, tail = _split_dashdash(argv)
     ap = argparse.ArgumentParser(
         prog="coordination.lock",
         description="Blender 互斥锁（acquire/release/status/touch/reclaim，fail-closed）",
-        epilog="退出码：0 正常 / 2 用法 / 3 冲突或拒绝回收 / 4 锁状态不可判定。\n"
+        epilog="退出码：0 正常 / 2 用法 / 3 冲突或拒绝回收 / 4 锁状态不可判定 / 5 guard 期间锁丢失。\n"
                "回收（reclaim）三条同时成立才允许：记录的 PID 全不活、系统里没有 blender 进程、"
-               "心跳超过阈值；回收是**搬到** locks/_reclaimed/ 下，不删，owner.txt 原样保留。")
+               "心跳超过阈值；回收是**搬到** locks/_reclaimed/ 下，不删，owner.txt 原样保留。\n"
+               "guard 用法：`lock guard --owner A|B --note ... -- python script.py`（取不到锁就不跑）。")
     ap.add_argument("action", choices=("acquire", "release", "status", "touch", "reclaim",
-                                       "assert-owner"))
+                                       "assert-owner", "guard"))
     ap.add_argument("--lock", default=None, help="锁目录（缺省 out/subai/locks/blender.lock）")
     ap.add_argument("--owner", default="", help="`模块|工作树`，如 `模块负责4|A4`")
     ap.add_argument("--note", default="", help="一句话说明这次要跑什么")
     ap.add_argument("--wait", type=float, default=0.0, help="等锁秒数（默认 0＝不排队，直接失败）")
+    ap.add_argument("--heartbeat-every", type=float, default=120.0,
+                    help="guard 期间每多少秒刷一次心跳（默认 120；0 表示不刷）")
     ap.add_argument("--work-pid", default="",
                     help="真正干活的 PID（逗号分隔，例如 Blender 子进程的 PID）")
     ap.add_argument("--stale-minutes", type=float, default=DEFAULT_STALE_MINUTES,
                     help="心跳超过这么多分钟才算过期（默认 %.0f）" % DEFAULT_STALE_MINUTES)
-    args = ap.parse_args(argv)
+    args = ap.parse_args(head)
 
     work_pids = [p.strip() for p in args.work_pid.split(",") if p.strip()]
     try:
@@ -435,6 +528,15 @@ def main(argv=None) -> int:
             info = assert_owner(args.owner, args.lock)
             print("OWNER_OK %s" % info["raw"])
             return EXIT_OK
+        if args.action == "guard":
+            command = list(tail)
+            result = guard(args.owner, command, args.note, args.lock, args.wait,
+                           args.heartbeat_every)
+            print("GUARD_DONE rc=%d heartbeats=%d lock_lost=%s"
+                  % (result["rc"], result["heartbeats"], result["lock_lost"] or "none"))
+            if result["lock_lost"] and result["rc"] == EXIT_OK:
+                return EXIT_LOCK_LOST
+            return result["rc"]
         print(render_status(status(args.lock)))
         return EXIT_OK
     except IncompleteLock as exc:
