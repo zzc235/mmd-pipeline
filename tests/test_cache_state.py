@@ -88,10 +88,12 @@ class TestEvaluate(unittest.TestCase):
 class TestPlan(unittest.TestCase):
     """判据 → 修法动作：只回动作名，不执行。"""
 
-    def test_defect_plans_unbake(self):
+    def test_defect_plans_sequential_delivery(self):
         out = cache_state.plan({"exists": True, "has_physics": True,
                                 "is_baked": True, "is_outdated": True})
-        self.assertEqual(out["action"], "unbake")
+        self.assertEqual(out["action"], "sequential_delivery")
+        # 降级交付的动作名不能说成「修好了」：必须写明遍历契约与真正的修法都被 §6 挡着
+        self.assertIn("顺序求值", out["note"])
         self.assertIn("bake_all", out["note"])
 
     def test_ok_plans_none(self):
@@ -103,6 +105,28 @@ class TestPlan(unittest.TestCase):
 
     def test_unreadable_plans_inspect(self):
         self.assertEqual(cache_state.plan({"exists": False})["action"], "inspect")
+
+    def test_plan_never_emits_rejected_action(self):
+        """`rebake_by_stepping` 已被 P12 证伪：它不许出现在任何判定的 plan 输出里。"""
+        records = [
+            {"exists": True, "has_physics": True, "is_baked": True, "is_outdated": True},
+            {"exists": True, "has_physics": True, "is_baked": False},
+            {"exists": True, "has_physics": True, "is_baked": True, "is_outdated": False},
+            {"exists": True, "has_physics": False},
+            {"exists": False},
+        ]
+        for rec in records:
+            out = cache_state.plan(rec)
+            self.assertIn(out["action"], cache_state.PLAN_ACTIONS)
+            self.assertNotIn(out["action"], cache_state.REJECTED_ACTIONS)
+
+    def test_rejected_actions_carry_evidence(self):
+        """证伪记录必须写清「怎么试的、看到什么」，否则下一个人会重跑一遍。"""
+        for name, why in cache_state.REJECTED_ACTIONS.items():
+            with self.subTest(action=name):
+                self.assertGreater(len(why), 40)
+        self.assertIn("1.922861", cache_state.REJECTED_ACTIONS["rebake_by_stepping"])
+        self.assertIn("P12", cache_state.REJECTED_ACTIONS["rebake_by_stepping"])
 
 
 class TestCli(unittest.TestCase):

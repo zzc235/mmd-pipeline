@@ -33,6 +33,12 @@ M02 在 `B_from_blend1.blend` 上实测过：两条轨迹差**下摆骨 0.9087 m
 批量与 CLI（便于把探针输出直接判）：
 
     python -m mmdpipe.cache_state records.json    # 退出码 = 最坏的一条
+
+## 别信 `point_cache.info`
+
+`info` 是**存进 `.blend` 的字符串**，帧数据不在里面。P12 实测：一份「解烘焙 → 顺序步进 1→240
+→ 存盘」的工程，重开后 `info` 仍写着 `240 frames in memory (2.1 MiB).`，而 `is_outdated` 已经
+翻回 `True`——数据没了。**判据只认 `is_baked` / `is_outdated` 两个布尔，`info` 当线索不当证据。**
 """
 from __future__ import annotations
 
@@ -63,7 +69,8 @@ _EXIT = {
 DEFECT_REASON = (
     "回放（默认路径）与解烘焙重算会给出两条不同动画；产物要么重算后重新烘焙并保存"
     "（is_baked=true && is_outdated=false），要么不烘焙（is_baked=false）并在 handoff 写明"
-    "首次 frame_set 会重算。"
+    "首次 frame_set 会重算、且消费方必须从 scene.frame_start 顺序求值"
+    "（跳到中间帧会得到第三条轨迹）。"
 )
 
 
@@ -86,21 +93,48 @@ def classify(*, has_physics: bool, is_baked: bool | None, is_outdated: bool | No
     return OK_BAKED_CONSISTENT if not is_outdated else DEFECT_BAKED_OUTDATED
 
 
+PLAN_NONE = "none"
+PLAN_SEQUENTIAL_DELIVERY = "sequential_delivery"
+PLAN_INSPECT = "inspect"
+PLAN_ACTIONS = (PLAN_NONE, PLAN_SEQUENTIAL_DELIVERY, PLAN_INSPECT)
+
+#: 被实测证伪、**不得**作为 `plan()` 输出的修法。留在这里是为了不再走第二遍。
+REJECTED_ACTIONS = {
+    "rebake_by_stepping":
+        "解烘焙后从 frame_start 顺序步进到 frame_end 再存盘（P12，2026-11-16）：内存 point cache "
+        "不写进 .blend，重开后 is_outdated 由 false 翻回 true，冷跳仍是第三条轨迹（对 P0[109] "
+        "D_max 1.922861 m，与只解烘焙不步进的 H_nobake 完全相同）。只有 .blend 里的 info 字符串落盘。",
+    "unbake":
+        "旧名，语义不清：它其实是**降级交付**（清理缓存 + 遍历契约），不是「修好」。已改名 "
+        "sequential_delivery。",
+}
+
+_SEQUENTIAL_NOTE = (
+    "降级交付：产物不烘焙（is_baked=false），消费方**必须从 scene.frame_start 顺序求值**"
+    "才能拿到与重算一致的那条动画；跳到中间帧再渲染会得到第三条轨迹（P11/P12 实测）。"
+    "真正的修复只有重烘焙（is_baked=true && is_outdated=false），需 `bpy.ops.ptcache.bake_all()`，"
+    "而 10 §6 因 312 刚体段错误禁用它；plan() 不擅自跨这条线。"
+)
+
+
 def plan(record: dict) -> dict:
     """判据 → 修法。只给动作名，不执行（执行需要 bpy，见 `rebake_fix.md`）。
 
     - `OK_*`       → `{"action": "none"}`
-    - `DEFECT_*`   → `{"action": "unbake"}`：产物保存前把 point cache 清空（`ptcache.free_bake_all()`），
-      于是默认路径（打开 + `frame_set`）首次就是重算，回放与重算不再分叉。
+    - `DEFECT_*`   → `{"action": "sequential_delivery"}`：产物保存前清空 point cache
+      （`ptcache.free_bake_all()`），于是默认路径首次就是重算、回放与重算不再分叉；
+      代价是**消费方必须从起始帧顺序求值**，这条契约必须随产物一起交付。
     - `UNREADABLE` → `{"action": "inspect"}`：先能读到缓存状态再谈修法。
+
+    「跑一遍再存盘」（`rebake_by_stepping`）已被 P12 证伪，见 `REJECTED_ACTIONS`。
     """
     judged = evaluate(record)
-    action = {"OK_UNBAKED": "none", "OK_BAKED_CONSISTENT": "none", "OK_NO_PHYSICS": "none",
-              DEFECT_BAKED_OUTDATED: "unbake", UNREADABLE_VERDICT: "inspect"}[judged["verdict"]]
+    action = {"OK_UNBAKED": PLAN_NONE, "OK_BAKED_CONSISTENT": PLAN_NONE,
+              "OK_NO_PHYSICS": PLAN_NONE,
+              DEFECT_BAKED_OUTDATED: PLAN_SEQUENTIAL_DELIVERY,
+              UNREADABLE_VERDICT: PLAN_INSPECT}[judged["verdict"]]
     return {**judged, "action": action,
-            "note": ("重烘焙（is_baked=true && is_outdated=false）需要 `bpy.ops.ptcache.bake_all()`，"
-                     "而 10 §6 因 312 刚体段错误禁用它；因此可行修法是 unbake，"
-                     "并在 handoff 写明首次 frame_set 会重算") if action == "unbake" else ""}
+            "note": _SEQUENTIAL_NOTE if action == PLAN_SEQUENTIAL_DELIVERY else ""}
 
 
 def exit_code(verdict: str) -> int:
