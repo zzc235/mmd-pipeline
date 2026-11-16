@@ -10,9 +10,11 @@
 | 1 | `delivery_v1` 文件存在且可开 | 1号 交回路径 + `sha256` | 停 |
 | 2 | 掩码通道 `--expect wired` **exit 0** | `python m02_mask_channel_probe.py --blend <delivery_v1> --expect wired`（退出码原样进报告） | 停，记 `1=FAIL` / `2=还没落地` |
 | 3 | `stage_mask(root)` 判 `WIRED` + `constraints_capped == false` + `skipped_count == 0` | 见 C/D 准入两条（`D-149`/`D-162`），必须在**要测的那个场景**上回读，不是 `bpy.context.scene` | 停，`UNMEASURED`（理由「没有记录」≠「接错」） |
-| 4 | `preflight` `READY`：`needs=8298 ≤ cap=constraint_limit(10111)=10111`（`guardrail_hit=False`）、`skipped=0`、`provenance` 指本 worktree | `python reports/subai/M04/scripts/m04_preflight_spec.py --worktree E:\code\mmdpipe-ai\A2` 现算 spec ⇒ `python -m coordination.preflight --spec <A2>/out/subai/M04/preflight_cd_spec.json --worktree .` | `BLOCKED`+`reason_code` 报 D0 |
+| 4 | `preflight` `READY`：`needs ≤ cap=constraint_limit(needed)`、`skipped=0`、`provenance` 指本 worktree | `python reports/subai/M04/scripts/m04_preflight_spec.py --worktree E:\code\mmdpipe-ai\A2 --spec-source <场景自己的 stage_mask 记录>` ⇒ `python -m coordination.preflight --spec <A2>/out/subai/M04/preflight_cd_spec.json --worktree .` | `BLOCKED`+`reason_code` 报 D0 |
 
-> **这三项已在 2026-11-16 17:57 实测**（只读、不开 Blender、不占锁）：`READY / EVIDENCE_COMPLETE`，`needs=8298 ≤ cap=10111`（`cap_from = stage.constraint_limit(10111) -> (10111, guardrail_hit=False)`）；`cap` 不许手写，由 `mask_preflight_fields()` 给。**负控 7 条各自只红对应那一项**：`needs=20000`→`CAP_UNMET`、`cap=null`→`CAP_UNMET`、`provenance` 指别树→`PROVENANCE_INVALID`、`provenance={}`→`PROVENANCE_INVALID`、要求租约但没锁→`LEASE_EXPIRED`、`skipped=5`→`GATE_FAILED`、目标已存在且无 `run_id`→`OWNERSHIP_VIOLATION`。
+> **两个数不许跨树拼**（`4号` 2026-11-16 18:02 抓、`总控` 18:03 确认）：`8298 / 10111` 是 **324 刚体树**的数；本轮的交付场景是 **312 刚体树**，同源读数是 `needed=8499 / already=1813 / needs(补)=6686 / cap=8499`。生成器因此去掉默认值：只接受 `--spec-source <场景记录>`，或 `--needed/--already` **且带 `--note-source`**；两者都不给就 **exit 4**（不是「用默认值凑一个」）。
+> **实测（2026-11-16 18:03，只读、不开 Blender、不占锁）**：从 1号 的 `stage_mask_after_rebuild.json`（sha `fb022a72…`）取数 ⇒ `needs=6686 ≤ cap=8499`（`guardrail_hit=False`）、`skipped=0` ⇒ **`READY / EVIDENCE_COMPLETE`**；三条反控（什么都不给 / 给数不给出处 / 记录不存在）**各 exit 4**。
+> 早前那版 `needs=8298 ≤ cap=10111` 的 `READY` **不再是本轮的读数**——它是 324 树的自洽结果，与本轮场景无关，保留在原快照里仅作历史。
 | 5 | 场景 `is_baked == false`（A1） | 跑前、跑后**各回读一次** `rigidbody_world.point_cache.is_baked` | 任一为真 ⇒ `UNMEASURED`，理由 `pose_source=cache_replay` |
 | 6 | 锁空闲且取到 | `python -m coordination.lock acquire`；长跑每 10 分钟 `touch` | 等，不抢 |
 | 7 | `delivery_v1` 与 `--expect wired` 的读数是**同一份字节** | 记下 `delivery_v1` 的 `sha256_lf_normalized` 之后、**跑 C/D 之前再核一次**（每臂开跑前核，不是跑完核） | 两次不同 ⇒ **该组作废**（`D-126`：前后同仪器同字节） |
