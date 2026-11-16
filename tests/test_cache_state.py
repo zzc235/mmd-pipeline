@@ -317,8 +317,10 @@ class TestCli(unittest.TestCase):
             path = os.path.join(tmp, "records.json")
             with open(path, "w", encoding="utf-8") as fh:
                 json.dump(records, fh)
+            # 这里**故意要字节**：本条验的就是「子进程吐出来的是不是合法 UTF-8」，
+            # 交给 `text=True` 解码就把要测的东西替它兜住了。按仓库护栏的豁免写法标注。
             proc = subprocess.run([sys.executable, "-m", "mmdpipe.cache_state", path],
-                                  capture_output=True, env=env)
+                                  capture_output=True, env=env)  # noqa: subprocess-bytes
         self.assertEqual(proc.returncode, 4, proc.stderr)
         text = proc.stdout.decode("utf-8")          # 必须是合法 UTF-8，不许靠本地编码
         out = json.loads(text)
