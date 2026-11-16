@@ -374,10 +374,17 @@ class TestEvidenceHash(unittest.TestCase):
         b["hash_basis"] = "lf_normalized_v1"
         self.assertIn("hash_basis", evidence_mod.normalize(b))
         self.assertNotEqual(evidence_mod.digest(a), evidence_mod.digest(b))
-        # 只有基数不同也要区分开
-        c = evidence()
-        c["hash_basis"] = "raw_bytes_v1"
-        self.assertNotEqual(evidence_mod.digest(b), evidence_mod.digest(c))
+
+    def test_hash_basis_enum_enforced(self):
+        """基数是**枚举**（D0 13:34）：不认识的写法必须抛，不许自由文本。"""
+        for bad in ("raw_bytes_v1", "foo", "LF_NORMALIZED_V1", "lf_normalized_v1 "):
+            payload = evidence()
+            payload["hash_basis"] = bad
+            if bad == "lf_normalized_v1 ":          # 只有空白差异应被折叠成合法值
+                self.assertIn("hash_basis", evidence_mod.normalize(payload))
+                continue
+            with self.assertRaises(evidence_mod.EvidenceError):
+                evidence_mod.digest(payload)
 
     def test_hash_basis_whitespace_collapsed(self):
         a = evidence()
@@ -385,6 +392,22 @@ class TestEvidenceHash(unittest.TestCase):
         b = evidence()
         b["hash_basis"] = "lf_normalized_v1"
         self.assertEqual(evidence_mod.digest(a), evidence_mod.digest(b))
+
+    def test_hash_basis_type_checked(self):
+        bad = evidence()
+        bad["hash_basis"] = 1
+        with self.assertRaises(evidence_mod.EvidenceError):
+            evidence_mod.digest(bad)
+        blank = evidence()
+        blank["hash_basis"] = "   "
+        self.assertNotIn("hash_basis", evidence_mod.normalize(blank))
+
+    def test_hash_basis_reason_code(self):
+        bad = evidence()
+        bad["hash_basis"] = "raw_bytes_v1"
+        with self.assertRaises(evidence_mod.EvidenceError) as ctx:
+            evidence_mod.digest(bad)
+        self.assertEqual(ctx.exception.reason_code, "WRONG_HASH_BASIS")
 
     def test_hash_basis_type_checked(self):
         bad = evidence()
