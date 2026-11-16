@@ -18,9 +18,20 @@ import os
 import re
 import sys
 
+import hashlib
+
+
+def sha256_of(path):
+    h = hashlib.sha256()
+    with io.open(path, "rb") as fh:
+        for chunk in iter(lambda: fh.read(1 << 20), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 MD = os.path.normpath(os.path.join(HERE, "..", "s2_prereg_v4.md"))
 JSON = os.path.normpath(os.path.join(HERE, "..", "s2_axis_peaks.json"))
+IDENT = os.path.normpath(os.path.join(HERE, "..", "s2_dump_identity.json"))
 
 
 def numbers_in(text):
@@ -57,6 +68,8 @@ def main():
     for d in js["dumps"]:
         text_checks.append("dump sha256(%s): %s"
                            % (os.path.basename(os.path.dirname(d["dump"])), d["dump_sha256"]))
+    text_checks.append("s2_axis_peaks.json 自身 sha256: " + sha256_of(JSON))
+    want("s2_axis_peaks.json 自身字节", os.path.getsize(JSON), 1e-6)
     for axis in ("x", "y", "z"):
         a = axes[axis]
         want("轴 %s 峰值 rad" % axis, a["peak_rad"], 1e-6)
@@ -114,12 +127,40 @@ def main():
             bad += 1
             print("MISSING  整行对不上：%s → | %s |" % (label, " | ".join(cells)))
 
-    total = len(checks) + len(pb) + len(fingerprints)
+    # §1.4 逐臂身份表：每行必须写出它自己的字节数与 sha16，s8 组按 sha 分组核
+    ident = json.load(io.open(IDENT, encoding="utf-8"))
+    row_checks = 0
+    for r in ident["rows"]:
+        if r["kind"] != "dyn":
+            continue
+        prefix = "| dyn | `%s` |" % r["arm"]
+        hit = [ln for ln in lines if ln.strip().startswith(prefix)]
+        row_checks += 1
+        if not hit:
+            bad += 1
+            print("MISSING  §1.4 没有 %s 这一行" % r["arm"])
+            continue
+        line = norm(hit[0])
+        if "%d" % r["bytes"] not in line or r["sha256"][:16] not in line:
+            bad += 1
+            print("MISSING  §1.4 %s 行里字节/sha 对不上（期望 %d / %s）"
+                  % (r["arm"], r["bytes"], r["sha256"][:16]))
+    for sha, arms in ident["identical_groups"].items():
+        if not any(a.startswith("A1") for a in arms):
+            continue
+        row_checks += 1
+        s8_line = [ln for ln in lines if ln.strip().startswith("| s8 |")
+                   and sha[:16] in norm(ln)]
+        if not s8_line:
+            bad += 1
+            print("MISSING  §1.4 s8 组没有写出 sha16=%s 的那一行" % sha[:16])
+
+    total = len(checks) + len(pb) + len(fingerprints) + row_checks
     if total == 0:
         print("检查条数为 0：不给 PASS")
         return 2
-    print("检查 %d 条（数值 %d + 同句 %d + 整行 %d），失败 %d 条"
-          % (total, len(checks), len(pb), len(fingerprints), bad))
+    print("检查 %d 条（数值 %d + 同句 %d + 整行 %d + 身份行 %d），失败 %d 条"
+          % (total, len(checks), len(pb), len(fingerprints), row_checks, bad))
     return 0 if bad == 0 else 1
 
 if __name__ == "__main__":

@@ -674,9 +674,1389 @@
    ],
    "chosen_axis": "y",
    "chosen_peak_rad": 1.0098189167107714,
+   "dump": "E:\\dsh pr\\woker2\\out\\subai\\M02\\dyn\\B2_x07\\frames.jsonl",
+   "dump_bytes": 681725,
+   "dump_mtime": 1794804443.4347746,
+   "dump_sha256": "7baa7b985fac1f8abf0ab92d0213db4cac8d1f9d8e762137e1c04a83725b80f3",
+   "frames": {
+    "count": 240,
+    "first": 1,
+    "last": 240
+   },
+   "ranked_axes": [
+    "y",
+    "z",
+    "x"
+   ],
+   "rows": 4320,
+   "runner_up_ratio": 0.7492657500397264
+  },
+  {
+   "axes": {
+    "x": {
+     "bone": "下擺_0_12",
+     "bones": 18,
+     "bones_over": {
+      "n": 18,
+      "peak_ge_0_7rad": 0,
+      "peak_ge_1_5708rad": 0
+     },
+     "frame": 121,
+     "peak_deg": 33.160971,
+     "peak_rad": 0.5787681271083566,
+     "per_bone_deg": {
+      "下擺_0_0": 6.18379,
+      "下擺_0_1": 12.039696,
+      "下擺_0_10": 25.901187,
+      "下擺_0_11": 31.756145,
+      "下擺_0_12": 33.160971,
+      "下擺_0_13": 28.564618,
+      "下擺_0_14": 23.905809,
+      "下擺_0_15": 21.397202,
+      "下擺_0_16": 14.391654,
+      "下擺_0_17": 10.112426,
+      "下擺_0_2": 24.823607,
+      "下擺_0_3": 26.554816,
+      "下擺_0_4": 23.655138,
+      "下擺_0_5": 18.224261,
+      "下擺_0_6": 19.28374,
+      "下擺_0_7": 22.08354,
+      "下擺_0_8": 21.848259,
+      "下擺_0_9": 21.807464
+     },
+     "samples": 4320,
+     "sensitivity": [
+      {
+       "engages": true,
+       "limit_deg": 28.929181,
+       "limit_label": "0.5×峰值",
+       "limit_rad": 0.504909,
+       "samples_over": 280,
+       "worst_exceed_rad": 0.073859
+      },
+      {
+       "engages": false,
+       "limit_deg": 69.430034,
+       "limit_label": "1.2×峰值",
+       "limit_rad": 1.211783,
+       "samples_over": 0,
+       "worst_exceed_rad": 0.0
+      },
+      {
+       "engages": false,
+       "limit_deg": 40.107046,
+       "limit_label": "原 ±0.7 rad",
+       "limit_rad": 0.7,
+       "samples_over": 0,
+       "worst_exceed_rad": 0.0
+      },
+      {
+       "engages": false,
+       "limit_deg": 90.00021,
+       "limit_label": "现交付 ±1.5708 rad",
+       "limit_rad": 1.5708,
+       "samples_over": 0,
+       "worst_exceed_rad": 0.0
+      }
+     ],
+     "sensitivity_own": [
+      {
+       "engages": true,
+       "limit_deg": 16.580486,
+       "limit_label": "0.5×本轴峰值",
+       "limit_rad": 0.289384,
+       "samples_over": 2306,
+       "worst_exceed_rad": 0.289384
+      },
+      {
+       "engages": false,
+       "limit_deg": 39.793165,
+       "limit_label": "1.2×本轴峰值",
+       "limit_rad": 0.694522,
+       "samples_over": 0,
+       "worst_exceed_rad": 0.0
+      },
+      {
+       "engages": false,
+       "limit_deg": 40.107046,
+       "limit_label": "原 ±0.7 rad",
+       "limit_rad": 0.7,
+       "samples_over": 0,
+       "worst_exceed_rad": 0.0
+      },
+      {
+       "engages": false,
+       "limit_deg": 90.00021,
+       "limit_label": "现交付 ±1.5708 rad",
+       "limit_rad": 1.5708,
+       "samples_over": 0,
+       "worst_exceed_rad": 0.0
+      }
+     ]
+    },
+    "y": {
+     "bone": "下擺_0_6",
+     "bones": 18,
+     "bones_over": {
+      "n": 18,
+      "peak_ge_0_7rad": 10,
+      "peak_ge_1_5708rad": 0
+     },
+     "frame": 109,
+     "peak_deg": 57.858362,
+     "peak_rad": 1.0098189167107714,
+     "per_bone_deg": {
+      "下擺_0_0": 44.165922,
+      "下擺_0_1": 49.255008,
+      "下擺_0_10": 34.817842,
+      "下擺_0_11": 27.4478,
+      "下擺_0_12": 20.794197,
+      "下擺_0_13": 20.801283,
+      "下擺_0_14": 19.962329,
+      "下擺_0_15": 22.679478,
+      "下擺_0_16": 28.17312,
+      "下擺_0_17": 34.891396,
+      "下擺_0_2": 51.679885,
+      "下擺_0_3": 53.061738,
+      "下擺_0_4": 55.719187,
+      "下擺_0_5": 57.401975,
+      "下擺_0_6": 57.858362,
+      "下擺_0_7": 54.841214,
+      "下擺_0_8": 49.257596,
+      "下擺_0_9": 42.148322
+     },
+     "samples": 4320,
+     "sensitivity": [
+      {
+       "engages": true,
+       "limit_deg": 28.929181,
+       "limit_label": "0.5×峰值",
+       "limit_rad": 0.504909,
+       "samples_over": 1744,
+       "worst_exceed_rad": 0.504909
+      },
+      {
+       "engages": false,
+       "limit_deg": 69.430034,
+       "limit_label": "1.2×峰值",
+       "limit_rad": 1.211783,
+       "samples_over": 0,
+       "worst_exceed_rad": 0.0
+      },
+      {
+       "engages": true,
+       "limit_deg": 40.107046,
+       "limit_label": "原 ±0.7 rad",
+       "limit_rad": 0.7,
+       "samples_over": 1413,
+       "worst_exceed_rad": 0.309819
+      },
+      {
+       "engages": false,
+       "limit_deg": 90.00021,
+       "limit_label": "现交付 ±1.5708 rad",
+       "limit_rad": 1.5708,
+       "samples_over": 0,
+       "worst_exceed_rad": 0.0
+      }
+     ],
+     "sensitivity_own": [
+      {
+       "engages": true,
+       "limit_deg": 28.929181,
+       "limit_label": "0.5×本轴峰值",
+       "limit_rad": 0.504909,
+       "samples_over": 1744,
+       "worst_exceed_rad": 0.504909
+      },
+      {
+       "engages": false,
+       "limit_deg": 69.430034,
+       "limit_label": "1.2×本轴峰值",
+       "limit_rad": 1.211783,
+       "samples_over": 0,
+       "worst_exceed_rad": 0.0
+      },
+      {
+       "engages": true,
+       "limit_deg": 40.107046,
+       "limit_label": "原 ±0.7 rad",
+       "limit_rad": 0.7,
+       "samples_over": 1413,
+       "worst_exceed_rad": 0.309819
+      },
+      {
+       "engages": false,
+       "limit_deg": 90.00021,
+       "limit_label": "现交付 ±1.5708 rad",
+       "limit_rad": 1.5708,
+       "samples_over": 0,
+       "worst_exceed_rad": 0.0
+      }
+     ]
+    },
+    "z": {
+     "bone": "下擺_0_5",
+     "bones": 18,
+     "bones_over": {
+      "n": 18,
+      "peak_ge_0_7rad": 2,
+      "peak_ge_1_5708rad": 0
+     },
+     "frame": 135,
+     "peak_deg": 43.351289,
+     "peak_rad": 0.7566227280336001,
+     "per_bone_deg": {
+      "下擺_0_0": 6.990452,
+      "下擺_0_1": 11.604831,
+      "下擺_0_10": 8.847497,
+      "下擺_0_11": 15.556231,
+      "下擺_0_12": 20.91477,
+      "下擺_0_13": 23.677064,
+      "下擺_0_14": 27.458464,
+      "下擺_0_15": 28.778435,
+      "下擺_0_16": 28.105658,
+      "下擺_0_17": 22.346195,
+      "下擺_0_2": 28.182699,
+      "下擺_0_3": 38.115816,
+      "下擺_0_4": 41.739064,
+      "下擺_0_5": 43.351289,
+      "下擺_0_6": 34.048169,
+      "下擺_0_7": 20.908415,
+      "下擺_0_8": 8.326314,
+      "下擺_0_9": 1.549442
+     },
+     "samples": 4320,
+     "sensitivity": [
+      {
+       "engages": true,
+       "limit_deg": 28.929181,
+       "limit_label": "0.5×峰值",
+       "limit_rad": 0.504909,
+       "samples_over": 572,
+       "worst_exceed_rad": 0.251713
+      },
+      {
+       "engages": false,
+       "limit_deg": 69.430034,
+       "limit_label": "1.2×峰值",
+       "limit_rad": 1.211783,
+       "samples_over": 0,
+       "worst_exceed_rad": 0.0
+      },
+      {
+       "engages": true,
+       "limit_deg": 40.107046,
+       "limit_label": "原 ±0.7 rad",
+       "limit_rad": 0.7,
+       "samples_over": 271,
+       "worst_exceed_rad": 0.056623
+      },
+      {
+       "engages": false,
+       "limit_deg": 90.00021,
+       "limit_label": "现交付 ±1.5708 rad",
+       "limit_rad": 1.5708,
+       "samples_over": 0,
+       "worst_exceed_rad": 0.0
+      }
+     ],
+     "sensitivity_own": [
+      {
+       "engages": true,
+       "limit_deg": 21.675645,
+       "limit_label": "0.5×本轴峰值",
+       "limit_rad": 0.378311,
+       "samples_over": 1640,
+       "worst_exceed_rad": 0.378311
+      },
+      {
+       "engages": false,
+       "limit_deg": 52.021547,
+       "limit_label": "1.2×本轴峰值",
+       "limit_rad": 0.907947,
+       "samples_over": 0,
+       "worst_exceed_rad": 0.0
+      },
+      {
+       "engages": true,
+       "limit_deg": 40.107046,
+       "limit_label": "原 ±0.7 rad",
+       "limit_rad": 0.7,
+       "samples_over": 271,
+       "worst_exceed_rad": 0.056623
+      },
+      {
+       "engages": false,
+       "limit_deg": 90.00021,
+       "limit_label": "现交付 ±1.5708 rad",
+       "limit_rad": 1.5708,
+       "samples_over": 0,
+       "worst_exceed_rad": 0.0
+      }
+     ]
+    }
+   },
+   "bones": [
+    "下擺_0_0",
+    "下擺_0_1",
+    "下擺_0_10",
+    "下擺_0_11",
+    "下擺_0_12",
+    "下擺_0_13",
+    "下擺_0_14",
+    "下擺_0_15",
+    "下擺_0_16",
+    "下擺_0_17",
+    "下擺_0_2",
+    "下擺_0_3",
+    "下擺_0_4",
+    "下擺_0_5",
+    "下擺_0_6",
+    "下擺_0_7",
+    "下擺_0_8",
+    "下擺_0_9"
+   ],
+   "chosen_axis": "y",
+   "chosen_peak_rad": 1.0098189167107714,
+   "dump": "E:\\dsh pr\\woker2\\out\\subai\\M02\\dyn\\B2_y07\\frames.jsonl",
+   "dump_bytes": 681725,
+   "dump_mtime": 1794804463.8966405,
+   "dump_sha256": "7baa7b985fac1f8abf0ab92d0213db4cac8d1f9d8e762137e1c04a83725b80f3",
+   "frames": {
+    "count": 240,
+    "first": 1,
+    "last": 240
+   },
+   "ranked_axes": [
+    "y",
+    "z",
+    "x"
+   ],
+   "rows": 4320,
+   "runner_up_ratio": 0.7492657500397264
+  },
+  {
+   "axes": {
+    "x": {
+     "bone": "下擺_0_12",
+     "bones": 18,
+     "bones_over": {
+      "n": 18,
+      "peak_ge_0_7rad": 0,
+      "peak_ge_1_5708rad": 0
+     },
+     "frame": 121,
+     "peak_deg": 33.160971,
+     "peak_rad": 0.5787681271083566,
+     "per_bone_deg": {
+      "下擺_0_0": 6.18379,
+      "下擺_0_1": 12.039696,
+      "下擺_0_10": 25.901187,
+      "下擺_0_11": 31.756145,
+      "下擺_0_12": 33.160971,
+      "下擺_0_13": 28.564618,
+      "下擺_0_14": 23.905809,
+      "下擺_0_15": 21.397202,
+      "下擺_0_16": 14.391654,
+      "下擺_0_17": 10.112426,
+      "下擺_0_2": 24.823607,
+      "下擺_0_3": 26.554816,
+      "下擺_0_4": 23.655138,
+      "下擺_0_5": 18.224261,
+      "下擺_0_6": 19.28374,
+      "下擺_0_7": 22.08354,
+      "下擺_0_8": 21.848259,
+      "下擺_0_9": 21.807464
+     },
+     "samples": 4320,
+     "sensitivity": [
+      {
+       "engages": true,
+       "limit_deg": 28.929181,
+       "limit_label": "0.5×峰值",
+       "limit_rad": 0.504909,
+       "samples_over": 280,
+       "worst_exceed_rad": 0.073859
+      },
+      {
+       "engages": false,
+       "limit_deg": 69.430034,
+       "limit_label": "1.2×峰值",
+       "limit_rad": 1.211783,
+       "samples_over": 0,
+       "worst_exceed_rad": 0.0
+      },
+      {
+       "engages": false,
+       "limit_deg": 40.107046,
+       "limit_label": "原 ±0.7 rad",
+       "limit_rad": 0.7,
+       "samples_over": 0,
+       "worst_exceed_rad": 0.0
+      },
+      {
+       "engages": false,
+       "limit_deg": 90.00021,
+       "limit_label": "现交付 ±1.5708 rad",
+       "limit_rad": 1.5708,
+       "samples_over": 0,
+       "worst_exceed_rad": 0.0
+      }
+     ],
+     "sensitivity_own": [
+      {
+       "engages": true,
+       "limit_deg": 16.580486,
+       "limit_label": "0.5×本轴峰值",
+       "limit_rad": 0.289384,
+       "samples_over": 2306,
+       "worst_exceed_rad": 0.289384
+      },
+      {
+       "engages": false,
+       "limit_deg": 39.793165,
+       "limit_label": "1.2×本轴峰值",
+       "limit_rad": 0.694522,
+       "samples_over": 0,
+       "worst_exceed_rad": 0.0
+      },
+      {
+       "engages": false,
+       "limit_deg": 40.107046,
+       "limit_label": "原 ±0.7 rad",
+       "limit_rad": 0.7,
+       "samples_over": 0,
+       "worst_exceed_rad": 0.0
+      },
+      {
+       "engages": false,
+       "limit_deg": 90.00021,
+       "limit_label": "现交付 ±1.5708 rad",
+       "limit_rad": 1.5708,
+       "samples_over": 0,
+       "worst_exceed_rad": 0.0
+      }
+     ]
+    },
+    "y": {
+     "bone": "下擺_0_6",
+     "bones": 18,
+     "bones_over": {
+      "n": 18,
+      "peak_ge_0_7rad": 10,
+      "peak_ge_1_5708rad": 0
+     },
+     "frame": 109,
+     "peak_deg": 57.858362,
+     "peak_rad": 1.0098189167107714,
+     "per_bone_deg": {
+      "下擺_0_0": 44.165922,
+      "下擺_0_1": 49.255008,
+      "下擺_0_10": 34.817842,
+      "下擺_0_11": 27.4478,
+      "下擺_0_12": 20.794197,
+      "下擺_0_13": 20.801283,
+      "下擺_0_14": 19.962329,
+      "下擺_0_15": 22.679478,
+      "下擺_0_16": 28.17312,
+      "下擺_0_17": 34.891396,
+      "下擺_0_2": 51.679885,
+      "下擺_0_3": 53.061738,
+      "下擺_0_4": 55.719187,
+      "下擺_0_5": 57.401975,
+      "下擺_0_6": 57.858362,
+      "下擺_0_7": 54.841214,
+      "下擺_0_8": 49.257596,
+      "下擺_0_9": 42.148322
+     },
+     "samples": 4320,
+     "sensitivity": [
+      {
+       "engages": true,
+       "limit_deg": 28.929181,
+       "limit_label": "0.5×峰值",
+       "limit_rad": 0.504909,
+       "samples_over": 1744,
+       "worst_exceed_rad": 0.504909
+      },
+      {
+       "engages": false,
+       "limit_deg": 69.430034,
+       "limit_label": "1.2×峰值",
+       "limit_rad": 1.211783,
+       "samples_over": 0,
+       "worst_exceed_rad": 0.0
+      },
+      {
+       "engages": true,
+       "limit_deg": 40.107046,
+       "limit_label": "原 ±0.7 rad",
+       "limit_rad": 0.7,
+       "samples_over": 1413,
+       "worst_exceed_rad": 0.309819
+      },
+      {
+       "engages": false,
+       "limit_deg": 90.00021,
+       "limit_label": "现交付 ±1.5708 rad",
+       "limit_rad": 1.5708,
+       "samples_over": 0,
+       "worst_exceed_rad": 0.0
+      }
+     ],
+     "sensitivity_own": [
+      {
+       "engages": true,
+       "limit_deg": 28.929181,
+       "limit_label": "0.5×本轴峰值",
+       "limit_rad": 0.504909,
+       "samples_over": 1744,
+       "worst_exceed_rad": 0.504909
+      },
+      {
+       "engages": false,
+       "limit_deg": 69.430034,
+       "limit_label": "1.2×本轴峰值",
+       "limit_rad": 1.211783,
+       "samples_over": 0,
+       "worst_exceed_rad": 0.0
+      },
+      {
+       "engages": true,
+       "limit_deg": 40.107046,
+       "limit_label": "原 ±0.7 rad",
+       "limit_rad": 0.7,
+       "samples_over": 1413,
+       "worst_exceed_rad": 0.309819
+      },
+      {
+       "engages": false,
+       "limit_deg": 90.00021,
+       "limit_label": "现交付 ±1.5708 rad",
+       "limit_rad": 1.5708,
+       "samples_over": 0,
+       "worst_exceed_rad": 0.0
+      }
+     ]
+    },
+    "z": {
+     "bone": "下擺_0_5",
+     "bones": 18,
+     "bones_over": {
+      "n": 18,
+      "peak_ge_0_7rad": 2,
+      "peak_ge_1_5708rad": 0
+     },
+     "frame": 135,
+     "peak_deg": 43.351289,
+     "peak_rad": 0.7566227280336001,
+     "per_bone_deg": {
+      "下擺_0_0": 6.990452,
+      "下擺_0_1": 11.604831,
+      "下擺_0_10": 8.847497,
+      "下擺_0_11": 15.556231,
+      "下擺_0_12": 20.91477,
+      "下擺_0_13": 23.677064,
+      "下擺_0_14": 27.458464,
+      "下擺_0_15": 28.778435,
+      "下擺_0_16": 28.105658,
+      "下擺_0_17": 22.346195,
+      "下擺_0_2": 28.182699,
+      "下擺_0_3": 38.115816,
+      "下擺_0_4": 41.739064,
+      "下擺_0_5": 43.351289,
+      "下擺_0_6": 34.048169,
+      "下擺_0_7": 20.908415,
+      "下擺_0_8": 8.326314,
+      "下擺_0_9": 1.549442
+     },
+     "samples": 4320,
+     "sensitivity": [
+      {
+       "engages": true,
+       "limit_deg": 28.929181,
+       "limit_label": "0.5×峰值",
+       "limit_rad": 0.504909,
+       "samples_over": 572,
+       "worst_exceed_rad": 0.251713
+      },
+      {
+       "engages": false,
+       "limit_deg": 69.430034,
+       "limit_label": "1.2×峰值",
+       "limit_rad": 1.211783,
+       "samples_over": 0,
+       "worst_exceed_rad": 0.0
+      },
+      {
+       "engages": true,
+       "limit_deg": 40.107046,
+       "limit_label": "原 ±0.7 rad",
+       "limit_rad": 0.7,
+       "samples_over": 271,
+       "worst_exceed_rad": 0.056623
+      },
+      {
+       "engages": false,
+       "limit_deg": 90.00021,
+       "limit_label": "现交付 ±1.5708 rad",
+       "limit_rad": 1.5708,
+       "samples_over": 0,
+       "worst_exceed_rad": 0.0
+      }
+     ],
+     "sensitivity_own": [
+      {
+       "engages": true,
+       "limit_deg": 21.675645,
+       "limit_label": "0.5×本轴峰值",
+       "limit_rad": 0.378311,
+       "samples_over": 1640,
+       "worst_exceed_rad": 0.378311
+      },
+      {
+       "engages": false,
+       "limit_deg": 52.021547,
+       "limit_label": "1.2×本轴峰值",
+       "limit_rad": 0.907947,
+       "samples_over": 0,
+       "worst_exceed_rad": 0.0
+      },
+      {
+       "engages": true,
+       "limit_deg": 40.107046,
+       "limit_label": "原 ±0.7 rad",
+       "limit_rad": 0.7,
+       "samples_over": 271,
+       "worst_exceed_rad": 0.056623
+      },
+      {
+       "engages": false,
+       "limit_deg": 90.00021,
+       "limit_label": "现交付 ±1.5708 rad",
+       "limit_rad": 1.5708,
+       "samples_over": 0,
+       "worst_exceed_rad": 0.0
+      }
+     ]
+    }
+   },
+   "bones": [
+    "下擺_0_0",
+    "下擺_0_1",
+    "下擺_0_10",
+    "下擺_0_11",
+    "下擺_0_12",
+    "下擺_0_13",
+    "下擺_0_14",
+    "下擺_0_15",
+    "下擺_0_16",
+    "下擺_0_17",
+    "下擺_0_2",
+    "下擺_0_3",
+    "下擺_0_4",
+    "下擺_0_5",
+    "下擺_0_6",
+    "下擺_0_7",
+    "下擺_0_8",
+    "下擺_0_9"
+   ],
+   "chosen_axis": "y",
+   "chosen_peak_rad": 1.0098189167107714,
+   "dump": "E:\\dsh pr\\woker2\\out\\subai\\M02\\dyn\\B2_z07\\frames.jsonl",
+   "dump_bytes": 681725,
+   "dump_mtime": 1794804471.0196912,
+   "dump_sha256": "7baa7b985fac1f8abf0ab92d0213db4cac8d1f9d8e762137e1c04a83725b80f3",
+   "frames": {
+    "count": 240,
+    "first": 1,
+    "last": 240
+   },
+   "ranked_axes": [
+    "y",
+    "z",
+    "x"
+   ],
+   "rows": 4320,
+   "runner_up_ratio": 0.7492657500397264
+  },
+  {
+   "axes": {
+    "x": {
+     "bone": "下擺_0_12",
+     "bones": 18,
+     "bones_over": {
+      "n": 18,
+      "peak_ge_0_7rad": 0,
+      "peak_ge_1_5708rad": 0
+     },
+     "frame": 121,
+     "peak_deg": 33.160971,
+     "peak_rad": 0.5787681271083566,
+     "per_bone_deg": {
+      "下擺_0_0": 6.18379,
+      "下擺_0_1": 12.039696,
+      "下擺_0_10": 25.901187,
+      "下擺_0_11": 31.756145,
+      "下擺_0_12": 33.160971,
+      "下擺_0_13": 28.564618,
+      "下擺_0_14": 23.905809,
+      "下擺_0_15": 21.397202,
+      "下擺_0_16": 14.391654,
+      "下擺_0_17": 10.112426,
+      "下擺_0_2": 24.823607,
+      "下擺_0_3": 26.554816,
+      "下擺_0_4": 23.655138,
+      "下擺_0_5": 18.224261,
+      "下擺_0_6": 19.28374,
+      "下擺_0_7": 22.08354,
+      "下擺_0_8": 21.848259,
+      "下擺_0_9": 21.807464
+     },
+     "samples": 4320,
+     "sensitivity": [
+      {
+       "engages": true,
+       "limit_deg": 28.929181,
+       "limit_label": "0.5×峰值",
+       "limit_rad": 0.504909,
+       "samples_over": 280,
+       "worst_exceed_rad": 0.073859
+      },
+      {
+       "engages": false,
+       "limit_deg": 69.430034,
+       "limit_label": "1.2×峰值",
+       "limit_rad": 1.211783,
+       "samples_over": 0,
+       "worst_exceed_rad": 0.0
+      },
+      {
+       "engages": false,
+       "limit_deg": 40.107046,
+       "limit_label": "原 ±0.7 rad",
+       "limit_rad": 0.7,
+       "samples_over": 0,
+       "worst_exceed_rad": 0.0
+      },
+      {
+       "engages": false,
+       "limit_deg": 90.00021,
+       "limit_label": "现交付 ±1.5708 rad",
+       "limit_rad": 1.5708,
+       "samples_over": 0,
+       "worst_exceed_rad": 0.0
+      }
+     ],
+     "sensitivity_own": [
+      {
+       "engages": true,
+       "limit_deg": 16.580486,
+       "limit_label": "0.5×本轴峰值",
+       "limit_rad": 0.289384,
+       "samples_over": 2306,
+       "worst_exceed_rad": 0.289384
+      },
+      {
+       "engages": false,
+       "limit_deg": 39.793165,
+       "limit_label": "1.2×本轴峰值",
+       "limit_rad": 0.694522,
+       "samples_over": 0,
+       "worst_exceed_rad": 0.0
+      },
+      {
+       "engages": false,
+       "limit_deg": 40.107046,
+       "limit_label": "原 ±0.7 rad",
+       "limit_rad": 0.7,
+       "samples_over": 0,
+       "worst_exceed_rad": 0.0
+      },
+      {
+       "engages": false,
+       "limit_deg": 90.00021,
+       "limit_label": "现交付 ±1.5708 rad",
+       "limit_rad": 1.5708,
+       "samples_over": 0,
+       "worst_exceed_rad": 0.0
+      }
+     ]
+    },
+    "y": {
+     "bone": "下擺_0_6",
+     "bones": 18,
+     "bones_over": {
+      "n": 18,
+      "peak_ge_0_7rad": 10,
+      "peak_ge_1_5708rad": 0
+     },
+     "frame": 109,
+     "peak_deg": 57.858362,
+     "peak_rad": 1.0098189167107714,
+     "per_bone_deg": {
+      "下擺_0_0": 44.165922,
+      "下擺_0_1": 49.255008,
+      "下擺_0_10": 34.817842,
+      "下擺_0_11": 27.4478,
+      "下擺_0_12": 20.794197,
+      "下擺_0_13": 20.801283,
+      "下擺_0_14": 19.962329,
+      "下擺_0_15": 22.679478,
+      "下擺_0_16": 28.17312,
+      "下擺_0_17": 34.891396,
+      "下擺_0_2": 51.679885,
+      "下擺_0_3": 53.061738,
+      "下擺_0_4": 55.719187,
+      "下擺_0_5": 57.401975,
+      "下擺_0_6": 57.858362,
+      "下擺_0_7": 54.841214,
+      "下擺_0_8": 49.257596,
+      "下擺_0_9": 42.148322
+     },
+     "samples": 4320,
+     "sensitivity": [
+      {
+       "engages": true,
+       "limit_deg": 28.929181,
+       "limit_label": "0.5×峰值",
+       "limit_rad": 0.504909,
+       "samples_over": 1744,
+       "worst_exceed_rad": 0.504909
+      },
+      {
+       "engages": false,
+       "limit_deg": 69.430034,
+       "limit_label": "1.2×峰值",
+       "limit_rad": 1.211783,
+       "samples_over": 0,
+       "worst_exceed_rad": 0.0
+      },
+      {
+       "engages": true,
+       "limit_deg": 40.107046,
+       "limit_label": "原 ±0.7 rad",
+       "limit_rad": 0.7,
+       "samples_over": 1413,
+       "worst_exceed_rad": 0.309819
+      },
+      {
+       "engages": false,
+       "limit_deg": 90.00021,
+       "limit_label": "现交付 ±1.5708 rad",
+       "limit_rad": 1.5708,
+       "samples_over": 0,
+       "worst_exceed_rad": 0.0
+      }
+     ],
+     "sensitivity_own": [
+      {
+       "engages": true,
+       "limit_deg": 28.929181,
+       "limit_label": "0.5×本轴峰值",
+       "limit_rad": 0.504909,
+       "samples_over": 1744,
+       "worst_exceed_rad": 0.504909
+      },
+      {
+       "engages": false,
+       "limit_deg": 69.430034,
+       "limit_label": "1.2×本轴峰值",
+       "limit_rad": 1.211783,
+       "samples_over": 0,
+       "worst_exceed_rad": 0.0
+      },
+      {
+       "engages": true,
+       "limit_deg": 40.107046,
+       "limit_label": "原 ±0.7 rad",
+       "limit_rad": 0.7,
+       "samples_over": 1413,
+       "worst_exceed_rad": 0.309819
+      },
+      {
+       "engages": false,
+       "limit_deg": 90.00021,
+       "limit_label": "现交付 ±1.5708 rad",
+       "limit_rad": 1.5708,
+       "samples_over": 0,
+       "worst_exceed_rad": 0.0
+      }
+     ]
+    },
+    "z": {
+     "bone": "下擺_0_5",
+     "bones": 18,
+     "bones_over": {
+      "n": 18,
+      "peak_ge_0_7rad": 2,
+      "peak_ge_1_5708rad": 0
+     },
+     "frame": 135,
+     "peak_deg": 43.351289,
+     "peak_rad": 0.7566227280336001,
+     "per_bone_deg": {
+      "下擺_0_0": 6.990452,
+      "下擺_0_1": 11.604831,
+      "下擺_0_10": 8.847497,
+      "下擺_0_11": 15.556231,
+      "下擺_0_12": 20.91477,
+      "下擺_0_13": 23.677064,
+      "下擺_0_14": 27.458464,
+      "下擺_0_15": 28.778435,
+      "下擺_0_16": 28.105658,
+      "下擺_0_17": 22.346195,
+      "下擺_0_2": 28.182699,
+      "下擺_0_3": 38.115816,
+      "下擺_0_4": 41.739064,
+      "下擺_0_5": 43.351289,
+      "下擺_0_6": 34.048169,
+      "下擺_0_7": 20.908415,
+      "下擺_0_8": 8.326314,
+      "下擺_0_9": 1.549442
+     },
+     "samples": 4320,
+     "sensitivity": [
+      {
+       "engages": true,
+       "limit_deg": 28.929181,
+       "limit_label": "0.5×峰值",
+       "limit_rad": 0.504909,
+       "samples_over": 572,
+       "worst_exceed_rad": 0.251713
+      },
+      {
+       "engages": false,
+       "limit_deg": 69.430034,
+       "limit_label": "1.2×峰值",
+       "limit_rad": 1.211783,
+       "samples_over": 0,
+       "worst_exceed_rad": 0.0
+      },
+      {
+       "engages": true,
+       "limit_deg": 40.107046,
+       "limit_label": "原 ±0.7 rad",
+       "limit_rad": 0.7,
+       "samples_over": 271,
+       "worst_exceed_rad": 0.056623
+      },
+      {
+       "engages": false,
+       "limit_deg": 90.00021,
+       "limit_label": "现交付 ±1.5708 rad",
+       "limit_rad": 1.5708,
+       "samples_over": 0,
+       "worst_exceed_rad": 0.0
+      }
+     ],
+     "sensitivity_own": [
+      {
+       "engages": true,
+       "limit_deg": 21.675645,
+       "limit_label": "0.5×本轴峰值",
+       "limit_rad": 0.378311,
+       "samples_over": 1640,
+       "worst_exceed_rad": 0.378311
+      },
+      {
+       "engages": false,
+       "limit_deg": 52.021547,
+       "limit_label": "1.2×本轴峰值",
+       "limit_rad": 0.907947,
+       "samples_over": 0,
+       "worst_exceed_rad": 0.0
+      },
+      {
+       "engages": true,
+       "limit_deg": 40.107046,
+       "limit_label": "原 ±0.7 rad",
+       "limit_rad": 0.7,
+       "samples_over": 271,
+       "worst_exceed_rad": 0.056623
+      },
+      {
+       "engages": false,
+       "limit_deg": 90.00021,
+       "limit_label": "现交付 ±1.5708 rad",
+       "limit_rad": 1.5708,
+       "samples_over": 0,
+       "worst_exceed_rad": 0.0
+      }
+     ]
+    }
+   },
+   "bones": [
+    "下擺_0_0",
+    "下擺_0_1",
+    "下擺_0_10",
+    "下擺_0_11",
+    "下擺_0_12",
+    "下擺_0_13",
+    "下擺_0_14",
+    "下擺_0_15",
+    "下擺_0_16",
+    "下擺_0_17",
+    "下擺_0_2",
+    "下擺_0_3",
+    "下擺_0_4",
+    "下擺_0_5",
+    "下擺_0_6",
+    "下擺_0_7",
+    "下擺_0_8",
+    "下擺_0_9"
+   ],
+   "chosen_axis": "y",
+   "chosen_peak_rad": 1.0098189167107714,
    "dump": "E:\\dsh pr\\woker2\\out\\subai\\M02\\dyn\\B2r_baseline\\frames.jsonl",
    "dump_bytes": 818344,
    "dump_mtime": 1794805017.5274825,
+   "dump_sha256": "c7c1ae9fc4f41f1ab3c37d5421be290631afd20a344c2ea920da03ae34a4d840",
+   "frames": {
+    "count": 240,
+    "first": 1,
+    "last": 240
+   },
+   "ranked_axes": [
+    "y",
+    "z",
+    "x"
+   ],
+   "rows": 4320,
+   "runner_up_ratio": 0.7492657500397264
+  },
+  {
+   "axes": {
+    "x": {
+     "bone": "下擺_0_12",
+     "bones": 18,
+     "bones_over": {
+      "n": 18,
+      "peak_ge_0_7rad": 0,
+      "peak_ge_1_5708rad": 0
+     },
+     "frame": 121,
+     "peak_deg": 33.160971,
+     "peak_rad": 0.5787681271083566,
+     "per_bone_deg": {
+      "下擺_0_0": 6.18379,
+      "下擺_0_1": 12.039696,
+      "下擺_0_10": 25.901187,
+      "下擺_0_11": 31.756145,
+      "下擺_0_12": 33.160971,
+      "下擺_0_13": 28.564618,
+      "下擺_0_14": 23.905809,
+      "下擺_0_15": 21.397202,
+      "下擺_0_16": 14.391654,
+      "下擺_0_17": 10.112426,
+      "下擺_0_2": 24.823607,
+      "下擺_0_3": 26.554816,
+      "下擺_0_4": 23.655138,
+      "下擺_0_5": 18.224261,
+      "下擺_0_6": 19.28374,
+      "下擺_0_7": 22.08354,
+      "下擺_0_8": 21.848259,
+      "下擺_0_9": 21.807464
+     },
+     "samples": 4320,
+     "sensitivity": [
+      {
+       "engages": true,
+       "limit_deg": 28.929181,
+       "limit_label": "0.5×峰值",
+       "limit_rad": 0.504909,
+       "samples_over": 280,
+       "worst_exceed_rad": 0.073859
+      },
+      {
+       "engages": false,
+       "limit_deg": 69.430034,
+       "limit_label": "1.2×峰值",
+       "limit_rad": 1.211783,
+       "samples_over": 0,
+       "worst_exceed_rad": 0.0
+      },
+      {
+       "engages": false,
+       "limit_deg": 40.107046,
+       "limit_label": "原 ±0.7 rad",
+       "limit_rad": 0.7,
+       "samples_over": 0,
+       "worst_exceed_rad": 0.0
+      },
+      {
+       "engages": false,
+       "limit_deg": 90.00021,
+       "limit_label": "现交付 ±1.5708 rad",
+       "limit_rad": 1.5708,
+       "samples_over": 0,
+       "worst_exceed_rad": 0.0
+      }
+     ],
+     "sensitivity_own": [
+      {
+       "engages": true,
+       "limit_deg": 16.580486,
+       "limit_label": "0.5×本轴峰值",
+       "limit_rad": 0.289384,
+       "samples_over": 2306,
+       "worst_exceed_rad": 0.289384
+      },
+      {
+       "engages": false,
+       "limit_deg": 39.793165,
+       "limit_label": "1.2×本轴峰值",
+       "limit_rad": 0.694522,
+       "samples_over": 0,
+       "worst_exceed_rad": 0.0
+      },
+      {
+       "engages": false,
+       "limit_deg": 40.107046,
+       "limit_label": "原 ±0.7 rad",
+       "limit_rad": 0.7,
+       "samples_over": 0,
+       "worst_exceed_rad": 0.0
+      },
+      {
+       "engages": false,
+       "limit_deg": 90.00021,
+       "limit_label": "现交付 ±1.5708 rad",
+       "limit_rad": 1.5708,
+       "samples_over": 0,
+       "worst_exceed_rad": 0.0
+      }
+     ]
+    },
+    "y": {
+     "bone": "下擺_0_6",
+     "bones": 18,
+     "bones_over": {
+      "n": 18,
+      "peak_ge_0_7rad": 10,
+      "peak_ge_1_5708rad": 0
+     },
+     "frame": 109,
+     "peak_deg": 57.858362,
+     "peak_rad": 1.0098189167107714,
+     "per_bone_deg": {
+      "下擺_0_0": 44.165922,
+      "下擺_0_1": 49.255008,
+      "下擺_0_10": 34.817842,
+      "下擺_0_11": 27.4478,
+      "下擺_0_12": 20.794197,
+      "下擺_0_13": 20.801283,
+      "下擺_0_14": 19.962329,
+      "下擺_0_15": 22.679478,
+      "下擺_0_16": 28.17312,
+      "下擺_0_17": 34.891396,
+      "下擺_0_2": 51.679885,
+      "下擺_0_3": 53.061738,
+      "下擺_0_4": 55.719187,
+      "下擺_0_5": 57.401975,
+      "下擺_0_6": 57.858362,
+      "下擺_0_7": 54.841214,
+      "下擺_0_8": 49.257596,
+      "下擺_0_9": 42.148322
+     },
+     "samples": 4320,
+     "sensitivity": [
+      {
+       "engages": true,
+       "limit_deg": 28.929181,
+       "limit_label": "0.5×峰值",
+       "limit_rad": 0.504909,
+       "samples_over": 1744,
+       "worst_exceed_rad": 0.504909
+      },
+      {
+       "engages": false,
+       "limit_deg": 69.430034,
+       "limit_label": "1.2×峰值",
+       "limit_rad": 1.211783,
+       "samples_over": 0,
+       "worst_exceed_rad": 0.0
+      },
+      {
+       "engages": true,
+       "limit_deg": 40.107046,
+       "limit_label": "原 ±0.7 rad",
+       "limit_rad": 0.7,
+       "samples_over": 1413,
+       "worst_exceed_rad": 0.309819
+      },
+      {
+       "engages": false,
+       "limit_deg": 90.00021,
+       "limit_label": "现交付 ±1.5708 rad",
+       "limit_rad": 1.5708,
+       "samples_over": 0,
+       "worst_exceed_rad": 0.0
+      }
+     ],
+     "sensitivity_own": [
+      {
+       "engages": true,
+       "limit_deg": 28.929181,
+       "limit_label": "0.5×本轴峰值",
+       "limit_rad": 0.504909,
+       "samples_over": 1744,
+       "worst_exceed_rad": 0.504909
+      },
+      {
+       "engages": false,
+       "limit_deg": 69.430034,
+       "limit_label": "1.2×本轴峰值",
+       "limit_rad": 1.211783,
+       "samples_over": 0,
+       "worst_exceed_rad": 0.0
+      },
+      {
+       "engages": true,
+       "limit_deg": 40.107046,
+       "limit_label": "原 ±0.7 rad",
+       "limit_rad": 0.7,
+       "samples_over": 1413,
+       "worst_exceed_rad": 0.309819
+      },
+      {
+       "engages": false,
+       "limit_deg": 90.00021,
+       "limit_label": "现交付 ±1.5708 rad",
+       "limit_rad": 1.5708,
+       "samples_over": 0,
+       "worst_exceed_rad": 0.0
+      }
+     ]
+    },
+    "z": {
+     "bone": "下擺_0_5",
+     "bones": 18,
+     "bones_over": {
+      "n": 18,
+      "peak_ge_0_7rad": 2,
+      "peak_ge_1_5708rad": 0
+     },
+     "frame": 135,
+     "peak_deg": 43.351289,
+     "peak_rad": 0.7566227280336001,
+     "per_bone_deg": {
+      "下擺_0_0": 6.990452,
+      "下擺_0_1": 11.604831,
+      "下擺_0_10": 8.847497,
+      "下擺_0_11": 15.556231,
+      "下擺_0_12": 20.91477,
+      "下擺_0_13": 23.677064,
+      "下擺_0_14": 27.458464,
+      "下擺_0_15": 28.778435,
+      "下擺_0_16": 28.105658,
+      "下擺_0_17": 22.346195,
+      "下擺_0_2": 28.182699,
+      "下擺_0_3": 38.115816,
+      "下擺_0_4": 41.739064,
+      "下擺_0_5": 43.351289,
+      "下擺_0_6": 34.048169,
+      "下擺_0_7": 20.908415,
+      "下擺_0_8": 8.326314,
+      "下擺_0_9": 1.549442
+     },
+     "samples": 4320,
+     "sensitivity": [
+      {
+       "engages": true,
+       "limit_deg": 28.929181,
+       "limit_label": "0.5×峰值",
+       "limit_rad": 0.504909,
+       "samples_over": 572,
+       "worst_exceed_rad": 0.251713
+      },
+      {
+       "engages": false,
+       "limit_deg": 69.430034,
+       "limit_label": "1.2×峰值",
+       "limit_rad": 1.211783,
+       "samples_over": 0,
+       "worst_exceed_rad": 0.0
+      },
+      {
+       "engages": true,
+       "limit_deg": 40.107046,
+       "limit_label": "原 ±0.7 rad",
+       "limit_rad": 0.7,
+       "samples_over": 271,
+       "worst_exceed_rad": 0.056623
+      },
+      {
+       "engages": false,
+       "limit_deg": 90.00021,
+       "limit_label": "现交付 ±1.5708 rad",
+       "limit_rad": 1.5708,
+       "samples_over": 0,
+       "worst_exceed_rad": 0.0
+      }
+     ],
+     "sensitivity_own": [
+      {
+       "engages": true,
+       "limit_deg": 21.675645,
+       "limit_label": "0.5×本轴峰值",
+       "limit_rad": 0.378311,
+       "samples_over": 1640,
+       "worst_exceed_rad": 0.378311
+      },
+      {
+       "engages": false,
+       "limit_deg": 52.021547,
+       "limit_label": "1.2×本轴峰值",
+       "limit_rad": 0.907947,
+       "samples_over": 0,
+       "worst_exceed_rad": 0.0
+      },
+      {
+       "engages": true,
+       "limit_deg": 40.107046,
+       "limit_label": "原 ±0.7 rad",
+       "limit_rad": 0.7,
+       "samples_over": 271,
+       "worst_exceed_rad": 0.056623
+      },
+      {
+       "engages": false,
+       "limit_deg": 90.00021,
+       "limit_label": "现交付 ±1.5708 rad",
+       "limit_rad": 1.5708,
+       "samples_over": 0,
+       "worst_exceed_rad": 0.0
+      }
+     ]
+    }
+   },
+   "bones": [
+    "下擺_0_0",
+    "下擺_0_1",
+    "下擺_0_10",
+    "下擺_0_11",
+    "下擺_0_12",
+    "下擺_0_13",
+    "下擺_0_14",
+    "下擺_0_15",
+    "下擺_0_16",
+    "下擺_0_17",
+    "下擺_0_2",
+    "下擺_0_3",
+    "下擺_0_4",
+    "下擺_0_5",
+    "下擺_0_6",
+    "下擺_0_7",
+    "下擺_0_8",
+    "下擺_0_9"
+   ],
+   "chosen_axis": "y",
+   "chosen_peak_rad": 1.0098189167107714,
+   "dump": "E:\\dsh pr\\woker2\\out\\subai\\M02\\dyn\\B2r_x07\\frames.jsonl",
+   "dump_bytes": 818344,
+   "dump_mtime": 1794805023.5343342,
    "dump_sha256": "c7c1ae9fc4f41f1ab3c37d5421be290631afd20a344c2ea920da03ae34a4d840",
    "frames": {
     "count": 240,
