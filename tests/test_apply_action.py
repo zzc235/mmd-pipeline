@@ -341,5 +341,150 @@ class FcurvesShapeTest(unittest.TestCase):
                          ("BLOCKED", ["A1_action_applied"]))
 
 
+class FcurveWriteShapeTest(unittest.TestCase):
+    """写侧（`ensure_fcurve` / `fcurve_container`）：读能拼列表，写必须挑定一个容器。
+
+    为什么单独一块：`chain_nla._shift_b_action` 在**写** B 的 action —— `.new()` 在分层
+    动作上一样没有，所以「拼」在存过盘的件上崩的方式和「读」不同（`D-213` 派工）。
+    上游接口 `Action.fcurve_ensure_for_datablock` 是**待验假设**，这里同时钉住
+    「有就用、抛就退、退了要写在 `how` 里」三件事，真机量到的结论才有地方对。
+    """
+
+    class _Fake:
+        def __init__(self, **kw):
+            for k, v in kw.items():
+                setattr(self, k, v)
+
+    class _Coll:
+        """够用的 `fcurves` 集合：`find` / `new` / `len` / 迭代。"""
+
+        def __init__(self, curves=None):
+            self.curves = list(curves or [])
+
+        def find(self, path, index=0):
+            for c in self.curves:
+                if c.data_path == path and c.array_index == index:
+                    return c
+            return None
+
+        def new(self, path, index=0, action_group=""):
+            c = FcurveWriteShapeTest._Fake(data_path=path, array_index=index,
+                                          group=action_group, keyframe_points=[])
+            self.curves.append(c)
+            return c
+
+        def __len__(self):
+            return len(self.curves)
+
+        def __iter__(self):
+            return iter(self.curves)
+
+    def _layered(self, bags, slots=None):
+        """分层动作：`.fcurves` 一碰就抛，只有 `layers[].strips[].channelbags[]`。"""
+        for bag, slot in zip(bags, slots or [None] * len(bags)):
+            if slot is not None:
+                bag.slot = slot
+
+        class Layer:
+            pass
+
+        class Strip:
+            pass
+
+        act = self._Fake(layers=[])
+        layer = Layer()
+        strip = Strip()
+        strip.channelbags = bags
+        layer.strips = [strip]
+        act.layers = [layer]
+        return act
+
+    def test_legacy_write_uses_action_fcurves(self):
+        coll = self._Coll()
+        fc, how = AA.ensure_fcurve(self._Fake(fcurves=coll), None,
+                                   'pose.bones["センター"].location', index=1)
+        self.assertEqual(how, "action.fcurves")
+        self.assertEqual((fc.array_index, len(coll)), (1, 1))
+
+    def test_legacy_write_finds_existing_instead_of_duplicating(self):
+        coll = self._Coll()
+        first, _ = AA.ensure_fcurve(self._Fake(fcurves=coll), None,
+                                    'pose.bones["センター"].location', index=0)
+        second, _ = AA.ensure_fcurve(self._Fake(fcurves=coll), None,
+                                     'pose.bones["センター"].location', index=0)
+        self.assertIs(first, second)
+        self.assertEqual(len(coll), 1)
+
+    def test_layered_single_bag_is_used(self):
+        bag = self._Fake(fcurves=self._Coll())
+        fc, how = AA.ensure_fcurve(self._layered([bag]), self._Fake(),
+                                   'pose.bones["センター"].location', index=2)
+        self.assertEqual((how, fc.array_index), ("channelbags[0](new)", 2))
+        self.assertEqual(len(bag.fcurves), 1)
+
+    def test_layered_slot_match_wins_over_position(self):
+        slot = object()
+        a, b = self._Fake(fcurves=self._Coll()), self._Fake(fcurves=self._Coll())
+        act = self._layered([a, b], slots=[object(), slot])
+        arm = self._Fake(animation_data=self._Fake(action_slot=slot))
+        _fc, how = AA.ensure_fcurve(act, arm, 'pose.bones["センター"].location', index=0)
+        self.assertEqual(how, "channelbags[slot](new)")
+        self.assertEqual((len(a.fcurves), len(b.fcurves)), (0, 1))
+
+    def test_layered_two_bags_without_slot_match_is_refused(self):
+        """挑一个等于往别人的动作上改键 —— 看不清就当红。"""
+        act = self._layered([self._Fake(fcurves=self._Coll()),
+                             self._Fake(fcurves=self._Coll())])
+        with self.assertRaises(AA.FcurveShapeError):
+            AA.ensure_fcurve(act, self._Fake(animation_data=self._Fake(action_slot=None)),
+                             'pose.bones["センター"].location', index=0)
+
+    def test_no_container_at_all_is_refused(self):
+        with self.assertRaises(AA.FcurveShapeError):
+            AA.ensure_fcurve(self._Fake(layers=[]), self._Fake(animation_data=None), "x")
+
+    def test_upstream_api_is_preferred_on_layered_action(self):
+        """上游接口存在就用，且 `how` 说得出来 —— `D-213` 的原话是「先确认能不能直接用」。"""
+        seen = {}
+
+        class Layered:
+            def fcurve_ensure_for_datablock(self, block, path, index=0, group_name=""):
+                seen.update(block=block, path=path, index=index, group=group_name)
+                return "UPSTREAM_FC"
+
+        arm = self._Fake()
+        fc, how = AA.ensure_fcurve(Layered(), arm, 'pose.bones["センター"].location',
+                                   index=1, group="センター")
+        self.assertEqual((fc, how), ("UPSTREAM_FC", "fcurve_ensure_for_datablock"))
+        self.assertEqual(seen, {"block": arm, "path": 'pose.bones["センター"].location',
+                                "index": 1, "group": "センター"})
+
+    def test_upstream_raising_falls_back_and_records_the_reason(self):
+        class Layered:
+            layers = []
+
+            def fcurve_ensure_for_datablock(self, *a, **kw):
+                raise RuntimeError("signature is not what you guessed")
+
+        with self.assertRaises(AA.FcurveShapeError):
+            # 上游抛了、手里又没有 channelbag ⇒ 结果仍是红，但红的地方能看出上游试过
+            AA.ensure_fcurve(Layered(), self._Fake(), "x")
+
+    def test_upstream_raising_but_bag_usable_reports_it(self):
+        bag = self._Fake(fcurves=self._Coll())
+
+        class Layered:
+            def __init__(self):
+                self.layers = []
+
+            def fcurve_ensure_for_datablock(self, *a, **kw):
+                raise TypeError("unexpected keyword argument 'group_name'")
+
+        act = Layered()
+        act.layers = self._layered([bag]).layers
+        _fc, how = AA.ensure_fcurve(act, self._Fake(), 'pose.bones["B"].location', index=0)
+        self.assertEqual(how, "channelbags[0](new); upstream_raised:TypeError")
+
+
 if __name__ == "__main__":
     unittest.main()

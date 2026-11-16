@@ -246,3 +246,52 @@ Blender 刚体解算的步长 `dt = 1/fps` ⇒ 改 fps 就是改物理。而 M04
 **没验的仍然写着**：这条修法只在离屏哑对象上验过形状；**「拿一件存过盘的臂件再跑一次
 `apply_action`」这件事仍然没跑过**——它要拿窗口，而 324 批次之后窗口一直在别人手里
 （2号 的 C/D 三臂、1号 的烘焙）。下一批第一次真跑时补。
+
+## 十三、写侧：`chain_nla` 拼 B 的位置曲线（`D-213` 派工）
+
+`4号` 盘库时发现同一个形状还有一处更硬的：`mmdpipe/chain_nla.py:106/108` 是
+`_shift_b_action`，它拿 `action.fcurves.find(...)` / `.new(...)` **往 B 的 action 上改/建**曲线。
+分层动作上 `.fcurves` 连读都不给，写更没有 —— 所以这个文件在存过盘的件上崩的是**「拼」**，
+不是「读」；而「拿存了盘的件再拼一次」正是 `D-210` 记下的那两处未做之一（NLA 三面）。
+
+修法：写侧也走同一个地方，不另留实现（`D-186`：两份实现就是两个真值）。
+`apply_action.py` 新增两件：
+
+- `fcurve_container(action, datablock)` —— 返回**可写**容器（有 `.find/.new`）：
+  ① `action.fcurves`（同会话刚造的动作，今天在用的那条）
+  ② 分层动作里槽位正好是 `datablock.animation_data.action_slot` 的那个 channelbag
+  ③ 只有一个 channelbag 时就是它
+  ④ 多个又对不上槽位 ⇒ 抛 `FcurveShapeError`。**不挑**：挑一个等于往别人的动作上改键，
+  而且写到一半才发现会留下半个拼接结果，比崩更难查。
+- `ensure_fcurve(action, datablock, path, index, group)` —— 拿到（必要时新建）一条曲线，返回
+  `(fcurve, how)`。顺序：老形状 → 上游接口 → 自己走 channelbag。
+
+**上游接口这件事按 `D-213` 的处理方式来写**：`Action.fcurve_ensure_for_datablock()` 是
+**待验假设，不是事实**。所以代码里它只是第二档候选：存在且调用不抛就用，`how` 记
+`fcurve_ensure_for_datablock`；抛了就退到 channelbag 那条路，并把异常类名留在 `how` 里
+（`channelbags[0](new); upstream_raised:TypeError`）——**它试过、什么时候抛的，读记录的人看得见**。
+`_shift_b_action` 现在返回 `(改写到几个键, 曲线从哪条路拿到的)`，`concat_via_nla` 的
+`align.fcurves_via` 与 `fcurves_via`（烘焙后那条读回）都落进报告。
+
+### 离屏 11 条 + 反向控制
+
+`tests/test_apply_action.py::FcurveWriteShapeTest` 8 条（老形状 find/new、分层单 bag、
+槽位优先于位置、两个 bag 不猜就红、连容器都没有也红、上游被用上、上游抛了退回去且留痕）；
+`tests/test_chain_nla_fcurves.py` 6 条（真的调 `_shift_b_action`：老形状建三条曲线两个键、
+分层动作位移既有键、槽位选对 bag、两个 bag 拒写且**一个字节都没写进去**、
+`action.fcurves.find` 那种旧写法在分层动作上确实 `AttributeError`）。
+
+反向控制 `out/subai/M05/ctrl_nla_write_shape.py`：把 `_shift_b_action` 退回旧写法 ⇒ **红 4 条**
+（其中两条是「拒写」变「崩」，说明旧写法连拒都做不到）；还原 ⇒ 6 条全绿。
+脚本自带还原，跑完 `git status` 只剩本次要提交的文件。
+
+全量 **690 tests × 默认/utf-8/gbk 三环境 OK（skipped 1）**，`status --check` OK。
+
+### 没验的（写在这里，别去别处找）
+
+1. **`Action.fcurve_ensure_for_datablock()` 在 Blender 5.2 里到底存不存在、签名是不是
+   `(datablock, path, index=, group_name=)`——没验**。上面那条是「有就用」，不是「它就是这么写」。
+   真机窗口里量一次，量法见 `out/subai/M05/probe_fcurve_write_shape.py`（只读打开臂件、
+   在 `action.copy()` 上试，前后 sha 比对，不存盘）。
+2. **真的拿一份存过盘的件重跑 NLA 拼接，仍然没跑过**。离屏证明的是「形状能过」，
+   不是「拼出来的动作对」——对齐量、烘焙窗口、导出这些还得窗口里跑。
