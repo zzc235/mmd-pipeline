@@ -175,6 +175,22 @@ if not (isdir(ROOT / "coordination") and isdir(ROOT / "mmdpipe")):
 | `2026-11-16` `M05` | 修好之后他补了「先验根」；负控把两个脚本拷到临时目录再跑，**两个都被拦住**、报的是「ROOT 算错了」而不是 `ImportError` |
 | `2026-11-16` `M04` | `2号` 把 `comparability.py` 接进 `m04_segment_table.py`，**第一次没接上**：`cut_sensitivity()` 根本没被调用，报告照旧，没有任何一处红 |
 
+## 十三、快照账本必须在**干净 checkout** 上可复现
+
+账本（`_snapshot_index.json` / 冻结 manifest / 批次 manifest）要**对着 git 的视角**验，
+不是对着当前工作树验。工作树里有、仓库里没有的文件，作者那边永远绿，**干净 checkout 才会红**。
+
+落地断言：索引里列的每个文件，必须能在 `git ls-files <dir>` 里找到（或
+`git ls-files --error-unmatch <path>` 成功）。
+
+| 事故 | 形状 |
+|---|---|
+| `2026-11-16` `M04` | `2号` 的快照副本含 `compare.log` / `compare_selftest.log`，被 `.gitignore:39 *.log` 吞掉 ⇒ 合并后在干净 checkout 上 `FAIL: test_snapshot_copies_are_listed_and_present ... AssertionError: False is not true : compare.log` |
+| `2026-11-16` `M04` | **同一个坑今晚第二次**：18:37 他记过「作废件日志被 `*.log` 吃掉，改名 `.log.txt` 才落得进 git」；那次是作废件，这次是快照副本 |
+
+**同一条规则被同一个人在同一天忘记两次，说明它不是记性问题，是缺少断言。**
+凡「盘上一份、账上一份」的东西，都要有一条问 git 的检查。
+
 ---
 
 ## 附：一条不写成规则的规则
