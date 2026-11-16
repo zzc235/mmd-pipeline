@@ -443,8 +443,8 @@ class FcurveWriteShapeTest(unittest.TestCase):
         with self.assertRaises(AA.FcurveShapeError):
             AA.ensure_fcurve(self._Fake(layers=[]), self._Fake(animation_data=None), "x")
 
-    def test_upstream_api_is_preferred_on_layered_action(self):
-        """上游接口存在就用，且 `how` 说得出来 —— `D-213` 的原话是「先确认能不能直接用」。"""
+    def test_upstream_api_is_preferred_when_action_is_assigned(self):
+        """上游接口存在、且**动作确实挂在这个 ID 上**时才用（`D-213` 的假设，真机已量）。"""
         seen = {}
 
         class Layered:
@@ -452,12 +452,37 @@ class FcurveWriteShapeTest(unittest.TestCase):
                 seen.update(block=block, path=path, index=index, group=group_name)
                 return "UPSTREAM_FC"
 
-        arm = self._Fake()
-        fc, how = AA.ensure_fcurve(Layered(), arm, 'pose.bones["センター"].location',
+        act = Layered()
+        arm = self._Fake(animation_data=self._Fake(action=act))
+        fc, how = AA.ensure_fcurve(act, arm, 'pose.bones["センター"].location',
                                    index=1, group="センター")
         self.assertEqual((fc, how), ("UPSTREAM_FC", "fcurve_ensure_for_datablock"))
         self.assertEqual(seen, {"block": arm, "path": 'pose.bones["センター"].location',
                                 "index": 1, "group": "センター"})
+
+    def test_upstream_not_called_when_action_is_not_assigned(self):
+        """前置条件不成立就别调：真机上它 `RuntimeError`，每次拼接都会背一条假故障。"""
+        called = []
+
+        class Layered:
+            def fcurve_ensure_for_datablock(self, *a, **kw):
+                called.append(1)
+                raise RuntimeError("动作没有挂到 data-block 上")
+
+        bag = self._Fake(fcurves=self._Coll())
+        act = Layered()
+        act.layers = self._layered([bag]).layers
+        arm = self._Fake(animation_data=self._Fake(action=None))
+        _fc, how = AA.ensure_fcurve(act, arm, 'pose.bones["B"].location', index=0)
+        self.assertEqual(called, [])
+        self.assertEqual(how, "channelbags[0](new); upstream_skipped:action_not_assigned")
+
+    def test_upstream_skipped_without_datablock(self):
+        bag = self._Fake(fcurves=self._Coll())
+        act = self._layered([bag])
+        act.fcurve_ensure_for_datablock = lambda *a, **kw: "SHOULD_NOT_BE_USED"
+        _fc, how = AA.ensure_fcurve(act, None, 'pose.bones["B"].location', index=0)
+        self.assertEqual(how, "channelbags[0](new); upstream_skipped:no_datablock")
 
     def test_upstream_raising_falls_back_and_records_the_reason(self):
         class Layered:
@@ -466,12 +491,14 @@ class FcurveWriteShapeTest(unittest.TestCase):
             def fcurve_ensure_for_datablock(self, *a, **kw):
                 raise RuntimeError("signature is not what you guessed")
 
+        act = Layered()
         with self.assertRaises(AA.FcurveShapeError):
             # 上游抛了、手里又没有 channelbag ⇒ 结果仍是红，但红的地方能看出上游试过
-            AA.ensure_fcurve(Layered(), self._Fake(), "x")
+            AA.ensure_fcurve(act, self._Fake(animation_data=self._Fake(action=act)), "x")
 
     def test_upstream_raising_but_bag_usable_reports_it(self):
         bag = self._Fake(fcurves=self._Coll())
+        holder = {}
 
         class Layered:
             def __init__(self):
@@ -482,7 +509,8 @@ class FcurveWriteShapeTest(unittest.TestCase):
 
         act = Layered()
         act.layers = self._layered([bag]).layers
-        _fc, how = AA.ensure_fcurve(act, self._Fake(), 'pose.bones["B"].location', index=0)
+        holder["arm"] = self._Fake(animation_data=self._Fake(action=act))
+        _fc, how = AA.ensure_fcurve(act, holder["arm"], 'pose.bones["B"].location', index=0)
         self.assertEqual(how, "channelbags[0](new); upstream_raised:TypeError")
 
 

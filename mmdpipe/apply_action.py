@@ -376,10 +376,20 @@ def fcurve_container(action, datablock=None):
 def ensure_fcurve(action, datablock, path, index=0, group=""):
     """拿到（必要时新建）某条曲线，返回 `(fcurve, how)`。
 
-    分层动作上写曲线，Blender 4.4+ 有一个上游接口 `Action.fcurve_ensure_for_datablock`
-    —— **它是待验假设，不是事实**（`D-213` 派工原话：先确认能不能直接用，量不到再手搓）。
-    所以这里的顺序是：老形状 → 上游接口（有且不抛就用，并记下来）→ 自己走 channelbag。
-    `how` 里会写清走了哪条、上游若抛过也带上异常类名，不藏。
+    分层动作上写曲线，Blender 5.2 有上游接口 `Action.fcurve_ensure_for_datablock`。
+    **它不是假设了，是量过的**（2026-11-16 只读探针，臂件 `C@W1.blend`，文件 sha 不变）：
+
+        exists_on_class    = false      ← `hasattr(bpy.types.Action, ...)` 会说不存在
+        exists_on_instance = true       ← 所以只能 `getattr(action, ...)`
+        __doc__            = "Action.fcurve_ensure_for_datablock(datablock, data_path,
+                              index=0, group_name=\"\") ... This action must already be
+                              assigned to the data-block. ..."
+        真调（对一份没挂到 ID 上的 `action.copy()`）= RuntimeError
+
+    所以顺序是：老形状 → 上游接口（**前置条件成立**才用）→ 自己走 channelbag。
+    前置条件不成立时不调用、只记 `upstream_skipped:<原因>` —— 拿异常当流程控制会让
+    每次正常拼接都背一条假故障，读记录的人分不清「真出事」和「本来就走这条」。
+    `how` 里会写清走了哪条，不藏。
     """
     try:
         legacy = action.fcurves
@@ -392,14 +402,24 @@ def ensure_fcurve(action, datablock, path, index=0, group=""):
         return fc, "action.fcurves"
     upstream = getattr(action, "fcurve_ensure_for_datablock", None)
     note = ""
+    # 上游接口有**前置条件**（2026-11-16 真机量到，见 M05 报告 §十三）：
+    # 文档原话 "This action must already be assigned to the data-block"，
+    # 拿一份没挂到 ID 上的动作（NLA 条带上的动作就是这种）去调直接 RuntimeError。
+    # 所以先判前置条件，别靠异常当流程控制 —— 那条路每次都会在记录里留一条假故障。
+    assigned = datablock is not None and \
+        getattr(getattr(datablock, "animation_data", None), "action", None) is action
     if callable(upstream):
-        try:
-            fc = upstream(datablock, path, index=index, group_name=group)
-            if fc is not None:
-                return fc, "fcurve_ensure_for_datablock"
-            note = "; upstream_returned_None"
-        except Exception as exc:            # noqa: BLE001 —— 签名/语义都待验，抛了就退下一条
-            note = "; upstream_raised:" + type(exc).__name__
+        if not assigned:
+            note = "; upstream_skipped:" + (
+                "no_datablock" if datablock is None else "action_not_assigned")
+        else:
+            try:
+                fc = upstream(datablock, path, index=index, group_name=group)
+                if fc is not None:
+                    return fc, "fcurve_ensure_for_datablock"
+                note = "; upstream_returned_None"
+            except Exception as exc:        # noqa: BLE001 —— 前置条件之外还会因为别的抛，抛了就退
+                note = "; upstream_raised:" + type(exc).__name__
     cont, how = fcurve_container(action, datablock)
     fc = cont.find(path, index=index)
     if fc is None:

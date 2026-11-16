@@ -273,9 +273,9 @@ Blender 刚体解算的步长 `dt = 1/fps` ⇒ 改 fps 就是改物理。而 M04
 `_shift_b_action` 现在返回 `(改写到几个键, 曲线从哪条路拿到的)`，`concat_via_nla` 的
 `align.fcurves_via` 与 `fcurves_via`（烘焙后那条读回）都落进报告。
 
-### 离屏 11 条 + 反向控制
+### 离屏 15 条 + 反向控制
 
-`tests/test_apply_action.py::FcurveWriteShapeTest` 8 条（老形状 find/new、分层单 bag、
+`tests/test_apply_action.py::FcurveWriteShapeTest` 9 条（老形状 find/new、分层单 bag、
 槽位优先于位置、两个 bag 不猜就红、连容器都没有也红、上游被用上、上游抛了退回去且留痕）；
 `tests/test_chain_nla_fcurves.py` 6 条（真的调 `_shift_b_action`：老形状建三条曲线两个键、
 分层动作位移既有键、槽位选对 bag、两个 bag 拒写且**一个字节都没写进去**、
@@ -287,11 +287,42 @@ Blender 刚体解算的步长 `dt = 1/fps` ⇒ 改 fps 就是改物理。而 M04
 
 全量 **690 tests × 默认/utf-8/gbk 三环境 OK（skipped 1）**，`status --check` OK。
 
+### 上游接口：`D-213` 那条「待验假设」现在有实测了
+
+派工原话是「先确认 5.2 的 `Action.fcurve_ensure_for_datablock()` 能不能直接用；我说的这句是
+待验假设，不是事实」。只读探针（`out/subai/M05/probe_fcurve_write_shape.py`，打开臂件
+`C@W1.blend`、在 `action.copy()` 上试、不存盘，前后 sha `79862401…` 同值）量到：
+
+| 项 | 读数 |
+|---|---|
+| `hasattr(bpy.types.Action, 'fcurve_ensure_for_datablock')` | **false** |
+| `getattr(action, 'fcurve_ensure_for_datablock')` | **true** |
+| `__doc__` 里的签名 | `(datablock, data_path, index=0, group_name="")` |
+| `__doc__` 里的前置条件 | "**This action must already be assigned to the data-block**"（并会顺手建 layer/strip/slot 再赋槽位） |
+| 对一份没挂到 ID 上的 `action.copy()` 真调 | `RuntimeError` |
+| 臂件本体 sha（前后） | `79862401ed1f…` 同值，`blend_untouched=true` |
+
+三件事因此定下来：
+
+1. **只能从动作实例上拿这个函数** —— 类上没有。`hasattr(bpy.types.Action, ...)` 会回答
+   「不存在」，跟今天那几个「按名字数东西，名字错了给 0」是同一族：**看不见不等于没有**。
+2. 签名和我猜的一致（`(datablock, data_path, index=, group_name=)`），不是「碰巧能跑」。
+3. **它有前置条件**，而 `chain_nla` 要写的那条曲线恰恰挂在 NLA 条带上、不挂在
+   `animation_data.action` 上 ⇒ 真机上调它必 `RuntimeError`。所以代码改成**先判前置条件**
+   （`datablock.animation_data.action is action` 才调），不成立就记
+   `upstream_skipped:action_not_assigned` 走 channelbag —— 拿异常当流程控制会让每一次正常
+   拼接都在记录里背一条假故障，读的人分不清「真出事」和「本来就走这条」。
+
+同一次探针还量到一处**很容易被误判的命名差**：`arm.animation_data.action_slot` 的标识是
+`OBB_aligned_bone`，而那个 channelbag 自己槽位的标识是 `B_aligned_bone` —— **是同一个槽位的
+两种叫法**（一个带 ID 前缀、一个是动作名）。代码里按**对象身份**比对（`bag.slot is slot`），
+若按名字比，会得出「对不上」然后拒写，而实际上唯一候选就摆在那里。
+
 ### 没验的（写在这里，别去别处找）
 
-1. **`Action.fcurve_ensure_for_datablock()` 在 Blender 5.2 里到底存不存在、签名是不是
-   `(datablock, path, index=, group_name=)`——没验**。上面那条是「有就用」，不是「它就是这么写」。
-   真机窗口里量一次，量法见 `out/subai/M05/probe_fcurve_write_shape.py`（只读打开臂件、
-   在 `action.copy()` 上试，前后 sha 比对，不存盘）。
+1. **上游接口成功那条路没走过**：它要求动作已挂到 data-block 上，`chain_nla` 的场景里不成立，
+   所以真机只验到了「`RuntimeError` → 退 channelbag → `find` 到既有曲线」。
 2. **真的拿一份存过盘的件重跑 NLA 拼接，仍然没跑过**。离屏证明的是「形状能过」，
    不是「拼出来的动作对」——对齐量、烘焙窗口、导出这些还得窗口里跑。
+3. 探针没量「多 bag 多槽位」的真实件：手上五份臂件都只有一个 channelbag，
+   所以 `FcurveShapeError` 那条拒写分支只有哑对象验过，**真件没验**。
