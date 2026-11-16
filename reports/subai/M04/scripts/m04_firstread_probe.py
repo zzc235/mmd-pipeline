@@ -50,6 +50,12 @@ from mmdpipe import clearance as C  # noqa: E402
 
 EPS = 1e-12
 
+# Blender 侧探针自己的语义码从 10 起（`4号` 20:08 实测 + 建议）：
+# `coordination.lock` 用 2/3/4/5（用法/冲突/不可判定/guard 丢锁），guard 又透传命令 rc；
+# 若探针也用 3 报「自检没过」，一次读数就分不出「脚本拒绝」和「锁被别人占着」。
+# `--python-exit-code 3` 仍是意外异常的兜底。
+EXIT_NOT_MEASURED = 10
+
 
 def _args():
     ap = argparse.ArgumentParser()
@@ -110,7 +116,7 @@ def main():
         json.dump({"status": "NOT_MEASURED", "reason": "胶囊口径自检未过", "selftest": chk},
                   open(a.out, "w", encoding="utf-8", newline="\n"),
                   ensure_ascii=False, indent=2)
-        sys.exit(3)
+        sys.exit(EXIT_NOT_MEASURED)
 
     # 这一次 `open_mainfile` 之后的第一帧求值就是被质疑的那一次，中途不许再开件。
     bpy.ops.wm.open_mainfile(filepath=a.blend)

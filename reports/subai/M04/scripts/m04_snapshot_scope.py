@@ -20,6 +20,10 @@ from __future__ import annotations
 import io
 import json
 import os
+import sys as _sys
+
+_sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import m04_paths as _paths  # noqa: E402
 
 STATE_OK = "OK"
 STATE_MISMATCH = "MISMATCH"
@@ -141,7 +145,7 @@ def main(argv=None):
     scope = load_json(os.path.join(args.dir, "manifest_scope.json"))
     manifest = load_json(os.path.join(args.dir, "manifest.json"))
     out = resolve_scope(scope, manifest)
-    repo_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(here))))
+    repo_root = _paths.find_repo_root(here)
     rel_snap = os.path.relpath(args.dir, repo_root).replace("\\", "/")
     copies = check_copies(scope, args.dir, rel_snap=rel_snap)
     print(json.dumps({"manifest": out, "copies": copies},
