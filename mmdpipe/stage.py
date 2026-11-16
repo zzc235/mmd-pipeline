@@ -13,6 +13,7 @@ import bpy
 from mathutils import Vector
 
 from . import preset as preset_mod
+from . import mask as mask_mod
 from .report import BLOCK, INFO, WARN, StageResult
 
 # HSR 插件暴露的场景级光照/着色滑杆（卡通渲染路线，替代通用三点光）
@@ -242,6 +243,138 @@ def rigid_bodies():
     return [o for o in bpy.data.objects if getattr(o, "mmd_type", None) == "RIGID_BODY"]
 
 
+# ---------------------------------------------------------------- 碰撞掩码（PMX collision_group_mask）
+#
+# 逻辑在 `mmdpipe/mask.py`（纯 Python，不 import bpy，可单测）。这里只做两件 bpy 侧的事：
+# 把场景喂给它、把结果折进 metrics 与 S8 判据。动机与实测数字见 mask.py 的模块说明：
+# 掩码 145/145 个都写了、声明 4535 对不该碰、其中 2924 对是单向的（不能写成集合位），
+# 而 mmd_tools 只给"距离够近"的对建 disable_collisions 约束。
+NCC_TYPE = "NON_COLLISION_CONSTRAINT"
+
+
+def mask_report(rigids=None, objects=None) -> dict:
+    """逐刚体回读 + 汇总（bpy 侧薄封装，逻辑在 `mmdpipe/mask.py`）。"""
+    bodies = rigid_bodies() if rigids is None else rigids
+    pool = bpy.data.objects if objects is None else objects
+    return mask_mod.mask_report(bodies, pool)
+
+
+def _new_constraint_object(name: str):
+    """造一个只承担 DISABLE_COLLISIONS 的空物体（mmd_tools 的 ncc 同形状）。"""
+    obj = bpy.data.objects.new(name, None)
+    scene = bpy.context.scene
+    scene.collection.objects.link(obj)
+    obj.mmd_type = mask_mod.NCC_MMD_TYPE
+    obj.hide_render = True
+    bpy.ops.object.select_all(action="DESELECT")
+    obj.select_set(True)
+    bpy.context.view_layer.objects.active = obj
+    bpy.ops.rigidbody.constraint_add(type="GENERIC")
+    con = obj.rigid_body_constraint
+    con.disable_collisions = True
+    return obj
+
+
+def apply_collision_masks(scene=None, *, collection_index_of=None) -> dict:
+    """把 PMX 的组号与掩码接进 Blender（`coordination/mask_channel_spec.md` §1 的接口）。
+
+    做两件事，缺一不可：
+
+    1. **位**：`collision_collections = mask | (1 << own_group)`。加自己组那一位的理由与
+       可证性质见 `mmdpipe/mask.py` 的「位映射」一节（结论：PMX 该碰的每一对必然共享
+       某一位，「表达不了」= 0）。
+    2. **约束**：位是「共享即碰」的对称语义，于是会出现**假碰**（两个都「与第 5 组碰」
+       但彼此不该碰）。每一对这样的刚体补一条 `DISABLE_COLLISIONS` 约束，把它们分开。
+       **不许拿「交集近似」代替约束**——那会把该碰的成对静默停碰。
+
+    只读源数据（`mmd_rigid.collision_group/mask` 一个字节都不改），可重复调用：
+    第二次进来时已存在的约束会被认出，`constraints_added` 归 0。
+
+    `collection_index_of` 保留给将来换编码用；当前实现不用它（位号就是组号）。
+    """
+    bodies = rigid_bodies() if scene is None else [o for o in bpy.data.objects
+                                                   if getattr(o, "mmd_type", None) == "RIGID_BODY"]
+    plan = mask_mod.plans(bodies)
+    result = dict(plan)
+    result.pop("bits_of", None)
+    result.pop("constraints_needed", None)
+    result["encoding"] = mask_mod.ENCODING_NOTE
+    result["blender_semantics"] = dict(mask_mod.MEASURED_SEMANTICS)
+
+    if not bodies:
+        # `scanned==0` 同族：0 个刚体不是"通道接好了"，是"没东西可接"（spec §4.6）
+        result.update({"collections_set": 0, "collections_patterns": 0,
+                       "constraints_added": 0, "readback_mismatch": 0,
+                       "verdict": "EMPTY"})
+        return result
+
+    # 1) 写位
+    expected = plan["bits_of"]
+    set_count = 0
+    for obj in bodies:
+        wants = expected[obj.name]
+        flags = [bool(wants >> n & 1) for n in range(mask_mod.GROUP_COUNT)]
+        body = getattr(obj, "rigid_body", None)
+        if body is None:
+            result.setdefault("skipped", []).append(
+                {"name": obj.name, "reason": "没有 rigid_body（不是刚体对象）"})
+            continue
+        body.collision_collections = flags
+        set_count += 1
+
+    # 2) 回读（逐刚体，与源掩码一致）
+    mismatch = []
+    for obj in bodies:
+        body = getattr(obj, "rigid_body", None)
+        if body is None:
+            continue
+        got = 0
+        for n, bit in enumerate(body.collision_collections):
+            if bit:
+                got |= 1 << n
+        if got != expected[obj.name]:
+            mismatch.append(obj.name)
+    result["collections_set"] = set_count
+    result["collections_patterns"] = len({expected[o.name] for o in bodies})
+    result["readback_mismatch"] = len(mismatch)
+    result["readback_mismatch_names"] = mismatch[:5]
+
+    # 3) 补 DISABLE_COLLISIONS（幂等：已挡住的对不再建）
+    already = mask_mod.disabled_pairs(bpy.data.objects)
+    added = 0
+    for name_a, name_b in plan["constraints_needed"]:
+        pair = mask_mod.pair_key(name_a, name_b)
+        if pair in already:
+            continue
+        obj_a = bpy.data.objects.get(name_a)
+        obj_b = bpy.data.objects.get(name_b)
+        if obj_a is None or obj_b is None:
+            result.setdefault("skipped", []).append(
+                {"pair": [name_a, name_b], "reason": "取不到刚体对象"})
+            continue
+        ncc = _new_constraint_object("ncc_mask_%04d" % added)
+        ncc.rigid_body_constraint.object1 = obj_a
+        ncc.rigid_body_constraint.object2 = obj_b
+        ncc.rigid_body_constraint.disable_collisions = True
+        added += 1
+    result["constraints_added"] = added
+
+    result["verdict"] = "WIRED" if (set_count and added >= 0
+                                    and result["readback_mismatch"] == 0
+                                    and not plan["unexpressible"]) else "PARTIAL"
+    return result
+
+
+def stage_mask(root=None) -> dict:
+    """给外部实验用的最小接口（1号 的 S8 第三层直接调这个）。
+
+    返回 `mask_report()` 的完整结果（含 `rows` 逐刚体读回：PMX 的 `mask` 位图、
+    忽略的组、Bullet 侧 `collision_collections` 位）。**只读，不改场景。**
+    """
+    return mask_report()
+
+
+
 def constraint_histogram(arm) -> dict:
     hist = {}
     for pbone in arm.pose.bones:
@@ -314,7 +447,7 @@ def stage_import(preset, pmx_path: str):
 
 
 def stage_build(preset, root, arm):
-    """Model.build() + 刚体世界参数 + 裙摆阻尼。"""
+    """Model.build() + 刚体世界参数 + 裙摆阻尼 + 碰撞掩码读回。"""
     from bl_ext.user_default.mmd_tools.core import model as MModel
     from bl_ext.user_default.mmd_tools.core import rigid_body as MRigid
 
@@ -322,8 +455,18 @@ def stage_build(preset, root, arm):
     t0 = _now()
     cfg = preset["physics"]
 
+    # 掩码通道：`buildRigids()` 只给"距离够近"的被排除对建 disable_collisions 约束，
+    # 这个比例决定多近才算够近。1.5 是 mmd_tools 上游默认；预设调大 → 覆盖更多对，
+    # 代价是场景里约束对象变多、建场变慢。**读回的数（mask.coverage）才是判据**，
+    # 不是"我把参数调大了"。
+    scale = cfg.get("non_collision_distance_scale", 1.5)
     try:
-        MModel.Model(root).build()
+        MModel.Model(root).build(non_collision_distance_scale=float(scale))
+    except ValueError as exc:
+        res.add("S8", BLOCK, "non_collision_distance_scale 不是数字：%r（%s）" % (scale, exc),
+                "建议给 1.5（上游默认）或更大")
+        res.elapsed = _now() - t0
+        return res
     except Exception as exc:
         res.add("E-05", BLOCK, "Model.build() 失败：%s" % exc)
         res.elapsed = _now() - t0
@@ -354,6 +497,11 @@ def stage_build(preset, root, arm):
     hist = constraint_histogram(arm)
     chained = hist.get("COPY_ROTATION", 0) + hist.get("COPY_TRANSFORMS", 0)
     rigids = len(rigid_bodies())
+    mask = mask_report()
+    wired = None
+    if cfg.get("apply_collision_masks", True):
+        wired = apply_collision_masks()
+        mask = mask_report()               # 打完之后重新读回，报的是**实际生效**的数
 
     res.metrics.update({
         "is_built": bool(root.mmd_root.is_built),
@@ -363,6 +511,12 @@ def stage_build(preset, root, arm):
         "chain_ratio": round(chained / rigids, 3) if rigids else 0.0,
         "substeps": rbw.substeps_per_frame,
         "solver_iterations": rbw.solver_iterations,
+        "mask": {k: v for k, v in mask.items() if k != "rows"},
+        "mask_scale": scale,
+        "mask_wired": None if wired is None else {
+            k: wired.get(k) for k in ("bodies", "collections_set", "collections_patterns",
+                                      "constraints_added", "readback_mismatch",
+                                      "unexpressible", "asymmetric_pairs", "verdict")},
     })
     if chained == 0:
         res.add("G2", BLOCK, "骨骼上没有 COPY_ROTATION/COPY_TRANSFORMS，衣摆不会动")
@@ -370,6 +524,26 @@ def stage_build(preset, root, arm):
         res.add("G2", WARN, "约束链覆盖率 %d/%d，低于 0.8" % (chained, rigids))
     if not rbw.enabled:
         res.add("G1", BLOCK, "刚体世界没开")
+
+    # S8 掩码判据（D0 2026-11-16：「交付场景的物理没按 MMD 的碰撞约定在跑」）。
+    # 只在**能判**的时候判：没声明任何排除 → 无从谈起（不是满分）。
+    if mask["declared_pairs"] and mask["blocked_pairs"] == 0:
+        res.add("S8", BLOCK,
+                "PMX 声明了 %d 对不该碰，场景里一对都没挡（disable_collisions 约束 0 条）"
+                % mask["declared_pairs"],
+                "non_collision_distance_scale=%.3g" % scale)
+    elif mask["declared_pairs"]:
+        want = float(cfg.get("mask_coverage_min") or 0.0)
+        if want > 0 and mask["coverage"] < want:
+            res.add("S8", WARN,
+                    "掩码覆盖 %d/%d 对（%.1f%%），低于预设下限 %.1f%%"
+                    % (mask["blocked_pairs"], mask["declared_pairs"],
+                       100.0 * mask["coverage"], 100.0 * want),
+                    "调大 non_collision_distance_scale（当前 %.3g）" % scale)
+    elif mask["rigids"]:
+        res.add("S8", INFO,
+                "掩码没有声明任何排除（%d 个刚体全为「与所有组碰」），覆盖无从谈起"
+                % mask["all_on_bodies"])
     res.elapsed = _now() - t0
     return res
 
