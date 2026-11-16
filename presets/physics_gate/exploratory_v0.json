@@ -1,0 +1,33 @@
+{
+  "profile_id": "exploratory_v0",
+  "threshold_version": "pg/0.1-exploratory",
+  "status": "exploratory",
+  "source": "M04 阶段 E：M01/M02 的实测尚未验收，本配置是探索性初值，不是生产门限。任何引用了它的结论都必须带 profile_status=exploratory。",
+  "gates": {
+    "overshoot": {
+      "p95_max_deg": 120.0,
+      "max_abs_floor_deg": 200.0,
+      "spike_count_max": 3,
+      "min_frames": 10,
+      "min_bones": 1,
+      "unit": "deg",
+      "source": "M04 任务书 §2 参考值（飞霄 sub3 峰值 93.3 / p95 72.8；sub10 峰值 638.0 / p95 242.0）只作单位与量级 sanity check，不是门限来源"
+    },
+    "frozen": {
+      "parent_delta_min_deg": 15.0,
+      "target_delta_max_deg": 1.0,
+      "min_consecutive_frames": 5,
+      "min_frames": 10,
+      "unit": "deg",
+      "source": "S3 实测：目标相对增量 0.00000°、父链 66.41°（M03 附录 A.4）。门限是探索性取值，等 M01 的 S3 修复后回归"
+    },
+    "penetration": {
+      "depth_epsilon_m": 0.02,
+      "min_frames": 1,
+      "min_bones": 1,
+      "unit": "m",
+      "sign_convention": "negative_depth_is_penetration",
+      "source": "M04 任务书 §2：S4 历史 f150 最深 -0.202 m。epsilon 0.02 m 是探索性初值（约 1.6% 身高），等 M02 的 S4 补丁后回归"
+    }
+  }
+}

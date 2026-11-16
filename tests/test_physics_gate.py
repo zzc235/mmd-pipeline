@@ -1,0 +1,247 @@
+"""M04 门禁：边界、缺数据、好/坏样本的合成测试。
+
+设计口径
+--------
+* 全部用合成 measurement，不依赖 Blender、不依赖 `reports/`。
+* 每个门禁正例/反例各一条，**缺数据必须 UNKNOWN、不能被别的 PASS 淹没**。
+* 阈值一律从 `presets/physics_gate/exploratory_v0.json` 读，测试里不另写一套数字
+  （写死两套数字，改配置时测试就会假装通过）。
+"""
+from __future__ import annotations
+
+import json
+import os
+import subprocess
+import sys
+import tempfile
+import unittest
+
+from mmdpipe import physics_gate as pg
+
+REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+PROFILE_PATH = os.path.join(REPO_ROOT, "presets", "physics_gate", "exploratory_v0.json")
+
+
+def profile():
+    return pg.load_profile(PROFILE_PATH)
+
+
+def measurement(**over):
+    """一条三类门禁全 PASS 的基线测量；over 里给哪段就整段替换。"""
+    base = {
+        "sample_id": "synthetic",
+        "evidence_mode": "stepped",
+        "frames": {"start": 1, "end": 60},
+        "dynamics": {"median": 37.2, "p95": 72.8, "max": 93.3,
+                     "spike_count": 0, "bones": 420},
+        "frozen": {"parent_delta_deg": 2.0, "target_delta_deg": 20.0,
+                   "consecutive_frames": 0},
+        "penetration": {"roi": "row11", "max_depth_m": 0.01, "frames": 5, "bones": 11},
+    }
+    base.update(over)
+    return base
+
+
+class TestAggregation(unittest.TestCase):
+    def test_all_pass(self):
+        report = pg.evaluate(measurement(), profile())
+        self.assertEqual(report["status"], pg.PASS)
+        self.assertEqual(report["failed_gates"], [])
+        self.assertEqual(report["unknown_gates"], [])
+
+    def test_unknown_is_not_masked_by_pass(self):
+        m = measurement()
+        del m["dynamics"]
+        report = pg.evaluate(m, profile())
+        self.assertEqual(report["status"], pg.UNKNOWN,
+                         "一个门禁缺数据不能因为别的门禁 PASS 就算合格")
+        self.assertEqual(report["unknown_gates"], ["overshoot"])
+
+    def test_fail_beats_unknown(self):
+        m = measurement(frozen={"parent_delta_deg": 66.41, "target_delta_deg": 0.0,
+                                "consecutive_frames": 60})
+        del m["penetration"]
+        report = pg.evaluate(m, profile())
+        self.assertEqual(report["status"], pg.FAIL)
+        self.assertEqual(report["failed_gates"], ["frozen"])
+
+    def test_exit_codes(self):
+        self.assertEqual(pg.exit_code_for(pg.PASS), 0)
+        self.assertEqual(pg.exit_code_for(pg.FAIL), 1)
+        self.assertEqual(pg.exit_code_for(pg.ERROR), 2)
+        self.assertEqual(pg.exit_code_for(pg.UNKNOWN), 3)
+
+    def test_deterministic(self):
+        m = measurement()
+        a = json.dumps(pg.evaluate(m, profile()), sort_keys=True, ensure_ascii=False)
+        b = json.dumps(pg.evaluate(m, profile()), sort_keys=True, ensure_ascii=False)
+        self.assertEqual(a, b)
+
+    def test_exploratory_profile_is_flagged(self):
+        report = pg.evaluate(measurement(), profile())
+        self.assertEqual(report["profile_status"], "exploratory")
+        self.assertTrue(any("探索性" in w for w in report["warnings"]),
+                        "探索性阈值必须在结果里明说，不能混成生产结论")
+
+
+class TestOvershoot(unittest.TestCase):
+    def test_fail_on_p95_and_peak(self):
+        m = measurement(dynamics={"median": 46.3, "p95": 242.0, "max": 638.0,
+                                  "spike_count": 0, "bones": 420})
+        report = pg.evaluate(m, profile())
+        self.assertEqual(report["gate_results"]["overshoot"]["status"], pg.FAIL)
+
+    def test_p95_boundary_equals_passes(self):
+        p95_max = profile()["gates"]["overshoot"]["p95_max_deg"]
+        m = measurement(dynamics={"median": 10.0, "p95": p95_max, "max": 260.0,
+                                  "spike_count": 0, "bones": 420})
+        self.assertEqual(pg.evaluate(m, profile())["gate_results"]["overshoot"]["status"],
+                         pg.PASS, "等于阈值不算超过")
+
+    def test_fail_on_spike_count(self):
+        m = measurement(dynamics={"median": 46.3, "p95": 72.8, "max": 150.0,
+                                  "spike_count": 17, "bones": 420})
+        self.assertEqual(pg.evaluate(m, profile())["gate_results"]["overshoot"]["status"],
+                         pg.FAIL)
+
+    def test_quiet_action_with_zero_median(self):
+        # median=0 时不能用「相对基线」放大倍数，否则安静动作会被判成过冲
+        m = measurement(dynamics={"median": 0.0, "p95": 5.0, "max": 8.0,
+                                  "spike_count": 0, "bones": 300})
+        self.assertEqual(pg.evaluate(m, profile())["gate_results"]["overshoot"]["status"],
+                         pg.PASS)
+
+    def test_insufficient_frames(self):
+        m = measurement(frames={"start": 1, "end": 5})
+        self.assertEqual(pg.evaluate(m, profile())["gate_results"]["overshoot"]["status"],
+                         pg.UNKNOWN)
+
+    def test_missing_field_unknown(self):
+        m = measurement(dynamics={"median": 10.0, "p95": 20.0, "max": 30.0,
+                                  "bones": 400})
+        out = pg.evaluate(m, profile())["gate_results"]["overshoot"]
+        self.assertEqual(out["status"], pg.UNKNOWN)
+        self.assertIn("dynamics.spike_count", out["missing"])
+
+
+class TestFrozen(unittest.TestCase):
+    def test_fail_when_parent_moves_and_target_is_frozen(self):
+        m = measurement(frozen={"parent_delta_deg": 66.41, "target_delta_deg": 0.0,
+                                "consecutive_frames": 60})
+        self.assertEqual(pg.evaluate(m, profile())["gate_results"]["frozen"]["status"],
+                         pg.FAIL)
+
+    def test_static_action_is_not_frozen(self):
+        m = measurement(frozen={"parent_delta_deg": 2.0, "target_delta_deg": 0.0,
+                                "consecutive_frames": 60})
+        self.assertEqual(pg.evaluate(m, profile())["gate_results"]["frozen"]["status"],
+                         pg.PASS, "父链本来就没动，不能算冻结")
+
+    def test_single_frame_zero_is_not_frozen(self):
+        m = measurement(frozen={"parent_delta_deg": 60.0, "target_delta_deg": 0.0,
+                                "consecutive_frames": 1})
+        self.assertEqual(pg.evaluate(m, profile())["gate_results"]["frozen"]["status"],
+                         pg.PASS)
+
+    def test_target_moved_is_not_frozen(self):
+        m = measurement(frozen={"parent_delta_deg": 60.0, "target_delta_deg": 30.0,
+                                "consecutive_frames": 60})
+        self.assertEqual(pg.evaluate(m, profile())["gate_results"]["frozen"]["status"],
+                         pg.PASS)
+
+
+class TestPenetration(unittest.TestCase):
+    def test_fail_on_history_depth(self):
+        m = measurement(penetration={"roi": "row11", "max_depth_m": -0.202,
+                                     "frames": 31, "bones": 11})
+        self.assertEqual(pg.evaluate(m, profile())["gate_results"]["penetration"]["status"],
+                         pg.FAIL)
+
+    def test_epsilon_boundary(self):
+        eps = profile()["gates"]["penetration"]["depth_epsilon_m"]
+        at = measurement(penetration={"roi": "r", "max_depth_m": -eps,
+                                      "frames": 3, "bones": 5})
+        inside = measurement(penetration={"roi": "r", "max_depth_m": -eps + 0.001,
+                                          "frames": 3, "bones": 5})
+        self.assertEqual(pg.evaluate(at, profile())["gate_results"]["penetration"]["status"],
+                         pg.FAIL)
+        self.assertEqual(pg.evaluate(inside, profile())["gate_results"]["penetration"]["status"],
+                         pg.PASS)
+
+    def test_missing_roi_is_unknown(self):
+        m = measurement(penetration={"max_depth_m": -0.3, "frames": 9, "bones": 4})
+        out = pg.evaluate(m, profile())["gate_results"]["penetration"]
+        self.assertEqual(out["status"], pg.UNKNOWN)
+        self.assertIn("penetration.roi", out["missing"])
+
+    def test_absent_section_is_unknown(self):
+        m = measurement()
+        del m["penetration"]
+        self.assertEqual(pg.evaluate(m, profile())["status"], pg.UNKNOWN)
+
+
+class TestErrors(unittest.TestCase):
+    def test_bad_type_raises(self):
+        m = measurement(dynamics={"median": 1.0, "p95": 2.0, "max": "很大",
+                                  "spike_count": 0, "bones": 10})
+        with self.assertRaises(pg.GateInputError):
+            pg.evaluate(m, profile())
+
+    def test_bool_is_rejected(self):
+        m = measurement(dynamics={"median": 1.0, "p95": 2.0, "max": True,
+                                  "spike_count": 0, "bones": 10})
+        with self.assertRaises(pg.GateInputError):
+            pg.evaluate(m, profile())
+
+    def test_nan_is_rejected(self):
+        m = measurement(penetration={"roi": "r", "max_depth_m": float("nan"),
+                                     "frames": 1, "bones": 1})
+        with self.assertRaises(pg.GateInputError):
+            pg.evaluate(m, profile())
+
+    def test_profile_without_version(self):
+        bad = json.loads(json.dumps(profile()))
+        del bad["threshold_version"]
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "bad.json")
+            with open(path, "w", encoding="utf-8") as fh:
+                json.dump(bad, fh)
+            with self.assertRaises(pg.GateInputError):
+                pg.load_profile(path)
+
+
+class TestCli(unittest.TestCase):
+    def test_chinese_and_space_paths(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            folder = os.path.join(tmp, "门禁 输出")
+            os.makedirs(folder)
+            meas = os.path.join(folder, "测量 1.json")
+            out = os.path.join(folder, "门禁 结果.json")
+            with open(meas, "w", encoding="utf-8") as fh:
+                json.dump(measurement(), fh, ensure_ascii=False)
+            proc = subprocess.run(
+                [sys.executable, "-m", "mmdpipe.physics_gate",
+                 "--measurement", meas, "--profile", PROFILE_PATH, "--out", out],
+                cwd=REPO_ROOT, capture_output=True, text=True, encoding="utf-8")
+            self.assertEqual(proc.returncode, pg.EXIT_PASS, proc.stderr)
+            with open(out, encoding="utf-8") as fh:
+                report = json.load(fh)
+            self.assertEqual(report["status"], pg.PASS)
+            self.assertEqual(report["threshold_version"],
+                             profile()["threshold_version"])
+
+    def test_exit_code_fail(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            meas = os.path.join(tmp, "m.json")
+            with open(meas, "w", encoding="utf-8") as fh:
+                json.dump(measurement(penetration={"roi": "r", "max_depth_m": -0.5,
+                                                   "frames": 3, "bones": 9}), fh)
+            proc = subprocess.run(
+                [sys.executable, "-m", "mmdpipe.physics_gate",
+                 "--measurement", meas, "--profile", PROFILE_PATH],
+                cwd=REPO_ROOT, capture_output=True, text=True, encoding="utf-8")
+            self.assertEqual(proc.returncode, pg.EXIT_FAIL, proc.stderr)
+
+
+if __name__ == "__main__":
+    unittest.main(verbosity=2)
