@@ -8,10 +8,10 @@
   },
   "tasks": {
     "M00": {
-      "status": "PARTIAL",
-      "reason": "调度层主要件已齐（覆盖闸门三点式、证据哈希 evidence/1 + hash_basis 枚举、coordination/lock.py fail-closed、status.py 视图）；但锁的 CLI 输出编码未钉，main 在默认环境下 6 个 error（test_lock），已判 RETURN_FIX",
-      "next": "A4：① lock.py main() 钉 UTF-8 输出 + 最坏环境（子进程 GBK）解码测试 + 护栏第三类判据 —— 阻塞 main 回绿 ② evidence/1 加可选 measurements ③ 再加可选 commit/scope ④ 护栏硬化：scanned/skipped 计数可见、git 不可用要判红而不是静默退回目录遍历、noqa 扫 lineno..end_lineno",
-      "updated": "2026-11-16T13:52+08:00"
+      "status": "PASS",
+      "reason": "调度层齐了：覆盖闸门三点式、证据哈希 evidence/1（hash_basis 枚举 + measurements + commit/scope + 不动点 + check 退出码 0/3/4/5）、coordination/lock.py fail-closed、status 视图待批项全量聚合、全仓 subprocess 解码护栏（scanned/skipped 可见）",
+      "next": "两件小尾巴随下一笔：tests[] 未知字段抛 WRONG_TESTS_FIELD（D-094）、不动点规则写进 evidence_hash_v1.md（D-096）",
+      "updated": "2026-11-16T14:03+08:00"
     },
     "M01": {
       "status": "PASS",
@@ -22,8 +22,8 @@
     "M02": {
       "status": "PARTIAL",
       "reason": "判据七态（旗标只筛选、结论靠行为探针）、P12 负 / P13 正、重建三数、P9 拒绝路径、掩码结构性未接线都已实测；交付契约定为 B（烘焙），冷跳逐位等于顺序重算",
-      "next": "A1：attempt 7/8 记录已作废，等内容能进 measurements 后合并成一笔重出（预演 ba3f4364… 仅供参考）；S8 第三层挂掩码通道之后；重建交付场景待产线侧",
-      "updated": "2026-11-16T13:52+08:00"
+      "next": "A1：等掩码通道（4号）后做 S8 第三层；D 变体数进下一笔；重建交付场景待产线侧",
+      "updated": "2026-11-16T14:03+08:00"
     },
     "M03": {
       "status": "PASS",
@@ -34,8 +34,8 @@
     "M04": {
       "status": "PARTIAL",
       "reason": "顺序求值改计划制（回退/冷跳在计划阶段拒）；胶囊口径改相对基线；网格口径 v2 在解析实体上自检通过（0.9933/0.9867/0.27 mm），真实网格 77.01% 不可计分、可计分区 0.9367/0.9067/−8.2 mm",
-      "next": "A2：等 measurements + commit/scope 落地后重出记录；网格数字必须四样同笔（可计分样本数/不可计分比例/合成实体三项读数/target_has_skirt_polys）；最终穿透数字等可重建的新交付物",
-      "updated": "2026-11-16T13:52+08:00"
+      "next": "A2：commit/scope 已落地，可重出记录（--predict 必须 8e7de708… → 落盘 → check exit 0）；网格数字四样同笔；最终穿透数字等可重建的新交付物",
+      "updated": "2026-11-16T14:03+08:00"
     },
     "M05": {
       "status": "PARTIAL",
