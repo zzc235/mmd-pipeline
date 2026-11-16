@@ -92,6 +92,19 @@ def main():
         "v3_script": V3,
         "v3_sha256": sha256_file(V3) if os.path.exists(V3) else None,
     }
+    # `--patch <path>`：重建时是一个具名步骤（v3 的 apply_input_patch），身份记录里必须留补丁 sha
+    if "--patch" in argv:
+        i = argv.index("--patch")
+        patch_path = argv[i + 1] if i + 1 < len(argv) else None
+        info = {"path": os.path.abspath(patch_path) if patch_path else None}
+        if patch_path and os.path.isfile(patch_path):
+            info["file_sha256"] = sha256_file(patch_path)
+            try:
+                with open(patch_path, encoding="utf-8-sig") as fh:
+                    info["patch_sha256"] = json.load(fh).get("patch_sha256")
+            except (OSError, ValueError):
+                info["patch_sha256"] = None
+        rec["input_patch"] = info
     try:
         import bpy  # noqa: F401  —— 只为了把 Blender 版本也记进去
         rec["blender"] = ".".join(str(v) for v in bpy.app.version)
