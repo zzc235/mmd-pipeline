@@ -56,11 +56,14 @@ python 'E:\code\mmdpipe-ai\A2\reports\subai\M04\scripts\m04_a0_table.py' `
 
 退出码：0 全对 / 1 有对不上的项 / 2 算不出（产物缺）。**2 不许当 1 读**（`D-155` 那类「验不了」被记成「验过了有问题」是另一个方向的错）。
 
-## 两处缺口（必须与表一起读，别单独引用 JSON 里的判词）
+## 两处缺口（缺口 1 已按 `D-179` 修好；缺口 2 是这张表存在的理由）
 
-1. **`a0_free_determinism.json` 里的 `tier=1 / word=UNMEASURED / verdict=仪器看不见碰撞状态 ⇒ 四组全部作废` 是错位的。**
-   那是把 A-vs-A0 的判官（`m04_a0_control.py:77-78`「逐位相同 ⇒ 档 1、仪器瞎」）**原样套在「确定性」这对上**：同一场景解两遍，相同正是要的结果，不是仪器瞎。⇒ 这份 JSON 里的**数**可用（240/240、Δ=0.0、重叠对数 41815/41815），**判词不许引用**；`四组全部作废` 这句的适用对象只有 A vs A0，而 A vs A0 实测是 tier=3。
-   修法很轻（给确定性问题单起一个判官，或让 `judge()` 收一个「相同是期望还是异常」的参数），属于我自己的脚本，**等你放行我再改**，不在本轮待命范围内自行改判据。
+1. **`a0_free_determinism.json` 里的 `tier=1 / word=UNMEASURED / verdict=仪器看不见碰撞状态 ⇒ 四组全部作废` 是错位的——已按 `D-20261116-179` 修好。**
+   原来是把 A-vs-A0 的判官（`m04_a0_control.py` 里「逐位相同 ⇒ 档 1、仪器瞎」）**原样套在「确定性」这对上**：同一场景解两遍，相同正是要的结果，不是仪器瞎。
+   - **判官加 `--question sensitivity|determinism`**：确定性输入 ⇒ `DETERMINISTIC`（**不套三档**：`tier=null`、`tier_applicable=false`，`direction_ok=null`）；两次解算不同 ⇒ `NOT_DETERMINISTIC`；**灵敏度分支一字未动**（档 1/2/3 的分界与判词原样）。
+   - **`a0_free_determinism.json` 已按新判官重写**：2 234 B，`sha256=ecc73e95c6ba9de14907cce7d583e6d7245067fa93664c42d3437d9a8b56f2cd`，`word=DETERMINISTIC`、`tier=null`、`verdict=同一场景两次独立解算逐位相同 ⇒ 解算确定（姿态可复现）`；文件里带 `superseded_reason`（「旧判词作废原因：判官套错对象，数据未变」）与旧件哈希。旧件**原样保留**为 `a0_free_determinism_v1_superseded.json`（1 443 B，`d195263c8d5f0c5cd79852929db93d35e09e1bc48bc1c009dcb3b481ab84ef2f`，`tier=1 / UNMEASURED / 仪器看不见`），不删不改——**数据未变，作废的是判词**。
+   - **回归护栏 8 条**：`tests/test_m04_a0_judge.py`（套件 541 → 549）。两条主测按裁决写死：确定性输入必须判 `DETERMINISTIC`、**不许**出 `UNMEASURED`；灵敏度输入逐位相同**才**判「仪器看不见」。另有三档分层未挪（档 1/2/3 各一条）、非法 `question` 抛 `ValueError`、CLI 落地 `question` 字段、`--supersedes` 记旧文件哈希。
+   - **`D-154` 没有被撤回**：A vs A0 实测 tier=3，四组是解禁状态；「四组全部作废」只属于那份错位文件的旧判词。
 2. **旧 `a0_free_perframe_compare.json` 只存了 `max_abs_delta_m`**，中位数只在 stdout。本表把它补进 `a0_v2_table.json`（含 P10–P90、均值、两条 `identical` 口径：「同一帧 max_depth 量化后相等」与「三元组全等」是两件事，sens 对上两个口径都给 1）。
 
 ## 这份表不能支撑什么

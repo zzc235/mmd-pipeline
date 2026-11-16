@@ -166,9 +166,9 @@
   },
   "judge_words_as_recorded": {
     "determ": {
-      "tier": 1,
-      "verdict": "仪器看不见碰撞状态 ⇒ 四组全部作废",
-      "word": "UNMEASURED"
+      "tier": null,
+      "verdict": "同一场景两次独立解算逐位相同 ⇒ 解算确定（姿态可复现）",
+      "word": "DETERMINISTIC"
     },
     "repro": {
       "tier": 3,
