@@ -1,0 +1,9 @@
+COMBO_CONSOLE_REGISTERED
+[capsule] addon enabled: bl_ext.user_default.mmd_tools
+[capsule] selftest {"known_gap": {"expected_clearance_m": 0.25, "reported_clearance_m": 0.25, "rel_err": 0.0, "pass": true}, "forced_overlap_5cm": {"expected_penetration_m": 0.05, "reported_penetration_m": 0.05, "rel_err": 0.0, "pass": true}, "capsule_axis": {"expected_penetration_m": 0.0, "reported_m": 0.0, "pass": true}, "tolerance": 0.05, "pass": true}
+00:00.860  blend            | Read blend: "E:\code\mmdpipe-ai\A1\out\subai\M08\rebuild_built.blend"
+[capsule] eval policy=sequential_from_frame_start warmup=0 visited=1
+[capsule] baseline computed at frame 1: 4860 pairs
+[capsule] baseline written: E:\dsh pr\woker2\out\subai\M04\penetration\baseline_delivery_v1.json  sha256=91e4650c960ac6ae7c383a0764689cdc117cae4252560aaa6f7850c80da6b566
+[capsule] done frames=1 deepest={'frame': 1, 'roi': '18_skirt_rigid', 'max_depth_m': -3.1e-05, 'bone': '下擺_0_0'}
+Blender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:37:04)

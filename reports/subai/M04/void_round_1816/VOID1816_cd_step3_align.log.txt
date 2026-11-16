@@ -1,0 +1,7 @@
+00:00.656  blend            | Read blend: "E:\code\mmdpipe-ai\A3\out\subai\M05\arms\C_W1.blend"
+COMBO_CONSOLE_REGISTERED
+[align] both=24 both_skirt=0 vgroup_only_skirt=166 rigid_bones=24
+[align] skirt both sample: []
+Blender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:37:04)
+
+Blender quit
