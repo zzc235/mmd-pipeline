@@ -258,7 +258,7 @@ def main():
         # 两个静止姿态必然一致 ⇒ `applied/not_outdated/probe_matched` 全绿，是今天最像成功的 fail-open。
         # 调用点改到 `m02_bake_delivery.py`：动作应用之后单独调 `stage.stage_bake`，
         # `frame_end` 用 `action.frame_range[1]` 的**回读值**，不是导入后的场景值。
-        res2 = stage.stage_build(preset, root, arm, bake=None)
+        res2 = stage.stage_build(preset, root, arm)
         report["scene"]["after_build"] = scene_snapshot()
         base = report["scene"]["after_import"]
         now = report["scene"]["after_build"]
