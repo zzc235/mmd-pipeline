@@ -570,6 +570,25 @@ class TestBakeFailureShapeTellsTheThreeApart(unittest.TestCase):
                          + ["reopen_measured", "cache_usable_after_reopen",
                             "replay_first_eval_after_open", "replay_matched_after_reopen"])
 
+    def test_ok_is_a_construction_the_engine_cannot_reach(self):
+        """结构哨兵：`ok` 要求「开件后第一次求值」**且**「等于顺序重算」，两者在非起始帧互斥。
+
+        * 暖探针（顺序重算后冷跳）⇒ `first_eval_after_open=false` ⇒ `replay_unmeasured`；
+        * 冷探针（开件后第一次求值就是它）⇒ 没有同会话暖参照，只能比另一会话的冷参照，
+          而 `D-223` 保证两者差 1.86–1.99 m ⇒ `replay_mismatch`。
+
+        所以 `ok` 在引擎里到不了；`2号` 19:49 的 `f1` 判别补了边界（姿态与解算状态无关的帧上两者相同）。
+        这条测试是那个待决点的哨兵：引擎或口径一变它就红，提醒回去重新裁，不许在实现里偷偷放宽。
+        """
+        warm = self._record(reopened=True, baked_after=True, outdated=False, first_eval=False)
+        self.assertEqual(self.stage.bake_failure_shape(warm), "replay_unmeasured")
+        cold_mismatch = self._record(reopened=True, baked_after=True, outdated=False,
+                                    first_eval=True, replay_matched=False)
+        self.assertEqual(self.stage.bake_failure_shape(cold_mismatch), "replay_mismatch")
+        # 仪器本身允许 ok（引擎做不到的那种组合），否则判据就成了「恒红」
+        instrument_ok = self._record(reopened=True, baked_after=True, outdated=False)
+        self.assertEqual(self.stage.bake_failure_shape(instrument_ok), "ok")
+
     def test_the_six_criteria_names_are_unchanged(self):
         """1号 在读 `bake_checks()["probe_informative"]`：老键的名字与语义不许动。"""
         checks = self.stage.bake_checks({})
