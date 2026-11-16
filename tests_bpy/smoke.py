@@ -2,10 +2,12 @@
 
     blender -b -P tests_bpy/smoke.py
 
-断言三件本轮真实撞过的事：
+断言的是本轮真实撞过的事：
   1. 扩展包内导入（绝对 `from mmdpipe import ...` 在 bl_ext 包内会失效）
   2. 参数层与面板同源
-  3. stage_camera 在"没有 --camera 预设"时也必须返回对象（抽函数带走返回路径的事故）
+  3. 插件启用闸门：`addon_utils.enable` 成功 ≠ 算子注册上了（「0 刚体」安静失败）
+  4. 差分预设缺段：直接下标要抛、`preset.section()` 要补齐
+  5. stage_camera 在"没有 --camera 预设"时也必须返回对象（抽函数带走返回路径的事故）
 """
 import sys
 import traceback
@@ -44,6 +46,62 @@ def t_parity():
            if not p.is_readonly and p.identifier not in ("rna_type", "name")}
     expect = {p.name for p in P.PARAMS}
     assert pub == expect, "面板与参数声明不一致：缺 %s 多 %s" % (expect - pub, pub - expect)
+
+
+def t_addon_gate():
+    """插件启用闸门：enable 成功 ≠ 算子注册上了。
+
+    2026-11-16 实测的缺陷：`addon_utils.enable("mmd_tools", …)` 不抛异常、返回成功，
+    但 `bpy.ops.mmd_tools.import_model` 根本没注册 ⇒ 环境检查报 True、
+    产物是一份「0 刚体」的安静失败场景。所以这里**喂应当被拒的输入**：
+    探针说没有算子的时候，`ensure_addons` 必须返回 False；`require_importer`
+    拿到没有算子的命名空间必须抛 RuntimeError。
+    """
+    stage = __import__(FULL + ".mmdpipe.stage", fromlist=["stage"])
+
+    # ① 探针说"算子不在" ⇒ 即使 addon_utils.enable 不抛，也必须报 False
+    assert stage.ensure_addons(("mmd_tools",), ready=lambda name: False) == {"mmd_tools": False}, \
+        "enable 成功但算子没注册时不能报 True"
+    # ② 根本不存在的插件 ⇒ False，不许抛
+    missing = stage.ensure_addons(("definitely_missing_addon",))
+    assert missing == {"definitely_missing_addon": False}, missing
+
+    # ③ 导入闸门：有算子放行，没算子必须抛
+    class _RegisteredOp:
+        @staticmethod
+        def get_rna_type():
+            return "MMD_TOOLS_OT_import_model"
+
+    class _HasImporter:
+        import_model = _RegisteredOp
+
+    stage.require_importer(_HasImporter())
+    try:
+        stage.require_importer(object())
+    except RuntimeError:
+        pass
+    else:
+        raise AssertionError("require_importer 放过了没有 import_model 的命名空间")
+
+    # ③b `hasattr` 不是判据：没注册时它照样是 True（实测），必须用 get_rna_type
+    class _LazyNamespace:
+        import_model = object()               # 属性在，但 get_rna_type 不存在
+
+    assert stage.operator_registered(_HasImporter(), "import_model") is True
+    assert stage.operator_registered(_LazyNamespace(), "import_model") is False, \
+        "只有属性没有 get_rna_type 时不能判为已注册"
+
+    # ④ 缺陷 2：差分预设缺 `import` 段，直接下标必须抛 KeyError，section() 必须补齐
+    preset_mod = __import__(FULL + ".mmdpipe.preset", fromlist=["preset"])
+    diff_only = {"look": {"cool": 1.0}}
+    assert "import" not in diff_only
+    assert "scale" in preset_mod.section(diff_only, "import")
+    try:
+        diff_only["import"]["scale"]      # noqa: B018  旧写法
+    except KeyError:
+        pass
+    else:
+        raise AssertionError("差分预设直接下标居然没抛 KeyError")
 
 
 def t_camera_no_preset():
@@ -124,6 +182,7 @@ print("SMOKE START")
 addon_utils.enable(FULL, default_set=True, persistent=True)
 check("包内导入", t_import)
 check("参数同源", t_parity)
+check("插件启用闸门", t_addon_gate)
 check("argv 生成", t_argv)
 check("四区分区", t_zones)
 check("面板与按钮注册", t_panel_and_ops)

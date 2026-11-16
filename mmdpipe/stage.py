@@ -12,6 +12,7 @@ import time
 import bpy
 from mathutils import Vector
 
+from . import preset as preset_mod
 from .report import BLOCK, INFO, WARN, StageResult
 
 # HSR 插件暴露的场景级光照/着色滑杆（卡通渲染路线，替代通用三点光）
@@ -122,16 +123,87 @@ def _now():
 
 # ---------------------------------------------------------------- 场景准备
 
-def ensure_addons(names=("mmd_tools", "jinfengling_hsr_addon")) -> dict:
+# 扩展的模块名可能带仓库前缀：Blender 4.2+ 从扩展目录装的是 `bl_ext.<repo>.<id>`，
+# 而老的 addons 目录里是裸名。2026-11-16 实测：本机 mmd_tools 装在扩展目录里且
+# **未启用**，`addon_utils.enable("mmd_tools", …)` 返回成功、`bpy.ops.mmd_tools`
+# 也**看起来**存在（命名空间是懒建的），但 `import_model` 根本没注册 ⇒
+# `ensure_addons()` 报 `{'mmd_tools': True}` 而 `stage_import` 静默产出「0 刚体」
+# 的场景。所以这里改成：先按候选名逐个试，**再断言算子真的在**，名字与断言都要。
+ADDON_CANDIDATES = {
+    "mmd_tools": ("bl_ext.user_default.mmd_tools", "mmd_tools"),
+    "jinfengling_hsr_addon": ("bl_ext.user_default.jinfengling_hsr_addon",
+                              "jinfengling_hsr_addon"),
+}
+# 每个插件必须真的注册上的算子（没写就不做算子级断言，退回"模块已启用"）
+ADDON_OPERATORS = {"mmd_tools": "import_model"}
+
+
+def operator_registered(namespace, op: str) -> bool:
+    """算子在不在：**不能用 `hasattr`**。
+
+    2026-11-16 实测（三种环境各一遍）：算子没注册时
+    `hasattr(bpy.ops.mmd_tools, "import_model")` 仍然是 **True**（命名空间是懒建的，
+    属性访问才在 `poll()`/调用时报 `could not be found`）。可靠的探针是
+    `getattr(ns, op).get_rna_type()`：注册上了返回 RNA，没注册抛 `KeyError`。
+    """
+    try:
+        getattr(namespace, op).get_rna_type()
+    except Exception:
+        return False
+    return True
+
+
+def addon_ready(name: str, operators: dict | None = None) -> bool:
+    """插件真的可用吗——`addon_utils.enable` 的返回值与 `hasattr` 都不可信。"""
+    ops = ADDON_OPERATORS if operators is None else operators
+    namespace = getattr(bpy.ops, name, None)
+    if namespace is None:
+        return False
+    op = ops.get(name)
+    if op is not None:
+        return operator_registered(namespace, op)
     import addon_utils
+    for module in ADDON_CANDIDATES.get(name, (name,)):
+        try:
+            if addon_utils.check(module)[1]:
+                return True
+        except Exception:
+            continue
+    return False
+
+
+def ensure_addons(names=("mmd_tools", "jinfengling_hsr_addon"), ready=None) -> dict:
+    """逐个启用插件，返回 {插件名: 是否真的可用}。
+
+    `ready` 可注入（默认读 bpy 算子），测试用它把「enable 成功但算子没注册」
+    这条缺陷钉住：即使 enable 不抛异常，`ready() == False` 也必须返回 False。
+    """
+    import addon_utils
+    probe = addon_ready if ready is None else ready
     status = {}
     for name in names:
-        try:
-            addon_utils.enable(name, default_set=True, persistent=True)
-            status[name] = True
-        except Exception:
-            status[name] = False
+        ok = bool(probe(name))
+        for module in ADDON_CANDIDATES.get(name, (name,)):
+            if ok:
+                break
+            try:
+                # default_set/persistent 都关：headless 跑流水线不该改用户偏好
+                addon_utils.enable(module, default_set=False, persistent=False)
+            except Exception:
+                continue
+            ok = bool(probe(name))
+        status[name] = ok
     return status
+
+
+def require_importer(namespace=None) -> None:
+    """导入前最后一道闸：算子不在就抛，绝不静默跑出一份空场景。"""
+    ns = bpy.ops.mmd_tools if namespace is None else namespace
+    if not operator_registered(ns, "import_model"):
+        raise RuntimeError(
+            "mmd_tools 的 import_model 算子没注册（插件装了但没启用，或名字不是 "
+            "bl_ext.user_default.mmd_tools）。先跑 stage.ensure_addons() 并确认返回 True。"
+        )
 
 
 def reset_scene() -> int:
@@ -183,7 +255,15 @@ def constraint_histogram(arm) -> dict:
 def stage_import(preset, pmx_path: str):
     res = StageResult("S2_import")
     t0 = _now()
-    cfg = preset["import"]
+    # 预设是差分文件：磁盘上可能没有 import 段，直接取会 KeyError（1号 实测）
+    cfg = preset_mod.section(preset, "import")
+
+    try:
+        require_importer()
+    except RuntimeError as exc:
+        res.add("E-16", BLOCK, "PMX 导入失败：%s" % exc)
+        res.elapsed = _now() - t0
+        return res, None, None, None
 
     before = len(bpy.data.objects)
     try:
@@ -359,7 +439,7 @@ def stage_motion(preset, root, arm, vmd_path: str, frame_end_hint: int):
     try:
         bpy.ops.mmd_tools.import_vmd(
             filepath=vmd_path,
-            scale=cfg["scale"] if "scale" in cfg else preset["import"]["scale"],
+            scale=cfg["scale"] if "scale" in cfg else preset_mod.section(preset, "import")["scale"],
             bone_mapper=cfg["bone_mapper"],
             rename_bones=cfg["rename_bones"],
             use_underscore=cfg["use_underscore"],
@@ -705,7 +785,7 @@ def stage_props(preset, arm):
         before = set(o.name for o in bpy.data.objects)
         try:
             bpy.ops.mmd_tools.import_model(
-                filepath=path, scale=preset["import"]["scale"],
+                filepath=path, scale=preset_mod.section(preset, "import")["scale"],
                 types={"MESH", "ARMATURE"}, clean_model=True,
                 rename_bones=True, log_level="ERROR")
         except Exception as exc:
