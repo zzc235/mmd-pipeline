@@ -1,0 +1,22 @@
+{
+  "evidence_check_exit": 0,
+  "coverage_check": "PASS",
+  "acceptance_result": "NOT_APPLICABLE",
+  "truth_tier": "T2",
+  "pose_source": "n/a",
+  "fresh_solve_confirmed": null,
+  "module_provenance": {
+    "m05_step": "E:\\code\\mmdpipe-ai\\A3\\mmdpipe\\apply_action.py"
+  },
+  "snapshot_paths": [
+    {
+      "path": "reports/subai/M05/apply_action.md",
+      "snapshot": "E:/dsh pr/woker2/out/subai/_evidence_store/a6a9dfebc11230d9/apply_action.md"
+    },
+    {
+      "path": "reports/subai/M05/arms/arms_summary.json",
+      "snapshot": "E:/dsh pr/woker2/out/subai/_evidence_store/4a0058d83bbf233c/arms_summary.json"
+    }
+  ],
+  "resource_lease_valid": null
+}

@@ -1,0 +1,171 @@
+{
+ "action": {
+  "action_users": 1,
+  "fcurves": 725,
+  "frame_range": [
+   1,
+   301
+  ],
+  "name": "B_aligned_bone",
+  "nla_tracks": 0
+ },
+ "applied": {
+  "end_before_ops_readback": 301,
+  "held_keys": 0,
+  "ops": [],
+  "stage_motion_action_end": 301,
+  "trimmed_keys": 0
+ },
+ "arm": "星穹铁道—飞霄（无外套）_arm",
+ "arm_role": "C@W1",
+ "cache": {
+  "bake_free": null,
+  "freed_bake": false,
+  "has_rigidbody_world": true,
+  "is_baked": false,
+  "is_outdated": true,
+  "point_cache_range": [
+   1,
+   301
+  ]
+ },
+ "checks": [
+  {
+   "detail": "ensure_addons={'mmd_tools': True}（`hasattr` 在没装上时也返回 True，只能信这个）",
+   "id": "A0_profile_ready",
+   "ok": true
+  },
+  {
+   "detail": "action='B_aligned_bone' fcurves=725（门槛 > 100）",
+   "id": "A1_action_applied",
+   "ok": true
+  },
+  {
+   "detail": "scene.frame_end=301，action.frame_range[1]=301，来源='readback:arm.animation_data.action.frame_range[1]'",
+   "id": "A2_frame_end_readback",
+   "ok": true
+  },
+  {
+   "detail": "rigidbody_world=True is_baked=False is_outdated=True freed_bake=False",
+   "id": "A3_is_baked_false",
+   "ok": true
+  },
+  {
+   "detail": "nla_tracks=0（单动作这一步不许留 NLA 轨道）",
+   "id": "A4_no_nla_stacking",
+   "ok": true
+  },
+  {
+   "detail": "scene.frame_end=301，plan.final_last=301",
+   "id": "A5_window_matches_plan",
+   "ok": true
+  },
+  {
+   "detail": "scene.fps_after=24，preset=24",
+   "id": "A6_fps_matches_preset",
+   "ok": true
+  }
+ ],
+ "cleared": {
+  "action": false,
+  "nla_tracks": 0,
+  "orphan_actions": 0
+ },
+ "in_blend": {
+  "bytes": 5923244,
+  "path": "E:\\code\\mmdpipe-ai\\A1\\out\\subai\\M08\\run_20261116_1805\\rebuild_built.blend",
+  "sha256": "ef8e31a9fa2d4ef48d7e1b3e684a2238091c4b3b6b253d012fab4abe9f7ef27e"
+ },
+ "notes": [],
+ "out_blend": {
+  "bytes": 5963498,
+  "path": "E:\\code\\mmdpipe-ai\\A3\\out\\subai\\M05\\arms\\C_W1.blend",
+  "sha256": "8a8d7daa8fb26dd09895ab3392688189724fe0fd9496c52f64c8a67960d940a6"
+ },
+ "plan": {
+  "applied_first": 1,
+  "applied_last": 301,
+  "final_first": 1,
+  "final_last": 301,
+  "frame_start": 1,
+  "import_offset": 1,
+  "notes": [
+   "源末帧 300 → 应用后 301，不截不补"
+  ],
+  "ops": [],
+  "source_last_frame": 300
+ },
+ "profile": {
+  "ensure_addons": {
+   "mmd_tools": true
+  },
+  "lock_before_save": {
+   "heartbeat_age": 0.07543444633483887,
+   "held": true,
+   "ident": "模块负责3|A3",
+   "raw": "模块负责3|A3|PID=27456|2026-11-16T18:29:43+08:00|M05 干净窗口独占重跑四臂（带锁三步证据）+ 两条反控（D-188 补证）"
+  },
+  "lock_end": {
+   "heartbeat_age": 0.5052189826965332,
+   "held": true,
+   "ident": "模块负责3|A3",
+   "raw": "模块负责3|A3|PID=27456|2026-11-16T18:29:43+08:00|M05 干净窗口独占重跑四臂（带锁三步证据）+ 两条反控（D-188 补证）"
+  },
+  "lock_start": {
+   "heartbeat_age": 8.084413290023804,
+   "held": true,
+   "ident": "模块负责3|A3",
+   "raw": "模块负责3|A3|PID=27456|2026-11-16T18:29:43+08:00|M05 干净窗口独占重跑四臂（带锁三步证据）+ 两条反控（D-188 补证）"
+  },
+  "lock_tail": {
+   "detail": "锁身份一致：'模块负责3|A3'（开局心跳 8.084413290023804s / 收尾心跳 0.5052189826965332s）",
+   "ok": true
+  },
+  "preset_fps": 24,
+  "update_scene_settings_forced_off": true
+ },
+ "scene": {
+  "fps_after": 24,
+  "fps_before": 24,
+  "fps_changed": false,
+  "name": "Scene"
+ },
+ "schema": "m05.apply_action/1",
+ "source": {
+  "bone_frames": 491,
+  "bones": 332,
+  "bytes": 57497,
+  "frame_range": [
+   0,
+   300
+  ],
+  "path": "E:\\dsh pr\\woker2\\out\\B_aligned.vmd",
+  "sha256": "5d391f1a01d2279aa9f769cf6cd20fc176b5aa2f542c2d5568608a69a02e762d"
+ },
+ "stage_motion": {
+  "issues": [
+   {
+    "code": "E-00",
+    "evidence": "301 帧 → 12.54 s（30fps 下 10.03 s）",
+    "hint": "VMD 基准 30fps，当前 24 fps 且不重采样：动作按 0.80 倍速播放",
+    "severity": "warn"
+   }
+  ],
+  "metrics": {
+   "action": "B_aligned_bone",
+   "fcurves": 725,
+   "frame_range": [
+    1,
+    301
+   ],
+   "point_cache_end": 301
+  },
+  "ok": true
+ },
+ "verdict": "READY",
+ "window": {
+  "frame_end": 301,
+  "frame_end_source": "readback:arm.animation_data.action.frame_range[1]",
+  "frame_start": 1
+ }
+}

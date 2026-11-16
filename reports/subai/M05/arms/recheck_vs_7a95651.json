@@ -1,0 +1,278 @@
+{
+ "arms": [
+  {
+   "arm": "C_W1",
+   "fields": {
+    "action.fcurves": {
+     "now": 725,
+     "prev": 725,
+     "same": true
+    },
+    "action.frame_range": {
+     "now": [
+      1,
+      301
+     ],
+     "prev": [
+      1,
+      301
+     ],
+     "same": true
+    },
+    "action.name": {
+     "now": "B_aligned_bone",
+     "prev": "B_aligned_bone",
+     "same": true
+    },
+    "cache.is_baked": {
+     "now": false,
+     "prev": false,
+     "same": true
+    },
+    "cache.is_outdated": {
+     "now": true,
+     "prev": true,
+     "same": true
+    },
+    "scene.fps_after": {
+     "now": 24,
+     "prev": 24,
+     "same": true
+    },
+    "window.frame_end": {
+     "now": 301,
+     "prev": 301,
+     "same": true
+    }
+   },
+   "fields_all_same": true,
+   "out_blend_same": false,
+   "out_blend_sha_now": "8a8d7daa8fb26dd09895ab3392688189724fe0fd9496c52f64c8a67960d940a6",
+   "out_blend_sha_prev": "251146e962de1716fb6ff4f3ce173348679fd9479c27f1792c605d1772192d80"
+  },
+  {
+   "arm": "C_W2",
+   "fields": {
+    "action.fcurves": {
+     "now": 725,
+     "prev": 725,
+     "same": true
+    },
+    "action.frame_range": {
+     "now": [
+      1,
+      832
+     ],
+     "prev": [
+      1,
+      832
+     ],
+     "same": true
+    },
+    "action.name": {
+     "now": "B_aligned_bone",
+     "prev": "B_aligned_bone",
+     "same": true
+    },
+    "cache.is_baked": {
+     "now": false,
+     "prev": false,
+     "same": true
+    },
+    "cache.is_outdated": {
+     "now": true,
+     "prev": true,
+     "same": true
+    },
+    "scene.fps_after": {
+     "now": 24,
+     "prev": 24,
+     "same": true
+    },
+    "window.frame_end": {
+     "now": 832,
+     "prev": 832,
+     "same": true
+    }
+   },
+   "fields_all_same": true,
+   "out_blend_same": true,
+   "out_blend_sha_now": "c02c982f9d3c70f25cabf0aaebea0cccd400ce55dcda609d04f841adcb0f9996",
+   "out_blend_sha_prev": "c02c982f9d3c70f25cabf0aaebea0cccd400ce55dcda609d04f841adcb0f9996"
+  },
+  {
+   "arm": "D",
+   "fields": {
+    "action.fcurves": {
+     "now": 700,
+     "prev": 700,
+     "same": true
+    },
+    "action.frame_range": {
+     "now": [
+      1,
+      833
+     ],
+     "prev": [
+      1,
+      833
+     ],
+     "same": true
+    },
+    "action.name": {
+     "now": "原神摇_merged_bone",
+     "prev": "原神摇_merged_bone",
+     "same": true
+    },
+    "cache.is_baked": {
+     "now": false,
+     "prev": false,
+     "same": true
+    },
+    "cache.is_outdated": {
+     "now": true,
+     "prev": true,
+     "same": true
+    },
+    "scene.fps_after": {
+     "now": 24,
+     "prev": 24,
+     "same": true
+    },
+    "window.frame_end": {
+     "now": 833,
+     "prev": 833,
+     "same": true
+    }
+   },
+   "fields_all_same": true,
+   "out_blend_same": false,
+   "out_blend_sha_now": "5eb83a80ad750da1bcf4f5323cb21c7c147907c8a606650087c006b00fbd2e68",
+   "out_blend_sha_prev": "be6c0a1c8875ea73677fcabba2cf12a3a9b2fee51258e85e2ebcb686a485998d"
+  },
+  {
+   "arm": "D_ctrl_447",
+   "fields": {
+    "action.fcurves": {
+     "now": 357,
+     "prev": 357,
+     "same": true
+    },
+    "action.frame_range": {
+     "now": [
+      1,
+      447
+     ],
+     "prev": [
+      1,
+      447
+     ],
+     "same": true
+    },
+    "action.name": {
+     "now": "原神摇_merged_bone",
+     "prev": "原神摇_merged_bone",
+     "same": true
+    },
+    "cache.is_baked": {
+     "now": false,
+     "prev": false,
+     "same": true
+    },
+    "cache.is_outdated": {
+     "now": true,
+     "prev": true,
+     "same": true
+    },
+    "scene.fps_after": {
+     "now": 24,
+     "prev": 24,
+     "same": true
+    },
+    "window.frame_end": {
+     "now": 447,
+     "prev": 447,
+     "same": true
+    }
+   },
+   "fields_all_same": true,
+   "out_blend_same": false,
+   "out_blend_sha_now": "fa39c9b0c1f030a306a0b619167eaba7302281a302f8cec1b5b672c64eb15a41",
+   "out_blend_sha_prev": "80a952a3d2bff71a6b269e2942da73780bb565b1382351e39b99086c52c16a35"
+  },
+  {
+   "arm": "C_W1_rerun",
+   "fields": {
+    "action.fcurves": {
+     "now": 725,
+     "prev": 725,
+     "same": true
+    },
+    "action.frame_range": {
+     "now": [
+      1,
+      301
+     ],
+     "prev": [
+      1,
+      301
+     ],
+     "same": true
+    },
+    "action.name": {
+     "now": "B_aligned_bone",
+     "prev": "B_aligned_bone",
+     "same": true
+    },
+    "cache.is_baked": {
+     "now": false,
+     "prev": false,
+     "same": true
+    },
+    "cache.is_outdated": {
+     "now": true,
+     "prev": true,
+     "same": true
+    },
+    "scene.fps_after": {
+     "now": 24,
+     "prev": 24,
+     "same": true
+    },
+    "window.frame_end": {
+     "now": 301,
+     "prev": 301,
+     "same": true
+    }
+   },
+   "fields_all_same": true,
+   "out_blend_same": true,
+   "out_blend_sha_now": "b46810b7c242f647547f1a45f17efc50a9f7b2225a5d5d8d55fdb2b4676957e7",
+   "out_blend_sha_prev": "b46810b7c242f647547f1a45f17efc50a9f7b2225a5d5d8d55fdb2b4676957e7"
+  }
+ ],
+ "now_condition": "干净窗口独占（18:29:43 取锁 → 18:30 释放），每个进程入口 assert-owner",
+ "prev_commit": "7a95651",
+ "prev_condition": "在 2号 持锁的 M04 窗口内跑（并发，违规已报）",
+ "reading": "回读字段逐字段相同 ⇒ 并发没有改变读数；`.blend` 字节复现性不稳定（5 臂里 2 臂逐字节相同、3 臂不同），所以幂等只能判在内容上，不能判在 sha 上。",
+ "schema": "m05.recheck/1",
+ "summary": {
+  "fields_all_same_arms": [
+   "C_W1",
+   "C_W2",
+   "D",
+   "D_ctrl_447",
+   "C_W1_rerun"
+  ],
+  "fields_differed_arms": [],
+  "out_blend_differed": [
+   "C_W1",
+   "D",
+   "D_ctrl_447"
+  ],
+  "out_blend_same": [
+   "C_W2",
+   "C_W1_rerun"
+  ]
+ }
+}
