@@ -1,50 +1,47 @@
 {
- "branch": "ai/a1",
- "commit_at_freeze": "bbcc9ba",
- "freeze_order": "freeze files -> write manifest -> freeze manifest（照 m04_run_cd.freeze_tree：只冻结件不冻结账，manifest 仍可被同路径重跑改掉）",
+ "assertions": {
+  "bidirectional_ok": true,
+  "listed_count": 4,
+  "on_disk_count": 4,
+  "only_in_manifest": [],
+  "only_on_disk": []
+ },
+ "commit_at_freeze": "eb6e82e",
+ "freeze_order": "freeze 文件 → 枚举 frozen/ 写 manifest → freeze manifest",
  "frozen_at_run": "run_20261116_1847",
  "items": [
   {
    "bytes": 6102478,
-   "frozen_path": "out/subai/M08/frozen/delivery_324_ffaa6780.blend",
+   "frozen_path": "E:\\code\\mmdpipe-ai\\A1\\out\\subai\\M08\\frozen\\delivery_324_ffaa6780.blend",
    "readonly": true,
    "role": "delivery_324_ffaa6780.blend",
-   "sha256": "ffaa6780a2f7e765512201403a21e34848837b5f1c7486e91a70442762857761",
-   "source": "out/subai/M08/run_20261116_1847/rebuild_built.blend"
-  },
-  {
-   "bytes": 11101,
-   "frozen_path": "out/subai/M08/frozen/rebuild_report_ffaa6780.json",
-   "readonly": true,
-   "role": "rebuild_report_ffaa6780.json",
-   "sha256": "5536fc84e900dfc2550eb6b9b493b6ce241979ae07452f96cfb49145416eb641",
-   "source": "out/subai/M08/run_20261116_1847/rebuild_report.json"
+   "sha256": "ffaa6780a2f7e765512201403a21e34848837b5f1c7486e91a70442762857761"
   },
   {
    "bytes": 33680,
-   "frozen_path": "out/subai/M08/frozen/extra_bodies_patch_60d8c64e.json",
+   "frozen_path": "E:\\code\\mmdpipe-ai\\A1\\out\\subai\\M08\\frozen\\extra_bodies_patch_60d8c64e.json",
    "readonly": true,
    "role": "extra_bodies_patch_60d8c64e.json",
    "sha256": "6d61a3649c5d116322aa0c915180e8b6ec95a938af74a745d0bc0bea2a282351",
-   "source": "out/subai/M08/run_20261116_1847/extra_bodies_patch.json"
+   "sha256_lf_normalized": "6d61a3649c5d116322aa0c915180e8b6ec95a938af74a745d0bc0bea2a282351"
   },
   {
-   "bytes": 206080,
-   "frozen_path": "out/subai/M08/run_20261116_1847/readback_after_rebuild.json",
+   "bytes": 206289,
+   "frozen_path": "E:\\code\\mmdpipe-ai\\A1\\out\\subai\\M08\\frozen\\readback_frozen_ffaa6780.json",
    "readonly": true,
-   "role": "readback_after_rebuild.json",
-   "sha256": "bb06f01ff575d564378d58adcf237dcb8e3816e3bc87d029197288795d98625d",
-   "source": "out/subai/M08/run_20261116_1847/readback_after_rebuild.json"
+   "role": "readback_frozen_ffaa6780.json",
+   "sha256": "2cc761f1ccb356dc9e95582ade180b3bd1ef6582653a82c429c597b6d5a97ac6",
+   "sha256_lf_normalized": "2cc761f1ccb356dc9e95582ade180b3bd1ef6582653a82c429c597b6d5a97ac6"
   },
   {
-   "bytes": 106939,
-   "frozen_path": "out/subai/M08/run_20261116_1847/facts.json",
+   "bytes": 11101,
+   "frozen_path": "E:\\code\\mmdpipe-ai\\A1\\out\\subai\\M08\\frozen\\rebuild_report_ffaa6780.json",
    "readonly": true,
-   "role": "facts.json",
-   "sha256": "64bfedac357b96282d77aa410952b836ed9db9500d81fc24b0b2bae80f3f8e55",
-   "source": "out/subai/M08/run_20261116_1847/facts.json"
+   "role": "rebuild_report_ffaa6780.json",
+   "sha256": "5536fc84e900dfc2550eb6b9b493b6ce241979ae07452f96cfb49145416eb641",
+   "sha256_lf_normalized": "5536fc84e900dfc2550eb6b9b493b6ce241979ae07452f96cfb49145416eb641"
   }
  ],
- "purpose": "M08 324 交付件冻结副本（2号 18:50 要求：同路径重跑不得覆盖已引用的件）",
- "readonly_note": "目录内所有文件（含 manifest 自身）均置只读；manifest 逐项记 readonly=True"
+ "manifest_name": "frozen_manifest.json",
+ "purpose": "M08 324 交付件冻结副本：账本由**枚举冻结目录本身**生成，不手写、不从 run 目录抄"
 }
