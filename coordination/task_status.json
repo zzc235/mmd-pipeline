@@ -1,65 +1,65 @@
 {
-  "_note": "任务级状态的唯一权威表（D0 维护）。coordination/decisions.jsonl 是历史与证据，这张表是「现在是什么状态」。任何一次裁决改变某任务状态时，D0 必须同时更新此文件并提交，二者不一致以本文件为准并追查原因。",
-  "_schema": {
-    "status": "PASS | PARTIAL | BLOCKED | NOT_STARTED",
-    "reason": "一句话，说清为什么是这个状态",
-    "next": "下一步动作与责任人席位",
-    "updated": "YYYY-MM-DDTHH:MM+08:00"
+ "_note": "任务级状态的唯一权威表（D0 维护）。coordination/decisions.jsonl 是历史与证据，这张表是「现在是什么状态」。任何一次裁决改变某任务状态时，D0 必须同时更新此文件并提交，二者不一致以本文件为准并追查原因。",
+ "_schema": {
+  "status": "PASS | PARTIAL | BLOCKED | NOT_STARTED",
+  "reason": "一句话，说清为什么是这个状态",
+  "next": "下一步动作与责任人席位",
+  "updated": "YYYY-MM-DDTHH:MM+08:00"
+ },
+ "tasks": {
+  "M00": {
+   "status": "PASS",
+   "reason": "调度层齐了：覆盖闸门三点式、证据哈希 evidence/1（hash_basis 枚举 + measurements + commit/scope + 不动点 + check 退出码 0/3/4/5）、coordination/lock.py fail-closed、status 视图待批项全量聚合、全仓 subprocess 解码护栏（scanned/skipped 可见）",
+   "next": "A4：D-144③ 已收口并合入 main（mask_wired_checks 四条判据分开给且逐条可红、mask_gate_reason 在 stage_build 调用点 fail-closed、constraint_limit 为唯一上限来源）；D0 独立复算八条红样本各红对应一条。Task accepted（D-20261116-181）。剩余已知限制：fail-closed 未在真建场上触发过、真 Blender 装扩展未复测 —— 随 1号 重建窗口一并验",
+   "updated": "2026-11-16T17:48+08:00"
   },
-  "tasks": {
-    "M00": {
-      "status": "PASS",
-      "reason": "调度层齐了：覆盖闸门三点式、证据哈希 evidence/1（hash_basis 枚举 + measurements + commit/scope + 不动点 + check 退出码 0/3/4/5）、coordination/lock.py fail-closed、status 视图待批项全量聚合、全仓 subprocess 解码护栏（scanned/skipped 可见）",
-      "next": "A4：D-144③ 已收口并合入 main（mask_wired_checks 四条判据分开给且逐条可红、mask_gate_reason 在 stage_build 调用点 fail-closed、constraint_limit 为唯一上限来源）；D0 独立复算八条红样本各红对应一条。Task accepted（D-20261116-181）。剩余已知限制：fail-closed 未在真建场上触发过、真 Blender 装扩展未复测 —— 随 1号 重建窗口一并验",
-      "updated": "2026-11-16T17:48+08:00"
-    },
-    "M01": {
-      "status": "PASS",
-      "reason": "接口验收通过并入基线（13f0910），patch_save 含字节级守卫与 11 条测试",
-      "next": "无（M02 的前置已完成）",
-      "updated": "2026-11-16T13:25+08:00"
-    },
-    "M02": {
-      "status": "PARTIAL",
-      "reason": "判据七态（旗标只筛选、结论靠行为探针）、P12 负 / P13 正、重建三数、P9 拒绝路径、掩码结构性未接线都已实测；交付契约定为 B（烘焙），冷跳逐位等于顺序重算",
-      "next": "A1：①烘焙按文件所有权切分（D-199）—— 4号 写 mmdpipe/stage.py 的实现（bake=None 保持现状、bake.{requested,applied,frame_start,frame_end,fps}+pose_source+is_baked/is_outdated 落盘、行为探针冷跳==顺序重算 1e-6、能红的反控、不传 bake 路径逐字节不变的测试），1号 只写调用点与重建链，4号 合进 main 前 1号 不写调用点；②当前锁窗口（A1 18:33:42 起）做「抽补丁 → 重建 324 → 逐刚体回读 → 强摘要」，产物落版本化路径并冻结（D-198），强摘要与烘焙的时序按 D-200（最终只留一份算在烘后字节上的 strict 摘要，烘前那份标 stage=pre_bake 且永不与之比较，负控只在临时副本上改）；③preflight spec 快照（2 555 B / 79b19f75…）进 git，needs 只是进窗口的门、窗口内用重建件自己的 already 重算（D-201）。仍欠：S2 预注册 §四.1 改成交付逐臂表并把结论收窄为「三轴峰值逐位相同」；P2（limit 回读 ⇒ AXIS_FRAME_MISMATCH）为强制前置",
-      "updated": "2026-11-16T18:45+08:00"
-    },
-    "M03": {
-      "status": "PASS",
-      "reason": "缺口表与诊断接口验收通过（d54f3c8/546dc5b），接口 diagnose/1 冻结",
-      "next": "无",
-      "updated": "2026-11-16T13:25+08:00"
-    },
-    "M04": {
-      "status": "PARTIAL",
-      "reason": "顺序求值改计划制（回退/冷跳在计划阶段拒）；胶囊口径改相对基线；网格口径 v2 在解析实体上自检通过（0.9933/0.9867/0.27 mm），真实网格 77.01% 不可计分、可计分区 0.9367/0.9067/−8.2 mm",
-      "next": "A2：判官拆「灵敏度/确定性」两个问题已合入 main（tier=None + DETERMINISTIC，旧 JSON 留档 supersedes）；C/D 发车清单已批准（W1=1..240、W2=1..832、C 跑两次、D 与 C@W2 比；B_aligned 300 帧 ⇒ 301..832 末帧定格的限制要进 known_risks）；档位本轮 T2，T3 需四条件同时成立（场景自身 WIRED/cap=0/skipped=[] + 契约 B 烘焙与行为探针 + delivery_v1 sha 同一次 + cap 来自 constraint_limit）。只等 1号 delivery_v1；缺项判 UNMEASURED 不判 FAIL。第一轮 C/D 已出 T2（D-202 受理）：D vs C@W2 832/832 帧更深、中位 40.266 mm、最大 46.453 mm @f409，定格段与动作段只差 2.9% ⇒ 定格未主导；C@W1 vs A(R_free) 标 T_DESCRIPTIVE。本轮读数钉的实例 sha（251146e9…/be6c0a1c…）已被 3号 重跑覆盖、盘上不存在 ⇒ T3 第③条回溯性不可满足，本轮永久封顶 T2、不重跑；下一轮在最终 324 冻结件上把 A0 正控与三臂整套重钉，标题「T2，但仪器有效性在同场景自证」。**D-211 缩窄受理**：第一轮那句「唯一单变量结论 = 振幅使穿透加深约 40.266 mm」**撤回改 UNKNOWN**（预注册 §七 不许比两组增量的数值差 + `pairs_without_baseline` 正控不成立，两条各自够），根因是基线表丢零值对（只写 v>0）与基线取错对象（应每臂各取自己窗口首帧）；修完冒烟 `pairs_without_baseline 0/0/0`，第二轮可判",
-      "updated": "2026-11-16T18:45+08:00"
-    },
-    "M05": {
-      "status": "PARTIAL",
-      "reason": "接口 chain/junctions+frames+nla_guard@1 已验收；丢段 PASS（§6 四条 4/4，本轮又加真跑）；NLA 姿态 1 绿 / 1 部分 / 2 没有；D4 第一处交接已补（像素步差 4.3 倍支持 E-16），第二处待补",
-      "next": "**Task 已由 Human accepted（18:50:33），但那只覆盖 `D-186` 插单范围（apply_action + 闸门 + 版本化 + 七臂读数 + 两反控）—— 不等于整条 M05 车道验过（D-210）。** 仍未做、一次没跑过的两块：①第二处交接 `pair[1,2]` 同四样（gap=0 步差 / 常态 / gap=22 步差 / 图，D-112）；②NLA 三面（导出重导入、blend>gap、悬空坐姿视觉）。今晚不新开 Task；明天若 M08 收口需要，再开新 Task 由 3号 claim。另：**版本化 + 冻结已在 324 批次真机走通（D-203 的「端到端未验」结账）** —— 五份产物落 `<out-dir>/<batch-id>/<arm>.blend`、全 `0o444`、无覆盖，两条反控各 `rc=3` 且一个字节不写；顺带修掉 Blender 5.2 存盘后分层动作没有 `action.fcurves` 的真缺陷（`fcurves_of()`，`apply_action` 三处改走它，反向控制红 3 条）—— 这条修的是「幂等只在同一会话内成立」。仍未验：拿存过盘的臂件再跑一次 `apply_action` 本体（`fcurves_of` 只在离屏哑对象上验过形状）。324 臂件已交（`20261116_324` 五份 0o444、全 `is_baked=false`、动作 301/832/833/447），2号 正在其上跑三臂；1号 的烘窗口以 `D.blend` 为只读输入、输出新路径（D-209 的边界）。原插单口径存档：（gap=0 步差/常态/gap=22 步差/图）；NLA 三面（导出重导入、blend>gap、悬空坐姿视觉）未验；--chain-gap 默认保持 0（D-112）",
-      "updated": "2026-11-16T18:03+08:00"
-    },
-    "M06": {
-      "status": "PASS",
-      "reason": "按 Human 授权范围（六类基础少量，D-168/169）验收通过：manifest 30 行、sha 链 46b9564b → 9abefe5e → 7926980e → 56aa17c8 → ba9698e0 → 3d4eb23a 连续，verify --strict 30/30 + rebuild 30/30；新增走/蹲/跳三行（跳 atomic=false），站/待机由 POS_Stand_Idle_Once_F 显式 shared 共享；机器口径覆盖 5/6（缺 跑），事实 6/6 由未标注老记录 LOC_Run_Normal_Once_F 承载且按纪律不回填。D0 独立核：evidence/1:85052c53… 文件 sha==digest、14 条 files/artifacts 逐条对得上（文本按 lf_normalized_v1、manifest raw 3d4eb23a… / lf 21d7f91e…）；class_coverage.py 四条反控（临时打标转绿 6/6、词表外值拒绝、撤共享标注红 跑+站+待机、只改 category 仍算未覆盖）全按预期",
-      "next": "A3：等 1号 的 M08 重建窗口，配合核取用链（manifest → evidence → 场景引用）。遗留两条限定随 PASS 一起记：①跳非原子，M08 按 known_risks 单列、不当完整动作；②跑靠未标注老记录承载，机读数永久 5/6。口径待办（下一轮触点落）：measurements 里 manifest_sha_before/after 是 raw 口径，须与记录的 hash_basis: lf_normalized_v1 分列 raw/lf 两个字段，避免下游拿错基准",
-      "updated": "2026-11-16T17:56+08:00"
-    },
-    "M07": {
-      "status": "PASS",
-      "reason": "D/E/F 三段全通（validate/build、真隔离安装 + smoke 8/8、12 帧 E2E 两入口各 15 项 PASS、受控失败 exit 1）；两条产品路径缺陷已修并验过；stage.py 两处静默失败已派 A4 并在修",
-      "next": "A4：两条 stage.py 假成功缺陷的代码已在 0321505 修、离屏正控/反控已补并合入 main（ensure_addons 正控断言到调用层、反控两条用真实候选名、preset 反控用 stub 退化 section() 证明旧行为判红）。全局安装按 Human 决定保留 1.3.0。Task accepted（D-20261116-181）。剩余：真 Blender 里装/不装扩展的复测搭 1号 重建窗口做",
-      "updated": "2026-11-16T17:48+08:00"
-    },
-    "M08": {
-      "status": "PARTIAL",
-      "reason": "第一轮重建已跑（D-186）：rebuild_built.blend 5 929 823 B / e77851ab…，312 刚体尺度上掩码通道判 WIRED，恒等式 6 686 + 1 813 = 8 499 成立、capped=false、skipped_count=0、readback_mismatch=0，负控 import_only 判 UNWIRED、缺 --stage-json 时判 PARTIAL —— 判据能绿能红且缺料不装懂。但交付件缺两件：①没有「应用动作」这一段（actions == []，C/D 判 UNMEASURED，缺料非缺陷）；②312/324，12 个刚体（11 个 $name_j 占位体 + 第 11 行）建不出来 ⇒ 硬前置「交付场景可由当前代码重建」未满足。（D-198 更正口径：通道作用域 U323=323、盘上 U324=324，差的那一个是 地面_物理、例外单列；10111/1813/8298 都是 U323 口径，already 是场景状态量，已取消「to_add 必回 8298」的预承诺）。第二轮 324 补丁窗口已跑通（D-206，2026-11-16 18:43）：rebuild_built.blend 6 102 478 B / ffaa6780…，U323=323 / U324=324 / bodies 324、WIRED、capped=false、skipped=0、nocollide 与 blocked_and_should_collide 皆 0，交叉点 needed=10111 / already=1813 / to_add=8298 / added=8298（恒等式成立），且 4号 与 1号 两台仪器在两份不同的件上四个数字逐个对上（10111/40095/29984/8859）；强摘要 strict 8cc694a3…（D0 独立复算一致，kinematic/mass 两负控红、只改路径时间戳不变）。但**这是物理场景不是交付场景**：actions=[]、frame_end=250、未烘、未冻结。第三窗（烘，run_20261116_1900）成绩：闸门五条全绿、探针 3 帧 × 323 刚体 max_delta=0.0、约束独立计数 disable_collisions_true=10111 == needed 且烘前烘后相等（12338 = 4009+31+8298、2227 = 2196+31 两式闭合）、烘后 strict 摘要 55da0ec7…（只留这一份）。**但 (a) 持久化路在引擎层关闭**：`use_disk_cache = True` 赋值即 `EXCEPTION_ACCESS_VIOLATION`（两次复现），5.2 的 PointCache 无 `directory` 字段；重开冻结件的缓存回放读数与顺序重算差 `max_delta = 1.85651505 m`、`over_tol = 275/323`，但**该读数取样自一份被引擎判为无效的缓存**（重开 `is_baked=true / is_outdated=true / info='cache is outdated!'`）⇒ 形状是「**烘了但没持久化**」，不是「持久化但重放不一致」（D-219 更正 D-217 的分类）；第三种形状今晚一次没量过、且现在量不了（要量它得先造出重开后 `is_outdated=false` 的件，而那需要持久化通道）⇒ 「缓存准不准」目前是 **UNMEASURED**，不是 FAIL⇒ **T3 ② = 进程内成立、持久化不成立**，M08 永久以 T2 交付，交付件 = 可确定性重建的场景 + 烘焙规程 + 冻结 manifest（D-214/217/218）",
-      "next": "①**[已完成]** 1号 重建 324 + 强摘要 pre_bake `8cc694a3…`；②**[已完成]** 3号 应用动作五臂（`20261116_324`，全 0o444、`u324=324`、`mask_wired` 五臂逐项相同）→ 1号 烘 1..833（`run_20261116_1900`）→ 探针 0.0 → 约束独立计数 → 烘后摘要 `55da0ec7…` → 冻结 manifest；③**[进行中]** 1号 在**同一份冻结字节**上做最小版「重算后再验」：顺序重算到 417/833 再冷跳对照（3 帧、不重出件、不存盘、用 `guard` 代持锁）——这条验「可确定性重建」这句话本身；**不通过则 T2 的立足点要重查并立刻报 D0**；④2号 在未烘臂件上跑 A0 仪器正控 + 三臂（标题「T2，但仪器有效性在同场景自证」，`pairs_without_baseline` 必须为 0 才可判）；⑤3号 在版本化路径上重跑四臂 + 强摘要；⑥4号 把「重放差」判据进 `bake_checks()`（没烘 / 没持久化 / 重放不一致，三红可分）。**T3 已确认不可达**：第②条要求在交付字节上证明缓存可回放，而 5.2 的 `use_disk_cache` 赋值即崩 ⇒ 永久 T2，不再为它排窗口。判据纪律：`is_baked` 只是运行时标志，判决只能读**重开件的重放差**。",
-      "updated": "2026-11-16T18:03+08:00"
-    }
+  "M01": {
+   "status": "PASS",
+   "reason": "接口验收通过并入基线（13f0910），patch_save 含字节级守卫与 11 条测试",
+   "next": "无（M02 的前置已完成）",
+   "updated": "2026-11-16T13:25+08:00"
+  },
+  "M02": {
+   "status": "PARTIAL",
+   "reason": "判据七态（旗标只筛选、结论靠行为探针）、P12 负 / P13 正、重建三数、P9 拒绝路径、掩码结构性未接线都已实测；交付契约定为 B（烘焙），冷跳逐位等于顺序重算",
+   "next": "A1：①烘焙按文件所有权切分（D-199）—— 4号 写 mmdpipe/stage.py 的实现（bake=None 保持现状、bake.{requested,applied,frame_start,frame_end,fps}+pose_source+is_baked/is_outdated 落盘、行为探针冷跳==顺序重算 1e-6、能红的反控、不传 bake 路径逐字节不变的测试），1号 只写调用点与重建链，4号 合进 main 前 1号 不写调用点；②当前锁窗口（A1 18:33:42 起）做「抽补丁 → 重建 324 → 逐刚体回读 → 强摘要」，产物落版本化路径并冻结（D-198），强摘要与烘焙的时序按 D-200（最终只留一份算在烘后字节上的 strict 摘要，烘前那份标 stage=pre_bake 且永不与之比较，负控只在临时副本上改）；③preflight spec 快照（2 555 B / 79b19f75…）进 git，needs 只是进窗口的门、窗口内用重建件自己的 already 重算（D-201）。仍欠：S2 预注册 §四.1 改成交付逐臂表并把结论收窄为「三轴峰值逐位相同」；P2（limit 回读 ⇒ AXIS_FRAME_MISMATCH）为强制前置",
+   "updated": "2026-11-16T18:45+08:00"
+  },
+  "M03": {
+   "status": "PASS",
+   "reason": "缺口表与诊断接口验收通过（d54f3c8/546dc5b），接口 diagnose/1 冻结",
+   "next": "无",
+   "updated": "2026-11-16T13:25+08:00"
+  },
+  "M04": {
+   "status": "PARTIAL",
+   "reason": "顺序求值改计划制（回退/冷跳在计划阶段拒）；胶囊口径改相对基线；网格口径 v2 在解析实体上自检通过（0.9933/0.9867/0.27 mm），真实网格 77.01% 不可计分、可计分区 0.9367/0.9067/−8.2 mm；**C/D 第二轮（324 批次）已判得出来**：`JUDGED_NO_CHANGE`（exit 0），三臂准入全绿、`pairs_without_baseline=0/0/0`、`4号` 三处更正经 D0 从 `per_frame` 独立复算确认",
+   "next": "第二轮受理（D-221）：`JUDGED_NO_CHANGE` 是「有没有越判据帧」的答案，**不是 PASS**。D0 复算后可引用的数：同域 f1..240 —— `C@W1` 3 帧 / 最坏 f231 −0.034219 m，`C@W2` 17 帧 / 最坏 f95 −0.080417 m，差 **0.046198 m**；跨域 0.049031 **作废**。`C@W2` 带段标签：动画段 1..301 = 20 帧 / 中位 −1.324 mm / 最深 −80.417@f95；保持段 302..832 = 28 帧 / 中位 −1.556 mm / 最深 −83.250@f304；**保持段整体比动画段深 0.232 mm（方向：更负即更深，2号 原句读反）**；段内不均质：302..351 五十帧里 15 帧、均值 −15.791 mm，352..832 四百八十一帧里 13 帧、均值 −2.951 mm，最深 6 帧有 5 帧落在 302..353 ⇒ 最深帧是**交接尖峰**（±12 帧内只有它自己达到半量级），标 `TRANSIENT`，不许当整段属性引用。口径：**不把交接窗口写进预注册段**（窗口来自观测到的深度 = 把结论写进前提）；改用「极值引用三件套」= 值 + 帧号 + 邻域计数，只放行分布量整段引用。**本轮没有 A0 臂**（steps 只有 health×3/dump/align/基线×3/三臂/compare）⇒ 「仪器有效性在同场景自证」本轮不成立，仍是继承的；那句话留给「A0 与三臂同一份冻结字节」的那一轮。状态仍 PARTIAL：`T2`、`D` 第 833 帧未测（窗口 1..832）、`over_eps` 不说明网格穿入。上一轮遗留不变：第一轮三臂读数钉的实例 sha 已不存在 ⇒ `T3` 第③条回溯性不可满足，永久封顶 `T2`。",
+   "updated": "2026-11-16T19:38+08:00"
+  },
+  "M05": {
+   "status": "PARTIAL",
+   "reason": "接口 chain/junctions+frames+nla_guard@1 已验收；丢段 PASS（§6 四条 4/4，本轮又加真跑）；NLA 姿态 1 绿 / 1 部分 / 2 没有；D4 第一处交接已补（像素步差 4.3 倍支持 E-16），第二处待补",
+   "next": "**Task 已由 Human accepted（18:50:33），但那只覆盖 `D-186` 插单范围（apply_action + 闸门 + 版本化 + 七臂读数 + 两反控）—— 不等于整条 M05 车道验过（D-210）。** 仍未做、一次没跑过的两块：①第二处交接 `pair[1,2]` 同四样（gap=0 步差 / 常态 / gap=22 步差 / 图，D-112）；②NLA 三面（导出重导入、blend>gap、悬空坐姿视觉）。今晚不新开 Task；明天若 M08 收口需要，再开新 Task 由 3号 claim。另：**版本化 + 冻结已在 324 批次真机走通（D-203 的「端到端未验」结账）** —— 五份产物落 `<out-dir>/<batch-id>/<arm>.blend`、全 `0o444`、无覆盖，两条反控各 `rc=3` 且一个字节不写；顺带修掉 Blender 5.2 存盘后分层动作没有 `action.fcurves` 的真缺陷（`fcurves_of()`，`apply_action` 三处改走它，反向控制红 3 条）—— 这条修的是「幂等只在同一会话内成立」。仍未验：拿存过盘的臂件再跑一次 `apply_action` 本体（`fcurves_of` 只在离屏哑对象上验过形状）。324 臂件已交（`20261116_324` 五份 0o444、全 `is_baked=false`、动作 301/832/833/447），2号 正在其上跑三臂；1号 的烘窗口以 `D.blend` 为只读输入、输出新路径（D-209 的边界）。原插单口径存档：（gap=0 步差/常态/gap=22 步差/图）；NLA 三面（导出重导入、blend>gap、悬空坐姿视觉）未验；--chain-gap 默认保持 0（D-112）",
+   "updated": "2026-11-16T18:03+08:00"
+  },
+  "M06": {
+   "status": "PASS",
+   "reason": "按 Human 授权范围（六类基础少量，D-168/169）验收通过：manifest 30 行、sha 链 46b9564b → 9abefe5e → 7926980e → 56aa17c8 → ba9698e0 → 3d4eb23a 连续，verify --strict 30/30 + rebuild 30/30；新增走/蹲/跳三行（跳 atomic=false），站/待机由 POS_Stand_Idle_Once_F 显式 shared 共享；机器口径覆盖 5/6（缺 跑），事实 6/6 由未标注老记录 LOC_Run_Normal_Once_F 承载且按纪律不回填。D0 独立核：evidence/1:85052c53… 文件 sha==digest、14 条 files/artifacts 逐条对得上（文本按 lf_normalized_v1、manifest raw 3d4eb23a… / lf 21d7f91e…）；class_coverage.py 四条反控（临时打标转绿 6/6、词表外值拒绝、撤共享标注红 跑+站+待机、只改 category 仍算未覆盖）全按预期",
+   "next": "A3：等 1号 的 M08 重建窗口，配合核取用链（manifest → evidence → 场景引用）。遗留两条限定随 PASS 一起记：①跳非原子，M08 按 known_risks 单列、不当完整动作；②跑靠未标注老记录承载，机读数永久 5/6。口径待办（下一轮触点落）：measurements 里 manifest_sha_before/after 是 raw 口径，须与记录的 hash_basis: lf_normalized_v1 分列 raw/lf 两个字段，避免下游拿错基准",
+   "updated": "2026-11-16T17:56+08:00"
+  },
+  "M07": {
+   "status": "PASS",
+   "reason": "D/E/F 三段全通（validate/build、真隔离安装 + smoke 8/8、12 帧 E2E 两入口各 15 项 PASS、受控失败 exit 1）；两条产品路径缺陷已修并验过；stage.py 两处静默失败已派 A4 并在修",
+   "next": "A4：两条 stage.py 假成功缺陷的代码已在 0321505 修、离屏正控/反控已补并合入 main（ensure_addons 正控断言到调用层、反控两条用真实候选名、preset 反控用 stub 退化 section() 证明旧行为判红）。全局安装按 Human 决定保留 1.3.0。Task accepted（D-20261116-181）。剩余：真 Blender 里装/不装扩展的复测搭 1号 重建窗口做",
+   "updated": "2026-11-16T17:48+08:00"
+  },
+  "M08": {
+   "status": "PARTIAL",
+   "reason": "第一轮重建已跑（D-186）：rebuild_built.blend 5 929 823 B / e77851ab…，312 刚体尺度上掩码通道判 WIRED，恒等式 6 686 + 1 813 = 8 499 成立、capped=false、skipped_count=0、readback_mismatch=0，负控 import_only 判 UNWIRED、缺 --stage-json 时判 PARTIAL —— 判据能绿能红且缺料不装懂。但交付件缺两件：①没有「应用动作」这一段（actions == []，C/D 判 UNMEASURED，缺料非缺陷）；②312/324，12 个刚体（11 个 $name_j 占位体 + 第 11 行）建不出来 ⇒ 硬前置「交付场景可由当前代码重建」未满足。（D-198 更正口径：通道作用域 U323=323、盘上 U324=324，差的那一个是 地面_物理、例外单列；10111/1813/8298 都是 U323 口径，already 是场景状态量，已取消「to_add 必回 8298」的预承诺）。第二轮 324 补丁窗口已跑通（D-206，2026-11-16 18:43）：rebuild_built.blend 6 102 478 B / ffaa6780…，U323=323 / U324=324 / bodies 324、WIRED、capped=false、skipped=0、nocollide 与 blocked_and_should_collide 皆 0，交叉点 needed=10111 / already=1813 / to_add=8298 / added=8298（恒等式成立），且 4号 与 1号 两台仪器在两份不同的件上四个数字逐个对上（10111/40095/29984/8859）；强摘要 strict 8cc694a3…（D0 独立复算一致，kinematic/mass 两负控红、只改路径时间戳不变）。但**这是物理场景不是交付场景**：actions=[]、frame_end=250、未烘、未冻结。第三窗（烘，run_20261116_1900）成绩：闸门五条全绿、探针 3 帧 × 323 刚体 max_delta=0.0、约束独立计数 disable_collisions_true=10111 == needed 且烘前烘后相等（12338 = 4009+31+8298、2227 = 2196+31 两式闭合）、烘后 strict 摘要 55da0ec7…（只留这一份）。**但 (a) 持久化路在引擎层关闭**：`use_disk_cache = True` 赋值即 `EXCEPTION_ACCESS_VIOLATION`（两次复现），5.2 的 PointCache 无 `directory` 字段；重开冻结件的缓存回放读数与顺序重算差 `max_delta = 1.85651505 m`、`over_tol = 275/323`，但**该读数取样自一份被引擎判为无效的缓存**（重开 `is_baked=true / is_outdated=true / info='cache is outdated!'`）⇒ 形状是「**烘了但没持久化**」，不是「持久化但重放不一致」（D-219 更正 D-217 的分类）；第三种形状今晚一次没量过、且现在量不了（要量它得先造出重开后 `is_outdated=false` 的件，而那需要持久化通道）⇒ 「缓存准不准」目前是 **UNMEASURED**，不是 FAIL⇒ **T3 ② = 进程内成立、持久化不成立**，M08 永久以 T2 交付，交付件 = 可确定性重建的场景 + 烘焙规程 + 冻结 manifest（D-214/217/218）",
+   "next": "①**[已完成]** 1号 重建 324 + 强摘要 pre_bake `8cc694a3…`；②**[已完成]** 3号 应用动作五臂（`20261116_324`，全 0o444、`u324=324`、`mask_wired` 五臂逐项相同）→ 1号 烘 1..833（`run_20261116_1900`）→ 探针 0.0 → 约束独立计数 → 烘后摘要 `55da0ec7…` → 冻结 manifest；③**[进行中]** 1号 在**同一份冻结字节**上做最小版「重算后再验」：顺序重算到 417/833 再冷跳对照（3 帧、不重出件、不存盘、用 `guard` 代持锁）——这条验「可确定性重建」这句话本身；**不通过则 T2 的立足点要重查并立刻报 D0**；④2号 在未烘臂件上跑 A0 仪器正控 + 三臂（标题「T2，但仪器有效性在同场景自证」，`pairs_without_baseline` 必须为 0 才可判）；⑤3号 在版本化路径上重跑四臂 + 强摘要；⑥4号 把「重放差」判据进 `bake_checks()`（没烘 / 没持久化 / 重放不一致，三红可分）。**T3 已确认不可达**：第②条要求在交付字节上证明缓存可回放，而 5.2 的 `use_disk_cache` 赋值即崩 ⇒ 永久 T2，不再为它排窗口。判据纪律：`is_baked` 只是运行时标志，判决只能读**重开件的重放差**。",
+   "updated": "2026-11-16T18:03+08:00"
   }
+ }
 }
