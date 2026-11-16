@@ -212,8 +212,14 @@ def assemble(dynamics_rows, penetration_rows, *, sample_id, evidence_mode,
         # 而 angle 从 1.74° 变到 67.2°。这种情况下冻结门禁必须 UNKNOWN，不能凭 0 判 PASS。
         all_parent_zero = all(v == 0.0 for v in parents.values()) if parents else True
         target_peak = max(frame_max)
+        target_span = target_peak - min(frame_max)
+        # 父链恒 0 有两种完全不同的含义，必须分开：
+        #   a) 父骨是静止根、子骨在动 —— 这是「物理在跑」的正面证据（实测 B_from_blend1:
+        #      下半身 240 帧四元数有效位全同，飘带照样甩到 67.2°）；
+        #   b) 父链和目标**都不动** —— 分不清「真静止」还是「这一列没测」，只能 UNKNOWN。
+        # 所以判据是「全零 + 目标跨度≈0」，不是「全零 + 目标角大」；后者会误报 a) 这种正常样本。
         suspicious = bool(parents) and all_parent_zero and \
-            target_peak >= float(frozen_cfg.get("suspicious_zero_parent_angle_deg", 10.0))
+            target_span < float(frozen_cfg.get("suspicious_zero_parent_span_deg", 1.0))
         measurement["frozen"] = {
             "parent_delta_deg": 0.0,
             "target_delta_deg": round(target_peak, 6) if suspicious else 0.0,
@@ -221,6 +227,7 @@ def assemble(dynamics_rows, penetration_rows, *, sample_id, evidence_mode,
             "bone": None,
             "candidates": 0,
             "parent_all_zero": all_parent_zero,
+            "target_span_deg": round(target_span, 6),
             "suspicious_zero_parent": suspicious,
         }
 
