@@ -1,0 +1,144 @@
+{
+ "action": {
+  "action_users": 1,
+  "fcurves": 357,
+  "frame_range": [
+   1,
+   447
+  ],
+  "name": "原神摇_merged_bone",
+  "nla_tracks": 0
+ },
+ "applied": {
+  "end_before_ops_readback": 447,
+  "held_keys": 0,
+  "ops": [],
+  "stage_motion_action_end": 447,
+  "trimmed_keys": 0
+ },
+ "arm": "星穹铁道—飞霄（无外套）_arm",
+ "arm_role": "D-对照",
+ "cache": {
+  "bake_free": null,
+  "freed_bake": false,
+  "has_rigidbody_world": true,
+  "is_baked": false,
+  "is_outdated": null,
+  "point_cache_range": [
+   1,
+   447
+  ]
+ },
+ "checks": [
+  {
+   "detail": "ensure_addons={'mmd_tools': True}（`hasattr` 在没装上时也返回 True，只能信这个）",
+   "id": "A0_profile_ready",
+   "ok": true
+  },
+  {
+   "detail": "action='原神摇_merged_bone' fcurves=357（门槛 > 100）",
+   "id": "A1_action_applied",
+   "ok": true
+  },
+  {
+   "detail": "scene.frame_end=447，action.frame_range[1]=447，来源='readback:arm.animation_data.action.frame_range[1]'",
+   "id": "A2_frame_end_readback",
+   "ok": true
+  },
+  {
+   "detail": "rigidbody_world=True is_baked=False is_outdated=None freed_bake=False",
+   "id": "A3_is_baked_false",
+   "ok": true
+  },
+  {
+   "detail": "nla_tracks=0（单动作这一步不许留 NLA 轨道）",
+   "id": "A4_no_nla_stacking",
+   "ok": true
+  },
+  {
+   "detail": "scene.frame_end=447，plan.final_last=447",
+   "id": "A5_window_matches_plan",
+   "ok": true
+  }
+ ],
+ "cleared": {
+  "action": false,
+  "nla_tracks": 0,
+  "orphan_actions": 0
+ },
+ "in_blend": {
+  "bytes": 5923244,
+  "path": "E:\\code\\mmdpipe-ai\\A1\\out\\subai\\M08\\run_20261116_1805\\rebuild_built.blend",
+  "sha256": "ef8e31a9fa2d4ef48d7e1b3e684a2238091c4b3b6b253d012fab4abe9f7ef27e"
+ },
+ "notes": [
+  "447 帧原片版（027179ac…），非预注册素材，不进 D 的判词"
+ ],
+ "out_blend": {
+  "bytes": 8597604,
+  "path": "E:\\code\\mmdpipe-ai\\A3\\out\\subai\\M05\\arms\\D_ctrl_447.blend",
+  "sha256": "015a9ca4ca9dc25ad82d098439156d71b4e54a8c5c378d725f251ad770eb87db"
+ },
+ "plan": {
+  "applied_first": 1,
+  "applied_last": 447,
+  "final_first": 1,
+  "final_last": 447,
+  "frame_start": 1,
+  "import_offset": 1,
+  "notes": [
+   "源末帧 446 → 应用后 447，不截不补"
+  ],
+  "ops": [],
+  "source_last_frame": 446
+ },
+ "profile": {
+  "ensure_addons": {
+   "mmd_tools": true
+  }
+ },
+ "scene": {
+  "fps_after": 30,
+  "fps_before": 24,
+  "fps_changed": true,
+  "name": "Scene"
+ },
+ "schema": "m05.apply_action/1",
+ "source": {
+  "bone_frames": 23244,
+  "bones": 52,
+  "bytes": 2580503,
+  "frame_range": [
+   0,
+   446
+  ],
+  "path": "E:\\dsh pr\\woker2\\out\\原神摇_merged.vmd",
+  "sha256": "027179ac268019fda46d8277f7b481223baf55bee55b357a2a584222b95df0ae"
+ },
+ "stage_motion": {
+  "issues": [
+   {
+    "code": "E-00",
+    "evidence": "447 帧 → 18.62 s（30fps 下 14.90 s）",
+    "hint": "VMD 基准 30fps，当前 24 fps 且不重采样：动作按 0.80 倍速播放",
+    "severity": "warn"
+   }
+  ],
+  "metrics": {
+   "action": "原神摇_merged_bone",
+   "fcurves": 357,
+   "frame_range": [
+    1,
+    447
+   ],
+   "point_cache_end": 447
+  },
+  "ok": true
+ },
+ "verdict": "READY",
+ "window": {
+  "frame_end": 447,
+  "frame_end_source": "readback:arm.animation_data.action.frame_range[1]",
+  "frame_start": 1
+ }
+}
