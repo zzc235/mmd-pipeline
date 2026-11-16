@@ -241,7 +241,7 @@ Blender 刚体解算的步长 `dt = 1/fps` ⇒ 改 fps 就是改物理。而 M04
 返回 `(列表, 走哪条路)`），三处调用点全部改走它，记录里多一个 `action.fcurves_via` 字段
 说明这个数从哪条路读出来的。离屏 5 条（含「`fcurves` 一碰就抛」「`strip` 没有
 `channelbags`」两个形状）+ 一条反控：把 `fcurves_of` 退回旧写法，新测试红 3 条、还原后 41 条全绿
-（`out/subai/M05/ctrl_fcurves_shape.py`，控制脚本自带还原）。
+（`reports/subai/M05/scripts/ctrl_fcurves_shape.py`，控制脚本自带还原）。
 
 **没验的仍然写着**：这条修法只在离屏哑对象上验过形状；**「拿一件存过盘的臂件再跑一次
 `apply_action`」这件事仍然没跑过**——它要拿窗口，而 324 批次之后窗口一直在别人手里
@@ -291,7 +291,7 @@ Blender 刚体解算的步长 `dt = 1/fps` ⇒ 改 fps 就是改物理。而 M04
 分层动作位移既有键、槽位选对 bag、两个 bag 拒写且**一个字节都没写进去**、
 `action.fcurves.find` 那种旧写法在分层动作上确实 `AttributeError`）。
 
-反向控制 `out/subai/M05/ctrl_nla_write_shape.py`：把 `_shift_b_action` 退回旧写法 ⇒ **红 4 条**
+反向控制 `reports/subai/M05/scripts/ctrl_nla_write_shape.py`：把 `_shift_b_action` 退回旧写法 ⇒ **红 4 条**
 （其中两条是「拒写」变「崩」，说明旧写法连拒都做不到）；还原 ⇒ 6 条全绿。
 脚本自带还原，跑完 `git status` 只剩本次要提交的文件。
 
@@ -300,7 +300,7 @@ Blender 刚体解算的步长 `dt = 1/fps` ⇒ 改 fps 就是改物理。而 M04
 ### 上游接口：`D-213` 那条「待验假设」现在有实测了
 
 派工原话是「先确认 5.2 的 `Action.fcurve_ensure_for_datablock()` 能不能直接用；我说的这句是
-待验假设，不是事实」。只读探针（`out/subai/M05/probe_fcurve_write_shape.py`，打开臂件
+待验假设，不是事实」。只读探针（`reports/subai/M05/scripts/probe_fcurve_write_shape.py`，打开臂件
 `C@W1.blend`、在 `action.copy()` 上试、不存盘，前后 sha `79862401…` 同值）量到：
 
 | 项 | 读数 |
@@ -359,7 +359,7 @@ Blender 刚体解算的步长 `dt = 1/fps` ⇒ 改 fps 就是改物理。而 M04
 5 份 `.blend` 是 `0o444`、9 个 `.json` 是可写记录，**整批没有 manifest** ⇒「盘上每个在账上、
 账上每个在盘上」这一层没有账可对。按要求补一次枚举，**没有重跑批次、没有动任何字节**。
 
-- 生成器：`out/subai/M05/make_arms_manifest.py`（拒绝覆盖已有 manifest）
+- 生成器：`reports/subai/M05/scripts/make_arms_manifest.py`（拒绝覆盖已有 manifest）
 - 账本：`out/subai/M05/arms/20261116_324/manifest.json`（14 项，sha 与 bytes 全部**今天重算**）
 - 条目写**裸文件名**：manifest 与产物同目录，`artifact_audit` 的双向枚举才成立
   （它只在「条目都落在 manifest 自己这一层」时才查 `only_on_disk`）。
@@ -377,7 +377,7 @@ readonly 分布 = 5 / 14
 
 ### 红绿负控（`D-204/205`：校验类代码必须喂应当被拒的输入）
 
-`out/subai/M05/ctrl_arms_manifest_negative.py`，全部在**副本**上做，真批次一个字节不碰：
+`reports/subai/M05/scripts/ctrl_arms_manifest_negative.py`，全部在**副本**上做，真批次一个字节不碰：
 
 | 构造 | 期望 | 实测 |
 |---|---|---|
@@ -394,3 +394,33 @@ readonly 分布 = 5 / 14
   所以这一批的「冻结」只覆盖臂件那一层，账本里 `readonly` 一列如实分列 5 true / 9 false。
 - 账本没有进 git（`out/` 是产物树，与 M08 的 `frozen/frozen_manifest.json` 同性质）；
   进 git 的是审计结果 `reports/subai/M05/arms_audit_324.json`。
+
+### 脚本搬进仓库（同一晚的第二处同类缺陷，`D-228` 第十三条）
+
+报告引用了六个脚本，它们原先都在 `out/subai/M05/` 下 —— 而 `out/` 被 `.gitignore:38` 吞掉。
+也就是说**干净 checkout 上这些控制脚本根本不存在**，报告里「红 3 条 / 绿 6 条」「绿能绿、红能红」
+在别人机器上无法复跑。这跟 `2号` 那处 `compare.log` 是同一个形状：**账本/证据对着工作树成立，
+对着仓库不成立**。
+
+现在六个都搬到 `reports/subai/M05/scripts/` 并进了 git（`out/` 里的旧副本已删：两份实现就是两个真值）：
+
+`make_arms_manifest.py` / `ctrl_arms_manifest_negative.py` / `ctrl_fcurves_shape.py` /
+`ctrl_nla_write_shape.py` / `probe_fcurve_write_shape.py` / `readback_324_arms.py`
+
+搬动时顺手把「算根」改成**自定位**（往上走到有 `coordination/` 与 `mmdpipe/` 的那层）：
+产物树与仓库深度不同，写死 `dirname` 次数必然有一边算错，而算错的形状是 `ImportError`
+——看起来像「这个模块不存在」。走不到就把起点打出来再死。
+
+搬完的实测（从**新位置**跑）：
+
+| 脚本 | 结果 |
+|---|---|
+| `ctrl_fcurves_shape.py` | 旧写法红 **3** 条 / 还原绿 |
+| `ctrl_nla_write_shape.py` | 旧写法红 **4** 条 / 还原绿 **6** 条 |
+| `ctrl_arms_manifest_negative.py` | 绿 / `only_on_disk` 红 / `sha_drift` 红 / 还原绿 |
+| `make_arms_manifest.py` | 仍认 14 项（并补上「任何 `*manifest*.json` 不入账」的排除规则，与 `artifact_audit` 对齐） |
+| `probe_/readback_` | 根均解析到仓库根；`probe` 的守卫负控（拷到别处）仍报「ROOT 算错了」 |
+
+**仍然留在 `out/` 的**：`arms/20261116_324/` 那 14 个产物（含 `manifest.json` 账本本身）——
+6–10 MB 的 `.blend` 不进 git 是对的。所以「这批的字节」在干净 checkout 上依然量不了，
+能复跑的是**控制逻辑**；枚举的 sha 结论由进 git 的 `reports/subai/M05/arms_audit_324.json` 承载。
