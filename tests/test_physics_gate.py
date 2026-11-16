@@ -149,6 +149,17 @@ class TestFrozen(unittest.TestCase):
         self.assertEqual(pg.evaluate(m, profile())["gate_results"]["frozen"]["status"],
                          pg.PASS)
 
+    def test_suspicious_zero_parent_is_unknown_not_pass(self):
+        """父链恒 0 + 目标角不小 → UNKNOWN。判 PASS 等于把没测过的量当合格。"""
+        m = measurement(frozen={"parent_delta_deg": 0.0, "target_delta_deg": 40.0,
+                                "consecutive_frames": 0,
+                                "parent_all_zero": True,
+                                "suspicious_zero_parent": True})
+        out = pg.evaluate(m, profile())
+        self.assertEqual(out["gate_results"]["frozen"]["status"], pg.UNKNOWN)
+        self.assertIn("无法区分", out["gate_results"]["frozen"]["reason"])
+        self.assertIn("frozen", out["unknown_gates"])
+
 
 class TestPenetration(unittest.TestCase):
     def test_fail_on_history_depth(self):

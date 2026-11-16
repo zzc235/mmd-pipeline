@@ -89,15 +89,36 @@ def _by_frame(rows):
         key = (int(row["frame"]), str(row["bone"]))
         if key in out:
             raise AssemblyError("同帧同骨重复：frame=%s bone=%s" % key)
-        out[key] = float(row["angle_deg"])
+        value = row["angle_deg"]
+        if value is None:
+            # 缺测量值不能当 0 参与统计：那会把「没测」算成「没动」
+            raise AssemblyError("angle_deg 为 null：frame=%s bone=%s" % key)
+        try:
+            out[key] = float(value)
+        except (TypeError, ValueError):
+            raise AssemblyError("angle_deg 不是数值：frame=%s bone=%s value=%r"
+                                % (key[0], key[1], value))
     return out
 
 
 def _parent_by_bone(rows):
+    """每根骨的父链增量取非空最大值。
+
+    实测发现：Blender 侧首帧没有「上一帧」，`parent_delta_deg` 为 **null**（18 骨各一条）。
+    那不是缺数据，是这一帧本来就没有可比的前一帧——所以跳过 null，不能当 0，
+    也不能因此整条样本判 UNKNOWN（否则每份真实采样都会白白丢掉 frozen 段）。
+    """
     out = {}
     for row in rows:
+        value = row.get("parent_delta_deg")
+        if value is None:
+            continue
         bone = str(row["bone"])
-        val = float(row["parent_delta_deg"])
+        try:
+            val = float(value)
+        except (TypeError, ValueError):
+            raise AssemblyError("parent_delta_deg 不是数值：bone=%s value=%r"
+                                % (bone, value))
         out[bone] = max(out.get(bone, val), val)
     return out
 
@@ -185,13 +206,22 @@ def assemble(dynamics_rows, penetration_rows, *, sample_id, evidence_mode,
             "candidates": len(candidates),
         }
     else:
-        # 没有骨的父链动过：如实写 0，门禁会判 PASS（本来就不该动），不是「缺数据」
+        # 没有骨的父链动过：如实写 0，门禁会判 PASS（本来就不该动），不是「缺数据」。
+        # 但有一个更可疑的情形：父链增量**恒为 0**而目标角很大 —— 那分不清「父链真没动」
+        # 还是「这一列根本没测」。M02 首采就是这样：240 帧 × 18 骨，parent_delta_deg 全 0.0，
+        # 而 angle 从 1.74° 变到 67.2°。这种情况下冻结门禁必须 UNKNOWN，不能凭 0 判 PASS。
+        all_parent_zero = all(v == 0.0 for v in parents.values()) if parents else True
+        target_peak = max(frame_max)
+        suspicious = bool(parents) and all_parent_zero and \
+            target_peak >= float(frozen_cfg.get("suspicious_zero_parent_angle_deg", 10.0))
         measurement["frozen"] = {
             "parent_delta_deg": 0.0,
-            "target_delta_deg": 0.0,
+            "target_delta_deg": round(target_peak, 6) if suspicious else 0.0,
             "consecutive_frames": 0,
             "bone": None,
             "candidates": 0,
+            "parent_all_zero": all_parent_zero,
+            "suspicious_zero_parent": suspicious,
         }
 
     if penetration_rows:
