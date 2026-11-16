@@ -900,6 +900,16 @@ def pose_snapshot(objects) -> dict:
     return snap
 
 
+def _snapshots_differ(frames_snapshots) -> bool:
+    """采样帧之间的姿态有没有**真的不同**（同一帧不算；空输入算 False）。"""
+    seen = set()
+    for snapshot in (frames_snapshots or {}).values():
+        seen.add(tuple(sorted((name, tuple(values)) for name, values in snapshot.items())))
+        if len(seen) > 1:
+            return True
+    return False
+
+
 def bake_probe(fresh, cached, tol=BAKE_TOL) -> dict:
     """纯函数：`fresh`（烘焙前顺序解算）对比 `cached`（烘焙后冷跳）逐帧逐值。
 
@@ -935,6 +945,9 @@ def bake_probe(fresh, cached, tol=BAKE_TOL) -> dict:
     return {
         "matched": not (mismatches or missing_objects or missing_frames or extra_frames)
                    and bool(compared_bodies),
+        # 参照姿态若在采样帧之间**完全相同**，「一致」只证明了「两次读到同一个静态值」——
+        # 那不是"缓存忠实"，是"没东西可忠实"。静态场景照样会给出 max_delta=0。
+        "reference_moved": _snapshots_differ(fresh),
         "tol": tol,
         "frames": sorted(set(fresh) & set(cached)),
         "bodies": len(compared_bodies),
@@ -948,7 +961,7 @@ def bake_probe(fresh, cached, tol=BAKE_TOL) -> dict:
 
 
 def bake_checks(record) -> dict:
-    """「这件算按契约 B 烘过吗」——五条**分开给**，不合成一个 `and`（一位坏就看不见）。"""
+    """「这件算按契约 B 烘过吗」——六条**分开给**，不合成一个 `and`（一位坏就看不见）。"""
     record = record or {}
     probe = record.get("probe") or {}
     return {
@@ -956,6 +969,8 @@ def bake_checks(record) -> dict:
         "applied": record.get("applied") is True,
         "not_outdated": record.get("is_outdated") is False,
         "probe_matched": probe.get("matched") is True,
+        # 「一致」只有在参照姿态真的动过时才算证据：静态场景逐位相同是必然的
+        "probe_informative": probe.get("reference_moved") is True,
         "fields_complete": all(key in record for key in BAKE_FIELDS + BAKE_EXTRA_FIELDS),
     }
 

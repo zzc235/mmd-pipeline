@@ -297,10 +297,33 @@ def _clear_previous(arm):
     return removed
 
 
+def fcurves_of(action):
+    """取一个 `Action` 的全部 fcurve —— **Blender 4.4+ 的分层/槽位动作没有 `.fcurves`**。
+
+    为什么要有这层：`Action.fcurves` 只在「本会话里刚由导入器造出来的动作」上可读；
+    一旦动作随 `.blend` 存盘再读回来（分层动作 + 槽位），这个属性直接 `AttributeError`。
+    于是「可重复运行」这件事在真件上从来没有人验过 —— 2026-11-16 我在 324 批次的
+    产物回读里撞上（`C@W1.blend` 的 `B_aligned_bone` 只有 `layers/strips/channelbags`）。
+    返回 `(fcurves 列表, 走的是哪条路)`，`how` 进记录，别让下一个人猜读数从哪来。
+    """
+    try:
+        return list(action.fcurves), "action.fcurves"
+    except AttributeError:
+        pass
+    except TypeError:                       # 某些版本给 None，同样按「没有」处理
+        pass
+    out = []
+    for layer in getattr(action, "layers", []) or []:
+        for strip in getattr(layer, "strips", []) or []:
+            for bag in getattr(strip, "channelbags", None) or []:
+                out.extend(bag.fcurves)
+    return out, "layers.strips.channelbags"
+
+
 def _trim_action(action, keep_until):
     """丢掉 keep_until 之后的关键帧；返回被丢掉的帧数（按曲线逐个算）。"""
     dropped = 0
-    for fcu in action.fcurves:
+    for fcu in fcurves_of(action)[0]:
         pts = fcu.keyframe_points
         for i in range(len(pts) - 1, -1, -1):
             if pts[i].co[0] > keep_until:
@@ -313,7 +336,7 @@ def _trim_action(action, keep_until):
 def _hold_action(action, hold_until):
     """给每条曲线在 hold_until 补一个「末帧姿态」的键 —— 值相同，插值自然是常值。"""
     added = 0
-    for fcu in action.fcurves:
+    for fcu in fcurves_of(action)[0]:
         pts = fcu.keyframe_points
         if len(pts) == 0:
             continue
@@ -454,7 +477,9 @@ def apply_action(preset, root, arm, vmd_path, *, frame_start=1, trim_end=None,
         pc.frame_end = max(end_read, start_read)
         cache["point_cache_range"] = [int(pc.frame_start), int(pc.frame_end)]
 
-    rec["action"] = {"name": action.name, "fcurves": len(action.fcurves),
+    fcurves, fcurves_how = fcurves_of(action)
+    rec["action"] = {"name": action.name, "fcurves": len(fcurves),
+                     "fcurves_via": fcurves_how,
                      "frame_range": [start_read, end_read],
                      "nla_tracks": len(arm.animation_data.nla_tracks) if arm.animation_data else 0,
                      "action_users": action.users}
@@ -469,8 +494,8 @@ def apply_action(preset, root, arm, vmd_path, *, frame_start=1, trim_end=None,
     out = check_record(rec)
     rec.update(out)
     if verbose:
-        print("  APPLY %s fcurves=%d range=%s frame_end=%d is_baked=%s → %s"
-              % (action.name, len(action.fcurves), rec["action"]["frame_range"],
+        print("  APPLY %s fcurves=%d(%s) range=%s frame_end=%d is_baked=%s → %s"
+              % (action.name, len(fcurves), fcurves_how, rec["action"]["frame_range"],
                  scene.frame_end, cache["is_baked"], rec["verdict"]))
     return rec, out["verdict"] == "READY"
 
