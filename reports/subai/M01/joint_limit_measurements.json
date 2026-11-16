@@ -1,0 +1,251 @@
+{
+ "control_wrong_offset_78": {
+  "limit_span_after": 0.3490658700466156,
+  "spring_max_after": 2.304855714121459e-41,
+  "verdict": "写 +78 后 PMX 仍可解析：spring_rot 仍读 0，spring_move 第 3 个 float 变成 1e-41 量级的反规格化数——语义字段既读不到写入的 1/2/3，也看不出有人动过手，只有逐字节比能定位。+78 落在 spring_move 的第三个 float 内部，不是字段边界。",
+  "window_rel_joint": [
+   80,
+   89
+  ],
+  "written_at_rel_offset": 78
+ },
+ "field_width_bytes": 12,
+ "interface": "pmx_patch/joint_limit@1",
+ "model_scales": {
+  "bones": 420,
+  "joints": 389,
+  "joints_with_nonzero_spring": 0,
+  "joints_with_nonzero_transl_limit": 105,
+  "rigids": 312
+ },
+ "offsets": {
+  "move_max": 36,
+  "move_min": 24,
+  "rot_max": 60,
+  "rot_min": 48,
+  "spring_move": 72,
+  "spring_rot": 84
+ },
+ "per_field_probe": {
+  "move_max": {
+   "joint0": {
+    "diff_bytes": 5,
+    "field_offset": 36,
+    "limit_span_after": 3.0,
+    "parsed_equals_target": [
+     1.0,
+     2.0,
+     3.0
+    ],
+    "spring_max_after": 0.0,
+    "window_rel_joint": [
+     38,
+     47
+    ]
+   },
+   "nz": {
+    "diff_bytes": 12,
+    "field_offset": 36,
+    "limit_span_after": 3.0,
+    "parsed_equals_target": [
+     1.0,
+     2.0,
+     3.0
+    ],
+    "spring_max_after": 0.0,
+    "window_rel_joint": [
+     36,
+     47
+    ]
+   }
+  },
+  "move_min": {
+   "joint0": {
+    "diff_bytes": 5,
+    "field_offset": 24,
+    "limit_span_after": 3.0,
+    "parsed_equals_target": [
+     1.0,
+     2.0,
+     3.0
+    ],
+    "spring_max_after": 0.0,
+    "window_rel_joint": [
+     26,
+     35
+    ]
+   },
+   "nz": {
+    "diff_bytes": 12,
+    "field_offset": 24,
+    "limit_span_after": 3.0,
+    "parsed_equals_target": [
+     1.0,
+     2.0,
+     3.0
+    ],
+    "spring_max_after": 0.0,
+    "window_rel_joint": [
+     24,
+     35
+    ]
+   }
+  },
+  "rot_max": {
+   "joint0": {
+    "diff_bytes": 5,
+    "field_offset": 60,
+    "limit_span_after": 3.0,
+    "parsed_equals_target": [
+     1.0,
+     2.0,
+     3.0
+    ],
+    "spring_max_after": 0.0,
+    "window_rel_joint": [
+     62,
+     71
+    ]
+   },
+   "nz": {
+    "diff_bytes": 12,
+    "field_offset": 60,
+    "limit_span_after": 3.0,
+    "parsed_equals_target": [
+     1.0,
+     2.0,
+     3.0
+    ],
+    "spring_max_after": 0.0,
+    "window_rel_joint": [
+     60,
+     71
+    ]
+   }
+  },
+  "rot_min": {
+   "joint0": {
+    "diff_bytes": 5,
+    "field_offset": 48,
+    "limit_span_after": 3.0,
+    "parsed_equals_target": [
+     1.0,
+     2.0,
+     3.0
+    ],
+    "spring_max_after": 0.0,
+    "window_rel_joint": [
+     50,
+     59
+    ]
+   },
+   "nz": {
+    "diff_bytes": 12,
+    "field_offset": 48,
+    "limit_span_after": 3.0,
+    "parsed_equals_target": [
+     1.0,
+     2.0,
+     3.0
+    ],
+    "spring_max_after": 0.0,
+    "window_rel_joint": [
+     48,
+     59
+    ]
+   }
+  },
+  "spring_move": {
+   "joint0": {
+    "diff_bytes": 5,
+    "field_offset": 72,
+    "limit_span_after": 0.0,
+    "parsed_equals_target": [
+     1.0,
+     2.0,
+     3.0
+    ],
+    "spring_max_after": 3.0,
+    "window_rel_joint": [
+     74,
+     83
+    ]
+   },
+   "nz": {
+    "diff_bytes": 5,
+    "field_offset": 72,
+    "limit_span_after": 0.3490658700466156,
+    "parsed_equals_target": [
+     1.0,
+     2.0,
+     3.0
+    ],
+    "spring_max_after": 3.0,
+    "window_rel_joint": [
+     74,
+     83
+    ]
+   }
+  },
+  "spring_rot": {
+   "joint0": {
+    "diff_bytes": 5,
+    "field_offset": 84,
+    "limit_span_after": 0.0,
+    "parsed_equals_target": [
+     1.0,
+     2.0,
+     3.0
+    ],
+    "spring_max_after": 3.0,
+    "window_rel_joint": [
+     86,
+     95
+    ]
+   },
+   "nz": {
+    "diff_bytes": 5,
+    "field_offset": 84,
+    "limit_span_after": 0.3490658700466156,
+    "parsed_equals_target": [
+     1.0,
+     2.0,
+     3.0
+    ],
+    "spring_max_after": 3.0,
+    "window_rel_joint": [
+     86,
+     95
+    ]
+   }
+  }
+ },
+ "sample_joint_with_nonzero_limit": 171,
+ "source": {
+  "path": "E:\\blender模型\\没有外套本家模型\\星穹铁道—飞霄（无外套）.pmx",
+  "sha256_after": "2db720a2281a9ea954082fc4d7f42f0d50a6ca72235d345566fbf5a28549a267",
+  "sha256_before": "2db720a2281a9ea954082fc4d7f42f0d50a6ca72235d345566fbf5a28549a267",
+  "unchanged": true
+ },
+ "task": "M01",
+ "verification": {
+  "mutation_spring_rot_78": {
+   "caught_by": [
+    "test_all_six_windows_are_disjoint",
+    "test_each_field_lands_in_its_own_window[spring_rot]",
+    "test_multi_joint_patch_only_touches_each_window",
+    "test_parse_records_all_six_fields"
+   ],
+   "suite_failed": true
+  },
+  "tests_full": {
+   "ok": true,
+   "ran": 128,
+   "skipped": 15
+  },
+  "tests_test_pmx_patch": {
+   "ok": true,
+   "ran": 23
+  }
+ }
+}

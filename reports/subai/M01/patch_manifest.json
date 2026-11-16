@@ -1,0 +1,83 @@
+{
+ "source": "E:\\blender模型\\没有外套本家模型\\星穹铁道—飞霄（无外套）.pmx",
+ "source_sha256_before": "2db720a2281a9ea954082fc4d7f42f0d50a6ca72235d345566fbf5a28549a267",
+ "source_sha256_after": "2db720a2281a9ea954082fc4d7f42f0d50a6ca72235d345566fbf5a28549a267",
+ "source_unchanged": true,
+ "output": "E:\\dsh pr\\woker2\\out\\subai\\M01\\飞霄_s3_mode0.pmx",
+ "output_sha256": "c59460752835501ead6123b2d5f195bebc1356df29a8871f498ca1f12cf2f3da",
+ "bytes_source": 3316950,
+ "bytes_output": 3316950,
+ "patch_kind": "rigid_mode",
+ "targets": [
+  {
+   "index": 24,
+   "name": "右胸",
+   "bone": "右胸",
+   "old_mode": 2,
+   "new_mode": 0,
+   "byte_offset": 3236857
+  },
+  {
+   "index": 25,
+   "name": "右胸１",
+   "bone": "右胸１",
+   "old_mode": 2,
+   "new_mode": 0,
+   "byte_offset": 3236934
+  },
+  {
+   "index": 26,
+   "name": "右胸２",
+   "bone": "右胸２",
+   "old_mode": 2,
+   "new_mode": 0,
+   "byte_offset": 3237011
+  },
+  {
+   "index": 27,
+   "name": "左胸",
+   "bone": "左胸",
+   "old_mode": 2,
+   "new_mode": 0,
+   "byte_offset": 3237086
+  },
+  {
+   "index": 28,
+   "name": "左胸１",
+   "bone": "左胸１",
+   "old_mode": 2,
+   "new_mode": 0,
+   "byte_offset": 3237163
+  },
+  {
+   "index": 29,
+   "name": "左胸２",
+   "bone": "左胸２",
+   "old_mode": 2,
+   "new_mode": 0,
+   "byte_offset": 3237240
+  }
+ ],
+ "diff_byte_count": 6,
+ "diff_offsets": [
+  3236857,
+  3236934,
+  3237011,
+  3237086,
+  3237163,
+  3237240
+ ],
+ "parse_tail_error": null,
+ "reparse_ok": true,
+ "non_target_modes_unchanged": true,
+ "joint_limit_layout": {
+  "move_min": "joint_pos_offsets[i] + 24  (3f)",
+  "move_max": "joint_pos_offsets[i] + 36  (3f)",
+  "rot_min": "joint_pos_offsets[i] + 48  (3f, rad)",
+  "rot_max": "joint_pos_offsets[i] + 60  (3f, rad)",
+  "spring_move": "joint_pos_offsets[i] + 72  (3f)",
+  "spring_rot": "joint_pos_offsets[i] + 84  (3f)",
+  "note": "实测布局（飞霄 PMX 逐字节核对过 joint 0/1/2）：限位共 12 个 float 从 +24 起，弹簧共 6 个 float 从 +72 起（弹簧位移 +72、弹簧旋转 +84，关节尾部共 24 float = 96 B）。扩展 patch_save 时沿用 rigid_mode 的做法：写前回读旧值校验，不一致就拒绝。",
+  "erratum": "2026-11-16 勘误（模块负责1）：spring_rot 初版写 +78 有误，实测为 +84。+78 落在弹簧位移 sp 第 3 个 float 内部，写进去后 PMX 仍能解析：spring_rot 仍读 0，sp 第 3 个 float 变成 1e-41 量级的反规格化数——既读不到写入的 1/2/3，也看不出有人动过手，只有逐字节比能定位。证据：在 o+84 写 (1,2,3) 后重解析 spring_max=3.0、字节差异 5 个且全部落在 o+86…o+95；在 o+78 写 7.0 后 sp=(0.0,0.0,2.327e-41)。"
+ }
+}

@@ -1,0 +1,63 @@
+{
+ "bodies": 324,
+ "cache_after_step": {
+  "frame_end": 326,
+  "frame_start": 1,
+  "info": "326 frames in memory (2.9 MiB).",
+  "is_baked": true,
+  "is_outdated": true,
+  "use_disk_cache": false
+ },
+ "cache_at_open": {
+  "frame_end": 326,
+  "frame_start": 1,
+  "info": "326 frames in memory (2.9 MiB).",
+  "is_baked": true,
+  "is_outdated": true,
+  "use_disk_cache": false
+ },
+ "cold_jump": true,
+ "comparisons": [
+  {
+   "D_all": 0.0,
+   "D_hem_max": 0.0,
+   "D_hem_sum": 0.0,
+   "D_max": 0.0,
+   "D_max_bone": "000_$name_j",
+   "bitwise_identical": true,
+   "bodies_compared": 324,
+   "label": "P0重算（frames.jsonl@109）",
+   "nonzero": 0,
+   "only_in_a": [],
+   "only_in_b": []
+  },
+  {
+   "D_all": 219.094854,
+   "D_hem_max": 0.90871,
+   "D_hem_sum": 15.24608,
+   "D_max": 1.5867,
+   "D_max_bone": "008_$name_j.009",
+   "bitwise_identical": false,
+   "bodies_compared": 324,
+   "label": "A1回放（frames.jsonl@109）",
+   "nonzero": 275,
+   "only_in_a": [],
+   "only_in_b": []
+  },
+  {
+   "D_all": 0.0,
+   "D_hem_max": 0.0,
+   "D_hem_sum": 0.0,
+   "D_max": 0.0,
+   "D_max_bone": "000_$name_j",
+   "bitwise_identical": true,
+   "bodies_compared": 324,
+   "label": "P11seq顺序（frames.jsonl@109）",
+   "nonzero": 0,
+   "only_in_a": [],
+   "only_in_b": []
+  }
+ ],
+ "frame": 109,
+ "probe": "P13_probe.json"
+}

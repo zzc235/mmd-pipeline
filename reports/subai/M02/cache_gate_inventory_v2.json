@@ -1,0 +1,340 @@
+{
+ "E:\\dsh pr\\woker2\\out\\subai\\M02\\blend\\B_from_blend1.blend": {
+  "behavior": {
+   "cold_jump_frame": 109,
+   "cold_jump_vs_recompute_m": 1.5867,
+   "tolerance_m": 1e-06
+  },
+  "bodies": 324,
+  "cache_frames": [
+   1,
+   326
+  ],
+  "exists": true,
+  "exit_code": 3,
+  "has_physics": true,
+  "info": "240 frames in memory (2.1 MiB), cache is outdated!",
+  "is_baked": true,
+  "is_outdated": true,
+  "note": "行为探针测到「冷跳中间帧」与「顺序重算同一帧」不是同一条动画（> tolerance）；该工程回放与重算分叉。修法二选一：重烘焙并保存（`bpy.ops.ptcache.bake_all()`，P13 实测 exit 0 / 32.2 s / 冷跳逐位等于重算，需 10 §6 逐场景豁免），或解烘焙交付并要求消费方从 `scene.frame_start` 顺序求值。",
+  "path": "E:\\dsh pr\\woker2\\out\\subai\\M02\\blend\\B_from_blend1.blend",
+  "reason": "行为探针测到「冷跳中间帧」与「顺序重算同一帧」不是同一条动画（> tolerance）；该工程回放与重算分叉。修法二选一：重烘焙并保存（`bpy.ops.ptcache.bake_all()`，P13 实测 exit 0 / 32.2 s / 冷跳逐位等于重算，需 10 §6 逐场景豁免），或解烘焙交付并要求消费方从 `scene.frame_start` 顺序求值。",
+  "spec": "cache_state/1",
+  "use_disk_cache": false,
+  "verdict": "DEFECT_BAKED_OUTDATED"
+ },
+ "E:\\dsh pr\\woker2\\out\\subai\\M02\\blend\\B_x07.blend": {
+  "behavior": null,
+  "bodies": 324,
+  "cache_frames": [
+   1,
+   326
+  ],
+  "exists": true,
+  "exit_code": 4,
+  "has_physics": true,
+  "info": "240 frames in memory (2.1 MiB), cache is outdated!",
+  "is_baked": true,
+  "is_outdated": true,
+  "note": "产物 is_baked=true 且 is_outdated=true：**打开时无法证明缓存与当前设置一致**。这不是缺陷的证据——真烘焙件重开后也是这两个值（P13 `J_baked.blend` 冷跳逐位等于重算）。要定性必须补行为探针：冷跳一个中间帧，与从 frame_start 顺序重算的同一帧比距离。",
+  "path": "E:\\dsh pr\\woker2\\out\\subai\\M02\\blend\\B_x07.blend",
+  "reason": "产物 is_baked=true 且 is_outdated=true：**打开时无法证明缓存与当前设置一致**。这不是缺陷的证据——真烘焙件重开后也是这两个值（P13 `J_baked.blend` 冷跳逐位等于重算）。要定性必须补行为探针：冷跳一个中间帧，与从 frame_start 顺序重算的同一帧比距离。",
+  "spec": "cache_state/1",
+  "use_disk_cache": false,
+  "verdict": "SUSPECT_BAKED_OUTDATED"
+ },
+ "E:\\dsh pr\\woker2\\out\\subai\\M02\\blend\\B_y07.blend": {
+  "behavior": null,
+  "bodies": 324,
+  "cache_frames": [
+   1,
+   326
+  ],
+  "exists": true,
+  "exit_code": 4,
+  "has_physics": true,
+  "info": "240 frames in memory (2.1 MiB), cache is outdated!",
+  "is_baked": true,
+  "is_outdated": true,
+  "note": "产物 is_baked=true 且 is_outdated=true：**打开时无法证明缓存与当前设置一致**。这不是缺陷的证据——真烘焙件重开后也是这两个值（P13 `J_baked.blend` 冷跳逐位等于重算）。要定性必须补行为探针：冷跳一个中间帧，与从 frame_start 顺序重算的同一帧比距离。",
+  "path": "E:\\dsh pr\\woker2\\out\\subai\\M02\\blend\\B_y07.blend",
+  "reason": "产物 is_baked=true 且 is_outdated=true：**打开时无法证明缓存与当前设置一致**。这不是缺陷的证据——真烘焙件重开后也是这两个值（P13 `J_baked.blend` 冷跳逐位等于重算）。要定性必须补行为探针：冷跳一个中间帧，与从 frame_start 顺序重算的同一帧比距离。",
+  "spec": "cache_state/1",
+  "use_disk_cache": false,
+  "verdict": "SUSPECT_BAKED_OUTDATED"
+ },
+ "E:\\dsh pr\\woker2\\out\\subai\\M02\\blend\\B_z07.blend": {
+  "behavior": null,
+  "bodies": 324,
+  "cache_frames": [
+   1,
+   326
+  ],
+  "exists": true,
+  "exit_code": 4,
+  "has_physics": true,
+  "info": "240 frames in memory (2.1 MiB), cache is outdated!",
+  "is_baked": true,
+  "is_outdated": true,
+  "note": "产物 is_baked=true 且 is_outdated=true：**打开时无法证明缓存与当前设置一致**。这不是缺陷的证据——真烘焙件重开后也是这两个值（P13 `J_baked.blend` 冷跳逐位等于重算）。要定性必须补行为探针：冷跳一个中间帧，与从 frame_start 顺序重算的同一帧比距离。",
+  "path": "E:\\dsh pr\\woker2\\out\\subai\\M02\\blend\\B_z07.blend",
+  "reason": "产物 is_baked=true 且 is_outdated=true：**打开时无法证明缓存与当前设置一致**。这不是缺陷的证据——真烘焙件重开后也是这两个值（P13 `J_baked.blend` 冷跳逐位等于重算）。要定性必须补行为探针：冷跳一个中间帧，与从 frame_start 顺序重算的同一帧比距离。",
+  "spec": "cache_state/1",
+  "use_disk_cache": false,
+  "verdict": "SUSPECT_BAKED_OUTDATED"
+ },
+ "E:\\dsh pr\\woker2\\out\\subai\\M02\\blend\\baseline.blend": {
+  "behavior": null,
+  "bodies": 313,
+  "cache_frames": [
+   1,
+   240
+  ],
+  "exists": true,
+  "exit_code": 0,
+  "has_physics": true,
+  "info": "240 frames in memory (2.0 MiB), cache is outdated!",
+  "is_baked": false,
+  "is_outdated": true,
+  "note": "",
+  "path": "E:\\dsh pr\\woker2\\out\\subai\\M02\\blend\\baseline.blend",
+  "spec": "cache_state/1",
+  "use_disk_cache": false,
+  "verdict": "OK_UNBAKED"
+ },
+ "E:\\dsh pr\\woker2\\out\\subai\\M02\\blend\\prepared_baseline.blend": {
+  "behavior": null,
+  "bodies": 313,
+  "cache_frames": [
+   1,
+   240
+  ],
+  "exists": true,
+  "exit_code": 0,
+  "has_physics": true,
+  "info": "240 frames in memory (2.0 MiB), cache is outdated!",
+  "is_baked": false,
+  "is_outdated": true,
+  "note": "",
+  "path": "E:\\dsh pr\\woker2\\out\\subai\\M02\\blend\\prepared_baseline.blend",
+  "spec": "cache_state/1",
+  "use_disk_cache": false,
+  "verdict": "OK_UNBAKED"
+ },
+ "E:\\dsh pr\\woker2\\out\\subai\\M02\\blend\\prepared_x07.blend": {
+  "behavior": null,
+  "bodies": 313,
+  "cache_frames": [
+   1,
+   240
+  ],
+  "exists": true,
+  "exit_code": 0,
+  "has_physics": true,
+  "info": "240 frames in memory (2.0 MiB), cache is outdated!",
+  "is_baked": false,
+  "is_outdated": true,
+  "note": "",
+  "path": "E:\\dsh pr\\woker2\\out\\subai\\M02\\blend\\prepared_x07.blend",
+  "spec": "cache_state/1",
+  "use_disk_cache": false,
+  "verdict": "OK_UNBAKED"
+ },
+ "E:\\dsh pr\\woker2\\out\\subai\\M02\\blend\\s2_x07.blend": {
+  "behavior": null,
+  "bodies": 313,
+  "cache_frames": [
+   1,
+   240
+  ],
+  "exists": true,
+  "exit_code": 0,
+  "has_physics": true,
+  "info": "240 frames in memory (2.0 MiB), cache is outdated!",
+  "is_baked": false,
+  "is_outdated": true,
+  "note": "",
+  "path": "E:\\dsh pr\\woker2\\out\\subai\\M02\\blend\\s2_x07.blend",
+  "spec": "cache_state/1",
+  "use_disk_cache": false,
+  "verdict": "OK_UNBAKED"
+ },
+ "E:\\dsh pr\\woker2\\out\\subai\\M02\\rebuild\\rebuild_built.blend": {
+  "behavior": null,
+  "bodies": 312,
+  "cache_frames": [
+   1,
+   2400
+  ],
+  "exists": true,
+  "exit_code": 0,
+  "has_physics": true,
+  "info": "",
+  "is_baked": false,
+  "is_outdated": true,
+  "note": "",
+  "path": "E:\\dsh pr\\woker2\\out\\subai\\M02\\rebuild\\rebuild_built.blend",
+  "spec": "cache_state/1",
+  "use_disk_cache": false,
+  "verdict": "OK_UNBAKED"
+ },
+ "E:\\dsh pr\\woker2\\out\\subai\\M02\\rebuild\\rebuild_import.blend": {
+  "behavior": null,
+  "bodies": 312,
+  "cache_frames": [
+   1,
+   250
+  ],
+  "exists": true,
+  "exit_code": 0,
+  "has_physics": true,
+  "info": "",
+  "is_baked": false,
+  "is_outdated": true,
+  "note": "",
+  "path": "E:\\dsh pr\\woker2\\out\\subai\\M02\\rebuild\\rebuild_import.blend",
+  "spec": "cache_state/1",
+  "use_disk_cache": false,
+  "verdict": "OK_UNBAKED"
+ },
+ "E:\\dsh pr\\woker2\\out\\subai\\M02\\s8\\E_base.blend": {
+  "behavior": null,
+  "bodies": 324,
+  "cache_frames": [
+   1,
+   326
+  ],
+  "exists": true,
+  "exit_code": 4,
+  "has_physics": true,
+  "info": "240 frames in memory (2.1 MiB), cache is outdated!",
+  "is_baked": true,
+  "is_outdated": true,
+  "note": "产物 is_baked=true 且 is_outdated=true：**打开时无法证明缓存与当前设置一致**。这不是缺陷的证据——真烘焙件重开后也是这两个值（P13 `J_baked.blend` 冷跳逐位等于重算）。要定性必须补行为探针：冷跳一个中间帧，与从 frame_start 顺序重算的同一帧比距离。",
+  "path": "E:\\dsh pr\\woker2\\out\\subai\\M02\\s8\\E_base.blend",
+  "reason": "产物 is_baked=true 且 is_outdated=true：**打开时无法证明缓存与当前设置一致**。这不是缺陷的证据——真烘焙件重开后也是这两个值（P13 `J_baked.blend` 冷跳逐位等于重算）。要定性必须补行为探针：冷跳一个中间帧，与从 frame_start 顺序重算的同一帧比距离。",
+  "spec": "cache_state/1",
+  "use_disk_cache": false,
+  "verdict": "SUSPECT_BAKED_OUTDATED"
+ },
+ "E:\\dsh pr\\woker2\\out\\subai\\M02\\s8\\G_base.blend": {
+  "behavior": null,
+  "bodies": 324,
+  "cache_frames": [
+   1,
+   326
+  ],
+  "exists": true,
+  "exit_code": 4,
+  "has_physics": true,
+  "info": "240 frames in memory (2.1 MiB), cache is outdated!",
+  "is_baked": true,
+  "is_outdated": true,
+  "note": "产物 is_baked=true 且 is_outdated=true：**打开时无法证明缓存与当前设置一致**。这不是缺陷的证据——真烘焙件重开后也是这两个值（P13 `J_baked.blend` 冷跳逐位等于重算）。要定性必须补行为探针：冷跳一个中间帧，与从 frame_start 顺序重算的同一帧比距离。",
+  "path": "E:\\dsh pr\\woker2\\out\\subai\\M02\\s8\\G_base.blend",
+  "reason": "产物 is_baked=true 且 is_outdated=true：**打开时无法证明缓存与当前设置一致**。这不是缺陷的证据——真烘焙件重开后也是这两个值（P13 `J_baked.blend` 冷跳逐位等于重算）。要定性必须补行为探针：冷跳一个中间帧，与从 frame_start 顺序重算的同一帧比距离。",
+  "spec": "cache_state/1",
+  "use_disk_cache": false,
+  "verdict": "SUSPECT_BAKED_OUTDATED"
+ },
+ "E:\\dsh pr\\woker2\\out\\subai\\M02\\s8\\H_nobake.blend": {
+  "behavior": null,
+  "bodies": 324,
+  "cache_frames": [
+   1,
+   326
+  ],
+  "exists": true,
+  "exit_code": 0,
+  "has_physics": true,
+  "info": "240 frames in memory (2.1 MiB), cache is outdated!",
+  "is_baked": false,
+  "is_outdated": true,
+  "note": "",
+  "path": "E:\\dsh pr\\woker2\\out\\subai\\M02\\s8\\H_nobake.blend",
+  "spec": "cache_state/1",
+  "use_disk_cache": false,
+  "verdict": "OK_UNBAKED"
+ },
+ "E:\\dsh pr\\woker2\\out\\subai\\M02\\s8\\I_fresh.blend": {
+  "behavior": null,
+  "bodies": 324,
+  "cache_frames": [
+   1,
+   326
+  ],
+  "exists": true,
+  "exit_code": 0,
+  "has_physics": true,
+  "info": "240 frames in memory (2.1 MiB).",
+  "is_baked": false,
+  "is_outdated": true,
+  "note": "",
+  "path": "E:\\dsh pr\\woker2\\out\\subai\\M02\\s8\\I_fresh.blend",
+  "spec": "cache_state/1",
+  "use_disk_cache": false,
+  "verdict": "OK_UNBAKED"
+ },
+ "E:\\dsh pr\\woker2\\out\\subai\\M02\\s8\\I_src.blend": {
+  "behavior": null,
+  "bodies": 324,
+  "cache_frames": [
+   1,
+   326
+  ],
+  "exists": true,
+  "exit_code": 4,
+  "has_physics": true,
+  "info": "240 frames in memory (2.1 MiB), cache is outdated!",
+  "is_baked": true,
+  "is_outdated": true,
+  "note": "产物 is_baked=true 且 is_outdated=true：**打开时无法证明缓存与当前设置一致**。这不是缺陷的证据——真烘焙件重开后也是这两个值（P13 `J_baked.blend` 冷跳逐位等于重算）。要定性必须补行为探针：冷跳一个中间帧，与从 frame_start 顺序重算的同一帧比距离。",
+  "path": "E:\\dsh pr\\woker2\\out\\subai\\M02\\s8\\I_src.blend",
+  "reason": "产物 is_baked=true 且 is_outdated=true：**打开时无法证明缓存与当前设置一致**。这不是缺陷的证据——真烘焙件重开后也是这两个值（P13 `J_baked.blend` 冷跳逐位等于重算）。要定性必须补行为探针：冷跳一个中间帧，与从 frame_start 顺序重算的同一帧比距离。",
+  "spec": "cache_state/1",
+  "use_disk_cache": false,
+  "verdict": "SUSPECT_BAKED_OUTDATED"
+ },
+ "E:\\dsh pr\\woker2\\out\\subai\\M02\\s8\\J_baked.blend": {
+  "behavior": {
+   "cold_jump_frame": 109,
+   "cold_jump_vs_recompute_m": 0.0,
+   "tolerance_m": 1e-06
+  },
+  "bodies": 324,
+  "cache_frames": [
+   1,
+   326
+  ],
+  "exists": true,
+  "exit_code": 0,
+  "has_physics": true,
+  "info": "326 frames in memory (2.9 MiB).",
+  "is_baked": true,
+  "is_outdated": true,
+  "note": "",
+  "path": "E:\\dsh pr\\woker2\\out\\subai\\M02\\s8\\J_baked.blend",
+  "spec": "cache_state/1",
+  "use_disk_cache": false,
+  "verdict": "OK_BAKED_VERIFIED"
+ },
+ "E:\\dsh pr\\woker2\\out\\subai\\M02\\s8\\J_src.blend": {
+  "behavior": null,
+  "bodies": 324,
+  "cache_frames": [
+   1,
+   326
+  ],
+  "exists": true,
+  "exit_code": 0,
+  "has_physics": true,
+  "info": "240 frames in memory (2.1 MiB), cache is outdated!",
+  "is_baked": false,
+  "is_outdated": true,
+  "note": "",
+  "path": "E:\\dsh pr\\woker2\\out\\subai\\M02\\s8\\J_src.blend",
+  "spec": "cache_state/1",
+  "use_disk_cache": false,
+  "verdict": "OK_UNBAKED"
+ }
+}

@@ -1,0 +1,173 @@
+{
+ "E:\\dsh pr\\woker2\\out\\subai\\M02\\blend\\B_from_blend1.blend": {
+  "constraints": 4040,
+  "exists": true,
+  "gravity": 1.0,
+  "iterations": 20,
+  "point_cache": {
+   "frame_end": 326,
+   "frame_start": 1,
+   "info": "240 帧数在内存里 (2.1 MiB), 缓存已过期!",
+   "is_baked": true,
+   "use_disk_cache": false
+  },
+  "rigid_bodies": 324,
+  "scene_frames": [
+   1,
+   240
+  ],
+  "substeps": 10
+ },
+ "E:\\dsh pr\\woker2\\out\\subai\\M02\\blend\\B_x07.blend": {
+  "constraints": 4040,
+  "exists": true,
+  "gravity": 1.0,
+  "iterations": 20,
+  "point_cache": {
+   "frame_end": 326,
+   "frame_start": 1,
+   "info": "240 帧数在内存里 (2.1 MiB), 缓存已过期!",
+   "is_baked": true,
+   "use_disk_cache": false
+  },
+  "rigid_bodies": 324,
+  "scene_frames": [
+   1,
+   240
+  ],
+  "substeps": 10
+ },
+ "E:\\dsh pr\\woker2\\out\\subai\\M02\\blend\\B_y07.blend": {
+  "constraints": 4040,
+  "exists": true,
+  "gravity": 1.0,
+  "iterations": 20,
+  "point_cache": {
+   "frame_end": 326,
+   "frame_start": 1,
+   "info": "240 帧数在内存里 (2.1 MiB), 缓存已过期!",
+   "is_baked": true,
+   "use_disk_cache": false
+  },
+  "rigid_bodies": 324,
+  "scene_frames": [
+   1,
+   240
+  ],
+  "substeps": 10
+ },
+ "E:\\dsh pr\\woker2\\out\\subai\\M02\\blend\\B_z07.blend": {
+  "constraints": 4040,
+  "exists": true,
+  "gravity": 1.0,
+  "iterations": 20,
+  "point_cache": {
+   "frame_end": 326,
+   "frame_start": 1,
+   "info": "240 帧数在内存里 (2.1 MiB), 缓存已过期!",
+   "is_baked": true,
+   "use_disk_cache": false
+  },
+  "rigid_bodies": 324,
+  "scene_frames": [
+   1,
+   240
+  ],
+  "substeps": 10
+ },
+ "E:\\dsh pr\\woker2\\out\\subai\\M02\\blend\\baseline.blend": {
+  "constraints": 389,
+  "exists": true,
+  "gravity": 1.0,
+  "iterations": 20,
+  "point_cache": {
+   "frame_end": 240,
+   "frame_start": 1,
+   "info": "240 帧数在内存里 (2.0 MiB), 缓存已过期!",
+   "is_baked": false,
+   "use_disk_cache": false
+  },
+  "rigid_bodies": 313,
+  "scene_frames": [
+   1,
+   240
+  ],
+  "substeps": 10
+ },
+ "E:\\dsh pr\\woker2\\out\\subai\\M02\\blend\\prepared_baseline.blend": {
+  "constraints": 4040,
+  "exists": true,
+  "gravity": 1.0,
+  "iterations": 20,
+  "point_cache": {
+   "frame_end": 240,
+   "frame_start": 1,
+   "info": "240 帧数在内存里 (2.0 MiB), 缓存已过期!",
+   "is_baked": false,
+   "use_disk_cache": false
+  },
+  "rigid_bodies": 313,
+  "scene_frames": [
+   1,
+   240
+  ],
+  "substeps": 10
+ },
+ "E:\\dsh pr\\woker2\\out\\subai\\M02\\blend\\prepared_x07.blend": {
+  "constraints": 4040,
+  "exists": true,
+  "gravity": 1.0,
+  "iterations": 20,
+  "point_cache": {
+   "frame_end": 240,
+   "frame_start": 1,
+   "info": "240 帧数在内存里 (2.0 MiB), 缓存已过期!",
+   "is_baked": false,
+   "use_disk_cache": false
+  },
+  "rigid_bodies": 313,
+  "scene_frames": [
+   1,
+   240
+  ],
+  "substeps": 10
+ },
+ "E:\\dsh pr\\woker2\\out\\subai\\M02\\blend\\s2_x07.blend": {
+  "constraints": 389,
+  "exists": true,
+  "gravity": 1.0,
+  "iterations": 20,
+  "point_cache": {
+   "frame_end": 240,
+   "frame_start": 1,
+   "info": "240 帧数在内存里 (2.0 MiB), 缓存已过期!",
+   "is_baked": false,
+   "use_disk_cache": false
+  },
+  "rigid_bodies": 313,
+  "scene_frames": [
+   1,
+   240
+  ],
+  "substeps": 10
+ },
+ "E:\\dsh pr\\woker2\\out\\subai\\M02\\s8\\E_base.blend": {
+  "constraints": 4040,
+  "exists": true,
+  "gravity": 1.0,
+  "iterations": 20,
+  "point_cache": {
+   "frame_end": 326,
+   "frame_start": 1,
+   "info": "240 帧数在内存里 (2.1 MiB), 缓存已过期!",
+   "is_baked": true,
+   "use_disk_cache": false
+  },
+  "rigid_bodies": 324,
+  "scene_frames": [
+   1,
+   240
+  ],
+  "substeps": 10
+ }
+}

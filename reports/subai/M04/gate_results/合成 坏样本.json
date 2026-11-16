@@ -1,0 +1,26 @@
+{
+  "sample_id": "synthetic-bad",
+  "evidence_mode": "synthetic",
+  "frames": {
+    "start": 1,
+    "end": 120
+  },
+  "dynamics": {
+    "median": 46.3,
+    "p95": 242.0,
+    "max": 638.0,
+    "spike_count": 17,
+    "bones": 420
+  },
+  "frozen": {
+    "parent_delta_deg": 66.41,
+    "target_delta_deg": 0.0,
+    "consecutive_frames": 60
+  },
+  "penetration": {
+    "roi": "row11",
+    "max_depth_m": -0.202,
+    "frames": 31,
+    "bones": 11
+  }
+}

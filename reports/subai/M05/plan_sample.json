@@ -1,0 +1,1153 @@
+{
+ "inputs": [
+  "E:\\dsh pr\\woker2\\out\\subai\\M05\\fixtures\\seg1_91.vmd",
+  "E:\\dsh pr\\woker2\\out\\subai\\M05\\fixtures\\seg2_91.vmd",
+  "E:\\dsh pr\\woker2\\out\\subai\\M05\\fixtures\\seg3_151.vmd"
+ ],
+ "gap": 2,
+ "fps": 30.0,
+ "segments": [
+  {
+   "index": 0,
+   "path": "E:\\dsh pr\\woker2\\out\\subai\\M05\\fixtures\\seg1_91.vmd",
+   "bones": 4732,
+   "bone_range": [
+    0,
+    90
+   ],
+   "morphs": 0,
+   "morph_range": null,
+   "camera": 0,
+   "light": 0,
+   "shadow": 0,
+   "ik": 0,
+   "ik_range": null,
+   "tail_valid": true,
+   "offset": 0,
+   "timeline": [
+    0,
+    90
+   ],
+   "expected_count": 91,
+   "gap_after": 2,
+   "duration_s": 3.0
+  },
+  {
+   "index": 1,
+   "path": "E:\\dsh pr\\woker2\\out\\subai\\M05\\fixtures\\seg2_91.vmd",
+   "bones": 5112,
+   "bone_range": [
+    0,
+    90
+   ],
+   "morphs": 0,
+   "morph_range": null,
+   "camera": 0,
+   "light": 0,
+   "shadow": 0,
+   "ik": 0,
+   "ik_range": null,
+   "tail_valid": true,
+   "offset": 93,
+   "timeline": [
+    93,
+    183
+   ],
+   "expected_count": 91,
+   "gap_after": 2,
+   "duration_s": 6.1
+  },
+  {
+   "index": 2,
+   "path": "E:\\dsh pr\\woker2\\out\\subai\\M05\\fixtures\\seg3_151.vmd",
+   "bones": 8352,
+   "bone_range": [
+    0,
+    150
+   ],
+   "morphs": 0,
+   "morph_range": null,
+   "camera": 0,
+   "light": 0,
+   "shadow": 0,
+   "ik": 0,
+   "ik_range": null,
+   "tail_valid": true,
+   "offset": 186,
+   "timeline": [
+    186,
+    336
+   ],
+   "expected_count": 151,
+   "gap_after": 2,
+   "duration_s": 11.2
+  }
+ ],
+ "bone_sets": {
+  "union": 259,
+  "common": 45,
+  "per_segment": [
+   52,
+   252,
+   252
+  ],
+  "missing_in": {
+   "0": [
+    "+右ひじ補助",
+    "+左ひじ補助",
+    "_dummy_右ひざD",
+    "_dummy_右手捩1",
+    "_dummy_右手捩2",
+    "_dummy_右手捩3",
+    "_dummy_右目",
+    "_dummy_右肩C",
+    "_dummy_右腕捩1",
+    "_dummy_右腕捩2",
+    "_dummy_右腕捩3",
+    "_dummy_右足D"
+   ],
+   "1": [
+    "上半身3",
+    "右ひざD",
+    "右足D",
+    "右足首D",
+    "左ひざD",
+    "左足D",
+    "左足首D"
+   ],
+   "2": [
+    "上半身3",
+    "右ひざD",
+    "右足D",
+    "右足首D",
+    "左ひざD",
+    "左足D",
+    "左足首D"
+   ]
+  },
+  "missing_counts": {
+   "0": 207,
+   "1": 7,
+   "2": 7
+  }
+ },
+ "overlaps": [],
+ "joint_gaps": [],
+ "junctions": [
+  {
+   "pair": [
+    0,
+    1
+   ],
+   "a_path": "E:\\dsh pr\\woker2\\out\\subai\\M05\\fixtures\\seg1_91.vmd",
+   "b_path": "E:\\dsh pr\\woker2\\out\\subai\\M05\\fixtures\\seg2_91.vmd",
+   "a_last_frame": 90,
+   "b_first_frame": 0,
+   "timeline": [
+    90,
+    93
+   ],
+   "gap": 2,
+   "over_threshold": 26,
+   "max_angle_deg": 106.47,
+   "pose_diff": [
+    {
+     "bone": "右手首",
+     "angle_deg": 106.47,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "error"
+    },
+    {
+     "bone": "左腕",
+     "angle_deg": 91.98,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "error"
+    },
+    {
+     "bone": "右腕",
+     "angle_deg": 89.08,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "error"
+    },
+    {
+     "bone": "左薬指３",
+     "angle_deg": 79.27,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "error"
+    },
+    {
+     "bone": "左小指１",
+     "angle_deg": 64.41,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "error"
+    },
+    {
+     "bone": "右薬指１",
+     "angle_deg": 60.74,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "error"
+    },
+    {
+     "bone": "左小指３",
+     "angle_deg": 57.97,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "error"
+    },
+    {
+     "bone": "左人指１",
+     "angle_deg": 56.02,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "error"
+    },
+    {
+     "bone": "右中指１",
+     "angle_deg": 50.87,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "error"
+    },
+    {
+     "bone": "右人指１",
+     "angle_deg": 47.24,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "error"
+    },
+    {
+     "bone": "左手首",
+     "angle_deg": 44.95,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "warn"
+    },
+    {
+     "bone": "左中指３",
+     "angle_deg": 43.0,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "warn"
+    },
+    {
+     "bone": "右小指１",
+     "angle_deg": 42.81,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "warn"
+    },
+    {
+     "bone": "右ひじ",
+     "angle_deg": 38.56,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "warn"
+    },
+    {
+     "bone": "左薬指１",
+     "angle_deg": 34.04,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "warn"
+    },
+    {
+     "bone": "右小指３",
+     "angle_deg": 32.47,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "warn"
+    },
+    {
+     "bone": "左中指１",
+     "angle_deg": 32.2,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "warn"
+    },
+    {
+     "bone": "左人指２",
+     "angle_deg": 31.64,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "warn"
+    },
+    {
+     "bone": "左親指０",
+     "angle_deg": 31.36,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "warn"
+    },
+    {
+     "bone": "首",
+     "angle_deg": 30.1,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "warn"
+    },
+    {
+     "bone": "左人指３",
+     "angle_deg": 25.53,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "warn"
+    },
+    {
+     "bone": "右小指２",
+     "angle_deg": 22.84,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "warn"
+    },
+    {
+     "bone": "右人指２",
+     "angle_deg": 22.21,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "warn"
+    },
+    {
+     "bone": "右肩",
+     "angle_deg": 21.94,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "warn"
+    },
+    {
+     "bone": "右人指３",
+     "angle_deg": 21.3,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "warn"
+    },
+    {
+     "bone": "左薬指２",
+     "angle_deg": 19.56,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "info"
+    },
+    {
+     "bone": "右親指０",
+     "angle_deg": 17.93,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "info"
+    },
+    {
+     "bone": "右中指２",
+     "angle_deg": 16.65,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "info"
+    },
+    {
+     "bone": "上半身",
+     "angle_deg": 16.1,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "info"
+    },
+    {
+     "bone": "左肩",
+     "angle_deg": 15.92,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "info"
+    },
+    {
+     "bone": "右薬指３",
+     "angle_deg": 14.19,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "info"
+    },
+    {
+     "bone": "右中指３",
+     "angle_deg": 13.73,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "info"
+    },
+    {
+     "bone": "グルーブ",
+     "angle_deg": 13.34,
+     "pos_delta": 2.769,
+     "pos_delta_mm": 221.6,
+     "severity": "error"
+    },
+    {
+     "bone": "頭",
+     "angle_deg": 12.93,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "info"
+    },
+    {
+     "bone": "左小指２",
+     "angle_deg": 11.06,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "info"
+    },
+    {
+     "bone": "右薬指２",
+     "angle_deg": 10.64,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "info"
+    },
+    {
+     "bone": "左ひじ",
+     "angle_deg": 10.54,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "info"
+    },
+    {
+     "bone": "下半身",
+     "angle_deg": 9.01,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "info"
+    },
+    {
+     "bone": "左中指２",
+     "angle_deg": 8.59,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "info"
+    },
+    {
+     "bone": "上半身2",
+     "angle_deg": 4.34,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "info"
+    },
+    {
+     "bone": "右親指１",
+     "angle_deg": 0.0,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "info"
+    },
+    {
+     "bone": "右親指２",
+     "angle_deg": 0.0,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "info"
+    },
+    {
+     "bone": "左親指１",
+     "angle_deg": 0.0,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "info"
+    },
+    {
+     "bone": "左親指２",
+     "angle_deg": 0.0,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "info"
+    },
+    {
+     "bone": "腰",
+     "angle_deg": 0.0,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "info"
+    }
+   ]
+  },
+  {
+   "pair": [
+    1,
+    2
+   ],
+   "a_path": "E:\\dsh pr\\woker2\\out\\subai\\M05\\fixtures\\seg2_91.vmd",
+   "b_path": "E:\\dsh pr\\woker2\\out\\subai\\M05\\fixtures\\seg3_151.vmd",
+   "a_last_frame": 90,
+   "b_first_frame": 0,
+   "timeline": [
+    183,
+    186
+   ],
+   "gap": 2,
+   "over_threshold": 30,
+   "max_angle_deg": 112.01,
+   "pose_diff": [
+    {
+     "bone": "右手首",
+     "angle_deg": 112.01,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "error"
+    },
+    {
+     "bone": "右中指１",
+     "angle_deg": 91.7,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "error"
+    },
+    {
+     "bone": "左人指２",
+     "angle_deg": 88.55,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "error"
+    },
+    {
+     "bone": "右腕",
+     "angle_deg": 81.5,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "error"
+    },
+    {
+     "bone": "右薬指１",
+     "angle_deg": 78.65,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "error"
+    },
+    {
+     "bone": "左人指１",
+     "angle_deg": 74.64,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "error"
+    },
+    {
+     "bone": "左手首",
+     "angle_deg": 74.53,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "error"
+    },
+    {
+     "bone": "左小指３",
+     "angle_deg": 70.07,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "error"
+    },
+    {
+     "bone": "右人指１",
+     "angle_deg": 64.61,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "error"
+    },
+    {
+     "bone": "左小指２",
+     "angle_deg": 63.11,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "error"
+    },
+    {
+     "bone": "左薬指２",
+     "angle_deg": 63.09,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "error"
+    },
+    {
+     "bone": "右小指１",
+     "angle_deg": 63.06,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "error"
+    },
+    {
+     "bone": "左薬指３",
+     "angle_deg": 61.77,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "error"
+    },
+    {
+     "bone": "左中指３",
+     "angle_deg": 58.4,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "error"
+    },
+    {
+     "bone": "左人指３",
+     "angle_deg": 53.37,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "error"
+    },
+    {
+     "bone": "左中指２",
+     "angle_deg": 52.03,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "error"
+    },
+    {
+     "bone": "右小指２",
+     "angle_deg": 49.84,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "error"
+    },
+    {
+     "bone": "右人指２",
+     "angle_deg": 48.12,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "error"
+    },
+    {
+     "bone": "左腕",
+     "angle_deg": 46.01,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "error"
+    },
+    {
+     "bone": "右小指３",
+     "angle_deg": 39.08,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "warn"
+    },
+    {
+     "bone": "右薬指３",
+     "angle_deg": 37.69,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "warn"
+    },
+    {
+     "bone": "右人指３",
+     "angle_deg": 34.75,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "warn"
+    },
+    {
+     "bone": "右薬指２",
+     "angle_deg": 33.92,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "warn"
+    },
+    {
+     "bone": "右親指０",
+     "angle_deg": 28.84,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "warn"
+    },
+    {
+     "bone": "左小指１",
+     "angle_deg": 26.53,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "warn"
+    },
+    {
+     "bone": "右中指３",
+     "angle_deg": 24.62,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "warn"
+    },
+    {
+     "bone": "左親指０",
+     "angle_deg": 23.41,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "warn"
+    },
+    {
+     "bone": "上半身",
+     "angle_deg": 22.25,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "warn"
+    },
+    {
+     "bone": "下半身",
+     "angle_deg": 22.25,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "warn"
+    },
+    {
+     "bone": "右中指２",
+     "angle_deg": 20.36,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "warn"
+    },
+    {
+     "bone": "左中指１",
+     "angle_deg": 19.11,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "info"
+    },
+    {
+     "bone": "左ひじ",
+     "angle_deg": 18.98,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "info"
+    },
+    {
+     "bone": "左薬指１",
+     "angle_deg": 18.63,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "info"
+    },
+    {
+     "bone": "左肩",
+     "angle_deg": 18.25,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "info"
+    },
+    {
+     "bone": "頭",
+     "angle_deg": 16.59,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "info"
+    },
+    {
+     "bone": "首",
+     "angle_deg": 10.81,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "info"
+    },
+    {
+     "bone": "上半身2",
+     "angle_deg": 10.0,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "info"
+    },
+    {
+     "bone": "右ひじ",
+     "angle_deg": 9.93,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "info"
+    },
+    {
+     "bone": "右肩",
+     "angle_deg": 3.05,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "info"
+    },
+    {
+     "bone": "グルーブ",
+     "angle_deg": 0.0,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "info"
+    },
+    {
+     "bone": "右親指１",
+     "angle_deg": 0.0,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "info"
+    },
+    {
+     "bone": "右親指２",
+     "angle_deg": 0.0,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "info"
+    },
+    {
+     "bone": "左親指１",
+     "angle_deg": 0.0,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "info"
+    },
+    {
+     "bone": "左親指２",
+     "angle_deg": 0.0,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "info"
+    },
+    {
+     "bone": "腰",
+     "angle_deg": 0.0,
+     "pos_delta": 0.0,
+     "pos_delta_mm": 0.0,
+     "severity": "info"
+    }
+   ]
+  }
+ ],
+ "pose_diff": [
+  {
+   "bone": "右手首",
+   "angle_deg": 106.47,
+   "pos_delta": 0.0,
+   "pos_delta_mm": 0.0,
+   "severity": "error"
+  },
+  {
+   "bone": "左腕",
+   "angle_deg": 91.98,
+   "pos_delta": 0.0,
+   "pos_delta_mm": 0.0,
+   "severity": "error"
+  },
+  {
+   "bone": "右腕",
+   "angle_deg": 89.08,
+   "pos_delta": 0.0,
+   "pos_delta_mm": 0.0,
+   "severity": "error"
+  },
+  {
+   "bone": "左薬指３",
+   "angle_deg": 79.27,
+   "pos_delta": 0.0,
+   "pos_delta_mm": 0.0,
+   "severity": "error"
+  },
+  {
+   "bone": "左小指１",
+   "angle_deg": 64.41,
+   "pos_delta": 0.0,
+   "pos_delta_mm": 0.0,
+   "severity": "error"
+  },
+  {
+   "bone": "右薬指１",
+   "angle_deg": 60.74,
+   "pos_delta": 0.0,
+   "pos_delta_mm": 0.0,
+   "severity": "error"
+  },
+  {
+   "bone": "左小指３",
+   "angle_deg": 57.97,
+   "pos_delta": 0.0,
+   "pos_delta_mm": 0.0,
+   "severity": "error"
+  },
+  {
+   "bone": "左人指１",
+   "angle_deg": 56.02,
+   "pos_delta": 0.0,
+   "pos_delta_mm": 0.0,
+   "severity": "error"
+  },
+  {
+   "bone": "右中指１",
+   "angle_deg": 50.87,
+   "pos_delta": 0.0,
+   "pos_delta_mm": 0.0,
+   "severity": "error"
+  },
+  {
+   "bone": "右人指１",
+   "angle_deg": 47.24,
+   "pos_delta": 0.0,
+   "pos_delta_mm": 0.0,
+   "severity": "error"
+  },
+  {
+   "bone": "左手首",
+   "angle_deg": 44.95,
+   "pos_delta": 0.0,
+   "pos_delta_mm": 0.0,
+   "severity": "warn"
+  },
+  {
+   "bone": "左中指３",
+   "angle_deg": 43.0,
+   "pos_delta": 0.0,
+   "pos_delta_mm": 0.0,
+   "severity": "warn"
+  },
+  {
+   "bone": "右小指１",
+   "angle_deg": 42.81,
+   "pos_delta": 0.0,
+   "pos_delta_mm": 0.0,
+   "severity": "warn"
+  },
+  {
+   "bone": "右ひじ",
+   "angle_deg": 38.56,
+   "pos_delta": 0.0,
+   "pos_delta_mm": 0.0,
+   "severity": "warn"
+  },
+  {
+   "bone": "左薬指１",
+   "angle_deg": 34.04,
+   "pos_delta": 0.0,
+   "pos_delta_mm": 0.0,
+   "severity": "warn"
+  },
+  {
+   "bone": "右小指３",
+   "angle_deg": 32.47,
+   "pos_delta": 0.0,
+   "pos_delta_mm": 0.0,
+   "severity": "warn"
+  },
+  {
+   "bone": "左中指１",
+   "angle_deg": 32.2,
+   "pos_delta": 0.0,
+   "pos_delta_mm": 0.0,
+   "severity": "warn"
+  },
+  {
+   "bone": "左人指２",
+   "angle_deg": 31.64,
+   "pos_delta": 0.0,
+   "pos_delta_mm": 0.0,
+   "severity": "warn"
+  },
+  {
+   "bone": "左親指０",
+   "angle_deg": 31.36,
+   "pos_delta": 0.0,
+   "pos_delta_mm": 0.0,
+   "severity": "warn"
+  },
+  {
+   "bone": "首",
+   "angle_deg": 30.1,
+   "pos_delta": 0.0,
+   "pos_delta_mm": 0.0,
+   "severity": "warn"
+  },
+  {
+   "bone": "左人指３",
+   "angle_deg": 25.53,
+   "pos_delta": 0.0,
+   "pos_delta_mm": 0.0,
+   "severity": "warn"
+  },
+  {
+   "bone": "右小指２",
+   "angle_deg": 22.84,
+   "pos_delta": 0.0,
+   "pos_delta_mm": 0.0,
+   "severity": "warn"
+  },
+  {
+   "bone": "右人指２",
+   "angle_deg": 22.21,
+   "pos_delta": 0.0,
+   "pos_delta_mm": 0.0,
+   "severity": "warn"
+  },
+  {
+   "bone": "右肩",
+   "angle_deg": 21.94,
+   "pos_delta": 0.0,
+   "pos_delta_mm": 0.0,
+   "severity": "warn"
+  },
+  {
+   "bone": "右人指３",
+   "angle_deg": 21.3,
+   "pos_delta": 0.0,
+   "pos_delta_mm": 0.0,
+   "severity": "warn"
+  },
+  {
+   "bone": "左薬指２",
+   "angle_deg": 19.56,
+   "pos_delta": 0.0,
+   "pos_delta_mm": 0.0,
+   "severity": "info"
+  },
+  {
+   "bone": "右親指０",
+   "angle_deg": 17.93,
+   "pos_delta": 0.0,
+   "pos_delta_mm": 0.0,
+   "severity": "info"
+  },
+  {
+   "bone": "右中指２",
+   "angle_deg": 16.65,
+   "pos_delta": 0.0,
+   "pos_delta_mm": 0.0,
+   "severity": "info"
+  },
+  {
+   "bone": "上半身",
+   "angle_deg": 16.1,
+   "pos_delta": 0.0,
+   "pos_delta_mm": 0.0,
+   "severity": "info"
+  },
+  {
+   "bone": "左肩",
+   "angle_deg": 15.92,
+   "pos_delta": 0.0,
+   "pos_delta_mm": 0.0,
+   "severity": "info"
+  },
+  {
+   "bone": "右薬指３",
+   "angle_deg": 14.19,
+   "pos_delta": 0.0,
+   "pos_delta_mm": 0.0,
+   "severity": "info"
+  },
+  {
+   "bone": "右中指３",
+   "angle_deg": 13.73,
+   "pos_delta": 0.0,
+   "pos_delta_mm": 0.0,
+   "severity": "info"
+  },
+  {
+   "bone": "グルーブ",
+   "angle_deg": 13.34,
+   "pos_delta": 2.769,
+   "pos_delta_mm": 221.6,
+   "severity": "error"
+  },
+  {
+   "bone": "頭",
+   "angle_deg": 12.93,
+   "pos_delta": 0.0,
+   "pos_delta_mm": 0.0,
+   "severity": "info"
+  },
+  {
+   "bone": "左小指２",
+   "angle_deg": 11.06,
+   "pos_delta": 0.0,
+   "pos_delta_mm": 0.0,
+   "severity": "info"
+  },
+  {
+   "bone": "右薬指２",
+   "angle_deg": 10.64,
+   "pos_delta": 0.0,
+   "pos_delta_mm": 0.0,
+   "severity": "info"
+  },
+  {
+   "bone": "左ひじ",
+   "angle_deg": 10.54,
+   "pos_delta": 0.0,
+   "pos_delta_mm": 0.0,
+   "severity": "info"
+  },
+  {
+   "bone": "下半身",
+   "angle_deg": 9.01,
+   "pos_delta": 0.0,
+   "pos_delta_mm": 0.0,
+   "severity": "info"
+  },
+  {
+   "bone": "左中指２",
+   "angle_deg": 8.59,
+   "pos_delta": 0.0,
+   "pos_delta_mm": 0.0,
+   "severity": "info"
+  },
+  {
+   "bone": "上半身2",
+   "angle_deg": 4.34,
+   "pos_delta": 0.0,
+   "pos_delta_mm": 0.0,
+   "severity": "info"
+  },
+  {
+   "bone": "右親指１",
+   "angle_deg": 0.0,
+   "pos_delta": 0.0,
+   "pos_delta_mm": 0.0,
+   "severity": "info"
+  },
+  {
+   "bone": "右親指２",
+   "angle_deg": 0.0,
+   "pos_delta": 0.0,
+   "pos_delta_mm": 0.0,
+   "severity": "info"
+  },
+  {
+   "bone": "左親指１",
+   "angle_deg": 0.0,
+   "pos_delta": 0.0,
+   "pos_delta_mm": 0.0,
+   "severity": "info"
+  },
+  {
+   "bone": "左親指２",
+   "angle_deg": 0.0,
+   "pos_delta": 0.0,
+   "pos_delta_mm": 0.0,
+   "severity": "info"
+  },
+  {
+   "bone": "腰",
+   "angle_deg": 0.0,
+   "pos_delta": 0.0,
+   "pos_delta_mm": 0.0,
+   "severity": "info"
+  }
+ ],
+ "roots": [],
+ "key_additions": {
+  "0": {
+   "missing_bones": 207,
+   "would_add_keys": 414
+  },
+  "1": {
+   "missing_bones": 7,
+   "would_add_keys": 14
+  },
+  "2": {
+   "missing_bones": 7,
+   "would_add_keys": 14
+  }
+ },
+ "pos_movers": [
+  {
+   "bone": "グルーブ",
+   "angle_deg": 13.34,
+   "pos_delta": 2.769,
+   "pos_delta_mm": 221.6,
+   "severity": "error"
+  }
+ ],
+ "max_junction_angle": 112.01,
+ "deg_per_frame": 37.34,
+ "recommended_gap": 22,
+ "last_frame": 336,
+ "total_frames": 337,
+ "total_duration_s": 11.233
+}

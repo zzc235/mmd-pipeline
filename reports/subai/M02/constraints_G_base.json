@@ -1,0 +1,16 @@
+{
+ "blend": "E:\\dsh pr\\woker2\\out\\subai\\M02\\s8\\G_base.blend",
+ "collision_collections_histogram": {
+  "0": 324
+ },
+ "constraint_types_enabled": {
+  "GENERIC": 3651,
+  "GENERIC_SPRING": 389
+ },
+ "constraint_types_total": {
+  "GENERIC": 3651,
+  "GENERIC_SPRING": 389
+ },
+ "disable_collisions": [],
+ "rigid_bodies": 324
+}

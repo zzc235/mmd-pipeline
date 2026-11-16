@@ -1,0 +1,810 @@
+{
+ "binding_source_counts": {
+  "child_of": 59,
+  "custom_bone_prop": 0,
+  "no_binding": 265,
+  "parent_bone": 59,
+  "rigid_total": 324
+ },
+ "in_blend": "E:\\dsh pr\\woker2\\out\\subai\\M02\\s8\\G_base.blend",
+ "in_blend_sha256": "dd7f6877ee9c8c03c5df7c39236e142e806e9b1c771bc35ac2df05a1cefb192e",
+ "never_saved_blend": true,
+ "per_target": {
+  "下擺_0_0": [
+   {
+    "collections_bits": [
+     0
+    ],
+    "constraints": [],
+    "custom_props": [],
+    "object": "042_下擺_0_0",
+    "parent": {
+     "bone": "",
+     "object": "rigidbodies",
+     "type": "OBJECT"
+    },
+    "rigid_body_kinematic": false,
+    "rigid_body_type": "ACTIVE"
+   }
+  ],
+  "下擺_0_1": [
+   {
+    "collections_bits": [
+     0
+    ],
+    "constraints": [],
+    "custom_props": [],
+    "object": "043_下擺_0_1",
+    "parent": {
+     "bone": "",
+     "object": "rigidbodies",
+     "type": "OBJECT"
+    },
+    "rigid_body_kinematic": false,
+    "rigid_body_type": "ACTIVE"
+   }
+  ],
+  "下擺_0_10": [
+   {
+    "collections_bits": [
+     0
+    ],
+    "constraints": [],
+    "custom_props": [],
+    "object": "052_下擺_0_10",
+    "parent": {
+     "bone": "",
+     "object": "rigidbodies",
+     "type": "OBJECT"
+    },
+    "rigid_body_kinematic": false,
+    "rigid_body_type": "ACTIVE"
+   }
+  ],
+  "下擺_0_11": [
+   {
+    "collections_bits": [
+     0
+    ],
+    "constraints": [],
+    "custom_props": [],
+    "object": "053_下擺_0_11",
+    "parent": {
+     "bone": "",
+     "object": "rigidbodies",
+     "type": "OBJECT"
+    },
+    "rigid_body_kinematic": false,
+    "rigid_body_type": "ACTIVE"
+   }
+  ],
+  "下擺_0_12": [
+   {
+    "collections_bits": [
+     0
+    ],
+    "constraints": [],
+    "custom_props": [],
+    "object": "054_下擺_0_12",
+    "parent": {
+     "bone": "",
+     "object": "rigidbodies",
+     "type": "OBJECT"
+    },
+    "rigid_body_kinematic": false,
+    "rigid_body_type": "ACTIVE"
+   }
+  ],
+  "下擺_0_13": [
+   {
+    "collections_bits": [
+     0
+    ],
+    "constraints": [],
+    "custom_props": [],
+    "object": "055_下擺_0_13",
+    "parent": {
+     "bone": "",
+     "object": "rigidbodies",
+     "type": "OBJECT"
+    },
+    "rigid_body_kinematic": false,
+    "rigid_body_type": "ACTIVE"
+   }
+  ],
+  "下擺_0_14": [
+   {
+    "collections_bits": [
+     0
+    ],
+    "constraints": [],
+    "custom_props": [],
+    "object": "056_下擺_0_14",
+    "parent": {
+     "bone": "",
+     "object": "rigidbodies",
+     "type": "OBJECT"
+    },
+    "rigid_body_kinematic": false,
+    "rigid_body_type": "ACTIVE"
+   }
+  ],
+  "下擺_0_15": [
+   {
+    "collections_bits": [
+     0
+    ],
+    "constraints": [],
+    "custom_props": [],
+    "object": "057_下擺_0_15",
+    "parent": {
+     "bone": "",
+     "object": "rigidbodies",
+     "type": "OBJECT"
+    },
+    "rigid_body_kinematic": false,
+    "rigid_body_type": "ACTIVE"
+   }
+  ],
+  "下擺_0_16": [
+   {
+    "collections_bits": [
+     0
+    ],
+    "constraints": [],
+    "custom_props": [],
+    "object": "058_下擺_0_16",
+    "parent": {
+     "bone": "",
+     "object": "rigidbodies",
+     "type": "OBJECT"
+    },
+    "rigid_body_kinematic": false,
+    "rigid_body_type": "ACTIVE"
+   }
+  ],
+  "下擺_0_17": [
+   {
+    "collections_bits": [
+     0
+    ],
+    "constraints": [],
+    "custom_props": [],
+    "object": "059_下擺_0_17",
+    "parent": {
+     "bone": "",
+     "object": "rigidbodies",
+     "type": "OBJECT"
+    },
+    "rigid_body_kinematic": false,
+    "rigid_body_type": "ACTIVE"
+   }
+  ],
+  "下擺_0_2": [
+   {
+    "collections_bits": [
+     0
+    ],
+    "constraints": [],
+    "custom_props": [],
+    "object": "044_下擺_0_2",
+    "parent": {
+     "bone": "",
+     "object": "rigidbodies",
+     "type": "OBJECT"
+    },
+    "rigid_body_kinematic": false,
+    "rigid_body_type": "ACTIVE"
+   }
+  ],
+  "下擺_0_3": [
+   {
+    "collections_bits": [
+     0
+    ],
+    "constraints": [],
+    "custom_props": [],
+    "object": "045_下擺_0_3",
+    "parent": {
+     "bone": "",
+     "object": "rigidbodies",
+     "type": "OBJECT"
+    },
+    "rigid_body_kinematic": false,
+    "rigid_body_type": "ACTIVE"
+   }
+  ],
+  "下擺_0_4": [
+   {
+    "collections_bits": [
+     0
+    ],
+    "constraints": [],
+    "custom_props": [],
+    "object": "046_下擺_0_4",
+    "parent": {
+     "bone": "",
+     "object": "rigidbodies",
+     "type": "OBJECT"
+    },
+    "rigid_body_kinematic": false,
+    "rigid_body_type": "ACTIVE"
+   }
+  ],
+  "下擺_0_5": [
+   {
+    "collections_bits": [
+     0
+    ],
+    "constraints": [],
+    "custom_props": [],
+    "object": "047_下擺_0_5",
+    "parent": {
+     "bone": "",
+     "object": "rigidbodies",
+     "type": "OBJECT"
+    },
+    "rigid_body_kinematic": false,
+    "rigid_body_type": "ACTIVE"
+   }
+  ],
+  "下擺_0_6": [
+   {
+    "collections_bits": [
+     0
+    ],
+    "constraints": [],
+    "custom_props": [],
+    "object": "048_下擺_0_6",
+    "parent": {
+     "bone": "",
+     "object": "rigidbodies",
+     "type": "OBJECT"
+    },
+    "rigid_body_kinematic": false,
+    "rigid_body_type": "ACTIVE"
+   }
+  ],
+  "下擺_0_7": [
+   {
+    "collections_bits": [
+     0
+    ],
+    "constraints": [],
+    "custom_props": [],
+    "object": "049_下擺_0_7",
+    "parent": {
+     "bone": "",
+     "object": "rigidbodies",
+     "type": "OBJECT"
+    },
+    "rigid_body_kinematic": false,
+    "rigid_body_type": "ACTIVE"
+   }
+  ],
+  "下擺_0_8": [
+   {
+    "collections_bits": [
+     0
+    ],
+    "constraints": [],
+    "custom_props": [],
+    "object": "050_下擺_0_8",
+    "parent": {
+     "bone": "",
+     "object": "rigidbodies",
+     "type": "OBJECT"
+    },
+    "rigid_body_kinematic": false,
+    "rigid_body_type": "ACTIVE"
+   }
+  ],
+  "下擺_0_9": [
+   {
+    "collections_bits": [
+     0
+    ],
+    "constraints": [],
+    "custom_props": [],
+    "object": "051_下擺_0_9",
+    "parent": {
+     "bone": "",
+     "object": "rigidbodies",
+     "type": "OBJECT"
+    },
+    "rigid_body_kinematic": false,
+    "rigid_body_type": "ACTIVE"
+   }
+  ]
+ },
+ "placeholder_bodies": {
+  "000_$name_j": {
+   "collections_bits": [
+    0
+   ],
+   "constraints": [
+    {
+     "enabled": false,
+     "subtarget": "下擺_11_7",
+     "target": "星穹铁道—飞霄（无外套）_arm",
+     "type": "CHILD_OF"
+    }
+   ],
+   "custom_props": [],
+   "object": "000_$name_j",
+   "parent": {
+    "bone": "下擺_11_7",
+    "object": "星穹铁道—飞霄（无外套）_arm",
+    "type": "BONE"
+   },
+   "rigid_body_kinematic": true,
+   "rigid_body_type": "ACTIVE"
+  },
+  "001_$name_j.001": {
+   "collections_bits": [
+    0
+   ],
+   "constraints": [
+    {
+     "enabled": false,
+     "subtarget": "下擺_11_8",
+     "target": "星穹铁道—飞霄（无外套）_arm",
+     "type": "CHILD_OF"
+    }
+   ],
+   "custom_props": [],
+   "object": "001_$name_j.001",
+   "parent": {
+    "bone": "下擺_11_8",
+    "object": "星穹铁道—飞霄（无外套）_arm",
+    "type": "BONE"
+   },
+   "rigid_body_kinematic": true,
+   "rigid_body_type": "ACTIVE"
+  },
+  "002_$name_j.002": {
+   "collections_bits": [
+    0
+   ],
+   "constraints": [
+    {
+     "enabled": false,
+     "subtarget": "下擺_11_9",
+     "target": "星穹铁道—飞霄（无外套）_arm",
+     "type": "CHILD_OF"
+    }
+   ],
+   "custom_props": [],
+   "object": "002_$name_j.002",
+   "parent": {
+    "bone": "下擺_11_9",
+    "object": "星穹铁道—飞霄（无外套）_arm",
+    "type": "BONE"
+   },
+   "rigid_body_kinematic": true,
+   "rigid_body_type": "ACTIVE"
+  },
+  "003_$name_j.003": {
+   "collections_bits": [
+    0
+   ],
+   "constraints": [
+    {
+     "enabled": false,
+     "subtarget": "下擺_11_10",
+     "target": "星穹铁道—飞霄（无外套）_arm",
+     "type": "CHILD_OF"
+    }
+   ],
+   "custom_props": [],
+   "object": "003_$name_j.003",
+   "parent": {
+    "bone": "下擺_11_10",
+    "object": "星穹铁道—飞霄（无外套）_arm",
+    "type": "BONE"
+   },
+   "rigid_body_kinematic": true,
+   "rigid_body_type": "ACTIVE"
+  },
+  "004_$name_j.005": {
+   "collections_bits": [
+    0
+   ],
+   "constraints": [
+    {
+     "enabled": false,
+     "subtarget": "下擺_11_12",
+     "target": "星穹铁道—飞霄（无外套）_arm",
+     "type": "CHILD_OF"
+    }
+   ],
+   "custom_props": [],
+   "object": "004_$name_j.005",
+   "parent": {
+    "bone": "下擺_11_12",
+    "object": "星穹铁道—飞霄（无外套）_arm",
+    "type": "BONE"
+   },
+   "rigid_body_kinematic": true,
+   "rigid_body_type": "ACTIVE"
+  },
+  "005_$name_j.006": {
+   "collections_bits": [
+    0
+   ],
+   "constraints": [
+    {
+     "enabled": false,
+     "subtarget": "下擺_11_13",
+     "target": "星穹铁道—飞霄（无外套）_arm",
+     "type": "CHILD_OF"
+    }
+   ],
+   "custom_props": [],
+   "object": "005_$name_j.006",
+   "parent": {
+    "bone": "下擺_11_13",
+    "object": "星穹铁道—飞霄（无外套）_arm",
+    "type": "BONE"
+   },
+   "rigid_body_kinematic": true,
+   "rigid_body_type": "ACTIVE"
+  },
+  "006_$name_j.007": {
+   "collections_bits": [
+    0
+   ],
+   "constraints": [
+    {
+     "enabled": false,
+     "subtarget": "下擺_11_14",
+     "target": "星穹铁道—飞霄（无外套）_arm",
+     "type": "CHILD_OF"
+    }
+   ],
+   "custom_props": [],
+   "object": "006_$name_j.007",
+   "parent": {
+    "bone": "下擺_11_14",
+    "object": "星穹铁道—飞霄（无外套）_arm",
+    "type": "BONE"
+   },
+   "rigid_body_kinematic": true,
+   "rigid_body_type": "ACTIVE"
+  },
+  "007_$name_j.008": {
+   "collections_bits": [
+    0
+   ],
+   "constraints": [
+    {
+     "enabled": false,
+     "subtarget": "下擺_11_15",
+     "target": "星穹铁道—飞霄（无外套）_arm",
+     "type": "CHILD_OF"
+    }
+   ],
+   "custom_props": [],
+   "object": "007_$name_j.008",
+   "parent": {
+    "bone": "下擺_11_15",
+    "object": "星穹铁道—飞霄（无外套）_arm",
+    "type": "BONE"
+   },
+   "rigid_body_kinematic": true,
+   "rigid_body_type": "ACTIVE"
+  },
+  "008_$name_j.009": {
+   "collections_bits": [
+    0
+   ],
+   "constraints": [
+    {
+     "enabled": false,
+     "subtarget": "下擺_11_16",
+     "target": "星穹铁道—飞霄（无外套）_arm",
+     "type": "CHILD_OF"
+    }
+   ],
+   "custom_props": [],
+   "object": "008_$name_j.009",
+   "parent": {
+    "bone": "下擺_11_16",
+    "object": "星穹铁道—飞霄（无外套）_arm",
+    "type": "BONE"
+   },
+   "rigid_body_kinematic": true,
+   "rigid_body_type": "ACTIVE"
+  },
+  "009_$name_j.010": {
+   "collections_bits": [
+    0
+   ],
+   "constraints": [
+    {
+     "enabled": false,
+     "subtarget": "下擺_11_17",
+     "target": "星穹铁道—飞霄（无外套）_arm",
+     "type": "CHILD_OF"
+    }
+   ],
+   "custom_props": [],
+   "object": "009_$name_j.010",
+   "parent": {
+    "bone": "下擺_11_17",
+    "object": "星穹铁道—飞霄（无外套）_arm",
+    "type": "BONE"
+   },
+   "rigid_body_kinematic": true,
+   "rigid_body_type": "ACTIVE"
+  },
+  "010_$name_j.004": {
+   "collections_bits": [
+    0
+   ],
+   "constraints": [
+    {
+     "enabled": false,
+     "subtarget": "下擺_11_11",
+     "target": "星穹铁道—飞霄（无外套）_arm",
+     "type": "CHILD_OF"
+    }
+   ],
+   "custom_props": [],
+   "object": "010_$name_j.004",
+   "parent": {
+    "bone": "下擺_11_11",
+    "object": "星穹铁道—飞霄（无外套）_arm",
+    "type": "BONE"
+   },
+   "rigid_body_kinematic": true,
+   "rigid_body_type": "ACTIVE"
+  }
+ },
+ "placeholder_count": 11,
+ "pose_bone_links": {
+  "下擺_0_0": {
+   "armature": "星穹铁道—飞霄（无外套）_arm",
+   "constraints": [
+    {
+     "enabled": true,
+     "subtarget": "",
+     "target_object": "mmd_bonetrack.006",
+     "type": "COPY_ROTATION"
+    }
+   ]
+  },
+  "下擺_0_1": {
+   "armature": "星穹铁道—飞霄（无外套）_arm",
+   "constraints": [
+    {
+     "enabled": true,
+     "subtarget": "",
+     "target_object": "mmd_bonetrack.007",
+     "type": "COPY_ROTATION"
+    }
+   ]
+  },
+  "下擺_0_10": {
+   "armature": "星穹铁道—飞霄（无外套）_arm",
+   "constraints": [
+    {
+     "enabled": true,
+     "subtarget": "",
+     "target_object": "mmd_bonetrack.016",
+     "type": "COPY_ROTATION"
+    }
+   ]
+  },
+  "下擺_0_11": {
+   "armature": "星穹铁道—飞霄（无外套）_arm",
+   "constraints": [
+    {
+     "enabled": true,
+     "subtarget": "",
+     "target_object": "mmd_bonetrack.017",
+     "type": "COPY_ROTATION"
+    }
+   ]
+  },
+  "下擺_0_12": {
+   "armature": "星穹铁道—飞霄（无外套）_arm",
+   "constraints": [
+    {
+     "enabled": true,
+     "subtarget": "",
+     "target_object": "mmd_bonetrack.018",
+     "type": "COPY_ROTATION"
+    }
+   ]
+  },
+  "下擺_0_13": {
+   "armature": "星穹铁道—飞霄（无外套）_arm",
+   "constraints": [
+    {
+     "enabled": true,
+     "subtarget": "",
+     "target_object": "mmd_bonetrack.019",
+     "type": "COPY_ROTATION"
+    }
+   ]
+  },
+  "下擺_0_14": {
+   "armature": "星穹铁道—飞霄（无外套）_arm",
+   "constraints": [
+    {
+     "enabled": true,
+     "subtarget": "",
+     "target_object": "mmd_bonetrack.020",
+     "type": "COPY_ROTATION"
+    }
+   ]
+  },
+  "下擺_0_15": {
+   "armature": "星穹铁道—飞霄（无外套）_arm",
+   "constraints": [
+    {
+     "enabled": true,
+     "subtarget": "",
+     "target_object": "mmd_bonetrack.021",
+     "type": "COPY_ROTATION"
+    }
+   ]
+  },
+  "下擺_0_16": {
+   "armature": "星穹铁道—飞霄（无外套）_arm",
+   "constraints": [
+    {
+     "enabled": true,
+     "subtarget": "",
+     "target_object": "mmd_bonetrack.022",
+     "type": "COPY_ROTATION"
+    }
+   ]
+  },
+  "下擺_0_17": {
+   "armature": "星穹铁道—飞霄（无外套）_arm",
+   "constraints": [
+    {
+     "enabled": true,
+     "subtarget": "",
+     "target_object": "mmd_bonetrack.023",
+     "type": "COPY_ROTATION"
+    }
+   ]
+  },
+  "下擺_0_2": {
+   "armature": "星穹铁道—飞霄（无外套）_arm",
+   "constraints": [
+    {
+     "enabled": true,
+     "subtarget": "",
+     "target_object": "mmd_bonetrack.008",
+     "type": "COPY_ROTATION"
+    }
+   ]
+  },
+  "下擺_0_3": {
+   "armature": "星穹铁道—飞霄（无外套）_arm",
+   "constraints": [
+    {
+     "enabled": true,
+     "subtarget": "",
+     "target_object": "mmd_bonetrack.009",
+     "type": "COPY_ROTATION"
+    }
+   ]
+  },
+  "下擺_0_4": {
+   "armature": "星穹铁道—飞霄（无外套）_arm",
+   "constraints": [
+    {
+     "enabled": true,
+     "subtarget": "",
+     "target_object": "mmd_bonetrack.010",
+     "type": "COPY_ROTATION"
+    }
+   ]
+  },
+  "下擺_0_5": {
+   "armature": "星穹铁道—飞霄（无外套）_arm",
+   "constraints": [
+    {
+     "enabled": true,
+     "subtarget": "",
+     "target_object": "mmd_bonetrack.011",
+     "type": "COPY_ROTATION"
+    }
+   ]
+  },
+  "下擺_0_6": {
+   "armature": "星穹铁道—飞霄（无外套）_arm",
+   "constraints": [
+    {
+     "enabled": true,
+     "subtarget": "",
+     "target_object": "mmd_bonetrack.012",
+     "type": "COPY_ROTATION"
+    }
+   ]
+  },
+  "下擺_0_7": {
+   "armature": "星穹铁道—飞霄（无外套）_arm",
+   "constraints": [
+    {
+     "enabled": true,
+     "subtarget": "",
+     "target_object": "mmd_bonetrack.013",
+     "type": "COPY_ROTATION"
+    }
+   ]
+  },
+  "下擺_0_8": {
+   "armature": "星穹铁道—飞霄（无外套）_arm",
+   "constraints": [
+    {
+     "enabled": true,
+     "subtarget": "",
+     "target_object": "mmd_bonetrack.014",
+     "type": "COPY_ROTATION"
+    }
+   ]
+  },
+  "下擺_0_9": {
+   "armature": "星穹铁道—飞霄（无外套）_arm",
+   "constraints": [
+    {
+     "enabled": true,
+     "subtarget": "",
+     "target_object": "mmd_bonetrack.015",
+     "type": "COPY_ROTATION"
+    }
+   ]
+  }
+ },
+ "pose_bone_links_count": 18,
+ "rigid_objects": 324,
+ "source_untouched": true,
+ "stage": "binding-probe",
+ "targets": [
+  "下擺_0_0",
+  "下擺_0_1",
+  "下擺_0_2",
+  "下擺_0_3",
+  "下擺_0_4",
+  "下擺_0_5",
+  "下擺_0_6",
+  "下擺_0_7",
+  "下擺_0_8",
+  "下擺_0_9",
+  "下擺_0_10",
+  "下擺_0_11",
+  "下擺_0_12",
+  "下擺_0_13",
+  "下擺_0_14",
+  "下擺_0_15",
+  "下擺_0_16",
+  "下擺_0_17"
+ ],
+ "targets_with_rigid_body": [
+  "下擺_0_0",
+  "下擺_0_1",
+  "下擺_0_10",
+  "下擺_0_11",
+  "下擺_0_12",
+  "下擺_0_13",
+  "下擺_0_14",
+  "下擺_0_15",
+  "下擺_0_16",
+  "下擺_0_17",
+  "下擺_0_2",
+  "下擺_0_3",
+  "下擺_0_4",
+  "下擺_0_5",
+  "下擺_0_6",
+  "下擺_0_7",
+  "下擺_0_8",
+  "下擺_0_9"
+ ],
+ "targets_without_rigid_body": []
+}

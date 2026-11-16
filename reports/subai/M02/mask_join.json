@@ -1,0 +1,382 @@
+{
+ "bits_mismatch": 296,
+ "blend": "E:\\dsh pr\\woker2\\out\\subai\\M02\\s8\\G_base.blend",
+ "blend_bits_histogram": {
+  "0": 324
+ },
+ "blend_count": 324,
+ "blend_group_histogram": {
+  "None": 324
+ },
+ "group_mismatch": 296,
+ "mask_wired": false,
+ "matched": 296,
+ "missing_in_blend": [],
+ "missing_in_pmx": [
+  "000_$name_j",
+  "001_$name_j.001",
+  "002_$name_j.002",
+  "003_$name_j.003",
+  "004_$name_j.005",
+  "005_$name_j.006",
+  "006_$name_j.007",
+  "007_$name_j.008",
+  "008_$name_j.009",
+  "009_$name_j.010",
+  "010_$name_j.004",
+  "地面_物理"
+ ],
+ "pmx": "E:\\blender模型\\没有外套本家模型\\星穹铁道—飞霄（无外套）.pmx",
+ "pmx_count": 296,
+ "pmx_group_histogram": {
+  "0": 39,
+  "1": 17,
+  "14": 5,
+  "2": 16,
+  "3": 12,
+  "4": 54,
+  "5": 6,
+  "6": 5,
+  "7": 142
+ },
+ "samples": [
+  {
+   "bits_ok": false,
+   "blend_bits": [
+    0
+   ],
+   "blend_group": null,
+   "blend_mask_int": 1,
+   "bone": 11,
+   "group_ok": false,
+   "name": "M-M-M-M-下半身",
+   "pmx_group": 0,
+   "pmx_mask_bits": [
+    0,
+    1,
+    2,
+    3,
+    15
+   ],
+   "pmx_mask_int": 32783
+  },
+  {
+   "bits_ok": false,
+   "blend_bits": [
+    0
+   ],
+   "blend_group": null,
+   "blend_mask_int": 1,
+   "bone": 14,
+   "group_ok": false,
+   "name": "M-M-M-上半身2",
+   "pmx_group": 0,
+   "pmx_mask_bits": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    9,
+    10,
+    11,
+    12,
+    14,
+    15
+   ],
+   "pmx_mask_int": 57087
+  },
+  {
+   "bits_ok": false,
+   "blend_bits": [
+    0
+   ],
+   "blend_group": null,
+   "blend_mask_int": 1,
+   "bone": 11,
+   "group_ok": false,
+   "name": "M-M-M-下半身",
+   "pmx_group": 0,
+   "pmx_mask_bits": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15
+   ],
+   "pmx_mask_int": 65343
+  },
+  {
+   "bits_ok": false,
+   "blend_bits": [
+    0
+   ],
+   "blend_group": null,
+   "blend_mask_int": 1,
+   "bone": 14,
+   "group_ok": false,
+   "name": "M-M-上半身2",
+   "pmx_group": 0,
+   "pmx_mask_bits": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    14,
+    15
+   ],
+   "pmx_mask_int": 57343
+  },
+  {
+   "bits_ok": false,
+   "blend_bits": [
+    0
+   ],
+   "blend_group": null,
+   "blend_mask_int": 1,
+   "bone": 11,
+   "group_ok": false,
+   "name": "M-M-下半身",
+   "pmx_group": 0,
+   "pmx_mask_bits": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15
+   ],
+   "pmx_mask_int": 65343
+  },
+  {
+   "bits_ok": false,
+   "blend_bits": [
+    0
+   ],
+   "blend_group": null,
+   "blend_mask_int": 1,
+   "bone": 14,
+   "group_ok": false,
+   "name": "M-上半身2",
+   "pmx_group": 0,
+   "pmx_mask_bits": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    12,
+    15
+   ],
+   "pmx_mask_int": 36895
+  },
+  {
+   "bits_ok": false,
+   "blend_bits": [
+    0
+   ],
+   "blend_group": null,
+   "blend_mask_int": 1,
+   "bone": 11,
+   "group_ok": false,
+   "name": "M-下半身",
+   "pmx_group": 0,
+   "pmx_mask_bits": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15
+   ],
+   "pmx_mask_int": 65343
+  },
+  {
+   "bits_ok": false,
+   "blend_bits": [
+    0
+   ],
+   "blend_group": null,
+   "blend_mask_int": 1,
+   "bone": 16,
+   "group_ok": false,
+   "name": "M-頭",
+   "pmx_group": 0,
+   "pmx_mask_bits": [
+    0,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15
+   ],
+   "pmx_mask_int": 65533
+  },
+  {
+   "bits_ok": false,
+   "blend_bits": [
+    0
+   ],
+   "blend_group": null,
+   "blend_mask_int": 1,
+   "bone": 12,
+   "group_ok": false,
+   "name": "上半身",
+   "pmx_group": 0,
+   "pmx_mask_bits": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15
+   ],
+   "pmx_mask_int": 65407
+  },
+  {
+   "bits_ok": false,
+   "blend_bits": [
+    0
+   ],
+   "blend_group": null,
+   "blend_mask_int": 1,
+   "bone": 13,
+   "group_ok": false,
+   "name": "上半身1",
+   "pmx_group": 0,
+   "pmx_mask_bits": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15
+   ],
+   "pmx_mask_int": 65407
+  },
+  {
+   "bits_ok": false,
+   "blend_bits": [
+    0
+   ],
+   "blend_group": null,
+   "blend_mask_int": 1,
+   "bone": 14,
+   "group_ok": false,
+   "name": "上半身2",
+   "pmx_group": 0,
+   "pmx_mask_bits": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    9,
+    10,
+    11,
+    12,
+    14,
+    15
+   ],
+   "pmx_mask_int": 57087
+  },
+  {
+   "bits_ok": false,
+   "blend_bits": [
+    0
+   ],
+   "blend_group": null,
+   "blend_mask_int": 1,
+   "bone": 11,
+   "group_ok": false,
+   "name": "下半身",
+   "pmx_group": 0,
+   "pmx_mask_bits": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15
+   ],
+   "pmx_mask_int": 65535
+  }
+ ]
+}
