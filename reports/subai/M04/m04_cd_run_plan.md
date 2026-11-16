@@ -13,6 +13,9 @@
 | 4 | `preflight` `READY`：`needs=8298 ≤ cap=constraint_limit(plan)`、`skipped=0`、`provenance` 指本 worktree | `python -m coordination.preflight --spec <spec> --worktree .` | `BLOCKED`+`reason_code` 报 D0 |
 | 5 | 场景 `is_baked == false`（A1） | 跑前、跑后**各回读一次** `rigidbody_world.point_cache.is_baked` | 任一为真 ⇒ `UNMEASURED`，理由 `pose_source=cache_replay` |
 | 6 | 锁空闲且取到 | `python -m coordination.lock acquire`；长跑每 10 分钟 `touch` | 等，不抢 |
+| 7 | `delivery_v1` 与 `--expect wired` 的读数是**同一份字节** | 记下 `delivery_v1` 的 `sha256_lf_normalized` 之后、**跑 C/D 之前再核一次**（每臂开跑前核，不是跑完核） | 两次不同 ⇒ **该组作废**（`D-126`：前后同仪器同字节） |
+
+第 7 条不是形式主义：重建窗口里最容易发生的就是「1号 又改了一笔，我手上的路径指向新文件」。核不上就作废，不解释成「应该差不多」。
 
 `delivery_v1` 若是 1号 用 `stage_build()` 新建的（不烘），第 5 条只需回读确认，**不必** `free_bake_all()`；文件里发现有烘过的缓存 ⇒ 先清、清完再回读，两个动作都进报告。
 
@@ -27,7 +30,7 @@
 | `A_cache`（参考行） | `B_from_blend1` | `B_aligned` | W1 = 1..240 | `cache_replay` | `A240.meta.json`（**不进比较**） |
 
 - **为什么 C 跑两次**（v4 §二窗口矩阵）：`B vs A` 与 `C vs B` 都在 W1（同窗才可比）；`D vs C` 在 W2，因为 `原神摇` 全长 832 帧、**240 帧窗口会截掉峰值，造出「未穿透」的假阴性**。D 只能与 `C@W2` 比。
-- **`B_aligned` 只有 300 帧**：`C@W2` 在 301..832 帧是**保持末帧姿态**，这一点写进报告、不藏；不影响 `D vs C`（两组同窗、只差动作）。
+- **`B_aligned` 只有 300 帧**：`C@W2` 在 301..832 帧是**保持末帧姿态**——`D vs C@W2` 那 1..832 里**有 532 帧是末帧定格**。读数是真有，但**姿态不是动作给的**。这条**必须同时出现在证据的 `known_risks` 与报告显眼位置**，不许只写在清单里（`D0` 17:47 明确要求）。
 - **窗口是回读的**：D 组场景必须 `frame_start=1`、`frame_end=832`，跑前回读 `scene.frame_end` 与动作 `frame_range` 末帧，不一致即**作废本次运行**（不许「大约覆盖」）。
 
 - **每臂一个独立 Blender 进程**（同进程串味在 `bake_all` 上吃过一次：`is_outdated` 同进程 false、重开 true）。
@@ -56,7 +59,13 @@
 1. 三支 `*.meta.json`（各自 `cache_state`/`eval_policy`/退出码）；
 2. 每次 `--expect wired` 的**退出码原样**，与 `stage_mask` 的三元组回读；
 3. 与 `R_free` 的逐帧差分布（中位 / P90 / 最大 / 最大帧），口径与 `a0_v2_table.json` 一致（同一支脚本 `m04_a0_table.py` 扩展 `--pairs` 即可）；
-4. `truth_tier`：**由 D0 定，我不自行升格**。默认报 `T2`（代表性逐帧）；`T3`（交付尺度）要由 D0 判「832 帧全段 + 交付件本身」够不够，报错档位比没有档位更糟。
+4. `truth_tier`：**`T2`（代表性逐帧）**，本轮只报这个——不自升，也不许为了好看写成 `T3`。`T3`（交付尺度）要**四条同时成立**（`D0` 17:47 钉死）：
+   1. 掩码通道在**交付场景自身**上回读 `WIRED / cap=0 / skipped=[]`（不是别的场景、不是单测的假 bpy）；
+   2. 交付件按契约 B **已烘焙**，且行为探针过（冷跳中间帧 == 顺序重算）；
+   3. `delivery_v1.blend` 的 `sha256` 记录在案，且与 C/D 读数同一次；
+   4. `preflight` 的 `cap` 来自 `constraint_limit()` 返回值、`skipped=0`。
+
+   第 2 条现在做不到（`stage_build()` 至今不烘焙，`D-153` 的缺陷还在）⇒ **这轮最多 `T2`**。四条哪条不成立就在报告里点名，不糊成「接近 T3」。
 
 ## 六、当前挡在哪
 
