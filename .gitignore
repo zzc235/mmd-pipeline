@@ -37,3 +37,6 @@ build/
 dist/
 out/
 *.log
+
+# ---- 协调层（调度器与任务板，M00 产物）----
+!/coordination/
