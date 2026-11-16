@@ -62,6 +62,11 @@ RB_FIELDS = ("mass", "friction", "restitution", "kinematic", "collision_shape",
              "collision_collections", "collision_margin", "linear_damping",
              "angular_damping", "use_margin", "enabled")
 TOL = 1e-6
+# 字段级容差：只放宽「经过父级/父骨复合运算、且物理上不可辨」的那一个字段。
+# 依据不是手感，而是实测：旧件与重建件同一刚体的 `matrix_world` 差到 ~1e-5（见 `m08_patch_v1.md` §六），
+# 而本项目最细的判据是 S2 的 1 mm ⇒ 放 1e-4 m（0.1 mm）比最细判据还细 10 倍，
+# 却比浮点复合噪声宽，能挡住真正的错位（丢父骨/错骨会差 cm 级）。
+FIELD_TOL = {"matrix_world": 1e-4}
 
 
 class PatchError(Exception):
@@ -228,21 +233,26 @@ def load(path, want_names=None):
     return patch, by_name, warnings
 
 
-def _num_close(a, b):
+def _num_close(a, b, tol=TOL):
     if isinstance(a, bool) or isinstance(b, bool):
         return a == b
     if isinstance(a, (int, float)) and isinstance(b, (int, float)):
-        return abs(float(a) - float(b)) <= TOL
+        return abs(float(a) - float(b)) <= tol
     return a == b
 
 
 # 硬字段：物理/身份相关，必须逐条一致，不一致就停。
-STRICT_BODY_FIELDS = ("name", "name_stripped", "type", "mmd_type", "parent", "parent_type",
-                      "parent_bone", "matrix_world", "mesh", "rigid_body", "mmd_rigid")
-# 软字段：由父级与 matrix_world 派生（`location`/四元数/scale/dimensions 都是同一变换的另一种写法），
-# 一致更好，不一致要写进报告并人工看，但不因此判补丁没装上——判定物理等价的是 matrix_world + mesh。
+# `mmd_type` 不在硬字段里：实测把交付件的 `RIGID_BODY` 照抄到新建对象上，会让
+# `stage_build` 里的 `Model.build()` 去查 `mmd_tools_rigid_parent` 并抛错（E-05，18:37 实测）。
+# `mesh` 也不在硬字段里：mmd_tools 的 `rigid_body_add` 造的是它自己的占位网格，
+# 顶点拓扑与交付件不同，而**物理几何**由 `mmd_rigid{shape,size,bone}` + `matrix_world` 决定。
+STRICT_BODY_FIELDS = ("name", "name_stripped", "type", "parent", "parent_type",
+                      "parent_bone", "matrix_world", "rigid_body", "mmd_rigid")
+# 软字段：由父级与 matrix_world 派生（`location`/四元数/scale/dimensions 都是同一变换的另一种写法）、
+# 只是记账标记（`mmd_type`）、或只是几何的实现方式（`mesh` 顶点）。
+# 一致更好，不一致要写进报告并人工看，但不因此判补丁没装上。
 SOFT_BODY_FIELDS = ("matrix_parent_inverse", "location", "rotation_mode",
-                    "rotation_quaternion", "scale", "dimensions")
+                    "rotation_quaternion", "scale", "dimensions", "mmd_type", "mesh")
 # **可为空白名单**（总控 18:18 §一）：只有语义上「本来就没有」的字段才可以两边都是 null。
 # 其余字段任一侧 null 一律判差异——否则「补丁里 matrix_world=null、回读也给 null」会被判一致，
 # 等于「把刚体装到没有位置的地方，而账面上合格」。白名单必须窄，不许顺手整类放行。
@@ -258,7 +268,7 @@ def _quat_close(a, b):
     return direct or flipped
 
 
-def diff_value(expected, actual, label, out):
+def diff_value(expected, actual, label, out, tol=TOL):
     if isinstance(expected, dict):
         if not isinstance(actual, dict):
             out.append("%s：期望对象，实际 %r" % (label, type(actual).__name__))
@@ -267,7 +277,7 @@ def diff_value(expected, actual, label, out):
             if key not in actual:
                 out.append("%s.%s：实际没有这个键" % (label, key))
                 continue
-            diff_value(expected[key], actual[key], "%s.%s" % (label, key), out)
+            diff_value(expected[key], actual[key], "%s.%s" % (label, key), out, tol)
         return
     if isinstance(expected, list):
         if not isinstance(actual, list) or len(actual) != len(expected):
@@ -276,9 +286,9 @@ def diff_value(expected, actual, label, out):
                           else len(actual)))
             return
         for i, (e, a) in enumerate(zip(expected, actual)):
-            diff_value(e, a, "%s[%d]" % (label, i), out)
+            diff_value(e, a, "%s[%d]" % (label, i), out, tol)
         return
-    if not _num_close(expected, actual):
+    if not _num_close(expected, actual, tol):
         out.append("%s：期望 %r，实际 %r" % (label, expected, actual))
 
 
@@ -311,7 +321,7 @@ def diff_body(expected, actual, keys=None):
                 if not same:
                     out.append("rotation_quaternion：期望 %r，实际 %r" % (exp, act))
                 continue
-        diff_value(exp, act, key, out)
+        diff_value(exp, act, key, out, FIELD_TOL.get(key, TOL))
     return out
 
 
@@ -441,6 +451,25 @@ def selftest():
     half["parent_bone"] = None
     cases.append(("空值④：白名单字段一边 null ⇒ strict 非空",
                   len(diff_body(body, half, ("parent_bone",))) > 0, True))
+
+    # 字段级容差：`matrix_world` 放宽到 1e-4（0.1 mm），但必须窄到能挡住真错位
+    mw = json.loads(json.dumps(body))
+    mw["matrix_world"] = [v + 5e-5 for v in mw["matrix_world"]]      # 0.05 mm 级抖动
+    cases.append(("容差①：matrix_world 偏 5e-5 ⇒ strict 为空（物理上不可辨）",
+                  len(diff_body(body, mw, ("matrix_world",))), 0))
+    mw2 = json.loads(json.dumps(body))
+    mw2["matrix_world"] = [v + 5e-3 for v in mw2["matrix_world"]]    # 5 mm 级错位
+    cases.append(("容差②：matrix_world 偏 5e-3 ⇒ strict 非空（真错位要红）",
+                  len(diff_body(body, mw2, ("matrix_world",))) > 0, True))
+    mesh_d = json.loads(json.dumps(body))
+    mesh_d["mesh"]["vertices"][0][0] = mesh_d["mesh"]["vertices"][0][0] + 5e-5
+    cases.append(("容差③：网格顶点偏 5e-5 ⇒ 仍按 1e-6 判红（只有 matrix_world 放宽）",
+                  len(diff_body(body, mesh_d, ("mesh",))) > 0, True))
+    mt = json.loads(json.dumps(body))
+    mt["mmd_type"] = "NONE"                                           # 交付件是 RIGID_BODY
+    strict_mt, soft_mt = split_diff(body, mt)
+    cases.append(("记账标记：mmd_type 不同 ⇒ 进 soft、不进 strict",
+                  (len(strict_mt), len(soft_mt) > 0), (0, True)))
 
     bad = 0
     for label, got, want in cases:

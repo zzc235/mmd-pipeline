@@ -24,10 +24,12 @@ TOL = 6                                                      # 读出的浮点�
 
 
 class PatchApplyError(Exception):
-    def __init__(self, reason_code, message):
+    def __init__(self, reason_code, message, detail=None):
         Exception.__init__(self, "[%s] %s" % (reason_code, message))
         self.reason_code = reason_code
         self.message = message
+        # 失败时把「已经量到的全部差异」带走，别只留一句摘要：读者要能自己看差多少
+        self.detail = detail
 
 
 # 前缀规则只许一份实现（在 `m02_patch_format` 里），这里直接复用，免得两处漂移
@@ -63,17 +65,40 @@ def _mmd_type_of(obj):
         return None
 
 
+MMD_RIGID_FIELDS = ("name", "name_j", "name_e", "collision_group_number",
+                    "collision_group_mask", "type", "shape", "bone", "size")
+
+
 def mmd_rigid_of(obj):
-    """MMD 刚体属性；读不到返回 `None`（**键仍写进 spec**，以便区分「读不到」与「没读过」）。"""
+    """MMD 刚体属性（真实的 RNA 字段名，2026-11-16 18:40 探针实测）。
+
+    **以前这里读错名字**（`group`/`mode`/`mass` 根本不存在）⇒ 每条都抛异常、被我写成了 `null`，
+    于是「交付件里 12 条都有 mmd_rigid」被读成「都没有」，重建件的通道作用域掉回 312、
+    `constraints_needed` 从 10111 变 8499 —— 又是「读不到 ≠ 不存在」。
+    现在：读不到**抛异常**（拒绝产出 null），字段名以 `m02_probe_mmd_rigid.py` 的实测为准。
+    """
     rig = getattr(obj, "mmd_rigid", None)
     if rig is None:
-        return None
-    try:
-        return {"group": int(rig.group), "mask": int(rig.collision_group_mask),
-                "shape": int(rig.shape), "mode": int(rig.mode),
-                "mass": _r(rig.mass)}
-    except Exception:                                        # noqa: BLE001
-        return None
+        return None                                  # 真的没有（不是读失败）
+    out = {}
+    for field in MMD_RIGID_FIELDS:
+        try:
+            value = getattr(rig, field)
+        except Exception as exc:                     # noqa: BLE001
+            raise PatchApplyError("PATCH_MMD_RIGID_UNREADABLE",
+                                  "%s 的 mmd_rigid.%s 读不到（%s: %s）——不写 null 冒充「没有」"
+                                  % (obj.name, field, type(exc).__name__, exc))
+        if field == "collision_group_mask":
+            out[field] = [bool(b) for b in value]
+        elif field == "size":
+            out[field] = [_r(v) for v in value]
+        elif field == "collision_group_number":
+            out[field] = int(value)
+        elif field == "type":
+            out[field] = str(value)
+        else:
+            out[field] = str(value)
+    return out
 
 
 DIGEST_BODY_FIELDS = ("name", "parent_bone", "mass", "kinematic", "collision_shape",
@@ -160,23 +185,156 @@ def rigidbody_world_snapshot():
     world = bpy.context.scene.rigidbody_world
     if world is None:
         return None
+    out = {"gravity": None, "time_scale": None, "substeps_per_frame": None,
+           "solver_iterations": None, "fields_missing": []}
+    for field in ("gravity", "time_scale", "substeps_per_frame", "solver_iterations"):
+        try:
+            value = getattr(world, field)
+        except Exception:                                    # noqa: BLE001
+            out["fields_missing"].append(field)
+            continue
+        if field == "gravity":
+            try:
+                out["gravity"] = [_r(v) for v in value]
+            except Exception:                                # noqa: BLE001
+                out["gravity"] = str(value)
+        elif field in ("substeps_per_frame", "solver_iterations"):
+            out[field] = int(value)
+        else:
+            out[field] = _r(value)
+    return out
+
+
+def _create_mmd_rigid(spec, arm_obj):
+    """用 mmd_tools 自己的算子造 MMD 刚体（唯一一份「造 MMD 刚体」的实现）。
+
+    为什么必须走算子（2026-11-16 18:40 实测）：`stage_build` 里的 `Model.build()` 会读每个
+    MMD 刚体对象上的 `mmd_tools_rigid_parent` 约束；手搓一个「有 `mmd_type` 但没有这套记账」的
+    对象，会让建场直接 E-05 失败。算子是上游唯一的正确入口（`AGENTS.md` 第一条：先找现成的）。
+    """
+    hard = spec["mmd_rigid"]
+    if arm_obj is None:
+        raise PatchApplyError("PATCH_NO_ARMATURE", "%s 需要骨架才能造 MMD 刚体" % spec["name"])
+    scene = bpy.context.scene
+    for o in bpy.context.selected_objects:
+        o.select_set(False)
+    bpy.context.view_layer.objects.active = arm_obj
+    arm_obj.select_set(True)
     try:
-        return {"gravity": [_r(v) for v in world.effector_weights.gravity
-                            if isinstance(v, (int, float))] or None,
-                "time_scale": _r(getattr(world, "time_scale", 0.0) or 0.0),
-                "substeps_per_frame": int(getattr(world, "substeps_per_frame", 0)),
-                "solver_iterations": int(getattr(world, "solver_iterations", 0))}
+        if arm_obj.mode != "POSE":
+            bpy.ops.object.mode_set(mode="POSE")
+    except Exception as exc:                                 # noqa: BLE001
+        raise PatchApplyError("PATCH_POSE_MODE_FAILED",
+                              "进不了 POSE 模式（%s）：%s" % (arm_obj.name, exc))
+    for pb in arm_obj.pose.bones:
+        pb.select = False                                    # 5.2：选中状态在 PoseBone 上
+    bone = hard.get("bone") or ""
+    if bone:
+        if bone not in arm_obj.pose.bones:
+            raise PatchApplyError("PATCH_BONE_MISSING", "%s 的父骨 %r 不在骨架上"
+                                  % (spec["name"], bone))
+        arm_obj.pose.bones[bone].select = True
+    before = set(bpy.data.objects.keys())
+    rb_spec = spec["rigid_body"]
+    kwargs = dict(
+        name_j=hard.get("name_j") or "",
+        name_e=hard.get("name_e") or "",
+        collision_group_number=int(hard.get("collision_group_number") or 0),
+        collision_group_mask=tuple(bool(b) for b in hard.get("collision_group_mask") or []),
+        rigid_type=str(hard.get("type") or "0"),
+        rigid_shape=str(hard.get("shape") or "BOX"),
+        size=tuple(float(v) for v in hard.get("size") or (0.6, 0.6, 0.6)),
+        mass=float(rb_spec["mass"]),
+        friction=float(rb_spec["friction"]),
+        bounce=float(rb_spec["restitution"]),
+        linear_damping=float(rb_spec["linear_damping"]),
+        angular_damping=float(rb_spec["angular_damping"]),
+    )
+    # 后台模式下窗口上下文里的 `context.selected_pose_bones` 不随 `pb.select` 变（18:44 实测：
+    # 算子走了「没有父骨」那条分支，`mmd_rigid.bone` 空、size 被乘 empty_display_size）。
+    # 所以显式用 temp_override 把「这一刻选中的是哪根骨」喂进去。
+    override = {"active_object": arm_obj, "object": arm_obj}
+    if bone:
+        override["selected_pose_bones"] = [arm_obj.pose.bones[bone]]
+        override["selected_bones"] = [arm_obj.data.bones[bone]]
+    try:
+        try:
+            with bpy.context.temp_override(**override):
+                bpy.ops.mmd_tools.rigid_body_add(**kwargs)
+        except TypeError:                                    # 老版本没有 temp_override
+            bpy.ops.mmd_tools.rigid_body_add(**kwargs)
+    except Exception as exc:                                 # noqa: BLE001
+        raise PatchApplyError("PATCH_RIGIDBODY_ADD_FAILED",
+                              "%s 用 mmd_tools.rigid_body_add 造失败：%s" % (spec["name"], exc))
+    new_names = [n for n in bpy.data.objects.keys() if n not in before]
+    if len(new_names) != 1:
+        raise PatchApplyError("PATCH_CREATE_AMBIGUOUS",
+                              "%s 之后新生成了 %d 个对象：%r（不猜哪个是刚体）"
+                              % (spec["name"], len(new_names), new_names[:5]))
+    obj = bpy.data.objects[new_names[0]]
+    try:
+        bpy.ops.object.mode_set(mode="OBJECT")
     except Exception:                                        # noqa: BLE001
-        return {"unreadable": True}
+        pass
+    if obj.name != spec["name"]:
+        if bpy.data.objects.get(spec["name"]) is not None:
+            raise PatchApplyError("PATCH_NAME_EXISTS",
+                                  "改名目标 %r 已被占用" % spec["name"])
+        obj.name = spec["name"]                              # 交付件的对象名（带 NNN_ 前缀）
+    return obj
 
 
 def create_body_from_spec(spec, arm_obj=None, collection=None):
-    """按一条 spec 造出对象（网格 + 父级/父骨 + 世界矩阵 + rigid body 全部属性）。"""
+    """按一条 spec 造出对象。有 `mmd_rigid` 数据 ⇒ 走 mmd_tools 算子；否则退化成普通刚体。"""
     name = spec["name"]
     if bpy.data.objects.get(name) is not None:
         raise PatchApplyError("PATCH_NAME_EXISTS",
                               "场景里已有同名对象 %r：补丁不许覆盖既有内容" % name)
+    if spec.get("mmd_rigid") is not None:
+        obj = _create_mmd_rigid(spec, arm_obj)
+    else:
+        obj = _create_plain_rigid(spec, arm_obj, collection)
+    return _finish_body(obj, spec, arm_obj)
 
+
+def _finish_body(obj, spec, arm_obj):
+    """两条路径共用的收尾：世界矩阵、刚体属性逐个写实、更新 depsgraph。"""
+    name = spec["name"]
+    if obj.parent is None and spec["parent"]:
+        parent = bpy.data.objects.get(spec["parent"])
+        if parent is not None:
+            obj.parent = parent
+            if spec["parent_bone"] and spec["parent_bone"] in parent.data.bones:
+                obj.parent_bone = spec["parent_bone"]
+            obj.matrix_parent_inverse = _flat_matrix(spec["matrix_parent_inverse"])
+    obj.matrix_world = _flat_matrix(spec["matrix_world"])
+    ensure_rigidbody_world()
+    rb = getattr(obj, "rigid_body", None)
+    if rb is None:
+        raise PatchApplyError("PATCH_RIGIDBODY_MISSING", "%s 没有 rigid_body" % name)
+    src = spec["rigid_body"]
+    try:
+        rb.kinematic = bool(src["kinematic"])
+        rb.collision_shape = src["collision_shape"]           # mmd_tools 只给 SPHERE/BOX/CAPSULE
+        rb.collision_collections = tuple(bool(b) for b in src["collision_collections"])
+        rb.use_margin = bool(src["use_margin"])
+        rb.collision_margin = float(src["collision_margin"])
+        rb.mass = float(src["mass"])
+        rb.friction = float(src["friction"])
+        rb.restitution = float(src["restitution"])
+        rb.linear_damping = float(src["linear_damping"])
+        rb.angular_damping = float(src["angular_damping"])
+        rb.enabled = bool(src["enabled"])
+    except Exception as exc:                                 # noqa: BLE001
+        raise PatchApplyError("PATCH_PROPERTY_FAILED",
+                              "%s 写 rigid body 属性失败：%s" % (name, exc))
+    bpy.context.view_layer.update()
+    return obj
+
+
+def _create_plain_rigid(spec, arm_obj=None, collection=None):
+    """没有 mmd_rigid 数据时的退化路径：自建网格 + Blender 刚体（不是 MMD 刚体）。"""
+    name = spec["name"]
     me = bpy.data.meshes.new(name + "__patch_mesh")
     verts = [tuple(float(c) for c in v) for v in spec["mesh"]["vertices"]]
     faces = [tuple(int(i) for i in f) for f in spec["mesh"]["faces"]]
@@ -214,36 +372,14 @@ def create_body_from_spec(spec, arm_obj=None, collection=None):
         o.select_set(False)
     bpy.context.view_layer.objects.active = obj
     obj.select_set(True)
-    shape = spec["rigid_body"]["collision_shape"]
     try:
-        bpy.ops.rigidbody.object_add(type=shape)
+        # `rigidbody.object_add(type=...)` 的 `type` 是 **ACTIVE/PASSIVE**（刚体角色），
+        # 不是碰撞形状 —— 实测传 "BOX" 会报 `enum "BOX" not found in ('ACTIVE', 'PASSIVE')`。
+        bpy.ops.rigidbody.object_add(type="ACTIVE")
     except Exception as exc:                                 # noqa: BLE001
         raise PatchApplyError("PATCH_RIGIDBODY_ADD_FAILED",
-                              "%s 加 rigid body(%s) 失败：%s" % (name, shape, exc))
-    rb = getattr(obj, "rigid_body", None)
-    if rb is None:
+                              "%s 加 rigid body 失败：%s" % (name, exc))
+    if getattr(obj, "rigid_body", None) is None:
         raise PatchApplyError("PATCH_RIGIDBODY_MISSING", "%s 加了 rigid body 却读不到" % name)
-
-    src = spec["rigid_body"]
-    try:
-        rb.mass = float(src["mass"])
-        rb.friction = float(src["friction"])
-        rb.restitution = float(src["restitution"])
-        rb.kinematic = bool(src["kinematic"])
-        rb.collision_shape = src["collision_shape"]
-        rb.collision_collections = tuple(bool(b) for b in src["collision_collections"])
-        rb.collision_margin = float(src["collision_margin"])
-        rb.linear_damping = float(src["linear_damping"])
-        rb.angular_damping = float(src["angular_damping"])
-        rb.use_margin = bool(src["use_margin"])
-        rb.enabled = bool(src["enabled"])
-    except Exception as exc:                                 # noqa: BLE001
-        raise PatchApplyError("PATCH_PROPERTY_FAILED",
-                              "%s 写 rigid body 属性失败：%s" % (name, exc))
-    if spec.get("mmd_type") is not None:
-        try:
-            obj.mmd_type = spec["mmd_type"]
-        except Exception:                                    # noqa: BLE001
-            pass                                             # mmd_type 只影响读回对照，记在 soft 层
     bpy.context.view_layer.update()
     return obj

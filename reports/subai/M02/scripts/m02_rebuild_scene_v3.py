@@ -125,7 +125,8 @@ def apply_input_patch(patch_path, arm):
     if rec["strict_mismatch"]:
         raise pb.PatchApplyError("PATCH_READBACK_MISMATCH",
                                  "装上了但回读对不上（硬字段）：%s"
-                                 % json.dumps(rec["strict_mismatch"], ensure_ascii=False)[:800])
+                                 % json.dumps(rec["strict_mismatch"], ensure_ascii=False)[:800],
+                                 detail=rec)
     return rec
 
 
@@ -218,6 +219,9 @@ def main():
                 "reason_code": getattr(exc, "reason_code", "PATCH_ERROR"),
                 "message": getattr(exc, "message", str(exc)),
                 "problems": getattr(exc, "problems", [])}
+            # 差异明细整份落盘：失败报告也要能回答「差多少、哪些字段」
+            if getattr(exc, "detail", None):
+                report["input_patch"] = exc.detail
             write_report("PATCH_REFUSED", getattr(exc, "reason_code", "PATCH_ERROR"),
                          getattr(exc, "message", str(exc)))
             print("REBUILD PATCH_REFUSED %s" % (getattr(exc, "reason_code", "PATCH_ERROR")))
