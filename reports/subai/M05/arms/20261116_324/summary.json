@@ -1,0 +1,986 @@
+{
+  "arms": [
+    {
+      "action": {
+        "fcurves": 725,
+        "frame_range": [
+          1,
+          301
+        ],
+        "name": "B_aligned_bone",
+        "nla_tracks": 0
+      },
+      "arm": "CTRL_fps_changed",
+      "arm_role": "反控-fps被改",
+      "artifact": {
+        "basename": null,
+        "bytes": null,
+        "frozen_mode": null,
+        "path_rel": null,
+        "sha256": null
+      },
+      "cache": {
+        "bake_free": null,
+        "freed_bake": false,
+        "has_rigidbody_world": true,
+        "is_baked": false,
+        "is_outdated": true,
+        "point_cache_range": [
+          1,
+          301
+        ]
+      },
+      "checks": {
+        "A0_profile_ready": true,
+        "A1_action_applied": true,
+        "A2_frame_end_readback": true,
+        "A3_is_baked_false": true,
+        "A4_no_nla_stacking": true,
+        "A5_window_matches_plan": true,
+        "A6_fps_matches_preset": false
+      },
+      "checks_detail": {
+        "A0_profile_ready": "ensure_addons={'mmd_tools': True}（`hasattr` 在没装上时也返回 True，只能信这个）",
+        "A1_action_applied": "action='B_aligned_bone' fcurves=725（门槛 > 100）",
+        "A2_frame_end_readback": "scene.frame_end=301，action.frame_range[1]=301，来源='readback:arm.animation_data.action.frame_range[1]'",
+        "A3_is_baked_false": "rigidbody_world=True is_baked=False is_outdated=True freed_bake=False",
+        "A4_no_nla_stacking": "nla_tracks=0（单动作这一步不许留 NLA 轨道）",
+        "A5_window_matches_plan": "scene.frame_end=301，plan.final_last=301",
+        "A6_fps_matches_preset": "scene.fps_after=30，preset=24（导入动作改了容器 fps）"
+      },
+      "in_blend": {
+        "bytes": 6102478,
+        "path": "E:\\code\\mmdpipe-ai\\A1\\out\\subai\\M08\\run_20261116_1847\\rebuild_built.blend",
+        "sha256": "ffaa6780a2f7e765512201403a21e34848837b5f1c7486e91a70442762857761"
+      },
+      "notes": [
+        "场景级反控：允许导入改 fps，A6 应当判红且不写交付件"
+      ],
+      "scene": {
+        "fps_after": 30,
+        "fps_before": 24,
+        "fps_changed": true,
+        "name": "Scene"
+      },
+      "source": {
+        "bone_frames": 491,
+        "bones": 332,
+        "bytes": 57497,
+        "frame_range": [
+          0,
+          300
+        ],
+        "path": "E:\\dsh pr\\woker2\\out\\B_aligned.vmd",
+        "sha256": "5d391f1a01d2279aa9f769cf6cd20fc176b5aa2f542c2d5568608a69a02e762d"
+      },
+      "verdict": "BLOCKED",
+      "window": {
+        "frame_end": 301,
+        "frame_end_source": "readback:arm.animation_data.action.frame_range[1]",
+        "frame_start": 1
+      }
+    },
+    {
+      "action": {
+        "fcurves": 0,
+        "frame_range": [
+          null,
+          null
+        ],
+        "name": null,
+        "nla_tracks": 0
+      },
+      "arm": "CTRL_no_addon",
+      "arm_role": "反控-无插件闸门",
+      "artifact": {
+        "basename": null,
+        "bytes": null,
+        "frozen_mode": null,
+        "path_rel": null,
+        "sha256": null
+      },
+      "cache": {
+        "freed_bake": false,
+        "has_rigidbody_world": true,
+        "is_baked": null
+      },
+      "checks": {
+        "A0_profile_ready": false,
+        "A1_action_applied": false,
+        "A2_frame_end_readback": false,
+        "A3_is_baked_false": false,
+        "A4_no_nla_stacking": true,
+        "A5_window_matches_plan": false,
+        "A6_fps_matches_preset": false
+      },
+      "checks_detail": {
+        "A0_profile_ready": "ensure_addons={'mmd_tools': None}（`hasattr` 在没装上时也返回 True，只能信这个）",
+        "A1_action_applied": "action=None fcurves=0（门槛 > 100）",
+        "A2_frame_end_readback": "scene.frame_end=250，action.frame_range[1]=None，来源='not-applied'",
+        "A3_is_baked_false": "rigidbody_world=True is_baked=None is_outdated=None freed_bake=False",
+        "A4_no_nla_stacking": "nla_tracks=0（单动作这一步不许留 NLA 轨道）",
+        "A5_window_matches_plan": "scene.frame_end=250，plan.final_last=301",
+        "A6_fps_matches_preset": "scene.fps_after=None，preset=24（导入动作改了容器 fps）"
+      },
+      "in_blend": {
+        "bytes": 6102478,
+        "path": "E:\\code\\mmdpipe-ai\\A1\\out\\subai\\M08\\run_20261116_1847\\rebuild_built.blend",
+        "sha256": "ffaa6780a2f7e765512201403a21e34848837b5f1c7486e91a70442762857761"
+      },
+      "notes": [
+        "场景级反控：关掉插件闸门，应当判红且不写交付件"
+      ],
+      "scene": {
+        "fps_before": 24,
+        "name": "Scene"
+      },
+      "source": {
+        "bone_frames": 491,
+        "bones": 332,
+        "bytes": 57497,
+        "frame_range": [
+          0,
+          300
+        ],
+        "path": "E:\\dsh pr\\woker2\\out\\B_aligned.vmd",
+        "sha256": "5d391f1a01d2279aa9f769cf6cd20fc176b5aa2f542c2d5568608a69a02e762d"
+      },
+      "verdict": "BLOCKED",
+      "window": {
+        "frame_end": 250,
+        "frame_end_source": "not-applied",
+        "frame_start": 1
+      }
+    },
+    {
+      "action": {
+        "fcurves": 725,
+        "frame_range": [
+          1,
+          301
+        ],
+        "name": "B_aligned_bone",
+        "nla_tracks": 0
+      },
+      "arm": "C_W1",
+      "arm_role": "C@W1",
+      "artifact": {
+        "basename": "C@W1.blend",
+        "bytes": 6137030,
+        "frozen_mode": "0o444",
+        "path_rel": "out\\subai\\M05\\arms\\20261116_324\\C@W1.blend",
+        "sha256": "79862401ed1f1cdb1fc3afe5c85e95586d7606abcc6005943a747fd91e55f806"
+      },
+      "cache": {
+        "bake_free": null,
+        "freed_bake": false,
+        "has_rigidbody_world": true,
+        "is_baked": false,
+        "is_outdated": true,
+        "point_cache_range": [
+          1,
+          301
+        ]
+      },
+      "checks": {
+        "A0_profile_ready": true,
+        "A1_action_applied": true,
+        "A2_frame_end_readback": true,
+        "A3_is_baked_false": true,
+        "A4_no_nla_stacking": true,
+        "A5_window_matches_plan": true,
+        "A6_fps_matches_preset": true
+      },
+      "checks_detail": {
+        "A0_profile_ready": "ensure_addons={'mmd_tools': True}（`hasattr` 在没装上时也返回 True，只能信这个）",
+        "A1_action_applied": "action='B_aligned_bone' fcurves=725（门槛 > 100）",
+        "A2_frame_end_readback": "scene.frame_end=301，action.frame_range[1]=301，来源='readback:arm.animation_data.action.frame_range[1]'",
+        "A3_is_baked_false": "rigidbody_world=True is_baked=False is_outdated=True freed_bake=False",
+        "A4_no_nla_stacking": "nla_tracks=0（单动作这一步不许留 NLA 轨道）",
+        "A5_window_matches_plan": "scene.frame_end=301，plan.final_last=301",
+        "A6_fps_matches_preset": "scene.fps_after=24，preset=24"
+      },
+      "in_blend": {
+        "bytes": 6102478,
+        "path": "E:\\code\\mmdpipe-ai\\A1\\out\\subai\\M08\\run_20261116_1847\\rebuild_built.blend",
+        "sha256": "ffaa6780a2f7e765512201403a21e34848837b5f1c7486e91a70442762857761"
+      },
+      "notes": [],
+      "scene": {
+        "fps_after": 24,
+        "fps_before": 24,
+        "fps_changed": false,
+        "name": "Scene"
+      },
+      "source": {
+        "bone_frames": 491,
+        "bones": 332,
+        "bytes": 57497,
+        "frame_range": [
+          0,
+          300
+        ],
+        "path": "E:\\dsh pr\\woker2\\out\\B_aligned.vmd",
+        "sha256": "5d391f1a01d2279aa9f769cf6cd20fc176b5aa2f542c2d5568608a69a02e762d"
+      },
+      "verdict": "READY",
+      "window": {
+        "frame_end": 301,
+        "frame_end_source": "readback:arm.animation_data.action.frame_range[1]",
+        "frame_start": 1
+      }
+    },
+    {
+      "action": {
+        "fcurves": 725,
+        "frame_range": [
+          1,
+          301
+        ],
+        "name": "B_aligned_bone",
+        "nla_tracks": 0
+      },
+      "arm": "C_W1_rerun",
+      "arm_role": "C@W1-rerun",
+      "artifact": {
+        "basename": "C@W1-rerun.blend",
+        "bytes": 6136986,
+        "frozen_mode": "0o444",
+        "path_rel": "out\\subai\\M05\\arms\\20261116_324\\C@W1-rerun.blend",
+        "sha256": "2a2efb3e1073923387a006bc07a32ad44702637c18aad0ae1b178803a4447d41"
+      },
+      "cache": {
+        "bake_free": null,
+        "freed_bake": false,
+        "has_rigidbody_world": true,
+        "is_baked": false,
+        "is_outdated": true,
+        "point_cache_range": [
+          1,
+          301
+        ]
+      },
+      "checks": {
+        "A0_profile_ready": true,
+        "A1_action_applied": true,
+        "A2_frame_end_readback": true,
+        "A3_is_baked_false": true,
+        "A4_no_nla_stacking": true,
+        "A5_window_matches_plan": true,
+        "A6_fps_matches_preset": true
+      },
+      "checks_detail": {
+        "A0_profile_ready": "ensure_addons={'mmd_tools': True}（`hasattr` 在没装上时也返回 True，只能信这个）",
+        "A1_action_applied": "action='B_aligned_bone' fcurves=725（门槛 > 100）",
+        "A2_frame_end_readback": "scene.frame_end=301，action.frame_range[1]=301，来源='readback:arm.animation_data.action.frame_range[1]'",
+        "A3_is_baked_false": "rigidbody_world=True is_baked=False is_outdated=True freed_bake=False",
+        "A4_no_nla_stacking": "nla_tracks=0（单动作这一步不许留 NLA 轨道）",
+        "A5_window_matches_plan": "scene.frame_end=301，plan.final_last=301",
+        "A6_fps_matches_preset": "scene.fps_after=24，preset=24"
+      },
+      "in_blend": {
+        "bytes": 6137030,
+        "path": "E:\\code\\mmdpipe-ai\\A3\\out\\subai\\M05\\arms\\20261116_324\\C@W1.blend",
+        "sha256": "79862401ed1f1cdb1fc3afe5c85e95586d7606abcc6005943a747fd91e55f806"
+      },
+      "notes": [
+        "幂等复跑：输入是 C_W1 自己的产物，同一动作再应用一次"
+      ],
+      "scene": {
+        "fps_after": 24,
+        "fps_before": 24,
+        "fps_changed": false,
+        "name": "Scene"
+      },
+      "source": {
+        "bone_frames": 491,
+        "bones": 332,
+        "bytes": 57497,
+        "frame_range": [
+          0,
+          300
+        ],
+        "path": "E:\\dsh pr\\woker2\\out\\B_aligned.vmd",
+        "sha256": "5d391f1a01d2279aa9f769cf6cd20fc176b5aa2f542c2d5568608a69a02e762d"
+      },
+      "verdict": "READY",
+      "window": {
+        "frame_end": 301,
+        "frame_end_source": "readback:arm.animation_data.action.frame_range[1]",
+        "frame_start": 1
+      }
+    },
+    {
+      "action": {
+        "fcurves": 725,
+        "frame_range": [
+          1,
+          832
+        ],
+        "name": "B_aligned_bone",
+        "nla_tracks": 0
+      },
+      "arm": "C_W2",
+      "arm_role": "C@W2",
+      "artifact": {
+        "basename": "C@W2.blend",
+        "bytes": 6139523,
+        "frozen_mode": "0o444",
+        "path_rel": "out\\subai\\M05\\arms\\20261116_324\\C@W2.blend",
+        "sha256": "c3c5cdcb762b78144d75b02188e9361cce892eff76a0860465d8a7df95f22f04"
+      },
+      "cache": {
+        "bake_free": null,
+        "freed_bake": false,
+        "has_rigidbody_world": true,
+        "is_baked": false,
+        "is_outdated": true,
+        "point_cache_range": [
+          1,
+          832
+        ]
+      },
+      "checks": {
+        "A0_profile_ready": true,
+        "A1_action_applied": true,
+        "A2_frame_end_readback": true,
+        "A3_is_baked_false": true,
+        "A4_no_nla_stacking": true,
+        "A5_window_matches_plan": true,
+        "A6_fps_matches_preset": true
+      },
+      "checks_detail": {
+        "A0_profile_ready": "ensure_addons={'mmd_tools': True}（`hasattr` 在没装上时也返回 True，只能信这个）",
+        "A1_action_applied": "action='B_aligned_bone' fcurves=725（门槛 > 100）",
+        "A2_frame_end_readback": "scene.frame_end=832，action.frame_range[1]=832，来源='readback:arm.animation_data.action.frame_range[1]'",
+        "A3_is_baked_false": "rigidbody_world=True is_baked=False is_outdated=True freed_bake=False",
+        "A4_no_nla_stacking": "nla_tracks=0（单动作这一步不许留 NLA 轨道）",
+        "A5_window_matches_plan": "scene.frame_end=832，plan.final_last=832",
+        "A6_fps_matches_preset": "scene.fps_after=24，preset=24"
+      },
+      "in_blend": {
+        "bytes": 6102478,
+        "path": "E:\\code\\mmdpipe-ai\\A1\\out\\subai\\M08\\run_20261116_1847\\rebuild_built.blend",
+        "sha256": "ffaa6780a2f7e765512201403a21e34848837b5f1c7486e91a70442762857761"
+      },
+      "notes": [],
+      "scene": {
+        "fps_after": 24,
+        "fps_before": 24,
+        "fps_changed": false,
+        "name": "Scene"
+      },
+      "source": {
+        "bone_frames": 491,
+        "bones": 332,
+        "bytes": 57497,
+        "frame_range": [
+          0,
+          300
+        ],
+        "path": "E:\\dsh pr\\woker2\\out\\B_aligned.vmd",
+        "sha256": "5d391f1a01d2279aa9f769cf6cd20fc176b5aa2f542c2d5568608a69a02e762d"
+      },
+      "verdict": "READY",
+      "window": {
+        "frame_end": 832,
+        "frame_end_source": "readback:arm.animation_data.action.frame_range[1]",
+        "frame_start": 1
+      }
+    },
+    {
+      "action": {
+        "fcurves": 700,
+        "frame_range": [
+          1,
+          833
+        ],
+        "name": "原神摇_merged_bone",
+        "nla_tracks": 0
+      },
+      "arm": "D",
+      "arm_role": "D",
+      "artifact": {
+        "basename": "D.blend",
+        "bytes": 10230897,
+        "frozen_mode": "0o444",
+        "path_rel": "out\\subai\\M05\\arms\\20261116_324\\D.blend",
+        "sha256": "b6e0545a7becd3d788c019434c30acc04cfaecbee650fbc60e9993fda2db0cc3"
+      },
+      "cache": {
+        "bake_free": null,
+        "freed_bake": false,
+        "has_rigidbody_world": true,
+        "is_baked": false,
+        "is_outdated": true,
+        "point_cache_range": [
+          1,
+          833
+        ]
+      },
+      "checks": {
+        "A0_profile_ready": true,
+        "A1_action_applied": true,
+        "A2_frame_end_readback": true,
+        "A3_is_baked_false": true,
+        "A4_no_nla_stacking": true,
+        "A5_window_matches_plan": true,
+        "A6_fps_matches_preset": true
+      },
+      "checks_detail": {
+        "A0_profile_ready": "ensure_addons={'mmd_tools': True}（`hasattr` 在没装上时也返回 True，只能信这个）",
+        "A1_action_applied": "action='原神摇_merged_bone' fcurves=700（门槛 > 100）",
+        "A2_frame_end_readback": "scene.frame_end=833，action.frame_range[1]=833，来源='readback:arm.animation_data.action.frame_range[1]'",
+        "A3_is_baked_false": "rigidbody_world=True is_baked=False is_outdated=True freed_bake=False",
+        "A4_no_nla_stacking": "nla_tracks=0（单动作这一步不许留 NLA 轨道）",
+        "A5_window_matches_plan": "scene.frame_end=833，plan.final_last=833",
+        "A6_fps_matches_preset": "scene.fps_after=24，preset=24"
+      },
+      "in_blend": {
+        "bytes": 6102478,
+        "path": "E:\\code\\mmdpipe-ai\\A1\\out\\subai\\M08\\run_20261116_1847\\rebuild_built.blend",
+        "sha256": "ffaa6780a2f7e765512201403a21e34848837b5f1c7486e91a70442762857761"
+      },
+      "notes": [
+        "预注册 D 臂：原神摇 832 帧全长（b872fda7…）；源第 832 帧落在 action 833，测量窗口 1..832 外，尾帧未测"
+      ],
+      "scene": {
+        "fps_after": 24,
+        "fps_before": 24,
+        "fps_changed": false,
+        "name": "Scene"
+      },
+      "source": {
+        "bone_frames": 43962,
+        "bones": 259,
+        "bytes": 4884456,
+        "frame_range": [
+          0,
+          832
+        ],
+        "path": "E:\\dsh pr\\woker2\\kafuka_all\\vmd\\原神摇_merged.vmd",
+        "sha256": "b872fda7a4bbbfa6f72675969d39df90de715a2577f5990501f6436911b2e46b"
+      },
+      "verdict": "READY",
+      "window": {
+        "frame_end": 833,
+        "frame_end_source": "readback:arm.animation_data.action.frame_range[1]",
+        "frame_start": 1
+      }
+    },
+    {
+      "action": {
+        "fcurves": 357,
+        "frame_range": [
+          1,
+          447
+        ],
+        "name": "原神摇_merged_bone",
+        "nla_tracks": 0
+      },
+      "arm": "D_ctrl_447",
+      "arm_role": "D-对照",
+      "artifact": {
+        "basename": "D-_.blend",
+        "bytes": 8769753,
+        "frozen_mode": "0o444",
+        "path_rel": "out\\subai\\M05\\arms\\20261116_324\\D-_.blend",
+        "sha256": "3669481c2d7cb21649326b4792bb0d31cfaa82cd3a391ce412d76c702e8a5b6d"
+      },
+      "cache": {
+        "bake_free": null,
+        "freed_bake": false,
+        "has_rigidbody_world": true,
+        "is_baked": false,
+        "is_outdated": true,
+        "point_cache_range": [
+          1,
+          447
+        ]
+      },
+      "checks": {
+        "A0_profile_ready": true,
+        "A1_action_applied": true,
+        "A2_frame_end_readback": true,
+        "A3_is_baked_false": true,
+        "A4_no_nla_stacking": true,
+        "A5_window_matches_plan": true,
+        "A6_fps_matches_preset": true
+      },
+      "checks_detail": {
+        "A0_profile_ready": "ensure_addons={'mmd_tools': True}（`hasattr` 在没装上时也返回 True，只能信这个）",
+        "A1_action_applied": "action='原神摇_merged_bone' fcurves=357（门槛 > 100）",
+        "A2_frame_end_readback": "scene.frame_end=447，action.frame_range[1]=447，来源='readback:arm.animation_data.action.frame_range[1]'",
+        "A3_is_baked_false": "rigidbody_world=True is_baked=False is_outdated=True freed_bake=False",
+        "A4_no_nla_stacking": "nla_tracks=0（单动作这一步不许留 NLA 轨道）",
+        "A5_window_matches_plan": "scene.frame_end=447，plan.final_last=447",
+        "A6_fps_matches_preset": "scene.fps_after=24，preset=24"
+      },
+      "in_blend": {
+        "bytes": 6102478,
+        "path": "E:\\code\\mmdpipe-ai\\A1\\out\\subai\\M08\\run_20261116_1847\\rebuild_built.blend",
+        "sha256": "ffaa6780a2f7e765512201403a21e34848837b5f1c7486e91a70442762857761"
+      },
+      "notes": [
+        "447 帧原片版，非预注册素材，不进 D 的判词"
+      ],
+      "scene": {
+        "fps_after": 24,
+        "fps_before": 24,
+        "fps_changed": false,
+        "name": "Scene"
+      },
+      "source": {
+        "bone_frames": 23244,
+        "bones": 52,
+        "bytes": 2580503,
+        "frame_range": [
+          0,
+          446
+        ],
+        "path": "E:\\dsh pr\\woker2\\out\\原神摇_merged.vmd",
+        "sha256": "027179ac268019fda46d8277f7b481223baf55bee55b357a2a584222b95df0ae"
+      },
+      "verdict": "READY",
+      "window": {
+        "frame_end": 447,
+        "frame_end_source": "readback:arm.animation_data.action.frame_range[1]",
+        "frame_start": 1
+      }
+    }
+  ],
+  "artifact_readback": {
+    "arms": [
+      {
+        "actions": [
+          {
+            "fcurves": 725,
+            "fcurves_via": "layers.strips.channelbags",
+            "frame_range": [
+              1.0,
+              301.0
+            ],
+            "name": "B_aligned_bone",
+            "users": 1
+          },
+          {
+            "fcurves": 1,
+            "fcurves_via": "layers.strips.channelbags",
+            "frame_range": [
+              1.0,
+              1.0
+            ],
+            "name": "B_aligned_display",
+            "users": 1
+          },
+          {
+            "fcurves": 27,
+            "fcurves_via": "layers.strips.channelbags",
+            "frame_range": [
+              1.0,
+              281.0
+            ],
+            "name": "B_aligned_facial",
+            "users": 1
+          }
+        ],
+        "active_action": {
+          "action": "B_aligned_display",
+          "nla_tracks": 0,
+          "object": "星穹铁道—飞霄（无外套）"
+        },
+        "bodies_in_mask_record": null,
+        "bytes": 6137030,
+        "file": "C@W1.blend",
+        "fps": 24,
+        "frame_end": 301,
+        "frame_start": 1,
+        "is_baked": false,
+        "is_outdated": true,
+        "mask_wired": {
+          "constraint_creation": "template_copy",
+          "constraints_added": 8298,
+          "constraints_already_blocked": 1813,
+          "constraints_capped": false,
+          "constraints_needed": 10111,
+          "constraints_to_add": 8298,
+          "guardrail_hit": false,
+          "readback_mismatch": 0,
+          "skipped_count": 0,
+          "verdict": "WIRED",
+          "verdict_reasons": []
+        },
+        "point_cache_range": [
+          1,
+          301
+        ],
+        "rigids_u324_rigid_body_attr": 324,
+        "scene_props": {
+          "mask_wired": {
+            "constraint_creation": "template_copy",
+            "constraints_added": 8298,
+            "constraints_already_blocked": 1813,
+            "constraints_capped": false,
+            "constraints_needed": 10111,
+            "constraints_to_add": 8298,
+            "guardrail_hit": false,
+            "readback_mismatch": 0,
+            "skipped_count": 0,
+            "verdict": "WIRED",
+            "verdict_reasons": []
+          }
+        }
+      },
+      {
+        "actions": [
+          {
+            "fcurves": 725,
+            "fcurves_via": "layers.strips.channelbags",
+            "frame_range": [
+              1.0,
+              301.0
+            ],
+            "name": "B_aligned_bone",
+            "users": 1
+          },
+          {
+            "fcurves": 1,
+            "fcurves_via": "layers.strips.channelbags",
+            "frame_range": [
+              1.0,
+              1.0
+            ],
+            "name": "B_aligned_display",
+            "users": 1
+          },
+          {
+            "fcurves": 27,
+            "fcurves_via": "layers.strips.channelbags",
+            "frame_range": [
+              1.0,
+              281.0
+            ],
+            "name": "B_aligned_facial",
+            "users": 1
+          }
+        ],
+        "active_action": {
+          "action": "B_aligned_display",
+          "nla_tracks": 0,
+          "object": "星穹铁道—飞霄（无外套）"
+        },
+        "bodies_in_mask_record": null,
+        "bytes": 6136986,
+        "file": "C@W1-rerun.blend",
+        "fps": 24,
+        "frame_end": 301,
+        "frame_start": 1,
+        "is_baked": false,
+        "is_outdated": true,
+        "mask_wired": {
+          "constraint_creation": "template_copy",
+          "constraints_added": 8298,
+          "constraints_already_blocked": 1813,
+          "constraints_capped": false,
+          "constraints_needed": 10111,
+          "constraints_to_add": 8298,
+          "guardrail_hit": false,
+          "readback_mismatch": 0,
+          "skipped_count": 0,
+          "verdict": "WIRED",
+          "verdict_reasons": []
+        },
+        "point_cache_range": [
+          1,
+          301
+        ],
+        "rigids_u324_rigid_body_attr": 324,
+        "scene_props": {
+          "mask_wired": {
+            "constraint_creation": "template_copy",
+            "constraints_added": 8298,
+            "constraints_already_blocked": 1813,
+            "constraints_capped": false,
+            "constraints_needed": 10111,
+            "constraints_to_add": 8298,
+            "guardrail_hit": false,
+            "readback_mismatch": 0,
+            "skipped_count": 0,
+            "verdict": "WIRED",
+            "verdict_reasons": []
+          }
+        }
+      },
+      {
+        "actions": [
+          {
+            "fcurves": 725,
+            "fcurves_via": "layers.strips.channelbags",
+            "frame_range": [
+              1.0,
+              832.0
+            ],
+            "name": "B_aligned_bone",
+            "users": 1
+          },
+          {
+            "fcurves": 1,
+            "fcurves_via": "layers.strips.channelbags",
+            "frame_range": [
+              1.0,
+              1.0
+            ],
+            "name": "B_aligned_display",
+            "users": 1
+          },
+          {
+            "fcurves": 27,
+            "fcurves_via": "layers.strips.channelbags",
+            "frame_range": [
+              1.0,
+              281.0
+            ],
+            "name": "B_aligned_facial",
+            "users": 1
+          }
+        ],
+        "active_action": {
+          "action": "B_aligned_display",
+          "nla_tracks": 0,
+          "object": "星穹铁道—飞霄（无外套）"
+        },
+        "bodies_in_mask_record": null,
+        "bytes": 6139523,
+        "file": "C@W2.blend",
+        "fps": 24,
+        "frame_end": 832,
+        "frame_start": 1,
+        "is_baked": false,
+        "is_outdated": true,
+        "mask_wired": {
+          "constraint_creation": "template_copy",
+          "constraints_added": 8298,
+          "constraints_already_blocked": 1813,
+          "constraints_capped": false,
+          "constraints_needed": 10111,
+          "constraints_to_add": 8298,
+          "guardrail_hit": false,
+          "readback_mismatch": 0,
+          "skipped_count": 0,
+          "verdict": "WIRED",
+          "verdict_reasons": []
+        },
+        "point_cache_range": [
+          1,
+          832
+        ],
+        "rigids_u324_rigid_body_attr": 324,
+        "scene_props": {
+          "mask_wired": {
+            "constraint_creation": "template_copy",
+            "constraints_added": 8298,
+            "constraints_already_blocked": 1813,
+            "constraints_capped": false,
+            "constraints_needed": 10111,
+            "constraints_to_add": 8298,
+            "guardrail_hit": false,
+            "readback_mismatch": 0,
+            "skipped_count": 0,
+            "verdict": "WIRED",
+            "verdict_reasons": []
+          }
+        }
+      },
+      {
+        "actions": [
+          {
+            "fcurves": 700,
+            "fcurves_via": "layers.strips.channelbags",
+            "frame_range": [
+              1.0,
+              833.0
+            ],
+            "name": "原神摇_merged_bone",
+            "users": 1
+          },
+          {
+            "fcurves": 40,
+            "fcurves_via": "layers.strips.channelbags",
+            "frame_range": [
+              454.0,
+              856.0
+            ],
+            "name": "原神摇_merged_facial",
+            "users": 1
+          }
+        ],
+        "active_action": {
+          "action": "原神摇_merged_bone",
+          "nla_tracks": 0,
+          "object": "星穹铁道—飞霄（无外套）_arm"
+        },
+        "bodies_in_mask_record": null,
+        "bytes": 10230897,
+        "file": "D.blend",
+        "fps": 24,
+        "frame_end": 833,
+        "frame_start": 1,
+        "is_baked": false,
+        "is_outdated": true,
+        "mask_wired": {
+          "constraint_creation": "template_copy",
+          "constraints_added": 8298,
+          "constraints_already_blocked": 1813,
+          "constraints_capped": false,
+          "constraints_needed": 10111,
+          "constraints_to_add": 8298,
+          "guardrail_hit": false,
+          "readback_mismatch": 0,
+          "skipped_count": 0,
+          "verdict": "WIRED",
+          "verdict_reasons": []
+        },
+        "point_cache_range": [
+          1,
+          833
+        ],
+        "rigids_u324_rigid_body_attr": 324,
+        "scene_props": {
+          "mask_wired": {
+            "constraint_creation": "template_copy",
+            "constraints_added": 8298,
+            "constraints_already_blocked": 1813,
+            "constraints_capped": false,
+            "constraints_needed": 10111,
+            "constraints_to_add": 8298,
+            "guardrail_hit": false,
+            "readback_mismatch": 0,
+            "skipped_count": 0,
+            "verdict": "WIRED",
+            "verdict_reasons": []
+          }
+        }
+      },
+      {
+        "actions": [
+          {
+            "fcurves": 357,
+            "fcurves_via": "layers.strips.channelbags",
+            "frame_range": [
+              1.0,
+              447.0
+            ],
+            "name": "原神摇_merged_bone",
+            "users": 1
+          },
+          {
+            "fcurves": 5,
+            "fcurves_via": "layers.strips.channelbags",
+            "frame_range": [
+              1.0,
+              441.0
+            ],
+            "name": "原神摇_merged_facial",
+            "users": 1
+          }
+        ],
+        "active_action": {
+          "action": "原神摇_merged_bone",
+          "nla_tracks": 0,
+          "object": "星穹铁道—飞霄（无外套）_arm"
+        },
+        "bodies_in_mask_record": null,
+        "bytes": 8769753,
+        "file": "D-_.blend",
+        "fps": 24,
+        "frame_end": 447,
+        "frame_start": 1,
+        "is_baked": false,
+        "is_outdated": true,
+        "mask_wired": {
+          "constraint_creation": "template_copy",
+          "constraints_added": 8298,
+          "constraints_already_blocked": 1813,
+          "constraints_capped": false,
+          "constraints_needed": 10111,
+          "constraints_to_add": 8298,
+          "guardrail_hit": false,
+          "readback_mismatch": 0,
+          "skipped_count": 0,
+          "verdict": "WIRED",
+          "verdict_reasons": []
+        },
+        "point_cache_range": [
+          1,
+          447
+        ],
+        "rigids_u324_rigid_body_attr": 324,
+        "scene_props": {
+          "mask_wired": {
+            "constraint_creation": "template_copy",
+            "constraints_added": 8298,
+            "constraints_already_blocked": 1813,
+            "constraints_capped": false,
+            "constraints_needed": 10111,
+            "constraints_to_add": 8298,
+            "guardrail_hit": false,
+            "readback_mismatch": 0,
+            "skipped_count": 0,
+            "verdict": "WIRED",
+            "verdict_reasons": []
+          }
+        }
+      }
+    ],
+    "file": "readback_arms.json",
+    "read_only": true,
+    "status": "measured"
+  },
+  "batch_id": "20261116_324",
+  "byte_reproducibility": {
+    "bytes_identical": false,
+    "meaning": "`.blend` 字节复现性不稳定；幂等/身份只能建在回读字段上，「字节变了=有人改过」永远不成立。",
+    "readback_fields_a": [
+      301,
+      725,
+      [
+        1,
+        301
+      ],
+      24,
+      false,
+      true
+    ],
+    "readback_fields_b": [
+      301,
+      725,
+      [
+        1,
+        301
+      ],
+      24,
+      false,
+      true
+    ],
+    "readback_fields_compared": [
+      "window.frame_end",
+      "action.fcurves",
+      "action.frame_range",
+      "scene.fps_after",
+      "cache.is_baked",
+      "cache.is_outdated"
+    ],
+    "readback_fields_identical": true,
+    "sha_a": "79862401ed1f1cdb1fc3afe5c85e95586d7606abcc6005943a747fd91e55f806",
+    "sha_b": "2a2efb3e1073923387a006bc07a32ad44702637c18aad0ae1b178803a4447d41",
+    "what": "同一输入、同一脚本、两次跑出两份 C@W1（`C_W1` 与 `C_W1_rerun`）"
+  },
+  "driver": {
+    "arms_expected": null,
+    "mismatched": null,
+    "rc": null
+  },
+  "generated_from": "out/subai/M05/arms/20261116_324/*.json",
+  "input": "E:\\code\\mmdpipe-ai\\A1\\out\\subai\\M08\\run_20261116_1847\\rebuild_built.blend",
+  "schema": "m05_arms_summary/1"
+}

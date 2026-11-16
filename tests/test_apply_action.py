@@ -286,5 +286,60 @@ class SourceOfTruthTest(unittest.TestCase):
         self.assertEqual(pl["ops"][0]["from"] + 1, 302)
 
 
+class FcurvesShapeTest(unittest.TestCase):
+    """`Action` 的两种形状：动作 `.blend` 存盘再读回来就换成**分层/槽位**那种。
+
+    2026-11-16 在 324 批次产物回读里实测到：`C@W1.blend` 的 `B_aligned_bone` 只有
+    `layers[].strips[].channelbags[].fcurves`，`action.fcurves` 直接 `AttributeError`。
+    ⇒ 「可重复运行」之前只在**同一个会话**里成立过，这个类补的就是那一段。
+    """
+
+    class _Fake:
+        """够用的哑对象：`layers/strips/channelbags/fcurves` 自己按需挂。"""
+
+        def __init__(self, **kw):
+            for k, v in kw.items():
+                setattr(self, k, v)
+
+    def _fcu(self, n):
+        return [object() for _ in range(n)]
+
+    def test_legacy_shape_reads_action_fcurves(self):
+        act = self._Fake(fcurves=self._fcu(725))
+        got, how = AA.fcurves_of(act)
+        self.assertEqual(len(got), 725)
+        self.assertEqual(how, "action.fcurves")
+
+    def test_layered_shape_sums_channelbags(self):
+        act = self._Fake(layers=[self._Fake(strips=[
+            self._Fake(channelbags=[self._Fake(fcurves=self._fcu(700)),
+                                    self._Fake(fcurves=self._fcu(25))]),
+        ])])
+        got, how = AA.fcurves_of(act)
+        self.assertEqual(len(got), 725)
+        self.assertEqual(how, "layers.strips.channelbags")
+
+    def test_layered_set_attribute_that_raises_is_not_fatal(self):
+        """`fcurves` 存在但一碰就抛（不是 `AttributeError`）也不许把整条链掀翻。"""
+
+        class Boom:
+            @property
+            def fcurves(self):
+                raise AttributeError("no such attribute")
+
+        got, how = AA.fcurves_of(Boom())
+        self.assertEqual((len(got), how), (0, "layers.strips.channelbags"))
+
+    def test_strip_without_channelbags_is_skipped(self):
+        act = self._Fake(layers=[self._Fake(strips=[object(), self._Fake()])])
+        got, how = AA.fcurves_of(act)
+        self.assertEqual((len(got), how), (0, "layers.strips.channelbags"))
+
+    def test_zero_fcurves_still_goes_red_at_A1(self):
+        """空不是沉默：形状读不出来时是 0，`A1`（> 门槛）必须判红。"""
+        self.assertEqual(failed(good_record(action={"fcurves": 0})),
+                         ("BLOCKED", ["A1_action_applied"]))
+
+
 if __name__ == "__main__":
     unittest.main()
