@@ -64,6 +64,14 @@ if _HERE not in sys.path:
 import m02_patch_bpy as pb                            # noqa: E402
 
 
+def _pick(primary, fallback, key):
+    """取一个数：先看 `stage_mask()`，没有再退回 `scene['mask_wired']`（同一次读取，不算第二遍）。"""
+    for src in (primary, fallback):
+        if isinstance(src, dict) and src.get(key) is not None:
+            return src[key]
+    return None
+
+
 def enable_mmd_tools():
     """扩展注册的 RNA 属性（`mmd_type` / `mmd_rigid`）**只有在 enable 之后才存在**。
 
@@ -207,10 +215,18 @@ def collect(blend_path):
             "verdict": mask.get("verdict"),
             "constraints_capped": mask.get("constraints_capped"),
             "skipped_count": mask.get("skipped_count"),
-            "constraints_needed": mask.get("constraints_needed"),
-            "constraints_added": mask.get("constraints_added"),
-            "constraints_already_blocked": mask.get("constraints_already_blocked"),
+            # `stage_mask()` 只给判词与 capped/skipped，**不返回**这三个数（2号 18:50 指出：
+            # 否则形状是「WIRED + 三个 null」，判词有了、数字没算，还伪装成三元组齐全）。
+            # 真正的数在同一个函数刚读过的 `scene["mask_wired"]` 里，直接取，不再算第二遍。
+            "constraints_needed": _pick(mask, stored, "constraints_needed"),
+            "constraints_added": _pick(mask, stored, "constraints_added"),
+            "constraints_already_blocked": _pick(mask, stored, "constraints_already_blocked"),
+            "readback_mismatch": _pick(mask, stored, "readback_mismatch"),
             "verdict_reasons": mask.get("verdict_reasons"),
+            "source": {"verdict": "stage_mask()",
+                       "constraints_needed/constraints_added/"
+                       "constraints_already_blocked/readback_mismatch":
+                           "scene['mask_wired']（= mask_wired_record）"},
         },
         "mask_report": mask,
         "mask_wired_record": stored,

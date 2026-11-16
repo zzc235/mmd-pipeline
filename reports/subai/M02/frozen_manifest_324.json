@@ -1,0 +1,43 @@
+{
+ "branch": "ai/a1",
+ "commit_at_freeze": "bbcc9ba",
+ "frozen_at_run": "run_20261116_1847",
+ "items": [
+  {
+   "bytes": 6102478,
+   "frozen_path": "out/subai/M08/frozen/delivery_324_ffaa6780.blend",
+   "role": "delivery_324_ffaa6780.blend",
+   "sha256": "ffaa6780a2f7e765512201403a21e34848837b5f1c7486e91a70442762857761",
+   "source": "out/subai/M08/run_20261116_1847/rebuild_built.blend"
+  },
+  {
+   "bytes": 11101,
+   "frozen_path": "out/subai/M08/frozen/rebuild_report_ffaa6780.json",
+   "role": "rebuild_report_ffaa6780.json",
+   "sha256": "5536fc84e900dfc2550eb6b9b493b6ce241979ae07452f96cfb49145416eb641",
+   "source": "out/subai/M08/run_20261116_1847/rebuild_report.json"
+  },
+  {
+   "bytes": 33680,
+   "frozen_path": "out/subai/M08/frozen/extra_bodies_patch_60d8c64e.json",
+   "role": "extra_bodies_patch_60d8c64e.json",
+   "sha256": "6d61a3649c5d116322aa0c915180e8b6ec95a938af74a745d0bc0bea2a282351",
+   "source": "out/subai/M08/run_20261116_1847/extra_bodies_patch.json"
+  },
+  {
+   "bytes": 206080,
+   "frozen_path": "out/subai/M08/run_20261116_1847/readback_after_rebuild.json",
+   "role": "readback_after_rebuild.json",
+   "sha256": "bb06f01ff575d564378d58adcf237dcb8e3816e3bc87d029197288795d98625d",
+   "source": "out/subai/M08/run_20261116_1847/readback_after_rebuild.json"
+  },
+  {
+   "bytes": 106939,
+   "frozen_path": "out/subai/M08/run_20261116_1847/facts.json",
+   "role": "facts.json",
+   "sha256": "64bfedac357b96282d77aa410952b836ed9db9500d81fc24b0b2bae80f3f8e55",
+   "source": "out/subai/M08/run_20261116_1847/facts.json"
+  }
+ ],
+ "purpose": "M08 324 交付件冻结副本（2号 18:50 要求：同路径重跑不得覆盖已引用的件）"
+}
