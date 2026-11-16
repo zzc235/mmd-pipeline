@@ -1,0 +1,57 @@
+{
+  "reportVersion": 1,
+  "taskId": "2026-11-02-patches-autostart",
+  "title": "补丁固化 + 开机自启 + 双通道验证（GitHub 闭环已合并 / 飞书链路已通）",
+  "capturedAt": "2026-11-02T09:10:00+08:00",
+  "executor": "furina (dsh desktop 0.2.1-rc.3)",
+  "patches": {
+    "file": "E:\\dsh pr\\woker2\\patches\\dsh-superagent-windows-adaptation.patch",
+    "bytes": 9450,
+    "baseCommit": "6337fc823ce20251c8de8085948165c81aaa701e",
+    "filesChanged": 3,
+    "insertions": 6,
+    "deletions": 5,
+    "readme": "E:\\dsh pr\\woker2\\patches\\README.md",
+    "bomCleaned": true,
+    "rebuild": { "ok": true, "libIndexBytes": 450359 }
+  },
+  "autostart": {
+    "ensureScript": "E:\\dsh-state\\ensure-superagent.ps1",
+    "launcher": "E:\\dsh-state\\start-superagent.cmd",
+    "tasks": [
+      { "name": "DSH Superagent", "trigger": "AtLogOn +30s", "state": "Ready" },
+      { "name": "DSH Superagent Watchdog", "trigger": "every 10 min", "state": "Ready" }
+    ],
+    "idempotentTest": { "instancesBefore": 2, "instancesAfter": 2, "lastTaskResult": 0, "port3082": true },
+    "boundary": "logon-triggered tasks do not run while logged off"
+  },
+  "githubE2E": {
+    "pr": 4,
+    "state": "MERGED",
+    "mergedAt": "2026-11-02T00:54:58Z",
+    "ticket": "a5a95db2ee702b24b9603c0eaa7304de",
+    "decision": "accept / explicitRouted",
+    "outbox": ["4f917f71 (ack)", "736f3a20 (delivery)"]
+  },
+  "feishuE2E": {
+    "verified": true,
+    "triggers": [
+      { "text": "1", "decision": "ignore", "reason": "no request/question" },
+      { "text": "收到请回复1", "decision": "ignore", "reason": "connectivity test, no repository change" }
+    ],
+    "botReply": { "text": "1，收到。", "status": "sent", "senderType": "app", "at": "2026-11-02T08:53" },
+    "conclusion": "transport works end-to-end; no ticket because the messages were not work requests (by design)"
+  },
+  "systemState": {
+    "profile": "superagent @ 3082",
+    "health": "all ready",
+    "sources": { "github": "ready", "feishu": "ready" },
+    "reportsCount": 8
+  },
+  "nextSteps": [
+    "send a real repository work request over Feishu to see a Feishu-origin ticket",
+    "back up E:\\dsh-state",
+    "pin the panel token",
+    "add apply-windows-patch.ps1 for upgrades"
+  ]
+}

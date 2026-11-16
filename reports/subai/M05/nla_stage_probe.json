@@ -1,0 +1,75 @@
+{
+  "module": "M05",
+  "kind": "nla_stage_probe",
+  "status": "RUN",
+  "date": "2026-11-15",
+  "conclusion": {
+    "first_error_stage": "5_blend（B 条带 frame_start/action_frame 映射）",
+    "mechanism": "交叉淡化时把 B 条带向前延伸，旧代码同时把 action_frame_end 也减 shift，条带 [448,847] 映射到 action [448,827]：B 被压缩 5.5% 且整体提前约 20 帧",
+    "measured_before_fix": {"frame": 846, "delta_m": 1.00696, "bone": "センター/上半身/下半身/足首（取最大）"},
+    "measured_after_fix": {"max_delta_m_excluding_f1": 0.00007, "f1_delta_m": 0.01296},
+    "export_vs_splice": {"センター": {"common_frames": 380, "max_abs_delta_vmd_unit": 0.0},
+                          "上半身": {"common_frames": 827, "max_abs_delta_vmd_unit": 0.0},
+                          "下半身": {"common_frames": 827, "max_abs_delta_vmd_unit": 0.0}},
+    "not_proven": "交接文档说的「悬空坐姿」没有原始坏样本，本轮只证明了帧映射缺陷与其数值影响，未做同机位视觉复现"
+  },
+  "inputs": {
+    "pmx": "E:/blender模型/星穹铁道—卡芙卡无外套_by_崩坏：星穹铁道_31cc0fe7cc29460474ff5e5cd7188309/星穹铁道—卡芙卡无外套/卡芙卡3.0.pmx",
+    "a": "E:/blender模型/原神摇_by_ChildeDuck_c658aa3daba96482861d466e1f1868c7/原神摇/原神摇.vmd",
+    "b": "E:/blender模型/活着dj_by_lucky破_923ad74feee8ea23a61ed34b5798a78e/活着dj/活着dj_VMD-TDA.vmd",
+    "blender": "E:/code/Blender/blender-5.2.2-windows-x64/blender.exe（5.2.2 LTS）"
+  },
+  "runs": [
+    {
+      "id": "run1",
+      "args": {"gap": 6, "blend": 0, "align": "auto"},
+      "artifact": "reports/subai/M05/nla_stage_probe_run1.json",
+      "frames": {"a_last": 447, "b_first": 454, "b_last": 833},
+      "align": {"mode": "none", "world_delta_mm": 30.53, "feet_delta_mm": 351.46, "ratio": 0.087},
+      "tracks": "A 1..447 HOLD / B 454..833 NOTHING",
+      "bake": {"action": "Action", "range": [1, 833], "fcurves": 2960, "bones_with_curves": 296, "slots": ["OB卡芙卡3.0_arm"]},
+      "finding": "无淡化路径：bake 与 bake 前逐阶段一致（4_align→6_bake 最大 0.00007 m，仅 f1 为 0.0130 m）",
+      "verdict": "blend=0 不产生帧映射问题；f1 的 13 mm 是 bake 首帧固有偏差，待查"
+    },
+    {
+      "id": "run2",
+      "args": {"gap": 20, "blend": 20, "align": "auto"},
+      "artifact": "reports/subai/M05/nla_stage_probe_run2.json",
+      "frames": {"a_last": 447, "b_first": 468, "b_last": 847},
+      "strip_after_blend": {"frame_start": 448, "frame_end": 847, "action_frame_start": 448, "action_frame_end": 827, "blend_in": 20},
+      "delta_4align_to_6bake": {"846": 1.00696, "847": 0.04059, "468": 0.0, "469": 0.0},
+      "finding": "旧代码把 B 的时间轴压扁：400 帧时间轴映射 380 帧 action，B 运动整体提前约 20 帧，尾部 20 帧不被采样",
+      "verdict": "复现了「帧偏移层」缺陷，数值 1.0 m 级"
+    },
+    {
+      "id": "run4",
+      "args": {"gap": 20, "blend": 20, "align": "auto"},
+      "artifact": "reports/subai/M05/nla_stage_probe_run4.json",
+      "finding": "第一次修（只前移 action 起点）被 Blender 的联动属性抵消：条带变 [448,867] 映射 [448,847]，误差从 f846 挪到 f847（1.00335 m）",
+      "verdict": "无效修法，已废弃（记录在此防止回头重犯）"
+    },
+    {
+      "id": "run5",
+      "args": {"gap": 20, "blend": 20, "align": "auto"},
+      "artifact": "reports/subai/M05/nla_stage_probe_run5.json",
+      "strip_after_blend": {"frame_start": 448, "frame_end": 867, "action_frame_start": 448, "action_frame_end": 867, "blend_in": 20},
+      "delta_4align_to_6bake": {"1": 0.01296, "447": 0.00007, "448": 0.00007, "468": 0.0, "469": 0.00001, "846": 0.00007, "847": 0.00007},
+      "finding": "四个值显式写成恒等映射 a(t)=t 后，淡化不再改变 B 的时间轴；除 f1 外全部 <0.1 mm",
+      "verdict": "PASS（数据层）"
+    }
+  ],
+  "export_check": {
+    "artifact": "out/subai/M05/nla_export_run1.vmd",
+    "reference": "out/subai/M05/splice_ref_gap20.vmd",
+    "command": "blender -b -P mmdpipe/chain_nla.py -- --pmx … --a … --b … --gap 20 --blend 20 --align auto --out …",
+    "compare": "同一组输入下，NLA 导出与 splice 在共有帧上的 VMD 局部位置逐帧比较",
+    "result": "センター 380 帧、上半身/下半身 827 帧，最大偏差 0.0000（VMD 单位）",
+    "note": "足首.L/足首.R 在该模型里没有键（MMD 命名是 足首），本项覆盖不到脚；脚部证据看 run5 的世界坐标"
+  },
+  "remaining": [
+    "「悬空坐姿」的视觉复现：无原始坏样本，未做",
+    "f1 处 bake 与 bake 前差 12.96 mm（只影响首帧，是否为 bake 采样边界需另查）",
+    "blend > gap 时（淡化比空档长）没有单独测；extend_upper_strip 在 shift>gap 时会让 B 提前覆盖 A 尾部",
+    "导出→重新导入 Blender 的世界姿态未测；本轮只做到「导出文件 vs splice 文件」的数据层比较"
+  ]
+}

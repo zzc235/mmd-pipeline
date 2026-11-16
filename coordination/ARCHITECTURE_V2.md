@@ -56,7 +56,9 @@ L1  状态    out/subai/coordination/board.db（sqlite，唯一状态事实源�
 
 ### L2b 证据快照：哈希证明「那一刻」，快照保证「还能重算」
 
-`reports/` 不进 git ⇒ 只记 `sha256` 的 artifact 在文件被改名/移走/改写后**永久无法复原**。
+`reports/` 曾经不进 git ⇒ 只记 `sha256` 的 artifact 在文件被改名/移走/改写后**永久无法复原**。
+（2026-11-16 16:44 Human 定：`reports/` 纳入 git，提交 `e7d9916`。快照规矩**不撤**——
+git 保证「提交过的那一版」可复原，快照保证「记录引用的那一版」可复原，两者不是同一件事。）
 `known_limits.md` 的 `7ac68dd6…` 已经这样失效过一次。新规：
 
 - 文本类 artifact 必须落原字节副本到 `out/subai/_evidence_store/<sha16>/<文件名>`；

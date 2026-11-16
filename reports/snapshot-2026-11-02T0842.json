@@ -1,0 +1,58 @@
+{
+  "reportVersion": 1,
+  "taskId": "2026-11-02-first-e2e-github",
+  "title": "Super-agent 首次端到端打通：GitHub Issue → Ticket → Worker → PR + 评论",
+  "capturedAt": "2026-11-02T08:42:00+08:00",
+  "executor": "furina (dsh desktop 0.2.1-rc.3)",
+  "accounts": {
+    "operator": "zzc235",
+    "agent": "fishuser-sys",
+    "agentGhConfigDir": "C:\\Users\\zzc\\.config\\gh-agent",
+    "repo": "zzc235/superagent-playground",
+    "agentPushAccess": true
+  },
+  "e2eRun": {
+    "issue": 3,
+    "issueUrl": "https://github.com/zzc235/superagent-playground/issues/3",
+    "triggerReceived": 2,
+    "ticketCreated": true,
+    "workerDurationSec": 105,
+    "branch": "agent/readme-footer-comment-a5a95db2ee70",
+    "commit": "b5e03a906f85f03a39eef67cd2c25fbcdfaca13e",
+    "pr": 4,
+    "prUrl": "https://github.com/zzc235/superagent-playground/pull/4",
+    "prDiff": "README.md +1 line",
+    "prAuthor": "fishuser-sys",
+    "autoMerge": false,
+    "issueReplyLanguage": "zh"
+  },
+  "feishu": {
+    "app": "cli_aa6dfed5cd385c02",
+    "bot": "大肥鱼test",
+    "botOpenId": "ou_c76ee67c6123c59ad21d5af317326876",
+    "chatId": "oc_fd37eaa3227b9b4198ee10efc4abae29",
+    "sourceState": "ready",
+    "eventConsumer": "event consume im.message.receive_v1 --as bot",
+    "eventsReceived": 0,
+    "blockedOn": "event subscription / long-connection not delivering; verify console config and republish"
+  },
+  "windowsPatches": [
+    "deployment.ts absolute path accepts drive letters",
+    "policy.ts executor directory accepts drive letters",
+    "app/sessions.ts restrict uses pwsh on win32",
+    "deployment.ts remove nested env for feishu probe",
+    "deployment.ts workerProbe passes PATH via subprocess env instead of env executable"
+  ],
+  "launcher": {
+    "path": "E:\\dsh-state\\start-superagent.cmd",
+    "env": ["PATH+=E:\\gituse\\Git\\usr\\bin", "LARKSUITE_CLI_CONFIG_DIR", "LARKSUITE_CLI_NO_UPDATE_NOTIFIER", "LARKSUITE_CLI_NO_SKILLS_NOTIFIER", "GH_CONFIG_DIR"],
+    "cwd": "E:\\"
+  },
+  "untouched": ["operator gh login in default config", "user's other repos", "~/.claude", "~/.dsh/AGENTS.md"],
+  "nextSteps": [
+    "verify Feishu event delivery (long connection + event published)",
+    "human review/merge PR #4",
+    "export the 5 Windows patches as a patch file",
+    "make the profile a real autostart service"
+  ]
+}

@@ -1,0 +1,40 @@
+{
+ "enable": {
+  "bl_ext.user_default.mmd_tools": {
+   "ok": true,
+   "value": "repr:<module 'bl_ext.user_default.mmd_tools' from 'C:\\\\Users\\\\zzc\\\\AppData\\\\Roaming\\\\Blender Foundation\\\\Blender\\\\5.2\\\\extensions\\\\user_default\\\\mmd_tools\\\\__init__.py'>"
+  },
+  "mmd_tools": {
+   "ok": true,
+   "value": null
+  }
+ },
+ "enabled_pref": [
+  "bl_pkg",
+  "cycles",
+  "io_anim_bvh",
+  "io_curve_svg",
+  "io_mesh_uv_layout",
+  "io_scene_fbx",
+  "io_scene_gltf2",
+  "mmd_pipeline",
+  "mmd_tools",
+  "pose_library"
+ ],
+ "extensions_repo": null,
+ "operator": {
+  "get_rna_type": {
+   "ok": true,
+   "value": "MMD_TOOLS_OT_import_model"
+  },
+  "hasattr_import_model": {
+   "ok": true,
+   "value": true
+  },
+  "module_resolved": true,
+  "poll": {
+   "ok": true,
+   "value": true
+  }
+ }
+}

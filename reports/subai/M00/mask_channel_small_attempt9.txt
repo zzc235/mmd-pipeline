@@ -1,0 +1,41 @@
+M00 attempt 9 · 掩码通道实测记录（three runs, verbatim PROBE_JSON）
+blender = 5.2.2 LTS ; pmx = E:\dsh pr\woker2\kafuka_all\pmx\卡芙卡3.0_fixH.pmx
+probe  = tests_bpy/mask_channel_small_probe.py（真 PMX 的组号/掩码 → 40/145 个刚体对象）
+注意：语义实测（三刚体下落）另见 mask_semantics_attempt9.txt。
+
+--- 1) 全模型 145 刚体 / 10440 对（93.3 s，1549 条约束）---
+bodies=145  pmx_collide=3073  pmx_nocollide=7367
+separated_by_bits=5818  constraints_added=1549  constraints_released=1（种下的那条挡错的被放掉）
+readback_mismatch=0  collections_patterns=15  objects_modified=145
+objects_touched_outside_mmd_rigid=0  unexpressible=[]  asymmetric_pairs=1462
+nocollide_pairs_still_colliding=0   sum_equals_nocollide=true   （5818 + 1549 + 0 == 7367）
+source_unchanged=true  bits_are_mask_or_own=true  idempotent=true（第二次 added=0, released=0）
+verdict=WIRED  skipped_count=0
+
+--- 2) 快检 40 刚体 / 780 对（1.7 s）---
+bodies=40  pmx_collide=343  pmx_nocollide=437
+separated_by_bits=400  constraints_added=37  constraints_released=1
+nocollide_pairs_still_colliding=0   sum_equals_nocollide=true   （400 + 37 + 0 == 437）
+readback_mismatch=0  objects_touched_outside_mmd_rigid=0  idempotent=true  verdict=WIRED
+
+--- 3) 上限护栏（应当被拒的输入：--max-constraints 5）---
+bodies=40  constraints_added=5  constraints_capped=true  skipped_count=32（逐条带 reason）
+nocollide_pairs_still_colliding=27   sum_equals_nocollide=false
+verdict=PARTIAL（被 cap 的 run 不许判 WIRED）  idempotent=false（第二次会再补 5 条，cap 是每次调用的）
+
+--- 4) 既有场景 J_baked.blend 的前态（只读，sha256 e22e03f5…，13:28:32 未变）---
+rigid_objects=323（mmd_type=="RIGID_BODY"）；objects_by_mmd_type:
+  RIGID_BODY 323 / JOINT 389 / NON_COLLISION_CONSTRAINT 3651 / NONE 222 / TRACK_TARGET 264 / ROOT 1 …
+collections: 只有 1 种位型 {0001} 323/323  → 按位分开的对数 0
+既有约束：带 disable_collisions 的 4009 条（ncc 3651 + JOINT 358），覆盖 4009 对
+  其中挡错的（PMX 说该碰）2196 对，挡对的 1813 对
+  ⇒ mmd_tools 的 buildRigids() 相对它自己的导入器是反的（`if not ignore: continue` 把
+    「属性=True 即与该组碰」当成了「忽略」）
+pmx_nocollide=40095 / pairs_total=52003（77.1%，与 1号 的 40418/52326 同量级；他数 324 个刚体、我 323）
+
+--- 5) 为什么不在 J_baked 上直接打完通道（自报代价）---
+逐对象 `bpy.ops.rigidbody.constraint_add()` 每次触发整场景 depsgraph 求值，该场景有 12 个
+依赖环：两次尝试分别跑到日志 459 MB / 339 MB、CPU 1780 s / 1240 s 仍未完成，手动掐断。
+`rbw.enabled=False` 与 `point_cache.frame_end=1` 都拦不住（create 约束会重置缓存）。
+⇒ 大场景必须走建场路径（stage_build 里刚体尚未烘焙）；事后 apply 只适合小场景。
+145 刚体 / 1549 约束 ≈ 93 s，可作单条成本参考（≈60 ms/条）。

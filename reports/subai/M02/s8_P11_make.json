@@ -1,0 +1,24 @@
+{
+ "api": "bpy.ops.ptcache.free_bake_all()",
+ "cache_after_free": {
+  "frame_end": 326,
+  "frame_start": 1,
+  "info": "240 frames in memory (2.1 MiB), cache is outdated!",
+  "is_baked": false,
+  "is_outdated": true
+ },
+ "cache_before_free": {
+  "frame_end": 326,
+  "frame_start": 1,
+  "info": "240 frames in memory (2.1 MiB), cache is outdated!",
+  "is_baked": true,
+  "is_outdated": true
+ },
+ "dst": "E:\\dsh pr\\woker2\\out\\subai\\M02\\s8\\H_nobake.blend",
+ "dst_sha256": "26f39baa86895269c385fc7f8cb9b28c66efe67f6c9ff1fffd561cf847e23801",
+ "mode": "make",
+ "src": "E:\\dsh pr\\woker2\\out\\subai\\M02\\s8\\G_base.blend",
+ "src_sha256_after": "dd7f6877ee9c8c03c5df7c39236e142e806e9b1c771bc35ac2df05a1cefb192e",
+ "src_sha256_before": "dd7f6877ee9c8c03c5df7c39236e142e806e9b1c771bc35ac2df05a1cefb192e",
+ "src_untouched": true
+}

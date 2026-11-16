@@ -1,0 +1,36 @@
+{
+  "dynamics": {
+    "aggregation": "frame_max_then_percentile",
+    "bones": 18,
+    "max": 67.198611,
+    "median": 67.09426,
+    "p95": 67.187151,
+    "spike_count": 0,
+    "spike_threshold_deg": 67.557723
+  },
+  "evidence_mode": "stepped",
+  "frames": {
+    "end": 240,
+    "start": 1
+  },
+  "frozen": {
+    "bone": null,
+    "candidates": 0,
+    "consecutive_frames": 0,
+    "parent_all_zero": true,
+    "parent_delta_deg": 0.0,
+    "suspicious_zero_parent": false,
+    "target_delta_deg": 0.0,
+    "target_span_deg": 38.950195
+  },
+  "penetration": {
+    "bones": 0,
+    "bones_seen": 4,
+    "epsilon_m": 0.02,
+    "frames": 0,
+    "frames_measured": 240,
+    "max_depth_m": -0.017064,
+    "roi": "18_skirt_rigid"
+  },
+  "sample_id": "B2_baseline"
+}

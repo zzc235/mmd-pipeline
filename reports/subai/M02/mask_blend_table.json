@@ -1,0 +1,3246 @@
+{
+ "blend": "E:\\dsh pr\\woker2\\out\\subai\\M02\\s8\\G_base.blend",
+ "count": 324,
+ "rows": {
+  "000_$name_j": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": true,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "001_$name_j.001": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": true,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "002_$name_j.002": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": true,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "003_$name_j.003": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": true,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "004_$name_j.005": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": true,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "005_$name_j.006": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": true,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "006_$name_j.007": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": true,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "007_$name_j.008": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": true,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "008_$name_j.009": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": true,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "009_$name_j.010": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": true,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "010_$name_j.004": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": true,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "011_右肩1": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": true,
+   "mmd_group": null,
+   "shape": "SPHERE",
+   "type": "ACTIVE"
+  },
+  "012_右肩2": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": true,
+   "mmd_group": null,
+   "shape": "SPHERE",
+   "type": "ACTIVE"
+  },
+  "013_左肩1": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": true,
+   "mmd_group": null,
+   "shape": "SPHERE",
+   "type": "ACTIVE"
+  },
+  "014_左肩2": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": true,
+   "mmd_group": null,
+   "shape": "SPHERE",
+   "type": "ACTIVE"
+  },
+  "015_下半身": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": true,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "016_上半身1": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": true,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "017_上半身2": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": true,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "018_上半身": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": true,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "019_首": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": true,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "020_頭": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": true,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "021_右肩": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": true,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "022_右腕": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": true,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "023_右ひじ": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": true,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "024_右手首": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": true,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "025_左肩": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": true,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "026_左腕": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": true,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "027_左ひじ": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": true,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "028_左手首": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": true,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "029_右足": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": true,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "030_右ひざ": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": true,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "031_右足首": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": true,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "032_左足": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": true,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "033_左ひざ": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": true,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "034_左足首": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": true,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "035_右胸": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "036_右胸１": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "037_右胸２": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "038_左胸": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "039_左胸１": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "040_左胸２": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "041_M-上半身2": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": true,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "042_下擺_0_0": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "043_下擺_0_1": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "044_下擺_0_2": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "045_下擺_0_3": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "046_下擺_0_4": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "047_下擺_0_5": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "048_下擺_0_6": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "049_下擺_0_7": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "050_下擺_0_8": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "051_下擺_0_9": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "052_下擺_0_10": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "053_下擺_0_11": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "054_下擺_0_12": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "055_下擺_0_13": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "056_下擺_0_14": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "057_下擺_0_15": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "058_下擺_0_16": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "059_下擺_0_17": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "060_下擺_1_0": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "061_下擺_1_1": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "062_下擺_1_2": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "063_下擺_1_3": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "064_下擺_1_4": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "065_下擺_1_5": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "066_下擺_1_6": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "067_下擺_1_7": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "068_下擺_1_8": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "069_下擺_1_9": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "070_下擺_1_10": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "071_下擺_1_11": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "072_下擺_1_12": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "073_下擺_1_13": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "074_下擺_1_14": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "075_下擺_1_15": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "076_下擺_1_16": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "077_下擺_1_17": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "078_下擺_2_0": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "079_下擺_2_2": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "080_下擺_2_3": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "081_下擺_2_4": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "082_下擺_2_5": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "083_下擺_2_6": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "084_下擺_2_7": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "085_下擺_2_8": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "086_下擺_2_9": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "087_下擺_2_10": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "088_下擺_2_11": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "089_下擺_2_12": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "090_下擺_2_13": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "091_下擺_2_14": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "092_下擺_2_15": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "093_下擺_2_16": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "094_下擺_2_17": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "095_下擺_3_0": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "096_下擺_3_7": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "097_下擺_3_8": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "098_下擺_3_9": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "099_下擺_3_10": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "100_下擺_3_11": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "101_下擺_3_12": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "102_下擺_3_13": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "103_下擺_3_14": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "104_下擺_3_15": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "105_下擺_3_16": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "106_下擺_3_17": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "107_下擺_4_0": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "108_下擺_4_7": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "109_下擺_4_8": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "110_下擺_4_9": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "111_下擺_4_10": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "112_下擺_4_11": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "113_下擺_4_12": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "114_下擺_4_13": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "115_下擺_4_14": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "116_下擺_4_15": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "117_下擺_4_16": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "118_下擺_4_17": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "119_下擺_5_0": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "120_下擺_5_7": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "121_下擺_5_8": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "122_下擺_5_9": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "123_下擺_5_10": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "124_下擺_5_11": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "125_下擺_5_12": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "126_下擺_5_13": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "127_下擺_5_14": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "128_下擺_5_15": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "129_下擺_5_16": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "130_下擺_5_17": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "131_下擺_6_0": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "132_下擺_6_7": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "133_下擺_6_8": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "134_下擺_6_9": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "135_下擺_6_10": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "136_下擺_6_11": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "137_下擺_6_12": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "138_下擺_6_13": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "139_下擺_6_14": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "140_下擺_6_15": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "141_下擺_6_16": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "142_下擺_6_17": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "143_下擺_7_0": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "144_下擺_7_7": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "145_下擺_7_8": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "146_下擺_7_9": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "147_下擺_7_10": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "148_下擺_7_11": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "149_下擺_7_12": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "150_下擺_7_13": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "151_下擺_7_14": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "152_下擺_7_15": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "153_下擺_7_16": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "154_下擺_7_17": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "155_下擺_8_0": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "156_下擺_8_7": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "157_下擺_8_8": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "158_下擺_8_9": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "159_下擺_8_10": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "160_下擺_8_11": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "161_下擺_8_12": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "162_下擺_8_13": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "163_下擺_8_14": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "164_下擺_8_15": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "165_下擺_8_16": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "166_下擺_8_17": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "167_下擺_9_7": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "168_下擺_9_8": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "169_下擺_9_9": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "170_下擺_9_10": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "171_下擺_9_11": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "172_下擺_9_12": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "173_下擺_9_13": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "174_下擺_9_14": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "175_下擺_9_15": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "176_下擺_9_16": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "177_下擺_9_17": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "178_下擺_10_7": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "179_下擺_10_8": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "180_下擺_10_9": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "181_下擺_10_10": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "182_下擺_10_11": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "183_下擺_10_12": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "184_下擺_10_13": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "185_下擺_10_14": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "186_下擺_10_15": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "187_下擺_10_16": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "188_下擺_10_17": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "189_M-下半身": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": true,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "190_M-下半身": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": true,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "191_左足": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": true,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "192_右足": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": true,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "193_左ひざ": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": true,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "194_右ひざ": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": true,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "195_M-下半身": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": true,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "196_M-M-下半身": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": true,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "197_M-M-下半身": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": true,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "198_M-M-M-下半身": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": true,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "199_M-M-M-M-下半身": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": true,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "200_右足": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": true,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "201_左足": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": true,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "202_腰带_0_1": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "203_腰带_1_1": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "204_腰带_2_1": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "205_腰带_3_1": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "206_腰带_4_1": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "207_腰带_5_1": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "208_M-M-上半身2": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": true,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "209_左手首": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": true,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "210_右手首": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": true,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "211_右項鏈1": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "212_右項鏈2": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "213_右項鏈3": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "214_右項鏈4": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "215_左項鏈1": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "216_左項鏈2": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "217_左項鏈3": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "218_左項鏈4": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "219_左項鏈5": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "220_項鏈穗1": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "221_項鏈穗2": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "222_項鏈穗3": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "223_左項鏈穗1": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "224_左項鏈穗2": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "225_右項鏈穗1": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "226_右項鏈穗2": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "227_M-上半身2": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": true,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "228_M-M-M-上半身2": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": true,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "229_左立領": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "230_後立領": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "231_右立領": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "232_頭": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": true,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "233_馬尾飾": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "SPHERE",
+   "type": "ACTIVE"
+  },
+  "234_馬尾1": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "235_馬尾2": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "236_馬尾3": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "237_馬尾4": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "238_馬尾5": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "239_馬尾6": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "240_馬尾7": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "241_馬尾8": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "242_馬尾9": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "243_馬尾10": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "244_馬尾11": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "245_馬尾12": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "246_馬尾13": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "247_馬尾14": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "248_馬尾15": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "249_左馬尾1": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "250_左馬尾2": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "251_左馬尾3": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "252_左馬尾4": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "253_左馬尾5": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "254_左馬尾6": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "255_左馬尾7": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "256_左馬尾8": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "257_右馬尾1": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "258_右馬尾2": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "259_右馬尾3": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "260_右馬尾4": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "261_右馬尾5": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "262_右馬尾6": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "263_右馬尾7": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "264_右馬尾8": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "265_左耳1": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "266_左耳2": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "267_左耳3": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "268_左耳4": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "269_右耳1": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "270_右耳2": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "271_右耳3": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "272_右耳4": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "273_左劉海1": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "274_左劉海2": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "275_左劉海3": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "276_左側髪1-1": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "277_左側髪1-2": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "278_左側髪1-3": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "279_左側髪2-1": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "280_左側髪2-2": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "281_左側髪2-3": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "282_左側髪3-1": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "283_左長髪1": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "284_左長髪2": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "285_左長髪3": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "286_左長髪4": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "287_左長髪5": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "288_左長髪6": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "289_左長髪7": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "290_左長髪8": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "291_左側髪4-1": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "292_左側髪4-2": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "293_左側髪5-1": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "294_左側髪5-2": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "295_右劉海1": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "296_右劉海2": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "297_右劉海3": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "298_右側髪1-1": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "299_右側髪1-2": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "300_右側髪1-3": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "301_右側髪2-1": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "302_右側髪2-2": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "303_右側髪2-3": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "304_右側髪3-1": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "305_右側髪4-1": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "306_右側髪4-2": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "307_右側髪5-1": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "308_右側髪5-2": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "309_髪穗1": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "310_髪穗2": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "311_髪墜1": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "312_髪墜2": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "313_髪墜3": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "314_M-頭": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": true,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "315_M-頭": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": true,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "316_中結穗1": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "BOX",
+   "type": "ACTIVE"
+  },
+  "317_中結穗2": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "318_中結穗3": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "319_左結": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "320_右結": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "321_M-M-M-M-下半身": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": true,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "322_右足": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": true,
+   "mmd_group": null,
+   "shape": "CAPSULE",
+   "type": "ACTIVE"
+  },
+  "地面_物理": {
+   "bits": [
+    0
+   ],
+   "bitwidth": 20,
+   "kinematic": false,
+   "mmd_group": null,
+   "shape": "CONVEX_HULL",
+   "type": "PASSIVE"
+  }
+ }
+}

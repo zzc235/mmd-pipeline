@@ -238,69 +238,115 @@ class PreflightTest(TempDirTest):
 
 # --------------------------------------------------------------- 阶段 H：Human gate
 class HumanGateTest(TempDirTest):
-    """待批项只能被 Human 显式回答关掉——D0 代关必须被拒。"""
+    """待批项只能被 Human 显式回答关掉——D0 代关必须被拒。
 
-    EXPECTED = ["D-20261116-017", "D-20261116-023", "D-20261116-028",
-                "D-20261116-068", "D-20261116-075", "D-20261116-158", "D-20261116-159"]
+    **用合成样本，不读线上的 decisions.jsonl**：这张清单会随 Human 真的回答而变短，
+    把它写死进测试就等于「Human 一答，测试就红」——那是判据在报假警，不是在测行为。
+    线上数据只用一条不变式来核：`human_gate` 清单与 `status.pending_human()` 逐条相同。
+    """
+
+    OPEN = "D-20990101-001"          # 待批（无人回答）
+    CLOSED = "D-20990101-002"        # 待批，但后面有一条显式提到它 ⇒ 已关闭
+    OTHER = "D-20990101-003"         # 另一条待批
+
+    def pending_row(self, decision_id, next_action):
+        return {"decision_id": decision_id, "task_id": "M99", "attempt": 1,
+                "decision": "RULING", "reason_code": "HUMAN_REQUIRED",
+                "status_after": "partial", "human_approval_required": True,
+                "next_action": next_action, "logged_at": "2026-09-01T10:00:00+08:00"}
 
     def setUp(self):
         super().setUp()
-        self.live = os.path.join(ROOT, "coordination", "decisions.jsonl")
         self.copy = self.path("decisions.jsonl")
-        shutil.copyfile(self.live, self.copy)
+        rows = [
+            self.pending_row(self.OPEN, "要不要在合成样本上开工"),
+            self.pending_row(self.CLOSED, "这条会被后面那条关掉"),
+            {"decision_id": "D-20990101-004", "task_id": "M99", "decision": "BLOCK",
+             "reason_code": "GATE_FAILED", "human_approval_required": False,
+             "resolves": [self.CLOSED], "logged_at": "2026-09-01T11:00:00+08:00"},
+            self.pending_row(self.OTHER, "第二条待批"),
+        ]
+        with io.open(self.copy, "w", encoding="utf-8") as fh:
+            for row in rows:
+                fh.write(json.dumps(row, ensure_ascii=False) + "\n")
+        self.expected = [self.OPEN, self.OTHER]
 
     def rows(self, path=None):
         with io.open(path or self.copy, encoding="utf-8") as fh:
             return [json.loads(line) for line in fh if line.strip()]
 
-    def test_open_list_is_exactly_the_seven(self):
-        self.assertEqual([row["id"] for row in human_gate_mod.list_open(self.copy)], self.EXPECTED)
+    def test_open_list_is_exactly_the_open_ones(self):
+        self.assertEqual([row["id"] for row in human_gate_mod.list_open(self.copy)], self.expected)
+
+    def test_explicitly_resolved_item_is_closed(self):
+        # 只有「后续裁决显式提到它」才关；时间新不算回答。
+        self.assertNotIn(self.CLOSED, [row["id"] for row in human_gate_mod.list_open(self.copy)])
 
     def test_open_list_matches_status_aggregation(self):
         # `status --check` 的 C6 就是在核这条一致性：两个出口不许各说一套。
         self.assertEqual([row["id"] for row in human_gate_mod.list_open(self.copy)],
                          [row.get("decision_id") for row in status_mod.pending_human(self.rows())])
 
+    def test_live_list_matches_status_aggregation(self):
+        live = os.path.join(ROOT, "coordination", "decisions.jsonl")
+        self.assertEqual([row["id"] for row in human_gate_mod.list_open(live)],
+                         [row.get("decision_id") for row in status_mod.pending_human(self.rows(live))])
+
     def test_agent_cannot_close(self):
         for by in ("D0", "总控", "模块负责1", ""):
             with self.assertRaises(human_gate_mod.HumanGateError) as ctx:
-                human_gate_mod.resolve(self.EXPECTED[0], "ACCEPT_MERGE", by=by,
+                human_gate_mod.resolve(self.OPEN, "ACCEPT_MERGE", by=by,
                                        decisions_path=self.copy)
             self.assertEqual(ctx.exception.code, "NOT_HUMAN")
 
     def test_unknown_answer_rejected(self):
         with self.assertRaises(human_gate_mod.HumanGateError) as ctx:
-            human_gate_mod.resolve(self.EXPECTED[0], "APPROVE", by="Human", decisions_path=self.copy)
+            human_gate_mod.resolve(self.OPEN, "APPROVE", by="Human", decisions_path=self.copy)
         self.assertEqual(ctx.exception.code, "BAD_DECISION")
 
     def test_dry_run_writes_nothing(self):
         before = os.path.getsize(self.copy)
-        draft = human_gate_mod.resolve(self.EXPECTED[0], "RETURN_FIX", by="Human",
+        draft = human_gate_mod.resolve(self.OPEN, "RETURN_FIX", by="Human",
                                        decisions_path=self.copy, dry_run=True)
         self.assertTrue(draft["dry_run"])
         self.assertEqual(os.path.getsize(self.copy), before)
 
     def test_resolve_closes_exactly_one_and_keeps_history_bytes(self):
         original = self.rows()
-        record = human_gate_mod.resolve(self.EXPECTED[0], "RETURN_FIX", by="Human",
+        record = human_gate_mod.resolve(self.OPEN, "RETURN_FIX", by="Human",
                                         note="重出", decisions_path=self.copy)
-        self.assertEqual(record["resolves"], [self.EXPECTED[0]])
+        self.assertEqual(record["resolves"], [self.OPEN])
         self.assertFalse(record["human_approval_required"])
         rows = self.rows()
         self.assertEqual(len(rows), len(original) + 1)
         self.assertEqual(rows[:len(original)], original)          # 历史行逐字未变
-        self.assertEqual([r["id"] for r in human_gate_mod.list_open(self.copy)], self.EXPECTED[1:])
+        self.assertEqual([r["id"] for r in human_gate_mod.list_open(self.copy)], self.expected[1:])
 
     def test_cannot_close_twice(self):
-        human_gate_mod.resolve(self.EXPECTED[0], "CANCEL", by="Human", decisions_path=self.copy)
+        human_gate_mod.resolve(self.OPEN, "CANCEL", by="Human", decisions_path=self.copy)
         with self.assertRaises(human_gate_mod.HumanGateError) as ctx:
-            human_gate_mod.resolve(self.EXPECTED[0], "BLOCK", by="Human", decisions_path=self.copy)
+            human_gate_mod.resolve(self.OPEN, "BLOCK", by="Human", decisions_path=self.copy)
         self.assertEqual(ctx.exception.code, "ALREADY_CLOSED")
 
     def test_unknown_target(self):
         with self.assertRaises(human_gate_mod.HumanGateError) as ctx:
             human_gate_mod.resolve("D-20261116-999", "BLOCK", by="Human", decisions_path=self.copy)
         self.assertEqual(ctx.exception.code, "NOT_FOUND")
+
+    def test_relayed_answer_is_marked_as_transcription(self):
+        # Human 在会话里说了答案、由 D0 转抄落库：必须留下原话与「不是 D0 自主决定」这句，
+        # 否则「D0 代关」和「D0 抄写」在记录里长得一模一样。
+        quote = "会话 2026-11-16T16:44 原话：「纳入git」"
+        record = human_gate_mod.resolve(self.OPEN, "ACCEPT_INTERFACE", by="Human",
+                                        decisions_path=self.copy, relayed_from=quote)
+        self.assertEqual(record["relayed_from"], quote)
+        self.assertTrue(any("不是 D0 自主决定" in line for line in record["evidence"]))
+        self.assertEqual(record["resolves"], [self.OPEN])
+
+    def test_direct_answer_has_no_relay_mark(self):
+        record = human_gate_mod.resolve(self.OPEN, "CANCEL", by="Human",
+                                        decisions_path=self.copy)
+        self.assertNotIn("relayed_from", record)
 
     def test_pending_approval_is_not_squeezed_out_by_later_decisions(self):
         # D-086 修的真缺陷：早期待批项被后来**无关**裁决挤掉，等于无人回答却消失。

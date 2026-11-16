@@ -1,10 +1,14 @@
 """证据快照：被 evidence 引用的 artifact 必须能在事后复原（D-157 / D-159）。
 
 **要解决的问题**（实测过的洞）：
-`reports/` 不进 git，于是 `evidence` 里记的 `artifacts[].sha256` 只能证明
+`reports/` 当时不进 git，于是 `evidence` 里记的 `artifacts[].sha256` 只能证明
 「那一刻磁盘上是什么」。文件后来被改名、移走、或原地改写，那条哈希就永远无法复原——
 `known_limits.md` 的 `7ac68dd6…` 就是这么变成一条永久失效记录的（全盘搜索无副本）。
 **哈希不能替代副本。**
+
+2026-11-16 16:44 Human 定 `reports/` 纳入 git（提交 `e7d9916`），快照规矩不撤：
+git 保证「提交过的那一版」能复原，快照保证「记录引用的那一版」能复原——记录可能引用
+一个从未提交过的中间字节，那正是最容易丢的那一版。
 
 规矩：文本类 artifact 落一份**原字节**副本到
 
@@ -97,7 +101,8 @@ def verify(record: dict) -> dict:
     if not declared:
         problems.append("没写 sha256")
     if not snapshot:
-        problems.append("没写 snapshot（D-159 之后必须写；reports/ 不进 git，哈希无法复原）")
+        problems.append("没写 snapshot（D-159 之后必须写：记录引用的那版字节要有副本，"
+                        "git 只覆盖「提交过的那一版」）")
     elif not os.path.isfile(snapshot):
         problems.append("快照不存在：%s" % snapshot)
     elif declared and file_sha256(snapshot) != declared:

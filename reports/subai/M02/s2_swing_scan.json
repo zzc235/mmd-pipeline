@@ -1,0 +1,1552 @@
+[
+ {
+  "bones": 332,
+  "last_frame": 798,
+  "leg_peak_x_rad": 2.4469,
+  "path": "./out/_align_check.vmd",
+  "sha256": "c2b9ee3a130e957804e28bccfeb8efeef5aefc68429d308a5ed3e84843deb444",
+  "skirt_peak_x_rad": 0.0,
+  "top_bones": [
+   {
+    "bone": "上半身",
+    "keys": 493,
+    "peak_x_rad": 3.1396
+   },
+   {
+    "bone": "下半身",
+    "keys": 493,
+    "peak_x_rad": 3.1373
+   },
+   {
+    "bone": "右ひじ",
+    "keys": 495,
+    "peak_x_rad": 2.6631
+   },
+   {
+    "bone": "左ひじ",
+    "keys": 504,
+    "peak_x_rad": 2.5765
+   },
+   {
+    "bone": "左ひざ",
+    "keys": 493,
+    "peak_x_rad": 2.4469
+   },
+   {
+    "bone": "右ひざ",
+    "keys": 493,
+    "peak_x_rad": 2.212
+   },
+   {
+    "bone": "左腕",
+    "keys": 503,
+    "peak_x_rad": 2.0431
+   },
+   {
+    "bone": "左手首",
+    "keys": 497,
+    "peak_x_rad": 1.8396
+   }
+  ]
+ },
+ {
+  "bones": 332,
+  "last_frame": 798,
+  "leg_peak_x_rad": 2.4469,
+  "path": "./out/_align_check2.vmd",
+  "sha256": "2676e57d99cbdc57ea294b6a8b8a65ba0eee534836202537ba89272c676c7440",
+  "skirt_peak_x_rad": 0.0,
+  "top_bones": [
+   {
+    "bone": "上半身",
+    "keys": 493,
+    "peak_x_rad": 3.1396
+   },
+   {
+    "bone": "下半身",
+    "keys": 493,
+    "peak_x_rad": 3.1373
+   },
+   {
+    "bone": "右ひじ",
+    "keys": 495,
+    "peak_x_rad": 2.6631
+   },
+   {
+    "bone": "左ひじ",
+    "keys": 504,
+    "peak_x_rad": 2.5765
+   },
+   {
+    "bone": "左ひざ",
+    "keys": 493,
+    "peak_x_rad": 2.4469
+   },
+   {
+    "bone": "右ひざ",
+    "keys": 493,
+    "peak_x_rad": 2.212
+   },
+   {
+    "bone": "左腕",
+    "keys": 503,
+    "peak_x_rad": 2.0431
+   },
+   {
+    "bone": "左手首",
+    "keys": 497,
+    "peak_x_rad": 1.8396
+   }
+  ]
+ },
+ {
+  "bones": 332,
+  "last_frame": 798,
+  "leg_peak_x_rad": 2.4469,
+  "path": "./out/_cal_ax0.vmd",
+  "sha256": "a6a30c17d6e57321a53090bae48a5fe7708bde98eb242d2c14fa5896d0d78308",
+  "skirt_peak_x_rad": 0.0,
+  "top_bones": [
+   {
+    "bone": "上半身",
+    "keys": 493,
+    "peak_x_rad": 3.1396
+   },
+   {
+    "bone": "下半身",
+    "keys": 493,
+    "peak_x_rad": 3.1373
+   },
+   {
+    "bone": "右ひじ",
+    "keys": 495,
+    "peak_x_rad": 2.6631
+   },
+   {
+    "bone": "左ひじ",
+    "keys": 504,
+    "peak_x_rad": 2.5765
+   },
+   {
+    "bone": "左ひざ",
+    "keys": 493,
+    "peak_x_rad": 2.4469
+   },
+   {
+    "bone": "右ひざ",
+    "keys": 493,
+    "peak_x_rad": 2.212
+   },
+   {
+    "bone": "左腕",
+    "keys": 503,
+    "peak_x_rad": 2.0431
+   },
+   {
+    "bone": "左手首",
+    "keys": 497,
+    "peak_x_rad": 1.8396
+   }
+  ]
+ },
+ {
+  "bones": 332,
+  "last_frame": 798,
+  "leg_peak_x_rad": 2.4469,
+  "path": "./out/_cal_ax1.vmd",
+  "sha256": "1f7f50d86a85d616e3f2cf567e4a98510491e5c92ad4826f8fa7c6c66b106cbe",
+  "skirt_peak_x_rad": 0.0,
+  "top_bones": [
+   {
+    "bone": "上半身",
+    "keys": 493,
+    "peak_x_rad": 3.1396
+   },
+   {
+    "bone": "下半身",
+    "keys": 493,
+    "peak_x_rad": 3.1373
+   },
+   {
+    "bone": "右ひじ",
+    "keys": 495,
+    "peak_x_rad": 2.6631
+   },
+   {
+    "bone": "左ひじ",
+    "keys": 504,
+    "peak_x_rad": 2.5765
+   },
+   {
+    "bone": "左ひざ",
+    "keys": 493,
+    "peak_x_rad": 2.4469
+   },
+   {
+    "bone": "右ひざ",
+    "keys": 493,
+    "peak_x_rad": 2.212
+   },
+   {
+    "bone": "左腕",
+    "keys": 503,
+    "peak_x_rad": 2.0431
+   },
+   {
+    "bone": "左手首",
+    "keys": 497,
+    "peak_x_rad": 1.8396
+   }
+  ]
+ },
+ {
+  "bones": 332,
+  "last_frame": 798,
+  "leg_peak_x_rad": 2.4469,
+  "path": "./out/_cal_ax2.vmd",
+  "sha256": "59e3d6260300adcea77d8cc922379ff417e743a87e81330d0e02cd94c75854fe",
+  "skirt_peak_x_rad": 0.0,
+  "top_bones": [
+   {
+    "bone": "上半身",
+    "keys": 493,
+    "peak_x_rad": 3.1396
+   },
+   {
+    "bone": "下半身",
+    "keys": 493,
+    "peak_x_rad": 3.1373
+   },
+   {
+    "bone": "右ひじ",
+    "keys": 495,
+    "peak_x_rad": 2.6631
+   },
+   {
+    "bone": "左ひじ",
+    "keys": 504,
+    "peak_x_rad": 2.5765
+   },
+   {
+    "bone": "左ひざ",
+    "keys": 493,
+    "peak_x_rad": 2.4469
+   },
+   {
+    "bone": "右ひざ",
+    "keys": 493,
+    "peak_x_rad": 2.212
+   },
+   {
+    "bone": "左腕",
+    "keys": 503,
+    "peak_x_rad": 2.0431
+   },
+   {
+    "bone": "左手首",
+    "keys": 497,
+    "peak_x_rad": 1.8396
+   }
+  ]
+ },
+ {
+  "bones": 332,
+  "last_frame": 798,
+  "leg_peak_x_rad": 2.4469,
+  "path": "./out/_mini_aligned.vmd",
+  "sha256": "9767c0f6bf82bf07ad110eeab43c27440b66692c1ee9216c42252c1c3167c7c8",
+  "skirt_peak_x_rad": 0.0,
+  "top_bones": [
+   {
+    "bone": "上半身",
+    "keys": 493,
+    "peak_x_rad": 3.1396
+   },
+   {
+    "bone": "下半身",
+    "keys": 493,
+    "peak_x_rad": 3.1373
+   },
+   {
+    "bone": "右ひじ",
+    "keys": 495,
+    "peak_x_rad": 2.6631
+   },
+   {
+    "bone": "左ひじ",
+    "keys": 504,
+    "peak_x_rad": 2.5765
+   },
+   {
+    "bone": "左ひざ",
+    "keys": 493,
+    "peak_x_rad": 2.4469
+   },
+   {
+    "bone": "右ひざ",
+    "keys": 493,
+    "peak_x_rad": 2.212
+   },
+   {
+    "bone": "左腕",
+    "keys": 503,
+    "peak_x_rad": 2.0431
+   },
+   {
+    "bone": "左手首",
+    "keys": 497,
+    "peak_x_rad": 1.8396
+   }
+  ]
+ },
+ {
+  "bones": 71,
+  "last_frame": 944,
+  "leg_peak_x_rad": 2.4469,
+  "path": "./out/_probe_6847841595989353919.vmd",
+  "sha256": "fed3b10ad5a9f02147dac6d09628f31c4dbf0708473f04e4f271eb0f459dfc05",
+  "skirt_peak_x_rad": 0.0,
+  "top_bones": [
+   {
+    "bone": "上半身",
+    "keys": 939,
+    "peak_x_rad": 3.1396
+   },
+   {
+    "bone": "グルーブ",
+    "keys": 448,
+    "peak_x_rad": 3.138
+   },
+   {
+    "bone": "下半身",
+    "keys": 939,
+    "peak_x_rad": 3.1373
+   },
+   {
+    "bone": "右ひじ",
+    "keys": 939,
+    "peak_x_rad": 2.6631
+   },
+   {
+    "bone": "左ひじ",
+    "keys": 939,
+    "peak_x_rad": 2.5765
+   },
+   {
+    "bone": "左ひざ",
+    "keys": 492,
+    "peak_x_rad": 2.4469
+   },
+   {
+    "bone": "右ひざ",
+    "keys": 492,
+    "peak_x_rad": 2.212
+   },
+   {
+    "bone": "左ひざD",
+    "keys": 447,
+    "peak_x_rad": 2.0834
+   }
+  ]
+ },
+ {
+  "bones": 250,
+  "last_frame": 798,
+  "leg_peak_x_rad": 2.4469,
+  "path": "./out/_probe_9202936556940327437.vmd",
+  "sha256": "01df50d9414e96cafca8cb7f2d6e79023b319a7a80c318e2f4ab4689a0bb05fe",
+  "skirt_peak_x_rad": 0.0,
+  "top_bones": [
+   {
+    "bone": "上半身",
+    "keys": 493,
+    "peak_x_rad": 3.1396
+   },
+   {
+    "bone": "下半身",
+    "keys": 493,
+    "peak_x_rad": 3.1373
+   },
+   {
+    "bone": "右ひじ",
+    "keys": 495,
+    "peak_x_rad": 2.6631
+   },
+   {
+    "bone": "左ひじ",
+    "keys": 504,
+    "peak_x_rad": 2.5765
+   },
+   {
+    "bone": "左ひざ",
+    "keys": 493,
+    "peak_x_rad": 2.4469
+   },
+   {
+    "bone": "右ひざ",
+    "keys": 493,
+    "peak_x_rad": 2.212
+   },
+   {
+    "bone": "右手捩",
+    "keys": 4,
+    "peak_x_rad": 2.0644
+   },
+   {
+    "bone": "左腕",
+    "keys": 503,
+    "peak_x_rad": 2.0431
+   }
+  ]
+ },
+ {
+  "bones": 246,
+  "last_frame": 832,
+  "leg_peak_x_rad": 2.3677,
+  "path": "./addon_full/vmd/chain.vmd",
+  "sha256": "9c26932e6a02bedc1a804271564db3741222ec516b82f241ac88b535932aa274",
+  "skirt_peak_x_rad": 0.0,
+  "top_bones": [
+   {
+    "bone": "グルーブ",
+    "keys": 833,
+    "peak_x_rad": 3.138
+   },
+   {
+    "bone": "左親指０",
+    "keys": 833,
+    "peak_x_rad": 2.9477
+   },
+   {
+    "bone": "右ひじ",
+    "keys": 833,
+    "peak_x_rad": 2.9107
+   },
+   {
+    "bone": "左ひじ",
+    "keys": 833,
+    "peak_x_rad": 2.4967
+   },
+   {
+    "bone": "左ひざD",
+    "keys": 833,
+    "peak_x_rad": 2.3677
+   },
+   {
+    "bone": "左足D",
+    "keys": 833,
+    "peak_x_rad": 2.2003
+   },
+   {
+    "bone": "右手首",
+    "keys": 833,
+    "peak_x_rad": 2.0388
+   },
+   {
+    "bone": "左足",
+    "keys": 833,
+    "peak_x_rad": 1.9414
+   }
+  ]
+ },
+ {
+  "bones": 246,
+  "last_frame": 846,
+  "leg_peak_x_rad": 2.3677,
+  "path": "./addon_test_nla/vmd/chain.vmd",
+  "sha256": "5d5ba5b836c06b2f7b61ba0245fd859c775baa2c830ff0484b0a904075109c34",
+  "skirt_peak_x_rad": 0.0,
+  "top_bones": [
+   {
+    "bone": "グルーブ",
+    "keys": 847,
+    "peak_x_rad": 3.138
+   },
+   {
+    "bone": "左親指０",
+    "keys": 847,
+    "peak_x_rad": 2.9477
+   },
+   {
+    "bone": "右ひじ",
+    "keys": 847,
+    "peak_x_rad": 2.9107
+   },
+   {
+    "bone": "左ひじ",
+    "keys": 847,
+    "peak_x_rad": 2.4967
+   },
+   {
+    "bone": "左ひざD",
+    "keys": 847,
+    "peak_x_rad": 2.3677
+   },
+   {
+    "bone": "左足D",
+    "keys": 847,
+    "peak_x_rad": 2.2003
+   },
+   {
+    "bone": "右手首",
+    "keys": 847,
+    "peak_x_rad": 2.0388
+   },
+   {
+    "bone": "左足",
+    "keys": 847,
+    "peak_x_rad": 1.9414
+   }
+  ]
+ },
+ {
+  "bones": 246,
+  "last_frame": 832,
+  "leg_peak_x_rad": 2.3677,
+  "path": "./gate_g6/vmd/chain.vmd",
+  "sha256": "90d83071aa61679e404be73c5644e7598c878ddf8d7aeec2c89848c0eff1b442",
+  "skirt_peak_x_rad": 0.0,
+  "top_bones": [
+   {
+    "bone": "グルーブ",
+    "keys": 833,
+    "peak_x_rad": 3.138
+   },
+   {
+    "bone": "右ひじ",
+    "keys": 833,
+    "peak_x_rad": 2.6478
+   },
+   {
+    "bone": "左ひじ",
+    "keys": 833,
+    "peak_x_rad": 2.4967
+   },
+   {
+    "bone": "左ひざD",
+    "keys": 833,
+    "peak_x_rad": 2.3677
+   },
+   {
+    "bone": "左足D",
+    "keys": 833,
+    "peak_x_rad": 2.2003
+   },
+   {
+    "bone": "右手首",
+    "keys": 833,
+    "peak_x_rad": 2.0388
+   },
+   {
+    "bone": "左足",
+    "keys": 833,
+    "peak_x_rad": 1.9414
+   },
+   {
+    "bone": "右足首D",
+    "keys": 833,
+    "peak_x_rad": 1.8846
+   }
+  ]
+ },
+ {
+  "bones": 246,
+  "last_frame": 832,
+  "leg_peak_x_rad": 2.3677,
+  "path": "./out/nla_align1.vmd",
+  "sha256": "6110c1f2b42352b4c0f1f4d634f0a01b6896a3f988382880a068e88a7f975601",
+  "skirt_peak_x_rad": 0.0,
+  "top_bones": [
+   {
+    "bone": "グルーブ",
+    "keys": 833,
+    "peak_x_rad": 3.138
+   },
+   {
+    "bone": "左親指０",
+    "keys": 833,
+    "peak_x_rad": 2.9477
+   },
+   {
+    "bone": "右ひじ",
+    "keys": 833,
+    "peak_x_rad": 2.9107
+   },
+   {
+    "bone": "左ひじ",
+    "keys": 833,
+    "peak_x_rad": 2.4967
+   },
+   {
+    "bone": "左ひざD",
+    "keys": 833,
+    "peak_x_rad": 2.3677
+   },
+   {
+    "bone": "左足D",
+    "keys": 833,
+    "peak_x_rad": 2.2003
+   },
+   {
+    "bone": "右手首",
+    "keys": 833,
+    "peak_x_rad": 2.0388
+   },
+   {
+    "bone": "左足",
+    "keys": 833,
+    "peak_x_rad": 1.9414
+   }
+  ]
+ },
+ {
+  "bones": 246,
+  "last_frame": 846,
+  "leg_peak_x_rad": 2.3677,
+  "path": "./out/subai/M05/nla_export_run1.vmd",
+  "sha256": "e07b8fd54d4a13bb4de9823dbb58b0cac9440e03b1a4ef5983bbbc2bc5046be2",
+  "skirt_peak_x_rad": 0.0,
+  "top_bones": [
+   {
+    "bone": "グルーブ",
+    "keys": 847,
+    "peak_x_rad": 3.138
+   },
+   {
+    "bone": "左親指０",
+    "keys": 847,
+    "peak_x_rad": 2.9477
+   },
+   {
+    "bone": "右ひじ",
+    "keys": 847,
+    "peak_x_rad": 2.9107
+   },
+   {
+    "bone": "左ひじ",
+    "keys": 847,
+    "peak_x_rad": 2.4967
+   },
+   {
+    "bone": "左ひざD",
+    "keys": 847,
+    "peak_x_rad": 2.3677
+   },
+   {
+    "bone": "左足D",
+    "keys": 847,
+    "peak_x_rad": 2.2003
+   },
+   {
+    "bone": "右手首",
+    "keys": 847,
+    "peak_x_rad": 2.0388
+   },
+   {
+    "bone": "左足",
+    "keys": 847,
+    "peak_x_rad": 1.9414
+   }
+  ]
+ },
+ {
+  "bones": 259,
+  "last_frame": 832,
+  "leg_peak_x_rad": 2.0834,
+  "path": "./dryrun_test/vmd/chain.vmd",
+  "sha256": "200c6a4606908a1d4701bd85f4d83d55d6046a70a54a3b61deb128de52a61b00",
+  "skirt_peak_x_rad": 0.0,
+  "top_bones": [
+   {
+    "bone": "グルーブ",
+    "keys": 827,
+    "peak_x_rad": 3.138
+   },
+   {
+    "bone": "右ひじ",
+    "keys": 827,
+    "peak_x_rad": 2.6478
+   },
+   {
+    "bone": "左ひじ",
+    "keys": 827,
+    "peak_x_rad": 2.4967
+   },
+   {
+    "bone": "左ひざD",
+    "keys": 447,
+    "peak_x_rad": 2.0834
+   },
+   {
+    "bone": "右手首",
+    "keys": 827,
+    "peak_x_rad": 2.0388
+   },
+   {
+    "bone": "左足",
+    "keys": 380,
+    "peak_x_rad": 1.9749
+   },
+   {
+    "bone": "左ひざ",
+    "keys": 380,
+    "peak_x_rad": 1.8492
+   },
+   {
+    "bone": "左手首",
+    "keys": 827,
+    "peak_x_rad": 1.5719
+   }
+  ]
+ },
+ {
+  "bones": 259,
+  "last_frame": 846,
+  "leg_peak_x_rad": 2.0834,
+  "path": "./gap20_test/vmd/chain.vmd",
+  "sha256": "a11ebe038db6961a1aaf20907a72cddb6bd8e8708cfb19a7a0e484cc332b2919",
+  "skirt_peak_x_rad": 0.0,
+  "top_bones": [
+   {
+    "bone": "グルーブ",
+    "keys": 827,
+    "peak_x_rad": 3.138
+   },
+   {
+    "bone": "右ひじ",
+    "keys": 827,
+    "peak_x_rad": 2.6478
+   },
+   {
+    "bone": "左ひじ",
+    "keys": 827,
+    "peak_x_rad": 2.4967
+   },
+   {
+    "bone": "左ひざD",
+    "keys": 447,
+    "peak_x_rad": 2.0834
+   },
+   {
+    "bone": "右手首",
+    "keys": 827,
+    "peak_x_rad": 2.0388
+   },
+   {
+    "bone": "左足",
+    "keys": 380,
+    "peak_x_rad": 1.9749
+   },
+   {
+    "bone": "左ひざ",
+    "keys": 380,
+    "peak_x_rad": 1.8492
+   },
+   {
+    "bone": "左手首",
+    "keys": 827,
+    "peak_x_rad": 1.5719
+   }
+  ]
+ },
+ {
+  "bones": 259,
+  "last_frame": 832,
+  "leg_peak_x_rad": 2.0834,
+  "path": "./kafuka_all/vmd/原神摇_merged.vmd",
+  "sha256": "b872fda7a4bbbfa6f72675969d39df90de715a2577f5990501f6436911b2e46b",
+  "skirt_peak_x_rad": 0.0,
+  "top_bones": [
+   {
+    "bone": "グルーブ",
+    "keys": 827,
+    "peak_x_rad": 3.138
+   },
+   {
+    "bone": "右ひじ",
+    "keys": 827,
+    "peak_x_rad": 2.6478
+   },
+   {
+    "bone": "左ひじ",
+    "keys": 827,
+    "peak_x_rad": 2.4967
+   },
+   {
+    "bone": "左ひざD",
+    "keys": 447,
+    "peak_x_rad": 2.0834
+   },
+   {
+    "bone": "右手首",
+    "keys": 827,
+    "peak_x_rad": 2.0388
+   },
+   {
+    "bone": "左足",
+    "keys": 380,
+    "peak_x_rad": 1.9749
+   },
+   {
+    "bone": "左ひざ",
+    "keys": 380,
+    "peak_x_rad": 1.8492
+   },
+   {
+    "bone": "左手首",
+    "keys": 827,
+    "peak_x_rad": 1.5719
+   }
+  ]
+ },
+ {
+  "bones": 259,
+  "last_frame": 846,
+  "leg_peak_x_rad": 2.0834,
+  "path": "./kafuka_gap20/vmd/原神摇_merged.vmd",
+  "sha256": "8634a921be8499f6b4528e4866868005c98b9e891fcbc4d7eeb45473fc42545e",
+  "skirt_peak_x_rad": 0.0,
+  "top_bones": [
+   {
+    "bone": "グルーブ",
+    "keys": 827,
+    "peak_x_rad": 3.138
+   },
+   {
+    "bone": "右ひじ",
+    "keys": 827,
+    "peak_x_rad": 2.6478
+   },
+   {
+    "bone": "左ひじ",
+    "keys": 827,
+    "peak_x_rad": 2.4967
+   },
+   {
+    "bone": "左ひざD",
+    "keys": 447,
+    "peak_x_rad": 2.0834
+   },
+   {
+    "bone": "右手首",
+    "keys": 827,
+    "peak_x_rad": 2.0388
+   },
+   {
+    "bone": "左足",
+    "keys": 380,
+    "peak_x_rad": 1.9749
+   },
+   {
+    "bone": "左ひざ",
+    "keys": 380,
+    "peak_x_rad": 1.8492
+   },
+   {
+    "bone": "左手首",
+    "keys": 827,
+    "peak_x_rad": 1.5719
+   }
+  ]
+ },
+ {
+  "bones": 259,
+  "last_frame": 832,
+  "leg_peak_x_rad": 2.0834,
+  "path": "./out/fill_hold.vmd",
+  "sha256": "b1d982f66d3828c43068fce968f9c7aa04aa72382cabe36443140c02b00df1d3",
+  "skirt_peak_x_rad": 0.0,
+  "top_bones": [
+   {
+    "bone": "グルーブ",
+    "keys": 827,
+    "peak_x_rad": 3.138
+   },
+   {
+    "bone": "右ひじ",
+    "keys": 827,
+    "peak_x_rad": 2.6478
+   },
+   {
+    "bone": "左ひじ",
+    "keys": 827,
+    "peak_x_rad": 2.4967
+   },
+   {
+    "bone": "左ひざD",
+    "keys": 449,
+    "peak_x_rad": 2.0834
+   },
+   {
+    "bone": "右手首",
+    "keys": 827,
+    "peak_x_rad": 2.0388
+   },
+   {
+    "bone": "左足",
+    "keys": 382,
+    "peak_x_rad": 1.9749
+   },
+   {
+    "bone": "左ひざ",
+    "keys": 382,
+    "peak_x_rad": 1.8492
+   },
+   {
+    "bone": "左手首",
+    "keys": 827,
+    "peak_x_rad": 1.5719
+   }
+  ]
+ },
+ {
+  "bones": 259,
+  "last_frame": 832,
+  "leg_peak_x_rad": 2.0834,
+  "path": "./out/fill_rest.vmd",
+  "sha256": "aeabebca9cae5a19a2f1cce809d0f467220d26830424930c8aabdcc9e4b7e4df",
+  "skirt_peak_x_rad": 0.0,
+  "top_bones": [
+   {
+    "bone": "グルーブ",
+    "keys": 827,
+    "peak_x_rad": 3.138
+   },
+   {
+    "bone": "右ひじ",
+    "keys": 827,
+    "peak_x_rad": 2.6478
+   },
+   {
+    "bone": "左ひじ",
+    "keys": 827,
+    "peak_x_rad": 2.4967
+   },
+   {
+    "bone": "左ひざD",
+    "keys": 449,
+    "peak_x_rad": 2.0834
+   },
+   {
+    "bone": "右手首",
+    "keys": 827,
+    "peak_x_rad": 2.0388
+   },
+   {
+    "bone": "左足",
+    "keys": 382,
+    "peak_x_rad": 1.9749
+   },
+   {
+    "bone": "左ひざ",
+    "keys": 382,
+    "peak_x_rad": 1.8492
+   },
+   {
+    "bone": "左手首",
+    "keys": 827,
+    "peak_x_rad": 1.5719
+   }
+  ]
+ },
+ {
+  "bones": 51,
+  "last_frame": 446,
+  "leg_peak_x_rad": 2.0834,
+  "path": "./out/roundtrip.vmd",
+  "sha256": "e1e87ec68c45b23652bf61ff5c2b53c5f43d9ed4b0037d40ef0f7808b8a4235c",
+  "skirt_peak_x_rad": 0.0,
+  "top_bones": [
+   {
+    "bone": "グルーブ",
+    "keys": 447,
+    "peak_x_rad": 3.138
+   },
+   {
+    "bone": "右ひじ",
+    "keys": 447,
+    "peak_x_rad": 2.6292
+   },
+   {
+    "bone": "左ひじ",
+    "keys": 447,
+    "peak_x_rad": 2.4826
+   },
+   {
+    "bone": "左ひざD",
+    "keys": 447,
+    "peak_x_rad": 2.0834
+   },
+   {
+    "bone": "右手首",
+    "keys": 447,
+    "peak_x_rad": 2.0388
+   },
+   {
+    "bone": "左手首",
+    "keys": 447,
+    "peak_x_rad": 1.5562
+   },
+   {
+    "bone": "右ひざD",
+    "keys": 447,
+    "peak_x_rad": 1.0487
+   },
+   {
+    "bone": "右腕",
+    "keys": 447,
+    "peak_x_rad": 0.8784
+   }
+  ]
+ },
+ {
+  "bones": 52,
+  "last_frame": 446,
+  "leg_peak_x_rad": 2.0834,
+  "path": "./out/原神摇_merged.vmd",
+  "sha256": "027179ac268019fda46d8277f7b481223baf55bee55b357a2a584222b95df0ae",
+  "skirt_peak_x_rad": 0.0,
+  "top_bones": [
+   {
+    "bone": "グルーブ",
+    "keys": 447,
+    "peak_x_rad": 3.138
+   },
+   {
+    "bone": "右ひじ",
+    "keys": 447,
+    "peak_x_rad": 2.6292
+   },
+   {
+    "bone": "左ひじ",
+    "keys": 447,
+    "peak_x_rad": 2.4826
+   },
+   {
+    "bone": "左ひざD",
+    "keys": 447,
+    "peak_x_rad": 2.0834
+   },
+   {
+    "bone": "右手首",
+    "keys": 447,
+    "peak_x_rad": 2.0388
+   },
+   {
+    "bone": "左手首",
+    "keys": 447,
+    "peak_x_rad": 1.5562
+   },
+   {
+    "bone": "右ひざD",
+    "keys": 447,
+    "peak_x_rad": 1.0487
+   },
+   {
+    "bone": "右腕",
+    "keys": 447,
+    "peak_x_rad": 0.8784
+   }
+  ]
+ },
+ {
+  "bones": 252,
+  "last_frame": 379,
+  "leg_peak_x_rad": 1.9749,
+  "path": "./feiying_expr/vmd/活着dj_VMD-TDA_merged.vmd",
+  "sha256": "ea5394a29acd06436ef356390960d9eb7604e5ecf1d0c5e2ce5a36b88c11d56c",
+  "skirt_peak_x_rad": 0.0,
+  "top_bones": [
+   {
+    "bone": "右ひじ",
+    "keys": 380,
+    "peak_x_rad": 2.6478
+   },
+   {
+    "bone": "左ひじ",
+    "keys": 380,
+    "peak_x_rad": 2.4967
+   },
+   {
+    "bone": "左足",
+    "keys": 380,
+    "peak_x_rad": 1.9749
+   },
+   {
+    "bone": "左ひざ",
+    "keys": 380,
+    "peak_x_rad": 1.8492
+   },
+   {
+    "bone": "右手首",
+    "keys": 380,
+    "peak_x_rad": 1.574
+   },
+   {
+    "bone": "左手首",
+    "keys": 380,
+    "peak_x_rad": 1.5719
+   },
+   {
+    "bone": "左腕",
+    "keys": 380,
+    "peak_x_rad": 1.497
+   },
+   {
+    "bone": "左足ＩＫ",
+    "keys": 380,
+    "peak_x_rad": 1.322
+   }
+  ]
+ },
+ {
+  "bones": 246,
+  "last_frame": 798,
+  "leg_peak_x_rad": 1.8239,
+  "path": "./out/alignment2.vmd",
+  "sha256": "56501bb4c4e81caaf66bf0a964a606f2cb73cc0d504d728d8a9c967d2bc55caa",
+  "skirt_peak_x_rad": 0.0,
+  "top_bones": [
+   {
+    "bone": "上半身",
+    "keys": 799,
+    "peak_x_rad": 3.1396
+   },
+   {
+    "bone": "下半身",
+    "keys": 799,
+    "peak_x_rad": 3.1373
+   },
+   {
+    "bone": "右ひじ",
+    "keys": 799,
+    "peak_x_rad": 2.6631
+   },
+   {
+    "bone": "左ひじ",
+    "keys": 799,
+    "peak_x_rad": 2.5765
+   },
+   {
+    "bone": "左薬指１",
+    "keys": 799,
+    "peak_x_rad": 2.5113
+   },
+   {
+    "bone": "左腕",
+    "keys": 799,
+    "peak_x_rad": 2.0431
+   },
+   {
+    "bone": "左手首",
+    "keys": 799,
+    "peak_x_rad": 1.8396
+   },
+   {
+    "bone": "右足首",
+    "keys": 799,
+    "peak_x_rad": 1.8239
+   }
+  ]
+ },
+ {
+  "bones": 93,
+  "last_frame": 2537,
+  "leg_peak_x_rad": 1.5937,
+  "path": "./out/xiaogong_dance.vmd",
+  "sha256": "e79be4bbc2f297370ae32b01df966f390ffb91ae5a0db496d09eb16db12899cd",
+  "skirt_peak_x_rad": 0.0,
+  "top_bones": [
+   {
+    "bone": "センター",
+    "keys": 296,
+    "peak_x_rad": 3.1416
+   },
+   {
+    "bone": "右足ＩＫ",
+    "keys": 300,
+    "peak_x_rad": 3.1416
+   },
+   {
+    "bone": "左足ＩＫ",
+    "keys": 260,
+    "peak_x_rad": 3.1416
+   },
+   {
+    "bone": "左ひじ",
+    "keys": 238,
+    "peak_x_rad": 3.1164
+   },
+   {
+    "bone": "右ひじ",
+    "keys": 302,
+    "peak_x_rad": 3.106
+   },
+   {
+    "bone": "右腕",
+    "keys": 242,
+    "peak_x_rad": 2.9675
+   },
+   {
+    "bone": "左腕",
+    "keys": 206,
+    "peak_x_rad": 2.1279
+   },
+   {
+    "bone": "右足",
+    "keys": 147,
+    "peak_x_rad": 1.5937
+   }
+  ]
+ },
+ {
+  "bones": 259,
+  "last_frame": 243,
+  "leg_peak_x_rad": 1.363,
+  "path": "./out/subai/M05/chain_baseline_overlap.vmd",
+  "sha256": "7f4196b6c042117f671716292cc92b2eafd0ceba5272686907086bc820012fe1",
+  "skirt_peak_x_rad": 0.0,
+  "top_bones": [
+   {
+    "bone": "右ひじ",
+    "keys": 333,
+    "peak_x_rad": 2.4871
+   },
+   {
+    "bone": "左ひじ",
+    "keys": 333,
+    "peak_x_rad": 2.4079
+   },
+   {
+    "bone": "右手首",
+    "keys": 333,
+    "peak_x_rad": 1.5729
+   },
+   {
+    "bone": "左手首",
+    "keys": 333,
+    "peak_x_rad": 1.5719
+   },
+   {
+    "bone": "左ひざ",
+    "keys": 242,
+    "peak_x_rad": 1.363
+   },
+   {
+    "bone": "左腕",
+    "keys": 333,
+    "peak_x_rad": 1.177
+   },
+   {
+    "bone": "右ひざ",
+    "keys": 242,
+    "peak_x_rad": 1.1167
+   },
+   {
+    "bone": "左ひざD",
+    "keys": 91,
+    "peak_x_rad": 0.9863
+   }
+  ]
+ },
+ {
+  "bones": 259,
+  "last_frame": 336,
+  "leg_peak_x_rad": 1.363,
+  "path": "./out/subai/M05/chain_fixed_337.vmd",
+  "sha256": "38b788f758d294326940da56c8a243e0b43a287178856bc7d61b344345758f48",
+  "skirt_peak_x_rad": 0.0,
+  "top_bones": [
+   {
+    "bone": "右ひじ",
+    "keys": 333,
+    "peak_x_rad": 2.4871
+   },
+   {
+    "bone": "左ひじ",
+    "keys": 333,
+    "peak_x_rad": 2.4079
+   },
+   {
+    "bone": "右手首",
+    "keys": 333,
+    "peak_x_rad": 1.5729
+   },
+   {
+    "bone": "左手首",
+    "keys": 333,
+    "peak_x_rad": 1.5719
+   },
+   {
+    "bone": "左ひざ",
+    "keys": 242,
+    "peak_x_rad": 1.363
+   },
+   {
+    "bone": "左腕",
+    "keys": 333,
+    "peak_x_rad": 1.177
+   },
+   {
+    "bone": "右ひざ",
+    "keys": 242,
+    "peak_x_rad": 1.1167
+   },
+   {
+    "bone": "左ひざD",
+    "keys": 91,
+    "peak_x_rad": 0.9863
+   }
+  ]
+ },
+ {
+  "bones": 252,
+  "last_frame": 150,
+  "leg_peak_x_rad": 1.363,
+  "path": "./out/subai/M05/fixtures/seg3_151.vmd",
+  "sha256": "6c657cdf68bcb0eca1729a6fbef3b6c680902afe7db6462cfb9988aa5c473579",
+  "skirt_peak_x_rad": 0.0,
+  "top_bones": [
+   {
+    "bone": "右ひじ",
+    "keys": 151,
+    "peak_x_rad": 2.4871
+   },
+   {
+    "bone": "左ひじ",
+    "keys": 151,
+    "peak_x_rad": 2.4079
+   },
+   {
+    "bone": "右手首",
+    "keys": 151,
+    "peak_x_rad": 1.5729
+   },
+   {
+    "bone": "左手首",
+    "keys": 151,
+    "peak_x_rad": 1.5719
+   },
+   {
+    "bone": "左ひざ",
+    "keys": 151,
+    "peak_x_rad": 1.363
+   },
+   {
+    "bone": "左腕",
+    "keys": 151,
+    "peak_x_rad": 1.177
+   },
+   {
+    "bone": "右ひざ",
+    "keys": 151,
+    "peak_x_rad": 1.1167
+   },
+   {
+    "bone": "左足",
+    "keys": 151,
+    "peak_x_rad": 0.81
+   }
+  ]
+ },
+ {
+  "bones": 259,
+  "last_frame": 392,
+  "leg_peak_x_rad": 1.363,
+  "path": "./out/subai/M05/probe12/work/20261115_213130/vmd/chain.vmd",
+  "sha256": "57dce212fe3ad1461acfdfbd274cbe1c991da8bfc2ca741f13a7c9bd29405e46",
+  "skirt_peak_x_rad": 0.0,
+  "top_bones": [
+   {
+    "bone": "右ひじ",
+    "keys": 333,
+    "peak_x_rad": 2.4871
+   },
+   {
+    "bone": "左ひじ",
+    "keys": 333,
+    "peak_x_rad": 2.4079
+   },
+   {
+    "bone": "右手首",
+    "keys": 333,
+    "peak_x_rad": 1.5729
+   },
+   {
+    "bone": "左手首",
+    "keys": 333,
+    "peak_x_rad": 1.5719
+   },
+   {
+    "bone": "左ひざ",
+    "keys": 242,
+    "peak_x_rad": 1.363
+   },
+   {
+    "bone": "左腕",
+    "keys": 333,
+    "peak_x_rad": 1.177
+   },
+   {
+    "bone": "右ひざ",
+    "keys": 242,
+    "peak_x_rad": 1.1167
+   },
+   {
+    "bone": "左ひざD",
+    "keys": 91,
+    "peak_x_rad": 0.9863
+   }
+  ]
+ },
+ {
+  "bones": 252,
+  "last_frame": 90,
+  "leg_peak_x_rad": 1.2284,
+  "path": "./out/subai/M05/fixtures/seg2_91.vmd",
+  "sha256": "b4d9fbd09b6910cb3c2b5cbfc07a05961887012055e82022e9bd501dc843a160",
+  "skirt_peak_x_rad": 0.0,
+  "top_bones": [
+   {
+    "bone": "右ひじ",
+    "keys": 91,
+    "peak_x_rad": 2.4871
+   },
+   {
+    "bone": "左ひじ",
+    "keys": 91,
+    "peak_x_rad": 2.3531
+   },
+   {
+    "bone": "左手首",
+    "keys": 91,
+    "peak_x_rad": 1.5719
+   },
+   {
+    "bone": "右手首",
+    "keys": 91,
+    "peak_x_rad": 1.5719
+   },
+   {
+    "bone": "左ひざ",
+    "keys": 91,
+    "peak_x_rad": 1.2284
+   },
+   {
+    "bone": "左腕",
+    "keys": 91,
+    "peak_x_rad": 1.177
+   },
+   {
+    "bone": "左親指０",
+    "keys": 91,
+    "peak_x_rad": 0.7955
+   },
+   {
+    "bone": "右ひざ",
+    "keys": 91,
+    "peak_x_rad": 0.7766
+   }
+  ]
+ },
+ {
+  "bones": 52,
+  "last_frame": 90,
+  "leg_peak_x_rad": 0.9863,
+  "path": "./out/subai/M05/fixtures/seg1_91.vmd",
+  "sha256": "fd2d8b72d3b80ad77ddc24d8946bb317b774f962addd2e592437e63dc7456ce7",
+  "skirt_peak_x_rad": 0.0,
+  "top_bones": [
+   {
+    "bone": "右ひじ",
+    "keys": 91,
+    "peak_x_rad": 2.3655
+   },
+   {
+    "bone": "左ひじ",
+    "keys": 91,
+    "peak_x_rad": 2.2823
+   },
+   {
+    "bone": "右手首",
+    "keys": 91,
+    "peak_x_rad": 1.3222
+   },
+   {
+    "bone": "左手首",
+    "keys": 91,
+    "peak_x_rad": 1.2352
+   },
+   {
+    "bone": "左ひざD",
+    "keys": 91,
+    "peak_x_rad": 0.9863
+   },
+   {
+    "bone": "右ひざD",
+    "keys": 91,
+    "peak_x_rad": 0.9604
+   },
+   {
+    "bone": "右腕",
+    "keys": 91,
+    "peak_x_rad": 0.6908
+   },
+   {
+    "bone": "右足D",
+    "keys": 91,
+    "peak_x_rad": 0.5478
+   }
+  ]
+ },
+ {
+  "bones": 332,
+  "last_frame": 300,
+  "leg_peak_x_rad": 0.1031,
+  "path": "./out/B_aligned.vmd",
+  "sha256": "5d391f1a01d2279aa9f769cf6cd20fc176b5aa2f542c2d5568608a69a02e762d",
+  "skirt_peak_x_rad": 0.0,
+  "top_bones": [
+   {
+    "bone": "左腕",
+    "keys": 11,
+    "peak_x_rad": 2.0431
+   },
+   {
+    "bone": "全ての親",
+    "keys": 3,
+    "peak_x_rad": 1.5708
+   },
+   {
+    "bone": "左肩",
+    "keys": 8,
+    "peak_x_rad": 1.15
+   },
+   {
+    "bone": "右手捩",
+    "keys": 3,
+    "peak_x_rad": 0.8988
+   },
+   {
+    "bone": "左手首",
+    "keys": 5,
+    "peak_x_rad": 0.8706
+   },
+   {
+    "bone": "左手捩",
+    "keys": 3,
+    "peak_x_rad": 0.5482
+   },
+   {
+    "bone": "右手首",
+    "keys": 1,
+    "peak_x_rad": 0.457
+   },
+   {
+    "bone": "左小指１",
+    "keys": 3,
+    "peak_x_rad": 0.3751
+   }
+  ]
+ }
+]

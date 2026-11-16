@@ -1,0 +1,116 @@
+{
+ "bodies": 324,
+ "cache_after_free": {
+  "frame_end": 326,
+  "frame_start": 1,
+  "info": "240 frames in memory (2.1 MiB), cache is outdated!",
+  "is_baked": false,
+  "is_outdated": true,
+  "use_disk_cache": false,
+  "use_disk_cache_error": "'PointCache' object has no attribute 'cache_filepath'"
+ },
+ "cache_after_walk": {
+  "frame_end": 326,
+  "frame_start": 1,
+  "info": "240 frames in memory (2.1 MiB).",
+  "is_baked": false,
+  "is_outdated": false,
+  "use_disk_cache": false,
+  "use_disk_cache_error": "'PointCache' object has no attribute 'cache_filepath'"
+ },
+ "cache_at_open": {
+  "frame_end": 326,
+  "frame_start": 1,
+  "info": "240 frames in memory (2.1 MiB), cache is outdated!",
+  "is_baked": true,
+  "is_outdated": true,
+  "use_disk_cache": false,
+  "use_disk_cache_error": "'PointCache' object has no attribute 'cache_filepath'"
+ },
+ "comparisons": [
+  {
+   "D_all": 0.0,
+   "D_hem_max": 0.0,
+   "D_hem_sum": 0.0,
+   "D_max": 0.0,
+   "D_max_bone": "000_$name_j",
+   "bitwise_identical": true,
+   "bodies_compared": 324,
+   "label": "seq@109 vs P0[109]",
+   "nonzero": 0,
+   "only_in_a": 0,
+   "only_in_b": 0
+  },
+  {
+   "D_all": 339.208931,
+   "D_hem_max": 1.233416,
+   "D_hem_sum": 21.485082,
+   "D_max": 1.922861,
+   "D_max_bone": "272_右耳4",
+   "bitwise_identical": false,
+   "bodies_compared": 324,
+   "label": "probe(冷跳)@109 vs P0[109]",
+   "nonzero": 275,
+   "only_in_a": 0,
+   "only_in_b": 0
+  },
+  {
+   "D_all": 0.0,
+   "D_hem_max": 0.0,
+   "D_hem_sum": 0.0,
+   "D_max": 0.0,
+   "D_max_bone": "000_$name_j",
+   "bitwise_identical": true,
+   "bodies_compared": 324,
+   "label": "seq@240 vs P0[240]",
+   "nonzero": 0,
+   "only_in_a": 0,
+   "only_in_b": 0
+  },
+  {
+   "D_all": 339.208931,
+   "D_hem_max": 1.233416,
+   "D_hem_sum": 21.485082,
+   "D_max": 1.922861,
+   "D_max_bone": "272_右耳4",
+   "bitwise_identical": false,
+   "bodies_compared": 324,
+   "label": "probe(冷跳)@109 vs seq@109",
+   "nonzero": 275,
+   "only_in_a": 0,
+   "only_in_b": 0
+  }
+ ],
+ "dst": "E:\\dsh pr\\woker2\\out\\subai\\M02\\s8\\I_fresh.blend",
+ "dst_sha256": "5de1b5eaf7f032a52f4ef898a9fceede77b85e730ef030ac3cb3bdf5e201f11a",
+ "point": "P12",
+ "probe_cache_after_step": {
+  "frame_end": 326,
+  "frame_start": 1,
+  "info": "240 frames in memory (2.1 MiB).",
+  "is_baked": false,
+  "is_outdated": true,
+  "use_disk_cache": false,
+  "use_disk_cache_error": "'PointCache' object has no attribute 'cache_filepath'"
+ },
+ "probe_cache_at_open": {
+  "frame_end": 326,
+  "frame_start": 1,
+  "info": "240 frames in memory (2.1 MiB).",
+  "is_baked": false,
+  "is_outdated": true,
+  "use_disk_cache": false,
+  "use_disk_cache_error": "'PointCache' object has no attribute 'cache_filepath'"
+ },
+ "probe_cold_jump": true,
+ "src": "E:\\dsh pr\\woker2\\out\\subai\\M02\\s8\\I_src.blend",
+ "src_untouched": true,
+ "verdict": "MEASURED_DIFFERENT",
+ "walk": {
+  "api": "scene.frame_set(f) for f in range(frame_start, frame_end+1)",
+  "frames": 240,
+  "from": 1,
+  "sequential": true,
+  "to": 240
+ }
+}

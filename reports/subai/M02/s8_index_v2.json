@@ -1,0 +1,404 @@
+{
+ "comparisons": [
+  {
+   "D_all_m": 0.0,
+   "D_hem_m": 0.0,
+   "distribution_hem_m": {
+    "max": 0.0,
+    "nonzero_frames": 0,
+    "p50": 0.0,
+    "p95": 0.0,
+    "p99": 0.0
+   },
+   "exists": true,
+   "file": "s8_ab_result.json",
+   "first_frame_over_1mm_hem": null,
+   "label": "A vs B（烘焙回放：集合全关）",
+   "note": "作废：回放缓存",
+   "sha256": "040b5e3816f169356d47f6fc7a1dfc8c7add853b4f80981f6a072bb844378d50",
+   "verdict": "NO_EFFECT"
+  },
+  {
+   "D_all_m": 0.0,
+   "D_hem_m": 0.0,
+   "distribution_hem_m": {
+    "max": 0.0,
+    "nonzero_frames": 0,
+    "p50": 0.0,
+    "p95": 0.0,
+    "p99": 0.0
+   },
+   "exists": true,
+   "file": "s8_control_C.json",
+   "first_frame_over_1mm_hem": null,
+   "label": "A vs C（烘焙回放：effector 重力 0）",
+   "note": "作废：回放缓存",
+   "sha256": "d9ada8e5ee3926c0d67d3f145495f591d154bde27c695510daf08a7f11f0ec31",
+   "verdict": "NO_EFFECT"
+  },
+  {
+   "D_all_m": 0.0,
+   "D_hem_m": 0.0,
+   "distribution_hem_m": {
+    "max": 0.0,
+    "nonzero_frames": 0,
+    "p50": 0.0,
+    "p95": 0.0,
+    "p99": 0.0
+   },
+   "exists": true,
+   "file": "s8_control_E.json",
+   "first_frame_over_1mm_hem": null,
+   "label": "A vs E（烘焙回放：scene 重力归零）",
+   "note": "作废：回放缓存",
+   "sha256": "8b93be5486b69a8e85dec690ffa3b018468b97e73d0314ab6d4257ef379691c2",
+   "verdict": "NO_EFFECT"
+  },
+  {
+   "D_all_m": 1.497813719,
+   "D_hem_m": 0.908165062,
+   "distribution_hem_m": {
+    "max": 0.908165062,
+    "nonzero_frames": 239,
+    "p50": 0.907789057,
+    "p95": 0.907931527,
+    "p99": 0.907936947
+   },
+   "exists": true,
+   "file": "s8_control_D.json",
+   "first_frame_over_1mm_hem": null,
+   "label": "A vs D（烘焙回放：全 kinematic）",
+   "note": "回放被破坏，仅作机制参照",
+   "sha256": "386d7c3761af212bed38ecd2c2d148aa415c8e0a253daa7a9684b8659aa918a0",
+   "verdict": "EFFECTIVE"
+  },
+  {
+   "D_all_m": 0.01,
+   "D_hem_m": 0.01,
+   "distribution_hem_m": {
+    "max": 0.01,
+    "nonzero_frames": 1,
+    "p50": 0.0,
+    "p95": 0.0,
+    "p99": 0.0
+   },
+   "exists": true,
+   "file": "s8_control_F.json",
+   "first_frame_over_1mm_hem": 1,
+   "label": "A vs F（烘焙回放：挪 1 cm）",
+   "note": "回放指纹：恰好 1.000 cm 全段恒定",
+   "sha256": "d7ef30713d494e6aab911680c825abd3223e710ebb9c00330a877badf37d259e",
+   "verdict": "EFFECTIVE"
+  },
+  {
+   "D_all_m": 0.0,
+   "D_hem_m": 0.0,
+   "distribution_hem_m": {
+    "max": 0.0,
+    "nonzero_frames": 0,
+    "p50": 0.0,
+    "p95": 0.0,
+    "p99": 0.0
+   },
+   "exists": true,
+   "file": "s8_control_A1A2.json",
+   "first_frame_over_1mm_hem": null,
+   "label": "A vs A2（烘焙回放重复性）",
+   "note": "回放重复性，无意义",
+   "sha256": "773f320da3499f88b46953fa86eb70998008c2c91a7969c5966db169e69c4441",
+   "verdict": "NO_EFFECT"
+  },
+  {
+   "D_all_m": 0.0,
+   "D_hem_m": 0.0,
+   "distribution_hem_m": {
+    "max": 0.0,
+    "nonzero_frames": 0,
+    "p50": 0.0,
+    "p95": 0.0,
+    "p99": 0.0
+   },
+   "exists": true,
+   "file": "s8_P0_P1_repeat.json",
+   "first_frame_over_1mm_hem": null,
+   "label": "P0 vs P1（真解算重复性）",
+   "note": "重算可重复：0.0",
+   "sha256": "d23fd3a6ebe84fd261e1445cf71234fe200a7016e21a6d5c2d7ccb52a06fdb31",
+   "verdict": "NO_EFFECT"
+  },
+  {
+   "D_all_m": 1.620643407,
+   "D_hem_m": 0.908710335,
+   "distribution_hem_m": {
+    "max": 0.908710335,
+    "nonzero_frames": 239,
+    "p50": 0.908346081,
+    "p95": 0.908499115,
+    "p99": 0.908513301
+   },
+   "exists": true,
+   "file": "s8_A_vs_P0.json",
+   "first_frame_over_1mm_hem": 116,
+   "label": "A vs P0（回放 vs 重算）",
+   "note": "交付烘焙 != 本项目重算",
+   "sha256": "b990c4b3cd228d0f167cc93a01d3a2f689081a7a43f0ac8b7de3080779810965",
+   "verdict": "EFFECTIVE"
+  },
+  {
+   "D_all_m": 1.759736499,
+   "D_hem_m": 0.008240042,
+   "distribution_hem_m": {
+    "max": 0.008240042,
+    "nonzero_frames": 239,
+    "p50": 0.007609718,
+    "p95": 0.008080951,
+    "p99": 0.008210148
+   },
+   "exists": true,
+   "file": "s8_ab_cachefree.json",
+   "first_frame_over_1mm_hem": null,
+   "label": "P0 vs P2（真 A/B：集合全关）",
+   "note": "主结论",
+   "sha256": "41c199aa655df03a90e5ecfdbe66338a6e0a5f0baead2ec8d4d61cf770cf0806",
+   "verdict": "EFFECTIVE"
+  },
+  {
+   "D_all_m": 1.642274601,
+   "D_hem_m": 0.003617252,
+   "distribution_hem_m": {
+    "max": 0.003617252,
+    "nonzero_frames": 239,
+    "p50": 0.00286831,
+    "p95": 0.003324171,
+    "p99": 0.003490039
+   },
+   "exists": true,
+   "file": "s8_P5_noground.json",
+   "first_frame_over_1mm_hem": null,
+   "label": "P0 vs P5（真解算：只断地面接触）",
+   "note": "分离地面接触",
+   "sha256": "b51eb021ca5e3cc77fa28f61e93518794b0a9c09c9989479b5b330bd56787535",
+   "verdict": "EFFECTIVE"
+  },
+  {
+   "D_all_m": 1.614717631,
+   "D_hem_m": 0.014325275,
+   "distribution_hem_m": {
+    "max": 0.014325275,
+    "nonzero_frames": 240,
+    "p50": 0.010102442,
+    "p95": 0.012965275,
+    "p99": 0.013424585
+   },
+   "exists": true,
+   "file": "s8_P0_P3_fingerprint.json",
+   "first_frame_over_1mm_hem": 1,
+   "label": "P0 vs P3（真解算：挪 1 cm 指纹反证）",
+   "note": "非刚性平移 = 真在算",
+   "sha256": "eca78e44473021748e5ea0546a8c0d9cd04fd844f14f61d049a564e2df3f848a",
+   "verdict": "EFFECTIVE"
+  },
+  {
+   "D_all_m": 0.0,
+   "D_hem_m": 0.0,
+   "distribution_hem_m": {
+    "max": 0.0,
+    "nonzero_frames": 0,
+    "p50": 0.0,
+    "p95": 0.0,
+    "p99": 0.0
+   },
+   "exists": true,
+   "file": "s2_cachefree_limit.json",
+   "first_frame_over_1mm_hem": null,
+   "label": "P0 vs P4（真解算：限位 ±1.5708 → ±0.7）",
+   "note": "S2 的真答案",
+   "sha256": "43950f050e2cbf70d211fefa29e0823af686613c970bb4f04724a43b5c107b6e",
+   "verdict": "NO_EFFECT"
+  },
+  {
+   "D_all_m": 1.617532896,
+   "D_hem_m": 0.005529125,
+   "distribution_hem_m": {
+    "max": 0.005529125,
+    "nonzero_frames": 239,
+    "p50": 0.001012729,
+    "p95": 0.002807179,
+    "p99": 0.004741564
+   },
+   "exists": true,
+   "file": "s2_cachefree_limit_absurd.json",
+   "first_frame_over_1mm_hem": null,
+   "label": "P0 vs P6（真解算：限位 ±1.5708 → ±0.001）",
+   "note": "限位是活的",
+   "sha256": "e11f767a679dce54318d36607da640c430aaa234e8adcb9174077a86cca54705",
+   "verdict": "EFFECTIVE"
+  },
+  {
+   "D_all_m": 0.469991831,
+   "D_hem_m": 0.000384699,
+   "distribution_hem_m": {
+    "max": 0.000384699,
+    "nonzero_frames": 153,
+    "p50": 3.7249e-05,
+    "p95": 0.000147107,
+    "p99": 0.000180826
+   },
+   "exists": true,
+   "file": "s2_cachefree_limit_05.json",
+   "first_frame_over_1mm_hem": null,
+   "label": "P0 vs P8（真解算：限位 ±1.5708 → ±0.5）",
+   "note": "0.5 会咬，但亚毫米",
+   "sha256": "fd08e55d8bf8dd368307908ea24147e331e6129e5517c10f4ba881059c4e9709",
+   "verdict": "UNKNOWN"
+  }
+ ],
+ "criterion": "预注册于 s8_hypothesis.md：18 根下摆骨 D_hem >= 1.0 mm 判 EFFECTIVE",
+ "samples": {
+  "A1": {
+   "baked_after_free": null,
+   "baked_before": null,
+   "changed_bodies": 0,
+   "frames_sha256": "b53ceb6209fa03bc46dcc273118c3d9c93cf51515c8ef957b826565a9d00f208",
+   "limits_changed_count": null,
+   "source_untouched": null,
+   "variant": "A"
+  },
+  "A2": {
+   "baked_after_free": null,
+   "baked_before": null,
+   "changed_bodies": 0,
+   "frames_sha256": "b53ceb6209fa03bc46dcc273118c3d9c93cf51515c8ef957b826565a9d00f208",
+   "limits_changed_count": null,
+   "source_untouched": null,
+   "variant": "A"
+  },
+  "A_FINAL": {
+   "baked_after_free": null,
+   "baked_before": null,
+   "changed_bodies": 0,
+   "frames_sha256": "b53ceb6209fa03bc46dcc273118c3d9c93cf51515c8ef957b826565a9d00f208",
+   "limits_changed_count": null,
+   "source_untouched": null,
+   "variant": "A"
+  },
+  "B_FINAL": {
+   "baked_after_free": null,
+   "baked_before": null,
+   "changed_bodies": 324,
+   "frames_sha256": "b53ceb6209fa03bc46dcc273118c3d9c93cf51515c8ef957b826565a9d00f208",
+   "limits_changed_count": null,
+   "source_untouched": null,
+   "variant": "B"
+  },
+  "C": {
+   "baked_after_free": null,
+   "baked_before": null,
+   "changed_bodies": 0,
+   "frames_sha256": "b53ceb6209fa03bc46dcc273118c3d9c93cf51515c8ef957b826565a9d00f208",
+   "limits_changed_count": null,
+   "source_untouched": null,
+   "variant": "C"
+  },
+  "D": {
+   "baked_after_free": null,
+   "baked_before": null,
+   "changed_bodies": 0,
+   "frames_sha256": "5075fd387842060160a70299b17c552ee4ed7bed2c48992eec7cba3375d8aa91",
+   "limits_changed_count": null,
+   "source_untouched": null,
+   "variant": "D"
+  },
+  "E": {
+   "baked_after_free": null,
+   "baked_before": null,
+   "changed_bodies": 0,
+   "frames_sha256": "b53ceb6209fa03bc46dcc273118c3d9c93cf51515c8ef957b826565a9d00f208",
+   "limits_changed_count": null,
+   "source_untouched": null,
+   "variant": "E"
+  },
+  "F": {
+   "baked_after_free": null,
+   "baked_before": null,
+   "changed_bodies": 0,
+   "frames_sha256": "7adde99bb20e3bcd4741e63d46c42fb235ed13b9a1f4626a8d4c66aee6af32c1",
+   "limits_changed_count": null,
+   "source_untouched": null,
+   "variant": "F"
+  },
+  "P0": {
+   "baked_after_free": false,
+   "baked_before": true,
+   "changed_bodies": 0,
+   "frames_sha256": "80819da0c14a84efedefce423126c526119720ca029de977ef357d23d9bc9df7",
+   "limits_changed_count": 0,
+   "source_untouched": true,
+   "variant": "P0"
+  },
+  "P1": {
+   "baked_after_free": false,
+   "baked_before": true,
+   "changed_bodies": 0,
+   "frames_sha256": "80819da0c14a84efedefce423126c526119720ca029de977ef357d23d9bc9df7",
+   "limits_changed_count": 0,
+   "source_untouched": true,
+   "variant": "P1"
+  },
+  "P2": {
+   "baked_after_free": false,
+   "baked_before": true,
+   "changed_bodies": 324,
+   "frames_sha256": "939fce37eea3e6cdb111217eddae0b7ebe806632269bdc675dc56453936f5741",
+   "limits_changed_count": 0,
+   "source_untouched": true,
+   "variant": "P2"
+  },
+  "P3": {
+   "baked_after_free": false,
+   "baked_before": true,
+   "changed_bodies": 0,
+   "frames_sha256": "8a15fd56ae9177e263cf5d3d617a191554088d0df1b7e54d55e2df174e5c439d",
+   "limits_changed_count": 0,
+   "source_untouched": true,
+   "variant": "P3"
+  },
+  "P4": {
+   "baked_after_free": false,
+   "baked_before": true,
+   "changed_bodies": 0,
+   "frames_sha256": "80819da0c14a84efedefce423126c526119720ca029de977ef357d23d9bc9df7",
+   "limits_changed_count": 18,
+   "source_untouched": true,
+   "variant": "P4"
+  },
+  "P5": {
+   "baked_after_free": false,
+   "baked_before": true,
+   "changed_bodies": 323,
+   "frames_sha256": "b97d21b958d9635516c8fe07f8d09aca03cd0594921d3f94a4c8c2518dac0ad3",
+   "limits_changed_count": 0,
+   "source_untouched": true,
+   "variant": "P5"
+  },
+  "P6": {
+   "baked_after_free": false,
+   "baked_before": true,
+   "changed_bodies": 0,
+   "frames_sha256": "2d0e16950cb1ad1d6921102f3f6c555108a27695e5d57e40577514c6db0c1fe7",
+   "limits_changed_count": 18,
+   "source_untouched": true,
+   "variant": "P6"
+  },
+  "P8": {
+   "baked_after_free": false,
+   "baked_before": true,
+   "changed_bodies": 0,
+   "frames_sha256": "6aa2273b6cb6b8fe21cfa57e34e89c7452995960e2c105e2a59fd7b365adf59e",
+   "limits_changed_count": 18,
+   "source_untouched": true,
+   "variant": "P8"
+  }
+ },
+ "stage": "E-s8"
+}

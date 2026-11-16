@@ -1,0 +1,85 @@
+{
+ "note": "point_cache_baked 只有当 meta.json 里有 point_cache 字段时才有值；早期采样的 meta 没记这项，写 null 而非猜 0/False。",
+ "pairs": [
+  {
+   "a": "E:\\dsh pr\\woker2\\out\\subai\\M02\\dyn\\B2_baseline",
+   "b": "E:\\dsh pr\\woker2\\out\\subai\\M02\\dyn\\B2r_baseline",
+   "frames_jsonl_identical": false,
+   "max_abs_diff_deg": 0.0,
+   "max_at": null,
+   "rows_compared": 4320,
+   "rows_over_1e-6": 0
+  },
+  {
+   "a": "E:\\dsh pr\\woker2\\out\\subai\\M02\\dyn\\B2_x07",
+   "b": "E:\\dsh pr\\woker2\\out\\subai\\M02\\dyn\\B2r_x07",
+   "frames_jsonl_identical": false,
+   "max_abs_diff_deg": 0.0,
+   "max_at": null,
+   "rows_compared": 4320,
+   "rows_over_1e-6": 0
+  }
+ ],
+ "samples": {
+  "E:\\dsh pr\\woker2\\out\\subai\\M02\\dyn\\B2_baseline": {
+   "blend": "E:\\dsh pr\\woker2\\out\\subai\\M02\\blend\\B_from_blend1.blend",
+   "blend_sha256": "dd7f6877ee9c8c03c5df7c39236e142e806e9b1c771bc35ac2df05a1cefb192e",
+   "columns": [
+    "frame",
+    "bone",
+    "angle_deg",
+    "parent_delta_deg"
+   ],
+   "point_cache_baked": null,
+   "rows": 4320,
+   "sha256": "7baa7b985fac1f8abf0ab92d0213db4cac8d1f9d8e762137e1c04a83725b80f3"
+  },
+  "E:\\dsh pr\\woker2\\out\\subai\\M02\\dyn\\B2_x07": {
+   "blend": "E:\\dsh pr\\woker2\\out\\subai\\M02\\blend\\B_x07.blend",
+   "blend_sha256": "0ac41163e2e74f0bfa89c597073402bfc8fc10505544abaf741087500a0d2dee",
+   "columns": [
+    "frame",
+    "bone",
+    "angle_deg",
+    "parent_delta_deg"
+   ],
+   "point_cache_baked": null,
+   "rows": 4320,
+   "sha256": "7baa7b985fac1f8abf0ab92d0213db4cac8d1f9d8e762137e1c04a83725b80f3"
+  },
+  "E:\\dsh pr\\woker2\\out\\subai\\M02\\dyn\\B2r_baseline": {
+   "blend": "E:\\dsh pr\\woker2\\out\\subai\\M02\\blend\\B_from_blend1.blend",
+   "blend_sha256": "dd7f6877ee9c8c03c5df7c39236e142e806e9b1c771bc35ac2df05a1cefb192e",
+   "columns": [
+    "frame",
+    "bone",
+    "angle_deg",
+    "rot_x_deg",
+    "rot_y_deg",
+    "rot_z_deg",
+    "parent_delta_deg",
+    "bone_world_delta_deg"
+   ],
+   "point_cache_baked": null,
+   "rows": 4320,
+   "sha256": "c7c1ae9fc4f41f1ab3c37d5421be290631afd20a344c2ea920da03ae34a4d840"
+  },
+  "E:\\dsh pr\\woker2\\out\\subai\\M02\\dyn\\B2r_x07": {
+   "blend": "E:\\dsh pr\\woker2\\out\\subai\\M02\\blend\\B_x07.blend",
+   "blend_sha256": "0ac41163e2e74f0bfa89c597073402bfc8fc10505544abaf741087500a0d2dee",
+   "columns": [
+    "frame",
+    "bone",
+    "angle_deg",
+    "rot_x_deg",
+    "rot_y_deg",
+    "rot_z_deg",
+    "parent_delta_deg",
+    "bone_world_delta_deg"
+   ],
+   "point_cache_baked": null,
+   "rows": 4320,
+   "sha256": "c7c1ae9fc4f41f1ab3c37d5421be290631afd20a344c2ea920da03ae34a4d840"
+  }
+ }
+}

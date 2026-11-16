@@ -1,0 +1,39 @@
+{
+  "reportVersion": 1,
+  "taskId": "2026-11-01-bac",
+  "title": "B 修 bug / A 接 GitHub 源 / C 未开始",
+  "capturedAt": "2026-11-01T20:30:00+08:00",
+  "executor": "furina (dsh desktop 0.2.1-rc.3)",
+  "B_fixes": {
+    "router": { "tickets": "T-0005", "defectsFixed": 10, "selftest": "30/30 PASS", "filesChanged": ["superagent-lite/router.ps1", "superagent-lite/ROUTER.md"] },
+    "watchdog": { "tickets": "T-0006", "defectsFixed": 4, "selftest": "10/10 PASS", "filesChanged": ["superagent-lite/watchdog.ps1"] },
+    "regression": { "watchdogQuiet": "OK", "tickets": "4 done", "threads": 4, "inbox": 0 }
+  },
+  "A_github": {
+    "repo": "zzc235/superagent-playground",
+    "visibility": "private",
+    "defaultBranch": "main",
+    "source": { "repository": "zzc235/superagent-playground", "cli": "C:\\Program Files\\GitHub CLI\\gh.exe", "observeIssues": true },
+    "policy": { "allowed": ["zzc235"], "admission": { "issues": { "listedUnaddressed": "inferred" } } },
+    "setupProblem": null,
+    "health": { "runtime": "ready", "models": "ready", "github": "ready", "relay": "ready", "notice": "ready", "launch": "ready", "delivery": "ready", "assessment": "ready", "reply": "ready", "evals": "ready" },
+    "triggerTest": { "issuesCreated": 2, "received": 0, "filtered": 0, "dropped": 0, "notifications": 0, "verdict": "blocked: single account produces no notifications for its own actions" }
+  },
+  "windowsPatches": [
+    { "file": "src/deployment.ts", "change": "absolute path pattern accepts drive letters" },
+    { "file": "src/policy.ts", "change": "executor directory accepts drive letters" },
+    { "file": "src/app/sessions.ts", "change": "router session restricts to pwsh on win32 instead of bash" }
+  ],
+  "environmentFixes": [
+    "env.exe from Git for Windows added to PATH (deployment probe spawns 'env')",
+    "launcher E:\\dsh-state\\start-superagent.cmd (cwd E:, PATH, dsh --profile superagent --no-open)",
+    "restart helper E:\\dsh-state\\restart-superagent.ps1 (kill, wait 40s for stale lock, start)"
+  ],
+  "C_launcher": "not started (temporary cmd exists)",
+  "untouched": ["~/.claude", "profiles/desktop", "~/.dsh/AGENTS.md", "user's other GitHub repos"],
+  "nextSteps": [
+    "verify repository-level observed stream (rebaseline) or register a dedicated agent account",
+    "write formal PowerShell start/status/stop launcher",
+    "keep the 3 prototype source patches in mind before git pull"
+  ]
+}

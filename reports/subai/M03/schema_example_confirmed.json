@@ -1,0 +1,445 @@
+{
+  "schema_version": "diagnose/1",
+  "taxonomy_version": "F1-F6+R0/1",
+  "tool": "mmdpipe.diagnose",
+  "tool_version": "0.1.0",
+  "generated_at": "2026-11-15T21:19:18+08:00",
+  "experiment_id": "example-f3-confirmed",
+  "input_path": "C:\\示例 目录\\胸口_冻结.blend",
+  "input_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+  "source_type": "blend",
+  "status": "ok",
+  "model": {
+    "name": "synthetic-chest",
+    "version": 2.0,
+    "encoding": null,
+    "bones": 60,
+    "rigids": 30,
+    "joints": 30
+  },
+  "frame_range": {
+    "start": 1,
+    "end": 60,
+    "fps": 24.0,
+    "evidence_mode": "stepped"
+  },
+  "cache": {
+    "is_baked": true,
+    "frame_start": 1,
+    "frame_end": 120
+  },
+  "primary": "F3",
+  "secondary": [],
+  "confidence": "confirmed",
+  "status_detail": {
+    "taxonomy_order": [
+      "F1",
+      "F2",
+      "F3",
+      "F4",
+      "F5",
+      "F6"
+    ],
+    "r0_label": "R0",
+    "out_of_taxonomy": "OUT_OF_TAXONOMY",
+    "confidence_values": [
+      "confirmed",
+      "suspected",
+      "insufficient"
+    ]
+  },
+  "diagnostics": [
+    {
+      "id": "F1",
+      "title": "没 build（约束链缺失）",
+      "matched": false,
+      "confidence": "insufficient",
+      "reason": "骨骼上已有 30 条 COPY_ROTATION/COPY_TRANSFORMS，排除 F1",
+      "score": 0.0,
+      "evidence": [
+        {
+          "key": "blender.mmd_root.is_built",
+          "value": true,
+          "unit": "bool",
+          "compare": "应为 True 才算已建链",
+          "frames": null,
+          "source": "blend"
+        },
+        {
+          "key": "blender.constraints",
+          "value": 30,
+          "unit": "constraint",
+          "compare": ">0 表示约束链存在",
+          "frames": null,
+          "source": "blend"
+        },
+        {
+          "key": "structure.feedback_rigids",
+          "value": 30,
+          "unit": "body",
+          "compare": "mode1/2 会回填骨骼的刚体数",
+          "frames": null,
+          "source": "pmx"
+        }
+      ],
+      "evidence_keys": [
+        "blender.mmd_root.is_built",
+        "blender.constraints",
+        "structure.feedback_rigids"
+      ],
+      "missing_evidence": []
+    },
+    {
+      "id": "F2",
+      "title": "没烘焙（point_cache 未烘焙）",
+      "matched": false,
+      "confidence": "insufficient",
+      "reason": "point_cache.is_baked=True，排除 F2",
+      "score": 0.0,
+      "evidence": [
+        {
+          "key": "blender.point_cache.is_baked",
+          "value": true,
+          "unit": "bool",
+          "compare": "False = 未烘焙",
+          "frames": null,
+          "source": "blend"
+        },
+        {
+          "key": "blender.point_cache.frame_range",
+          "value": [
+            1,
+            120
+          ],
+          "unit": "frame",
+          "compare": null,
+          "frames": {
+            "start": 1,
+            "end": 120
+          },
+          "source": "blend"
+        }
+      ],
+      "evidence_keys": [
+        "blender.point_cache.is_baked",
+        "blender.point_cache.frame_range"
+      ],
+      "missing_evidence": []
+    },
+    {
+      "id": "F3",
+      "title": "硬约束冻结",
+      "matched": true,
+      "confidence": "confirmed",
+      "reason": "1 根骨在父链明显运动（≥5.0°）时相对增量≈0（≤0.50°），且 PMX 有焊接冻结根：硬约束冻结",
+      "score": 3.5,
+      "evidence": [
+        {
+          "key": "structure.frozen_roots",
+          "value": 1,
+          "unit": "joint",
+          "compare": "焊接关节且一侧会回填骨骼",
+          "frames": null,
+          "source": "pmx"
+        },
+        {
+          "key": "structure.frozen_roots.detail",
+          "value": [
+            {
+              "joint": 0,
+              "joint_name": "右胸",
+              "target_body": 24,
+              "target_bone": "右胸",
+              "anchor_body": 6,
+              "anchor_bone": "上半身2",
+              "target_mode": 2,
+              "limit_span_rad": 0.0,
+              "spring_max": 0.0
+            }
+          ],
+          "unit": "joint",
+          "compare": "6 自由度全锁 lower=upper=0",
+          "frames": null,
+          "source": "pmx"
+        },
+        {
+          "key": "structure.frozen_chains",
+          "value": [
+            {
+              "anchor": "上半身2",
+              "bodies": 1
+            }
+          ],
+          "unit": "body",
+          "compare": "被钉住的物理链规模",
+          "frames": null,
+          "source": "pmx"
+        },
+        {
+          "key": "blender.frozen_pairs",
+          "value": 1,
+          "unit": "bone",
+          "compare": "目标相对父链的旋转增量",
+          "frames": null,
+          "source": "blend"
+        },
+        {
+          "key": "blender.frozen_pairs.frozen",
+          "value": [
+            {
+              "bone": "右胸",
+              "parent": "上半身2",
+              "rot_delta_deg": 0.0,
+              "parent_rot_delta_deg": 32.0,
+              "max_angle_deg": 32.0,
+              "is_frozen_candidate": true,
+              "has_physics_constraint": true
+            }
+          ],
+          "unit": "deg",
+          "compare": "目标≤0.50° 而父链≥5.0°",
+          "frames": null,
+          "source": "blend"
+        }
+      ],
+      "evidence_keys": [
+        "structure.frozen_roots",
+        "structure.frozen_roots.detail",
+        "structure.frozen_chains",
+        "blender.frozen_pairs",
+        "blender.frozen_pairs.frozen"
+      ],
+      "missing_evidence": []
+    },
+    {
+      "id": "F4",
+      "title": "零弹簧 + 宽限位",
+      "matched": false,
+      "confidence": "insufficient",
+      "reason": "无零弹簧宽限位单元，排除 F4",
+      "score": 0.0,
+      "evidence": [
+        {
+          "key": "structure.wide_limit_units",
+          "value": 0,
+          "unit": "unit",
+          "compare": "弹簧≤eps 且限位≥1.20 rad",
+          "frames": null,
+          "source": "pmx"
+        },
+        {
+          "key": "blender.unit_angles",
+          "value": 0,
+          "unit": "unit",
+          "compare": "实测最大摆角",
+          "frames": null,
+          "source": "blend"
+        }
+      ],
+      "evidence_keys": [
+        "structure.wide_limit_units",
+        "blender.unit_angles"
+      ],
+      "missing_evidence": []
+    },
+    {
+      "id": "F5",
+      "title": "骨无刚体（覆盖缺口）",
+      "matched": false,
+      "confidence": "insufficient",
+      "reason": "该模型骨—刚体覆盖完整，排除 F5",
+      "score": 0.0,
+      "evidence": [
+        {
+          "key": "coverage.gaps",
+          "value": [],
+          "unit": "row",
+          "compare": "整行/整组无刚体的骨",
+          "frames": null,
+          "source": "pmx"
+        },
+        {
+          "key": "coverage.gap_bones",
+          "value": [],
+          "unit": "bone",
+          "compare": "具体缺失骨名单",
+          "frames": null,
+          "source": "pmx"
+        },
+        {
+          "key": "blender.penetration",
+          "value": [],
+          "unit": "m",
+          "compare": "逐帧穿入深度与穿入骨",
+          "frames": null,
+          "source": "blend"
+        }
+      ],
+      "evidence_keys": [
+        "coverage.gaps",
+        "coverage.gap_bones",
+        "blender.penetration"
+      ],
+      "missing_evidence": []
+    },
+    {
+      "id": "F6",
+      "title": "改了不生效",
+      "matched": false,
+      "confidence": "insufficient",
+      "reason": "没有 A/B 测量文件：F6 固定返回证据不足（需要两次唯一变量对比）",
+      "score": 0.0,
+      "evidence": [],
+      "evidence_keys": [],
+      "missing_evidence": [
+        "ab.differing_fields",
+        "ab.fields_compared",
+        "ab.result_identical",
+        "ab.variable_changed"
+      ]
+    },
+    {
+      "id": "OUT_OF_TAXONOMY",
+      "title": "分类学外（Bullet 初始穿透 R0）",
+      "matched": false,
+      "confidence": "insufficient",
+      "reason": "没有初始穿透证据",
+      "score": 0.0,
+      "evidence": [],
+      "evidence_keys": [],
+      "missing_evidence": []
+    }
+  ],
+  "evidence": {
+    "model": {
+      "name": "synthetic-chest",
+      "version": 2.0,
+      "bones": 60,
+      "rigids": 30,
+      "joints": 30
+    },
+    "structure": {
+      "feedback_rigids": 30,
+      "frozen_roots": [
+        {
+          "joint": 0,
+          "joint_name": "右胸",
+          "target_body": 24,
+          "target_bone": "右胸",
+          "anchor_body": 6,
+          "anchor_bone": "上半身2",
+          "target_mode": 2,
+          "limit_span_rad": 0.0,
+          "spring_max": 0.0
+        }
+      ],
+      "frozen_chains": [
+        {
+          "anchor_bone": "上半身2",
+          "root_body": 24,
+          "bodies": [
+            24
+          ],
+          "bones": [
+            "右胸"
+          ],
+          "body_count": 1,
+          "expansion": "welded_joints_only"
+        }
+      ],
+      "wide_limit_units": [],
+      "mass_available": true
+    },
+    "coverage": {
+      "gaps": [],
+      "sparse_gaps": []
+    },
+    "blender": {
+      "mmd_root": {
+        "is_built": true
+      },
+      "constraints": {
+        "COPY_ROTATION": 30
+      },
+      "point_cache": {
+        "is_baked": true,
+        "frame_start": 1,
+        "frame_end": 120
+      },
+      "frozen_pairs": [
+        {
+          "bone": "右胸",
+          "parent": "上半身2",
+          "rot_delta_deg": 0.0,
+          "parent_rot_delta_deg": 32.0,
+          "max_angle_deg": 32.0,
+          "is_frozen_candidate": true,
+          "has_physics_constraint": true
+        }
+      ],
+      "unit_angles": [],
+      "penetration": []
+    },
+    "cache": {
+      "is_baked": true,
+      "frame_start": 1,
+      "frame_end": 120
+    }
+  },
+  "missing_evidence": [
+    "ab.differing_fields",
+    "ab.fields_compared",
+    "ab.result_identical",
+    "ab.variable_changed"
+  ],
+  "warnings": [
+    "示例数据：用于展示 confirmed 报告的结构，不是实测结论",
+    "阈值 f3_parent_motion_deg=5.000 未标定，相关判据最高只能给 suspected",
+    "阈值 f4_angle_deg=60.000 未标定，相关判据最高只能给 suspected"
+  ],
+  "config": {
+    "schema_version": "diagnose/1",
+    "thresholds": {
+      "spring_zero_eps": {
+        "value": 1e-09,
+        "unit": "rad",
+        "source": "pmx.py Joint.springs_zero 同一口径"
+      },
+      "f3_frozen_deg": {
+        "value": 0.5,
+        "unit": "deg",
+        "source": "项目书 S3 证据① baked_increment2 = 0.00000°"
+      },
+      "f3_parent_motion_deg": {
+        "value": 5.0,
+        "unit": "deg",
+        "source": "未标定（保守下限），待 M04 用门禁数据复核",
+        "calibrated": false
+      },
+      "f4_wide_limit_rad": {
+        "value": 1.2,
+        "unit": "rad",
+        "source": "项目书 S2 根部限位 ±1.5708 rad（±90°）"
+      },
+      "f4_angle_deg": {
+        "value": 60.0,
+        "unit": "deg",
+        "source": "未标定（暂按『接近水平』的保守下限）",
+        "calibrated": false
+      },
+      "f5_gap_ratio": {
+        "value": 0.5,
+        "unit": "row",
+        "source": "S4 第 11 行 11/11 根骨无刚体（实测 ratio=1.0）"
+      },
+      "f6_numeric_eps": {
+        "value": 1e-09,
+        "unit": "raw",
+        "source": "S8 A/B 逐位相同（两次结果完全一样）"
+      }
+    },
+    "f4_calibrated": false,
+    "f3_calibrated": false
+  },
+  "judgment_fingerprint": "c689b07334e359d034fd02fd33ffc54e81906f7ebfa418f084720e98ea7140ff"
+}

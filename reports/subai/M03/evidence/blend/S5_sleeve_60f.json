@@ -1,0 +1,3981 @@
+{
+  "schema_version": "diagnose/1",
+  "taxonomy_version": "F1-F6+R0/1",
+  "tool": "mmdpipe.diagnose",
+  "tool_version": "0.1.0",
+  "generated_at": "2026-11-15T21:17:29+08:00",
+  "experiment_id": "diag-245b01ee55f3",
+  "input_path": "E:\\dsh pr\\woker2\\kafuka_all\\scene.blend",
+  "input_sha256": "3df0e033205955b7c0635ed8e60a6c4df059d9efe42752f88690bfb04ab98977",
+  "source_type": "blend",
+  "status": "ok",
+  "model": {
+    "name": "卡芙卡",
+    "version": 2.0,
+    "encoding": "utf-16-le",
+    "bones": 246,
+    "rigids": 145,
+    "joints": 182
+  },
+  "frame_range": {
+    "start": 1,
+    "end": 60,
+    "fps": 24.0,
+    "evidence_mode": "stepped"
+  },
+  "cache": {
+    "is_baked": false,
+    "frame_start": 1,
+    "frame_end": 833
+  },
+  "primary": "F3",
+  "secondary": [
+    {
+      "id": "F2",
+      "confidence": "confirmed",
+      "reason": "point_cache.is_baked=False，缓存范围 f1–f833 未烘焙：拖时间轴不动、播放才动"
+    },
+    {
+      "id": "F5",
+      "confidence": "suspected",
+      "reason": "3 处整行骨无刚体，但没有局部穿模证据与之对应"
+    },
+    {
+      "id": "F4",
+      "confidence": "suspected",
+      "reason": "存在零弹簧宽限位单元，但实测摆角未达 60.0°"
+    }
+  ],
+  "confidence": "confirmed",
+  "status_detail": {
+    "taxonomy_order": [
+      "F1",
+      "F2",
+      "F3",
+      "F4",
+      "F5",
+      "F6"
+    ],
+    "r0_label": "R0",
+    "out_of_taxonomy": "OUT_OF_TAXONOMY",
+    "confidence_values": [
+      "confirmed",
+      "suspected",
+      "insufficient"
+    ]
+  },
+  "diagnostics": [
+    {
+      "id": "F1",
+      "title": "没 build（约束链缺失）",
+      "matched": false,
+      "confidence": "insufficient",
+      "reason": "骨骼上已有 138 条 COPY_ROTATION/COPY_TRANSFORMS，排除 F1",
+      "score": 0.0,
+      "evidence": [
+        {
+          "key": "blender.mmd_root.is_built",
+          "value": true,
+          "unit": "bool",
+          "compare": "应为 True 才算已建链",
+          "frames": null,
+          "source": "blend"
+        },
+        {
+          "key": "blender.constraints",
+          "value": 138,
+          "unit": "constraint",
+          "compare": ">0 表示约束链存在",
+          "frames": null,
+          "source": "blend"
+        },
+        {
+          "key": "structure.feedback_rigids",
+          "value": 121,
+          "unit": "body",
+          "compare": "mode1/2 会回填骨骼的刚体数",
+          "frames": null,
+          "source": "pmx"
+        }
+      ],
+      "evidence_keys": [
+        "blender.mmd_root.is_built",
+        "blender.constraints",
+        "structure.feedback_rigids"
+      ],
+      "missing_evidence": []
+    },
+    {
+      "id": "F2",
+      "title": "没烘焙（point_cache 未烘焙）",
+      "matched": true,
+      "confidence": "confirmed",
+      "reason": "point_cache.is_baked=False，缓存范围 f1–f833 未烘焙：拖时间轴不动、播放才动",
+      "score": 3.0,
+      "evidence": [
+        {
+          "key": "blender.point_cache.is_baked",
+          "value": false,
+          "unit": "bool",
+          "compare": "False = 未烘焙",
+          "frames": null,
+          "source": "blend"
+        },
+        {
+          "key": "blender.point_cache.frame_range",
+          "value": [
+            1,
+            833
+          ],
+          "unit": "frame",
+          "compare": null,
+          "frames": {
+            "start": 1,
+            "end": 833
+          },
+          "source": "blend"
+        }
+      ],
+      "evidence_keys": [
+        "blender.point_cache.is_baked",
+        "blender.point_cache.frame_range"
+      ],
+      "missing_evidence": []
+    },
+    {
+      "id": "F3",
+      "title": "硬约束冻结",
+      "matched": true,
+      "confidence": "confirmed",
+      "reason": "16 根骨在父链明显运动（≥5.0°）时相对增量≈0（≤0.50°），且 PMX 有焊接冻结根：硬约束冻结",
+      "score": 3.5,
+      "evidence": [
+        {
+          "key": "structure.frozen_roots",
+          "value": 22,
+          "unit": "joint",
+          "compare": "焊接关节且一侧会回填骨骼",
+          "frames": null,
+          "source": "pmx"
+        },
+        {
+          "key": "structure.frozen_roots.detail",
+          "value": [
+            {
+              "joint": 50,
+              "joint_name": "左胸_後1",
+              "target_body": 69,
+              "target_bone": "",
+              "bone_bound": false,
+              "anchor_body": 68,
+              "anchor_bone": "左胸変形",
+              "target_mode": 1,
+              "limit_span_rad": 0.0,
+              "spring_max": 0.0
+            },
+            {
+              "joint": 53,
+              "joint_name": "左胸_前1",
+              "target_body": 71,
+              "target_bone": "",
+              "bone_bound": false,
+              "anchor_body": 68,
+              "anchor_bone": "左胸変形",
+              "target_mode": 1,
+              "limit_span_rad": 0.0,
+              "spring_max": 0.0
+            },
+            {
+              "joint": 56,
+              "joint_name": "左胸_前後1",
+              "target_body": 72,
+              "target_bone": "",
+              "bone_bound": false,
+              "anchor_body": 68,
+              "anchor_bone": "左胸変形",
+              "target_mode": 1,
+              "limit_span_rad": 0.0,
+              "spring_max": 0.0
+            },
+            {
+              "joint": 59,
+              "joint_name": "右胸_後1",
+              "target_body": 75,
+              "target_bone": "",
+              "bone_bound": false,
+              "anchor_body": 74,
+              "anchor_bone": "右胸変形",
+              "target_mode": 1,
+              "limit_span_rad": 0.0,
+              "spring_max": 0.0
+            },
+            {
+              "joint": 62,
+              "joint_name": "右胸_前1",
+              "target_body": 77,
+              "target_bone": "",
+              "bone_bound": false,
+              "anchor_body": 74,
+              "anchor_bone": "右胸変形",
+              "target_mode": 1,
+              "limit_span_rad": 0.0,
+              "spring_max": 0.0
+            },
+            {
+              "joint": 65,
+              "joint_name": "右胸_前後1",
+              "target_body": 78,
+              "target_bone": "",
+              "bone_bound": false,
+              "anchor_body": 74,
+              "anchor_bone": "右胸変形",
+              "target_mode": 1,
+              "limit_span_rad": 0.0,
+              "spring_max": 0.0
+            },
+            {
+              "joint": 69,
+              "joint_name": "zxk__1",
+              "target_body": 81,
+              "target_bone": "zxk__1",
+              "bone_bound": true,
+              "anchor_body": 4,
+              "anchor_bone": "右ひじ",
+              "target_mode": 1,
+              "limit_span_rad": 0.0,
+              "spring_max": 0.0
+            },
+            {
+              "joint": 70,
+              "joint_name": "zxk__2",
+              "target_body": 82,
+              "target_bone": "zxk__2",
+              "bone_bound": true,
+              "anchor_body": 4,
+              "anchor_bone": "右ひじ",
+              "target_mode": 1,
+              "limit_span_rad": 0.0,
+              "spring_max": 0.0
+            }
+          ],
+          "unit": "joint",
+          "compare": "6 自由度全锁 lower=upper=0",
+          "frames": null,
+          "source": "pmx"
+        },
+        {
+          "key": "structure.frozen_chains",
+          "value": [
+            {
+              "anchor": "左胸変形",
+              "bodies": 4
+            },
+            {
+              "anchor": "左胸変形",
+              "bodies": 4
+            },
+            {
+              "anchor": "左胸変形",
+              "bodies": 4
+            },
+            {
+              "anchor": "右胸変形",
+              "bodies": 4
+            },
+            {
+              "anchor": "右胸変形",
+              "bodies": 4
+            },
+            {
+              "anchor": "右胸変形",
+              "bodies": 4
+            },
+            {
+              "anchor": "右ひじ",
+              "bodies": 25
+            },
+            {
+              "anchor": "右ひじ",
+              "bodies": 25
+            },
+            {
+              "anchor": "右ひじ",
+              "bodies": 25
+            },
+            {
+              "anchor": "右ひじ",
+              "bodies": 25
+            },
+            {
+              "anchor": "右ひじ",
+              "bodies": 25
+            },
+            {
+              "anchor": "右ひじ",
+              "bodies": 25
+            },
+            {
+              "anchor": "右ひじ",
+              "bodies": 25
+            },
+            {
+              "anchor": "右ひじ",
+              "bodies": 25
+            },
+            {
+              "anchor": "左ひじ",
+              "bodies": 25
+            },
+            {
+              "anchor": "左ひじ",
+              "bodies": 25
+            },
+            {
+              "anchor": "左ひじ",
+              "bodies": 25
+            },
+            {
+              "anchor": "左ひじ",
+              "bodies": 25
+            },
+            {
+              "anchor": "左ひじ",
+              "bodies": 25
+            },
+            {
+              "anchor": "左ひじ",
+              "bodies": 25
+            },
+            {
+              "anchor": "左ひじ",
+              "bodies": 25
+            },
+            {
+              "anchor": "左ひじ",
+              "bodies": 25
+            }
+          ],
+          "unit": "body",
+          "compare": "被钉住的物理链规模",
+          "frames": null,
+          "source": "pmx"
+        },
+        {
+          "key": "blender.frozen_pairs",
+          "value": 17,
+          "unit": "bone",
+          "compare": "目标相对父链的旋转增量",
+          "frames": null,
+          "source": "blend"
+        },
+        {
+          "key": "structure.frozen_roots.unbound",
+          "value": 6,
+          "unit": "joint",
+          "compare": "焊接但没绑骨的碰撞体，不参与 F3",
+          "frames": null,
+          "source": "pmx"
+        },
+        {
+          "key": "blender.frozen_pairs.frozen",
+          "value": [
+            {
+              "bone": "xk_0_0",
+              "parent": "ひじ.L",
+              "rot_delta_deg": -0.0,
+              "parent_rot_delta_deg": 66.4123,
+              "max_angle_deg": 152.414,
+              "is_frozen_candidate": true,
+              "has_physics_constraint": true
+            },
+            {
+              "bone": "xk_0_1",
+              "parent": "ひじ.L",
+              "rot_delta_deg": 0.0,
+              "parent_rot_delta_deg": 66.4123,
+              "max_angle_deg": 152.414,
+              "is_frozen_candidate": true,
+              "has_physics_constraint": true
+            },
+            {
+              "bone": "xk_0_2",
+              "parent": "ひじ.L",
+              "rot_delta_deg": 0.0,
+              "parent_rot_delta_deg": 66.4123,
+              "max_angle_deg": 152.414,
+              "is_frozen_candidate": true,
+              "has_physics_constraint": true
+            },
+            {
+              "bone": "xk_0_3",
+              "parent": "ひじ.L",
+              "rot_delta_deg": 0.0,
+              "parent_rot_delta_deg": 66.4123,
+              "max_angle_deg": 152.414,
+              "is_frozen_candidate": true,
+              "has_physics_constraint": true
+            },
+            {
+              "bone": "xk_0_4",
+              "parent": "ひじ.L",
+              "rot_delta_deg": 0.0,
+              "parent_rot_delta_deg": 66.4123,
+              "max_angle_deg": 152.414,
+              "is_frozen_candidate": true,
+              "has_physics_constraint": true
+            },
+            {
+              "bone": "xk_0_5",
+              "parent": "ひじ.L",
+              "rot_delta_deg": 0.0,
+              "parent_rot_delta_deg": 66.4123,
+              "max_angle_deg": 152.414,
+              "is_frozen_candidate": true,
+              "has_physics_constraint": true
+            },
+            {
+              "bone": "xk_0_6",
+              "parent": "ひじ.L",
+              "rot_delta_deg": -0.0,
+              "parent_rot_delta_deg": 66.4123,
+              "max_angle_deg": 152.414,
+              "is_frozen_candidate": true,
+              "has_physics_constraint": true
+            },
+            {
+              "bone": "xk_0_7",
+              "parent": "ひじ.L",
+              "rot_delta_deg": -0.0,
+              "parent_rot_delta_deg": 66.4123,
+              "max_angle_deg": 152.414,
+              "is_frozen_candidate": true,
+              "has_physics_constraint": true
+            }
+          ],
+          "unit": "deg",
+          "compare": "目标≤0.50° 而父链≥5.0°",
+          "frames": null,
+          "source": "blend"
+        }
+      ],
+      "evidence_keys": [
+        "structure.frozen_roots",
+        "structure.frozen_roots.detail",
+        "structure.frozen_chains",
+        "blender.frozen_pairs",
+        "structure.frozen_roots.unbound",
+        "blender.frozen_pairs.frozen"
+      ],
+      "missing_evidence": []
+    },
+    {
+      "id": "F4",
+      "title": "零弹簧 + 宽限位",
+      "matched": true,
+      "confidence": "suspected",
+      "reason": "存在零弹簧宽限位单元，但实测摆角未达 60.0°",
+      "score": 1.5,
+      "evidence": [
+        {
+          "key": "structure.wide_limit_units",
+          "value": 1,
+          "unit": "unit",
+          "compare": "弹簧≤eps 且限位≥1.20 rad",
+          "frames": null,
+          "source": "pmx"
+        },
+        {
+          "key": "structure.wide_limit_units.detail",
+          "value": [
+            {
+              "uid": 144,
+              "anchor_bone": "右ひざD",
+              "bodies": 2,
+              "joints": 1,
+              "modes": {
+                "0": 1,
+                "1": 1
+              },
+              "feedback_bodies": 1,
+              "spring_max": 0.0,
+              "limit_span_rad": 1.570796,
+              "welded_joints": 0,
+              "flex_joints": 1,
+              "cycle_rank": 0,
+              "zero_spring": true,
+              "wide_limit": true
+            }
+          ],
+          "unit": "unit",
+          "compare": "零弹簧 + 宽限位",
+          "frames": null,
+          "source": "pmx"
+        },
+        {
+          "key": "blender.unit_angles",
+          "value": 1,
+          "unit": "unit",
+          "compare": "实测最大摆角",
+          "frames": null,
+          "source": "blend"
+        },
+        {
+          "key": "blender.rigid_mass_max_kg",
+          "value": 10.0,
+          "unit": "kg",
+          "compare": "根部质量作为辅助证据（非判据）",
+          "frames": null,
+          "source": "blend"
+        }
+      ],
+      "evidence_keys": [
+        "structure.wide_limit_units",
+        "structure.wide_limit_units.detail",
+        "blender.unit_angles",
+        "blender.rigid_mass_max_kg"
+      ],
+      "missing_evidence": []
+    },
+    {
+      "id": "F5",
+      "title": "骨无刚体（覆盖缺口）",
+      "matched": true,
+      "confidence": "suspected",
+      "reason": "3 处整行骨无刚体，但没有局部穿模证据与之对应",
+      "score": 2.0,
+      "evidence": [
+        {
+          "key": "coverage.gaps",
+          "value": [
+            {
+              "family": "xj",
+              "row": 6,
+              "bones_total": 1,
+              "bones_missing": [
+                "xj_6_1"
+              ],
+              "missing_count": 1,
+              "missing_ratio": 1.0
+            },
+            {
+              "family": "xk",
+              "row": 3,
+              "bones_total": 8,
+              "bones_missing": [
+                "xk_3_0",
+                "xk_3_1",
+                "xk_3_2",
+                "xk_3_3",
+                "xk_3_4",
+                "xk_3_5",
+                "xk_3_6",
+                "xk_3_7"
+              ],
+              "missing_count": 8,
+              "missing_ratio": 1.0
+            },
+            {
+              "family": "zb",
+              "row": 6,
+              "bones_total": 1,
+              "bones_missing": [
+                "zb_6_1"
+              ],
+              "missing_count": 1,
+              "missing_ratio": 1.0
+            }
+          ],
+          "unit": "row",
+          "compare": "整行/整组无刚体的骨",
+          "frames": null,
+          "source": "pmx"
+        },
+        {
+          "key": "coverage.gap_bones",
+          "value": [
+            "xj_6_1",
+            "xk_3_0",
+            "xk_3_1",
+            "xk_3_2",
+            "xk_3_3",
+            "xk_3_4",
+            "xk_3_5",
+            "xk_3_6",
+            "xk_3_7",
+            "zb_6_1"
+          ],
+          "unit": "bone",
+          "compare": "具体缺失骨名单",
+          "frames": null,
+          "source": "pmx"
+        }
+      ],
+      "evidence_keys": [
+        "coverage.gaps",
+        "coverage.gap_bones"
+      ],
+      "missing_evidence": [
+        "blender.penetration"
+      ]
+    },
+    {
+      "id": "F6",
+      "title": "改了不生效",
+      "matched": false,
+      "confidence": "insufficient",
+      "reason": "没有 A/B 测量文件：F6 固定返回证据不足（需要两次唯一变量对比）",
+      "score": 0.0,
+      "evidence": [],
+      "evidence_keys": [],
+      "missing_evidence": [
+        "ab.differing_fields",
+        "ab.fields_compared",
+        "ab.result_identical",
+        "ab.variable_changed"
+      ]
+    },
+    {
+      "id": "OUT_OF_TAXONOMY",
+      "title": "分类学外（Bullet 初始穿透 R0）",
+      "matched": false,
+      "confidence": "insufficient",
+      "reason": "没有初始穿透证据",
+      "score": 0.0,
+      "evidence": [],
+      "evidence_keys": [],
+      "missing_evidence": []
+    }
+  ],
+  "evidence": {
+    "source": {
+      "type": "blend",
+      "path": "E:\\dsh pr\\woker2\\kafuka_all\\scene.blend",
+      "sha256_before": "3df0e033205955b7c0635ed8e60a6c4df059d9efe42752f88690bfb04ab98977",
+      "sha256_after": "3df0e033205955b7c0635ed8e60a6c4df059d9efe42752f88690bfb04ab98977"
+    },
+    "model": {
+      "name": "卡芙卡",
+      "version": 2.0,
+      "encoding": "utf-16-le",
+      "vertices": 14825,
+      "materials": 23,
+      "morphs": 67,
+      "bones": 246,
+      "rigids": 145,
+      "joints": 182
+    },
+    "structure": {
+      "rigid_modes": {
+        "0": 24,
+        "1": 119,
+        "2": 2
+      },
+      "feedback_rigids": 121,
+      "joints_total": 182,
+      "joints_zero_spring": 182,
+      "joints_zero_limit": 57,
+      "welded_joints": 57,
+      "max_limit_span_rad": 1.570796,
+      "wide_limit_joints": 1,
+      "frozen_roots": [
+        {
+          "joint": 50,
+          "joint_name": "左胸_後1",
+          "target_body": 69,
+          "target_bone": "",
+          "bone_bound": false,
+          "anchor_body": 68,
+          "anchor_bone": "左胸変形",
+          "target_mode": 1,
+          "limit_span_rad": 0.0,
+          "spring_max": 0.0
+        },
+        {
+          "joint": 53,
+          "joint_name": "左胸_前1",
+          "target_body": 71,
+          "target_bone": "",
+          "bone_bound": false,
+          "anchor_body": 68,
+          "anchor_bone": "左胸変形",
+          "target_mode": 1,
+          "limit_span_rad": 0.0,
+          "spring_max": 0.0
+        },
+        {
+          "joint": 56,
+          "joint_name": "左胸_前後1",
+          "target_body": 72,
+          "target_bone": "",
+          "bone_bound": false,
+          "anchor_body": 68,
+          "anchor_bone": "左胸変形",
+          "target_mode": 1,
+          "limit_span_rad": 0.0,
+          "spring_max": 0.0
+        },
+        {
+          "joint": 59,
+          "joint_name": "右胸_後1",
+          "target_body": 75,
+          "target_bone": "",
+          "bone_bound": false,
+          "anchor_body": 74,
+          "anchor_bone": "右胸変形",
+          "target_mode": 1,
+          "limit_span_rad": 0.0,
+          "spring_max": 0.0
+        },
+        {
+          "joint": 62,
+          "joint_name": "右胸_前1",
+          "target_body": 77,
+          "target_bone": "",
+          "bone_bound": false,
+          "anchor_body": 74,
+          "anchor_bone": "右胸変形",
+          "target_mode": 1,
+          "limit_span_rad": 0.0,
+          "spring_max": 0.0
+        },
+        {
+          "joint": 65,
+          "joint_name": "右胸_前後1",
+          "target_body": 78,
+          "target_bone": "",
+          "bone_bound": false,
+          "anchor_body": 74,
+          "anchor_bone": "右胸変形",
+          "target_mode": 1,
+          "limit_span_rad": 0.0,
+          "spring_max": 0.0
+        },
+        {
+          "joint": 69,
+          "joint_name": "zxk__1",
+          "target_body": 81,
+          "target_bone": "zxk__1",
+          "bone_bound": true,
+          "anchor_body": 4,
+          "anchor_bone": "右ひじ",
+          "target_mode": 1,
+          "limit_span_rad": 0.0,
+          "spring_max": 0.0
+        },
+        {
+          "joint": 70,
+          "joint_name": "zxk__2",
+          "target_body": 82,
+          "target_bone": "zxk__2",
+          "bone_bound": true,
+          "anchor_body": 4,
+          "anchor_bone": "右ひじ",
+          "target_mode": 1,
+          "limit_span_rad": 0.0,
+          "spring_max": 0.0
+        },
+        {
+          "joint": 71,
+          "joint_name": "zxk__3",
+          "target_body": 83,
+          "target_bone": "zxk__3",
+          "bone_bound": true,
+          "anchor_body": 4,
+          "anchor_bone": "右ひじ",
+          "target_mode": 1,
+          "limit_span_rad": 0.0,
+          "spring_max": 0.0
+        },
+        {
+          "joint": 72,
+          "joint_name": "zxk__4",
+          "target_body": 84,
+          "target_bone": "zxk__4",
+          "bone_bound": true,
+          "anchor_body": 4,
+          "anchor_bone": "右ひじ",
+          "target_mode": 1,
+          "limit_span_rad": 0.0,
+          "spring_max": 0.0
+        },
+        {
+          "joint": 73,
+          "joint_name": "zxk__5",
+          "target_body": 85,
+          "target_bone": "zxk__5",
+          "bone_bound": true,
+          "anchor_body": 4,
+          "anchor_bone": "右ひじ",
+          "target_mode": 1,
+          "limit_span_rad": 0.0,
+          "spring_max": 0.0
+        },
+        {
+          "joint": 74,
+          "joint_name": "zxk__6",
+          "target_body": 86,
+          "target_bone": "zxk__6",
+          "bone_bound": true,
+          "anchor_body": 4,
+          "anchor_bone": "右ひじ",
+          "target_mode": 1,
+          "limit_span_rad": 0.0,
+          "spring_max": 0.0
+        },
+        {
+          "joint": 75,
+          "joint_name": "zxk__7",
+          "target_body": 87,
+          "target_bone": "zxk__7",
+          "bone_bound": true,
+          "anchor_body": 4,
+          "anchor_bone": "右ひじ",
+          "target_mode": 1,
+          "limit_span_rad": 0.0,
+          "spring_max": 0.0
+        },
+        {
+          "joint": 76,
+          "joint_name": "zxk__8",
+          "target_body": 88,
+          "target_bone": "zxk__8",
+          "bone_bound": true,
+          "anchor_body": 4,
+          "anchor_bone": "右ひじ",
+          "target_mode": 1,
+          "limit_span_rad": 0.0,
+          "spring_max": 0.0
+        },
+        {
+          "joint": 117,
+          "joint_name": "xk_0_0",
+          "target_body": 105,
+          "target_bone": "xk_0_0",
+          "bone_bound": true,
+          "anchor_body": 7,
+          "anchor_bone": "左ひじ",
+          "target_mode": 1,
+          "limit_span_rad": 0.0,
+          "spring_max": 0.0
+        },
+        {
+          "joint": 118,
+          "joint_name": "xk_0_1",
+          "target_body": 106,
+          "target_bone": "xk_0_1",
+          "bone_bound": true,
+          "anchor_body": 7,
+          "anchor_bone": "左ひじ",
+          "target_mode": 1,
+          "limit_span_rad": 0.0,
+          "spring_max": 0.0
+        },
+        {
+          "joint": 119,
+          "joint_name": "xk_0_2",
+          "target_body": 107,
+          "target_bone": "xk_0_2",
+          "bone_bound": true,
+          "anchor_body": 7,
+          "anchor_bone": "左ひじ",
+          "target_mode": 1,
+          "limit_span_rad": 0.0,
+          "spring_max": 0.0
+        },
+        {
+          "joint": 120,
+          "joint_name": "xk_0_3",
+          "target_body": 108,
+          "target_bone": "xk_0_3",
+          "bone_bound": true,
+          "anchor_body": 7,
+          "anchor_bone": "左ひじ",
+          "target_mode": 1,
+          "limit_span_rad": 0.0,
+          "spring_max": 0.0
+        },
+        {
+          "joint": 121,
+          "joint_name": "xk_0_4",
+          "target_body": 109,
+          "target_bone": "xk_0_4",
+          "bone_bound": true,
+          "anchor_body": 7,
+          "anchor_bone": "左ひじ",
+          "target_mode": 1,
+          "limit_span_rad": 0.0,
+          "spring_max": 0.0
+        },
+        {
+          "joint": 122,
+          "joint_name": "xk_0_5",
+          "target_body": 110,
+          "target_bone": "xk_0_5",
+          "bone_bound": true,
+          "anchor_body": 7,
+          "anchor_bone": "左ひじ",
+          "target_mode": 1,
+          "limit_span_rad": 0.0,
+          "spring_max": 0.0
+        },
+        {
+          "joint": 123,
+          "joint_name": "xk_0_6",
+          "target_body": 111,
+          "target_bone": "xk_0_6",
+          "bone_bound": true,
+          "anchor_body": 7,
+          "anchor_bone": "左ひじ",
+          "target_mode": 1,
+          "limit_span_rad": 0.0,
+          "spring_max": 0.0
+        },
+        {
+          "joint": 124,
+          "joint_name": "xk_0_7",
+          "target_body": 112,
+          "target_bone": "xk_0_7",
+          "bone_bound": true,
+          "anchor_body": 7,
+          "anchor_bone": "左ひじ",
+          "target_mode": 1,
+          "limit_span_rad": 0.0,
+          "spring_max": 0.0
+        }
+      ],
+      "frozen_chains": [
+        {
+          "anchor_bone": "左胸変形",
+          "root_body": 69,
+          "bodies": [
+            68,
+            69,
+            71,
+            72
+          ],
+          "bones": [
+            "左胸変形",
+            "",
+            "",
+            ""
+          ],
+          "body_count": 4,
+          "expansion": "welded_joints_only"
+        },
+        {
+          "anchor_bone": "左胸変形",
+          "root_body": 71,
+          "bodies": [
+            68,
+            69,
+            71,
+            72
+          ],
+          "bones": [
+            "左胸変形",
+            "",
+            "",
+            ""
+          ],
+          "body_count": 4,
+          "expansion": "welded_joints_only"
+        },
+        {
+          "anchor_bone": "左胸変形",
+          "root_body": 72,
+          "bodies": [
+            68,
+            69,
+            71,
+            72
+          ],
+          "bones": [
+            "左胸変形",
+            "",
+            "",
+            ""
+          ],
+          "body_count": 4,
+          "expansion": "welded_joints_only"
+        },
+        {
+          "anchor_bone": "右胸変形",
+          "root_body": 75,
+          "bodies": [
+            74,
+            75,
+            77,
+            78
+          ],
+          "bones": [
+            "右胸変形",
+            "",
+            "",
+            ""
+          ],
+          "body_count": 4,
+          "expansion": "welded_joints_only"
+        },
+        {
+          "anchor_bone": "右胸変形",
+          "root_body": 77,
+          "bodies": [
+            74,
+            75,
+            77,
+            78
+          ],
+          "bones": [
+            "右胸変形",
+            "",
+            "",
+            ""
+          ],
+          "body_count": 4,
+          "expansion": "welded_joints_only"
+        },
+        {
+          "anchor_bone": "右胸変形",
+          "root_body": 78,
+          "bodies": [
+            74,
+            75,
+            77,
+            78
+          ],
+          "bones": [
+            "右胸変形",
+            "",
+            "",
+            ""
+          ],
+          "body_count": 4,
+          "expansion": "welded_joints_only"
+        },
+        {
+          "anchor_bone": "右ひじ",
+          "root_body": 81,
+          "bodies": [
+            4,
+            81,
+            82,
+            83,
+            84,
+            85,
+            86,
+            87,
+            88,
+            89,
+            90,
+            91,
+            92,
+            93,
+            94,
+            95,
+            96,
+            97,
+            98,
+            99,
+            100,
+            101,
+            102,
+            103,
+            104
+          ],
+          "bones": [
+            "右ひじ",
+            "zxk__1",
+            "zxk__2",
+            "zxk__3",
+            "zxk__4",
+            "zxk__5",
+            "zxk__6",
+            "zxk__7",
+            "zxk__8",
+            "zxk__9",
+            "zxk__10",
+            "zxk__11",
+            "zxk__12",
+            "zxk__13",
+            "zxk__14",
+            "zxk__15",
+            "zxk__16",
+            "zxk__17",
+            "zxk__18",
+            "zxk__19",
+            "zxk__20",
+            "zxk__21",
+            "zxk__22",
+            "zxk__23",
+            "zxk__24"
+          ],
+          "body_count": 25,
+          "expansion": "welded_joints_only"
+        },
+        {
+          "anchor_bone": "右ひじ",
+          "root_body": 82,
+          "bodies": [
+            4,
+            81,
+            82,
+            83,
+            84,
+            85,
+            86,
+            87,
+            88,
+            89,
+            90,
+            91,
+            92,
+            93,
+            94,
+            95,
+            96,
+            97,
+            98,
+            99,
+            100,
+            101,
+            102,
+            103,
+            104
+          ],
+          "bones": [
+            "右ひじ",
+            "zxk__1",
+            "zxk__2",
+            "zxk__3",
+            "zxk__4",
+            "zxk__5",
+            "zxk__6",
+            "zxk__7",
+            "zxk__8",
+            "zxk__9",
+            "zxk__10",
+            "zxk__11",
+            "zxk__12",
+            "zxk__13",
+            "zxk__14",
+            "zxk__15",
+            "zxk__16",
+            "zxk__17",
+            "zxk__18",
+            "zxk__19",
+            "zxk__20",
+            "zxk__21",
+            "zxk__22",
+            "zxk__23",
+            "zxk__24"
+          ],
+          "body_count": 25,
+          "expansion": "welded_joints_only"
+        },
+        {
+          "anchor_bone": "右ひじ",
+          "root_body": 83,
+          "bodies": [
+            4,
+            81,
+            82,
+            83,
+            84,
+            85,
+            86,
+            87,
+            88,
+            89,
+            90,
+            91,
+            92,
+            93,
+            94,
+            95,
+            96,
+            97,
+            98,
+            99,
+            100,
+            101,
+            102,
+            103,
+            104
+          ],
+          "bones": [
+            "右ひじ",
+            "zxk__1",
+            "zxk__2",
+            "zxk__3",
+            "zxk__4",
+            "zxk__5",
+            "zxk__6",
+            "zxk__7",
+            "zxk__8",
+            "zxk__9",
+            "zxk__10",
+            "zxk__11",
+            "zxk__12",
+            "zxk__13",
+            "zxk__14",
+            "zxk__15",
+            "zxk__16",
+            "zxk__17",
+            "zxk__18",
+            "zxk__19",
+            "zxk__20",
+            "zxk__21",
+            "zxk__22",
+            "zxk__23",
+            "zxk__24"
+          ],
+          "body_count": 25,
+          "expansion": "welded_joints_only"
+        },
+        {
+          "anchor_bone": "右ひじ",
+          "root_body": 84,
+          "bodies": [
+            4,
+            81,
+            82,
+            83,
+            84,
+            85,
+            86,
+            87,
+            88,
+            89,
+            90,
+            91,
+            92,
+            93,
+            94,
+            95,
+            96,
+            97,
+            98,
+            99,
+            100,
+            101,
+            102,
+            103,
+            104
+          ],
+          "bones": [
+            "右ひじ",
+            "zxk__1",
+            "zxk__2",
+            "zxk__3",
+            "zxk__4",
+            "zxk__5",
+            "zxk__6",
+            "zxk__7",
+            "zxk__8",
+            "zxk__9",
+            "zxk__10",
+            "zxk__11",
+            "zxk__12",
+            "zxk__13",
+            "zxk__14",
+            "zxk__15",
+            "zxk__16",
+            "zxk__17",
+            "zxk__18",
+            "zxk__19",
+            "zxk__20",
+            "zxk__21",
+            "zxk__22",
+            "zxk__23",
+            "zxk__24"
+          ],
+          "body_count": 25,
+          "expansion": "welded_joints_only"
+        },
+        {
+          "anchor_bone": "右ひじ",
+          "root_body": 85,
+          "bodies": [
+            4,
+            81,
+            82,
+            83,
+            84,
+            85,
+            86,
+            87,
+            88,
+            89,
+            90,
+            91,
+            92,
+            93,
+            94,
+            95,
+            96,
+            97,
+            98,
+            99,
+            100,
+            101,
+            102,
+            103,
+            104
+          ],
+          "bones": [
+            "右ひじ",
+            "zxk__1",
+            "zxk__2",
+            "zxk__3",
+            "zxk__4",
+            "zxk__5",
+            "zxk__6",
+            "zxk__7",
+            "zxk__8",
+            "zxk__9",
+            "zxk__10",
+            "zxk__11",
+            "zxk__12",
+            "zxk__13",
+            "zxk__14",
+            "zxk__15",
+            "zxk__16",
+            "zxk__17",
+            "zxk__18",
+            "zxk__19",
+            "zxk__20",
+            "zxk__21",
+            "zxk__22",
+            "zxk__23",
+            "zxk__24"
+          ],
+          "body_count": 25,
+          "expansion": "welded_joints_only"
+        },
+        {
+          "anchor_bone": "右ひじ",
+          "root_body": 86,
+          "bodies": [
+            4,
+            81,
+            82,
+            83,
+            84,
+            85,
+            86,
+            87,
+            88,
+            89,
+            90,
+            91,
+            92,
+            93,
+            94,
+            95,
+            96,
+            97,
+            98,
+            99,
+            100,
+            101,
+            102,
+            103,
+            104
+          ],
+          "bones": [
+            "右ひじ",
+            "zxk__1",
+            "zxk__2",
+            "zxk__3",
+            "zxk__4",
+            "zxk__5",
+            "zxk__6",
+            "zxk__7",
+            "zxk__8",
+            "zxk__9",
+            "zxk__10",
+            "zxk__11",
+            "zxk__12",
+            "zxk__13",
+            "zxk__14",
+            "zxk__15",
+            "zxk__16",
+            "zxk__17",
+            "zxk__18",
+            "zxk__19",
+            "zxk__20",
+            "zxk__21",
+            "zxk__22",
+            "zxk__23",
+            "zxk__24"
+          ],
+          "body_count": 25,
+          "expansion": "welded_joints_only"
+        },
+        {
+          "anchor_bone": "右ひじ",
+          "root_body": 87,
+          "bodies": [
+            4,
+            81,
+            82,
+            83,
+            84,
+            85,
+            86,
+            87,
+            88,
+            89,
+            90,
+            91,
+            92,
+            93,
+            94,
+            95,
+            96,
+            97,
+            98,
+            99,
+            100,
+            101,
+            102,
+            103,
+            104
+          ],
+          "bones": [
+            "右ひじ",
+            "zxk__1",
+            "zxk__2",
+            "zxk__3",
+            "zxk__4",
+            "zxk__5",
+            "zxk__6",
+            "zxk__7",
+            "zxk__8",
+            "zxk__9",
+            "zxk__10",
+            "zxk__11",
+            "zxk__12",
+            "zxk__13",
+            "zxk__14",
+            "zxk__15",
+            "zxk__16",
+            "zxk__17",
+            "zxk__18",
+            "zxk__19",
+            "zxk__20",
+            "zxk__21",
+            "zxk__22",
+            "zxk__23",
+            "zxk__24"
+          ],
+          "body_count": 25,
+          "expansion": "welded_joints_only"
+        },
+        {
+          "anchor_bone": "右ひじ",
+          "root_body": 88,
+          "bodies": [
+            4,
+            81,
+            82,
+            83,
+            84,
+            85,
+            86,
+            87,
+            88,
+            89,
+            90,
+            91,
+            92,
+            93,
+            94,
+            95,
+            96,
+            97,
+            98,
+            99,
+            100,
+            101,
+            102,
+            103,
+            104
+          ],
+          "bones": [
+            "右ひじ",
+            "zxk__1",
+            "zxk__2",
+            "zxk__3",
+            "zxk__4",
+            "zxk__5",
+            "zxk__6",
+            "zxk__7",
+            "zxk__8",
+            "zxk__9",
+            "zxk__10",
+            "zxk__11",
+            "zxk__12",
+            "zxk__13",
+            "zxk__14",
+            "zxk__15",
+            "zxk__16",
+            "zxk__17",
+            "zxk__18",
+            "zxk__19",
+            "zxk__20",
+            "zxk__21",
+            "zxk__22",
+            "zxk__23",
+            "zxk__24"
+          ],
+          "body_count": 25,
+          "expansion": "welded_joints_only"
+        },
+        {
+          "anchor_bone": "左ひじ",
+          "root_body": 105,
+          "bodies": [
+            7,
+            105,
+            106,
+            107,
+            108,
+            109,
+            110,
+            111,
+            112,
+            113,
+            114,
+            115,
+            116,
+            117,
+            118,
+            119,
+            120,
+            121,
+            122,
+            123,
+            124,
+            125,
+            126,
+            127,
+            128
+          ],
+          "bones": [
+            "左ひじ",
+            "xk_0_0",
+            "xk_0_1",
+            "xk_0_2",
+            "xk_0_3",
+            "xk_0_4",
+            "xk_0_5",
+            "xk_0_6",
+            "xk_0_7",
+            "xk_1_0",
+            "xk_1_1",
+            "xk_1_2",
+            "xk_1_3",
+            "xk_1_4",
+            "xk_1_5",
+            "xk_1_6",
+            "xk_1_7",
+            "xk_2_0",
+            "xk_2_1",
+            "xk_2_2",
+            "xk_2_3",
+            "xk_2_4",
+            "xk_2_5",
+            "xk_2_6",
+            "xk_2_7"
+          ],
+          "body_count": 25,
+          "expansion": "welded_joints_only"
+        },
+        {
+          "anchor_bone": "左ひじ",
+          "root_body": 106,
+          "bodies": [
+            7,
+            105,
+            106,
+            107,
+            108,
+            109,
+            110,
+            111,
+            112,
+            113,
+            114,
+            115,
+            116,
+            117,
+            118,
+            119,
+            120,
+            121,
+            122,
+            123,
+            124,
+            125,
+            126,
+            127,
+            128
+          ],
+          "bones": [
+            "左ひじ",
+            "xk_0_0",
+            "xk_0_1",
+            "xk_0_2",
+            "xk_0_3",
+            "xk_0_4",
+            "xk_0_5",
+            "xk_0_6",
+            "xk_0_7",
+            "xk_1_0",
+            "xk_1_1",
+            "xk_1_2",
+            "xk_1_3",
+            "xk_1_4",
+            "xk_1_5",
+            "xk_1_6",
+            "xk_1_7",
+            "xk_2_0",
+            "xk_2_1",
+            "xk_2_2",
+            "xk_2_3",
+            "xk_2_4",
+            "xk_2_5",
+            "xk_2_6",
+            "xk_2_7"
+          ],
+          "body_count": 25,
+          "expansion": "welded_joints_only"
+        },
+        {
+          "anchor_bone": "左ひじ",
+          "root_body": 107,
+          "bodies": [
+            7,
+            105,
+            106,
+            107,
+            108,
+            109,
+            110,
+            111,
+            112,
+            113,
+            114,
+            115,
+            116,
+            117,
+            118,
+            119,
+            120,
+            121,
+            122,
+            123,
+            124,
+            125,
+            126,
+            127,
+            128
+          ],
+          "bones": [
+            "左ひじ",
+            "xk_0_0",
+            "xk_0_1",
+            "xk_0_2",
+            "xk_0_3",
+            "xk_0_4",
+            "xk_0_5",
+            "xk_0_6",
+            "xk_0_7",
+            "xk_1_0",
+            "xk_1_1",
+            "xk_1_2",
+            "xk_1_3",
+            "xk_1_4",
+            "xk_1_5",
+            "xk_1_6",
+            "xk_1_7",
+            "xk_2_0",
+            "xk_2_1",
+            "xk_2_2",
+            "xk_2_3",
+            "xk_2_4",
+            "xk_2_5",
+            "xk_2_6",
+            "xk_2_7"
+          ],
+          "body_count": 25,
+          "expansion": "welded_joints_only"
+        },
+        {
+          "anchor_bone": "左ひじ",
+          "root_body": 108,
+          "bodies": [
+            7,
+            105,
+            106,
+            107,
+            108,
+            109,
+            110,
+            111,
+            112,
+            113,
+            114,
+            115,
+            116,
+            117,
+            118,
+            119,
+            120,
+            121,
+            122,
+            123,
+            124,
+            125,
+            126,
+            127,
+            128
+          ],
+          "bones": [
+            "左ひじ",
+            "xk_0_0",
+            "xk_0_1",
+            "xk_0_2",
+            "xk_0_3",
+            "xk_0_4",
+            "xk_0_5",
+            "xk_0_6",
+            "xk_0_7",
+            "xk_1_0",
+            "xk_1_1",
+            "xk_1_2",
+            "xk_1_3",
+            "xk_1_4",
+            "xk_1_5",
+            "xk_1_6",
+            "xk_1_7",
+            "xk_2_0",
+            "xk_2_1",
+            "xk_2_2",
+            "xk_2_3",
+            "xk_2_4",
+            "xk_2_5",
+            "xk_2_6",
+            "xk_2_7"
+          ],
+          "body_count": 25,
+          "expansion": "welded_joints_only"
+        },
+        {
+          "anchor_bone": "左ひじ",
+          "root_body": 109,
+          "bodies": [
+            7,
+            105,
+            106,
+            107,
+            108,
+            109,
+            110,
+            111,
+            112,
+            113,
+            114,
+            115,
+            116,
+            117,
+            118,
+            119,
+            120,
+            121,
+            122,
+            123,
+            124,
+            125,
+            126,
+            127,
+            128
+          ],
+          "bones": [
+            "左ひじ",
+            "xk_0_0",
+            "xk_0_1",
+            "xk_0_2",
+            "xk_0_3",
+            "xk_0_4",
+            "xk_0_5",
+            "xk_0_6",
+            "xk_0_7",
+            "xk_1_0",
+            "xk_1_1",
+            "xk_1_2",
+            "xk_1_3",
+            "xk_1_4",
+            "xk_1_5",
+            "xk_1_6",
+            "xk_1_7",
+            "xk_2_0",
+            "xk_2_1",
+            "xk_2_2",
+            "xk_2_3",
+            "xk_2_4",
+            "xk_2_5",
+            "xk_2_6",
+            "xk_2_7"
+          ],
+          "body_count": 25,
+          "expansion": "welded_joints_only"
+        },
+        {
+          "anchor_bone": "左ひじ",
+          "root_body": 110,
+          "bodies": [
+            7,
+            105,
+            106,
+            107,
+            108,
+            109,
+            110,
+            111,
+            112,
+            113,
+            114,
+            115,
+            116,
+            117,
+            118,
+            119,
+            120,
+            121,
+            122,
+            123,
+            124,
+            125,
+            126,
+            127,
+            128
+          ],
+          "bones": [
+            "左ひじ",
+            "xk_0_0",
+            "xk_0_1",
+            "xk_0_2",
+            "xk_0_3",
+            "xk_0_4",
+            "xk_0_5",
+            "xk_0_6",
+            "xk_0_7",
+            "xk_1_0",
+            "xk_1_1",
+            "xk_1_2",
+            "xk_1_3",
+            "xk_1_4",
+            "xk_1_5",
+            "xk_1_6",
+            "xk_1_7",
+            "xk_2_0",
+            "xk_2_1",
+            "xk_2_2",
+            "xk_2_3",
+            "xk_2_4",
+            "xk_2_5",
+            "xk_2_6",
+            "xk_2_7"
+          ],
+          "body_count": 25,
+          "expansion": "welded_joints_only"
+        },
+        {
+          "anchor_bone": "左ひじ",
+          "root_body": 111,
+          "bodies": [
+            7,
+            105,
+            106,
+            107,
+            108,
+            109,
+            110,
+            111,
+            112,
+            113,
+            114,
+            115,
+            116,
+            117,
+            118,
+            119,
+            120,
+            121,
+            122,
+            123,
+            124,
+            125,
+            126,
+            127,
+            128
+          ],
+          "bones": [
+            "左ひじ",
+            "xk_0_0",
+            "xk_0_1",
+            "xk_0_2",
+            "xk_0_3",
+            "xk_0_4",
+            "xk_0_5",
+            "xk_0_6",
+            "xk_0_7",
+            "xk_1_0",
+            "xk_1_1",
+            "xk_1_2",
+            "xk_1_3",
+            "xk_1_4",
+            "xk_1_5",
+            "xk_1_6",
+            "xk_1_7",
+            "xk_2_0",
+            "xk_2_1",
+            "xk_2_2",
+            "xk_2_3",
+            "xk_2_4",
+            "xk_2_5",
+            "xk_2_6",
+            "xk_2_7"
+          ],
+          "body_count": 25,
+          "expansion": "welded_joints_only"
+        },
+        {
+          "anchor_bone": "左ひじ",
+          "root_body": 112,
+          "bodies": [
+            7,
+            105,
+            106,
+            107,
+            108,
+            109,
+            110,
+            111,
+            112,
+            113,
+            114,
+            115,
+            116,
+            117,
+            118,
+            119,
+            120,
+            121,
+            122,
+            123,
+            124,
+            125,
+            126,
+            127,
+            128
+          ],
+          "bones": [
+            "左ひじ",
+            "xk_0_0",
+            "xk_0_1",
+            "xk_0_2",
+            "xk_0_3",
+            "xk_0_4",
+            "xk_0_5",
+            "xk_0_6",
+            "xk_0_7",
+            "xk_1_0",
+            "xk_1_1",
+            "xk_1_2",
+            "xk_1_3",
+            "xk_1_4",
+            "xk_1_5",
+            "xk_1_6",
+            "xk_1_7",
+            "xk_2_0",
+            "xk_2_1",
+            "xk_2_2",
+            "xk_2_3",
+            "xk_2_4",
+            "xk_2_5",
+            "xk_2_6",
+            "xk_2_7"
+          ],
+          "body_count": 25,
+          "expansion": "welded_joints_only"
+        }
+      ],
+      "mass_available": false,
+      "units": [
+        {
+          "uid": 0,
+          "anchor_bone": "上半身",
+          "bodies": 7,
+          "joints": 6,
+          "modes": {
+            "0": 1,
+            "1": 6
+          },
+          "feedback_bodies": 6,
+          "spring_max": 0.0,
+          "limit_span_rad": 0.174533,
+          "welded_joints": 0,
+          "flex_joints": 6,
+          "cycle_rank": 0,
+          "zero_spring": true,
+          "wide_limit": false
+        },
+        {
+          "uid": 1,
+          "anchor_bone": "上半身2",
+          "bodies": 1,
+          "joints": 0,
+          "modes": {
+            "0": 1
+          },
+          "feedback_bodies": 0,
+          "spring_max": 0.0,
+          "limit_span_rad": 0.0,
+          "welded_joints": 0,
+          "flex_joints": 0,
+          "cycle_rank": 0,
+          "zero_spring": true,
+          "wide_limit": false
+        },
+        {
+          "uid": 2,
+          "anchor_bone": "上半身2",
+          "bodies": 1,
+          "joints": 0,
+          "modes": {
+            "0": 1
+          },
+          "feedback_bodies": 0,
+          "spring_max": 0.0,
+          "limit_span_rad": 0.0,
+          "welded_joints": 0,
+          "flex_joints": 0,
+          "cycle_rank": 0,
+          "zero_spring": true,
+          "wide_limit": false
+        },
+        {
+          "uid": 3,
+          "anchor_bone": "右腕",
+          "bodies": 1,
+          "joints": 0,
+          "modes": {
+            "0": 1
+          },
+          "feedback_bodies": 0,
+          "spring_max": 0.0,
+          "limit_span_rad": 0.0,
+          "welded_joints": 0,
+          "flex_joints": 0,
+          "cycle_rank": 0,
+          "zero_spring": true,
+          "wide_limit": false
+        },
+        {
+          "uid": 4,
+          "anchor_bone": "右ひじ",
+          "bodies": 25,
+          "joints": 48,
+          "modes": {
+            "0": 1,
+            "1": 24
+          },
+          "feedback_bodies": 24,
+          "spring_max": 0.0,
+          "limit_span_rad": 0.174533,
+          "welded_joints": 24,
+          "flex_joints": 24,
+          "cycle_rank": 24,
+          "zero_spring": true,
+          "wide_limit": false
+        },
+        {
+          "uid": 5,
+          "anchor_bone": "右手首",
+          "bodies": 1,
+          "joints": 0,
+          "modes": {
+            "0": 1
+          },
+          "feedback_bodies": 0,
+          "spring_max": 0.0,
+          "limit_span_rad": 0.0,
+          "welded_joints": 0,
+          "flex_joints": 0,
+          "cycle_rank": 0,
+          "zero_spring": true,
+          "wide_limit": false
+        },
+        {
+          "uid": 6,
+          "anchor_bone": "左腕",
+          "bodies": 1,
+          "joints": 0,
+          "modes": {
+            "0": 1
+          },
+          "feedback_bodies": 0,
+          "spring_max": 0.0,
+          "limit_span_rad": 0.0,
+          "welded_joints": 0,
+          "flex_joints": 0,
+          "cycle_rank": 0,
+          "zero_spring": true,
+          "wide_limit": false
+        },
+        {
+          "uid": 7,
+          "anchor_bone": "左ひじ",
+          "bodies": 25,
+          "joints": 48,
+          "modes": {
+            "0": 1,
+            "1": 24
+          },
+          "feedback_bodies": 24,
+          "spring_max": 0.0,
+          "limit_span_rad": 0.174533,
+          "welded_joints": 24,
+          "flex_joints": 24,
+          "cycle_rank": 24,
+          "zero_spring": true,
+          "wide_limit": false
+        },
+        {
+          "uid": 8,
+          "anchor_bone": "左手首",
+          "bodies": 1,
+          "joints": 0,
+          "modes": {
+            "0": 1
+          },
+          "feedback_bodies": 0,
+          "spring_max": 0.0,
+          "limit_span_rad": 0.0,
+          "welded_joints": 0,
+          "flex_joints": 0,
+          "cycle_rank": 0,
+          "zero_spring": true,
+          "wide_limit": false
+        },
+        {
+          "uid": 9,
+          "anchor_bone": "首",
+          "bodies": 1,
+          "joints": 0,
+          "modes": {
+            "0": 1
+          },
+          "feedback_bodies": 0,
+          "spring_max": 0.0,
+          "limit_span_rad": 0.0,
+          "welded_joints": 0,
+          "flex_joints": 0,
+          "cycle_rank": 0,
+          "zero_spring": true,
+          "wide_limit": false
+        },
+        {
+          "uid": 11,
+          "anchor_bone": "頭",
+          "bodies": 50,
+          "joints": 52,
+          "modes": {
+            "0": 2,
+            "1": 48
+          },
+          "feedback_bodies": 48,
+          "spring_max": 0.0,
+          "limit_span_rad": 0.349066,
+          "welded_joints": 2,
+          "flex_joints": 50,
+          "cycle_rank": 3,
+          "zero_spring": true,
+          "wide_limit": false
+        },
+        {
+          "uid": 12,
+          "anchor_bone": "下半身",
+          "bodies": 1,
+          "joints": 0,
+          "modes": {
+            "0": 1
+          },
+          "feedback_bodies": 0,
+          "spring_max": 0.0,
+          "limit_span_rad": 0.0,
+          "welded_joints": 0,
+          "flex_joints": 0,
+          "cycle_rank": 0,
+          "zero_spring": true,
+          "wide_limit": false
+        },
+        {
+          "uid": 13,
+          "anchor_bone": "右足",
+          "bodies": 9,
+          "joints": 8,
+          "modes": {
+            "0": 1,
+            "1": 8
+          },
+          "feedback_bodies": 8,
+          "spring_max": 0.0,
+          "limit_span_rad": 0.034907,
+          "welded_joints": 0,
+          "flex_joints": 8,
+          "cycle_rank": 0,
+          "zero_spring": true,
+          "wide_limit": false
+        },
+        {
+          "uid": 14,
+          "anchor_bone": "右ひざ",
+          "bodies": 1,
+          "joints": 0,
+          "modes": {
+            "0": 1
+          },
+          "feedback_bodies": 0,
+          "spring_max": 0.0,
+          "limit_span_rad": 0.0,
+          "welded_joints": 0,
+          "flex_joints": 0,
+          "cycle_rank": 0,
+          "zero_spring": true,
+          "wide_limit": false
+        },
+        {
+          "uid": 15,
+          "anchor_bone": "左足",
+          "bodies": 1,
+          "joints": 0,
+          "modes": {
+            "0": 1
+          },
+          "feedback_bodies": 0,
+          "spring_max": 0.0,
+          "limit_span_rad": 0.0,
+          "welded_joints": 0,
+          "flex_joints": 0,
+          "cycle_rank": 0,
+          "zero_spring": true,
+          "wide_limit": false
+        },
+        {
+          "uid": 16,
+          "anchor_bone": "左ひざ",
+          "bodies": 1,
+          "joints": 0,
+          "modes": {
+            "0": 1
+          },
+          "feedback_bodies": 0,
+          "spring_max": 0.0,
+          "limit_span_rad": 0.0,
+          "welded_joints": 0,
+          "flex_joints": 0,
+          "cycle_rank": 0,
+          "zero_spring": true,
+          "wide_limit": false
+        },
+        {
+          "uid": 17,
+          "anchor_bone": "右足",
+          "bodies": 1,
+          "joints": 0,
+          "modes": {
+            "0": 1
+          },
+          "feedback_bodies": 0,
+          "spring_max": 0.0,
+          "limit_span_rad": 0.0,
+          "welded_joints": 0,
+          "flex_joints": 0,
+          "cycle_rank": 0,
+          "zero_spring": true,
+          "wide_limit": false
+        },
+        {
+          "uid": 18,
+          "anchor_bone": "左足",
+          "bodies": 1,
+          "joints": 0,
+          "modes": {
+            "0": 1
+          },
+          "feedback_bodies": 0,
+          "spring_max": 0.0,
+          "limit_span_rad": 0.0,
+          "welded_joints": 0,
+          "flex_joints": 0,
+          "cycle_rank": 0,
+          "zero_spring": true,
+          "wide_limit": false
+        },
+        {
+          "uid": 19,
+          "anchor_bone": "上半身",
+          "bodies": 1,
+          "joints": 0,
+          "modes": {
+            "0": 1
+          },
+          "feedback_bodies": 0,
+          "spring_max": 0.0,
+          "limit_span_rad": 0.0,
+          "welded_joints": 0,
+          "flex_joints": 0,
+          "cycle_rank": 0,
+          "zero_spring": true,
+          "wide_limit": false
+        },
+        {
+          "uid": 68,
+          "anchor_bone": "右胸上2",
+          "bodies": 12,
+          "joints": 19,
+          "modes": {
+            "0": 2,
+            "1": 8,
+            "2": 2
+          },
+          "feedback_bodies": 10,
+          "spring_max": 0.0,
+          "limit_span_rad": 1.047198,
+          "welded_joints": 7,
+          "flex_joints": 12,
+          "cycle_rank": 8,
+          "zero_spring": true,
+          "wide_limit": false
+        },
+        {
+          "uid": 80,
+          "anchor_bone": "上半身2",
+          "bodies": 1,
+          "joints": 0,
+          "modes": {
+            "0": 1
+          },
+          "feedback_bodies": 0,
+          "spring_max": 0.0,
+          "limit_span_rad": 0.0,
+          "welded_joints": 0,
+          "flex_joints": 0,
+          "cycle_rank": 0,
+          "zero_spring": true,
+          "wide_limit": false
+        },
+        {
+          "uid": 144,
+          "anchor_bone": "右ひざD",
+          "bodies": 2,
+          "joints": 1,
+          "modes": {
+            "0": 1,
+            "1": 1
+          },
+          "feedback_bodies": 1,
+          "spring_max": 0.0,
+          "limit_span_rad": 1.570796,
+          "welded_joints": 0,
+          "flex_joints": 1,
+          "cycle_rank": 0,
+          "zero_spring": true,
+          "wide_limit": true
+        }
+      ],
+      "wide_limit_units": [
+        {
+          "uid": 144,
+          "anchor_bone": "右ひざD",
+          "bodies": 2,
+          "joints": 1,
+          "modes": {
+            "0": 1,
+            "1": 1
+          },
+          "feedback_bodies": 1,
+          "spring_max": 0.0,
+          "limit_span_rad": 1.570796,
+          "welded_joints": 0,
+          "flex_joints": 1,
+          "cycle_rank": 0,
+          "zero_spring": true,
+          "wide_limit": true
+        }
+      ],
+      "welded_bones": [],
+      "suspect_units": [
+        {
+          "uid": 4,
+          "bodies": 25,
+          "joints": 48,
+          "cycle_rank": 24,
+          "welded_ratio": 0.5,
+          "anchor_bone": "右ひじ",
+          "modes": {
+            "0": 1,
+            "1": 24
+          }
+        },
+        {
+          "uid": 7,
+          "bodies": 25,
+          "joints": 48,
+          "cycle_rank": 24,
+          "welded_ratio": 0.5,
+          "anchor_bone": "左ひじ",
+          "modes": {
+            "0": 1,
+            "1": 24
+          }
+        }
+      ],
+      "accessory": false
+    },
+    "coverage": {
+      "bones_total": 246,
+      "bones_with_any_rigid": 127,
+      "families": [
+        {
+          "family": "xj",
+          "bones": 7,
+          "rows": 7,
+          "bones_with_rigid": 6,
+          "bones_without_rigid": 1
+        },
+        {
+          "family": "xk",
+          "bones": 32,
+          "rows": 4,
+          "bones_with_rigid": 24,
+          "bones_without_rigid": 8
+        },
+        {
+          "family": "zb",
+          "bones": 7,
+          "rows": 7,
+          "bones_with_rigid": 6,
+          "bones_without_rigid": 1
+        }
+      ],
+      "gaps": [
+        {
+          "family": "xj",
+          "row": 6,
+          "bones_total": 1,
+          "bones_missing": [
+            "xj_6_1"
+          ],
+          "missing_count": 1,
+          "missing_ratio": 1.0
+        },
+        {
+          "family": "xk",
+          "row": 3,
+          "bones_total": 8,
+          "bones_missing": [
+            "xk_3_0",
+            "xk_3_1",
+            "xk_3_2",
+            "xk_3_3",
+            "xk_3_4",
+            "xk_3_5",
+            "xk_3_6",
+            "xk_3_7"
+          ],
+          "missing_count": 8,
+          "missing_ratio": 1.0
+        },
+        {
+          "family": "zb",
+          "row": 6,
+          "bones_total": 1,
+          "bones_missing": [
+            "zb_6_1"
+          ],
+          "missing_count": 1,
+          "missing_ratio": 1.0
+        }
+      ],
+      "whole_missing": [
+        {
+          "family": "xj",
+          "row": 6,
+          "bones_total": 1,
+          "bones_missing": [
+            "xj_6_1"
+          ],
+          "missing_count": 1,
+          "missing_ratio": 1.0
+        },
+        {
+          "family": "xk",
+          "row": 3,
+          "bones_total": 8,
+          "bones_missing": [
+            "xk_3_0",
+            "xk_3_1",
+            "xk_3_2",
+            "xk_3_3",
+            "xk_3_4",
+            "xk_3_5",
+            "xk_3_6",
+            "xk_3_7"
+          ],
+          "missing_count": 8,
+          "missing_ratio": 1.0
+        },
+        {
+          "family": "zb",
+          "row": 6,
+          "bones_total": 1,
+          "bones_missing": [
+            "zb_6_1"
+          ],
+          "missing_count": 1,
+          "missing_ratio": 1.0
+        }
+      ],
+      "sparse_gaps": [],
+      "gap_ratio_threshold": 0.5,
+      "method": "骨名按『族_行_列』拆分，逐行统计无刚体的骨；≥阈值算 gap，零散缺算 sparse"
+    },
+    "blender": {
+      "mmd_root": {
+        "name": "卡芙卡3.0_fixH",
+        "is_built": true
+      },
+      "armature": {
+        "name": "卡芙卡3.0_fixH_arm",
+        "bones": 296
+      },
+      "constraints": {
+        "TRANSFORM": 29,
+        "COPY_TRANSFORMS": 138,
+        "IK": 4,
+        "LIMIT_ROTATION": 2,
+        "DAMPED_TRACK": 4
+      },
+      "constraint_bones": [
+        {
+          "bone": "HairA1_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack",
+          "subtarget": ""
+        },
+        {
+          "bone": "HairA2_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.001",
+          "subtarget": ""
+        },
+        {
+          "bone": "HairB1_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.026",
+          "subtarget": ""
+        },
+        {
+          "bone": "HairB2_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.027",
+          "subtarget": ""
+        },
+        {
+          "bone": "HairB3_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.028",
+          "subtarget": ""
+        },
+        {
+          "bone": "HairB4_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.029",
+          "subtarget": ""
+        },
+        {
+          "bone": "HairLB_1_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.030",
+          "subtarget": ""
+        },
+        {
+          "bone": "HairLB_2_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.031",
+          "subtarget": ""
+        },
+        {
+          "bone": "HairLB_3_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.032",
+          "subtarget": ""
+        },
+        {
+          "bone": "HairRB_1_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.033",
+          "subtarget": ""
+        },
+        {
+          "bone": "HairRB_2_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.034",
+          "subtarget": ""
+        },
+        {
+          "bone": "HairRB_3_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.035",
+          "subtarget": ""
+        },
+        {
+          "bone": "HairC1_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.002",
+          "subtarget": ""
+        },
+        {
+          "bone": "HairC2_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.003",
+          "subtarget": ""
+        },
+        {
+          "bone": "HairC3_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.004",
+          "subtarget": ""
+        },
+        {
+          "bone": "HairD1_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.005",
+          "subtarget": ""
+        },
+        {
+          "bone": "HairD2_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.006",
+          "subtarget": ""
+        },
+        {
+          "bone": "HairE1_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.007",
+          "subtarget": ""
+        },
+        {
+          "bone": "HairE2_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.008",
+          "subtarget": ""
+        },
+        {
+          "bone": "HairG1_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.009",
+          "subtarget": ""
+        },
+        {
+          "bone": "HairG2_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.010",
+          "subtarget": ""
+        },
+        {
+          "bone": "HairH1_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.011",
+          "subtarget": ""
+        },
+        {
+          "bone": "HairH2_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.012",
+          "subtarget": ""
+        },
+        {
+          "bone": "HairH3_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.013",
+          "subtarget": ""
+        },
+        {
+          "bone": "HairI1_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.014",
+          "subtarget": ""
+        },
+        {
+          "bone": "HairI2_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.015",
+          "subtarget": ""
+        },
+        {
+          "bone": "HairJ1_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.016",
+          "subtarget": ""
+        },
+        {
+          "bone": "HairJ2_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.017",
+          "subtarget": ""
+        },
+        {
+          "bone": "HairJ3_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.018",
+          "subtarget": ""
+        },
+        {
+          "bone": "HairK1_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.021",
+          "subtarget": ""
+        },
+        {
+          "bone": "HairW1_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.022",
+          "subtarget": ""
+        },
+        {
+          "bone": "HairJ5_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.019",
+          "subtarget": ""
+        },
+        {
+          "bone": "HairJ6_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.020",
+          "subtarget": ""
+        },
+        {
+          "bone": "HairVL_1_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.023",
+          "subtarget": ""
+        },
+        {
+          "bone": "HairVR_1_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.024",
+          "subtarget": ""
+        },
+        {
+          "bone": "HairZ_1_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.025",
+          "subtarget": ""
+        },
+        {
+          "bone": "yb__1",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.036",
+          "subtarget": ""
+        },
+        {
+          "bone": "yb__2",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.037",
+          "subtarget": ""
+        },
+        {
+          "bone": "yb__3",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.038",
+          "subtarget": ""
+        },
+        {
+          "bone": "yb__4",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.039",
+          "subtarget": ""
+        },
+        {
+          "bone": "yb__5",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.040",
+          "subtarget": ""
+        },
+        {
+          "bone": "yb__6",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.041",
+          "subtarget": ""
+        },
+        {
+          "bone": "zb_0_1",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.042",
+          "subtarget": ""
+        },
+        {
+          "bone": "zb_1_1",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.043",
+          "subtarget": ""
+        },
+        {
+          "bone": "zb_2_1",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.044",
+          "subtarget": ""
+        },
+        {
+          "bone": "zb_3_1",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.045",
+          "subtarget": ""
+        },
+        {
+          "bone": "zb_4_1",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.046",
+          "subtarget": ""
+        },
+        {
+          "bone": "zb_5_1",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.047",
+          "subtarget": ""
+        },
+        {
+          "bone": "_shadow_目.R",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "卡芙卡3.0_fixH_arm",
+          "subtarget": "_dummy_目.R"
+        },
+        {
+          "bone": "_shadow_目.L",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "卡芙卡3.0_fixH_arm",
+          "subtarget": "_dummy_目.L"
+        },
+        {
+          "bone": "zxk__1",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.050",
+          "subtarget": ""
+        },
+        {
+          "bone": "zxk__9",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.058",
+          "subtarget": ""
+        },
+        {
+          "bone": "zxk__17",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.066",
+          "subtarget": ""
+        },
+        {
+          "bone": "zxk__2",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.051",
+          "subtarget": ""
+        },
+        {
+          "bone": "zxk__10",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.059",
+          "subtarget": ""
+        },
+        {
+          "bone": "zxk__18",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.067",
+          "subtarget": ""
+        },
+        {
+          "bone": "zxk__3",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.052",
+          "subtarget": ""
+        },
+        {
+          "bone": "zxk__11",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.060",
+          "subtarget": ""
+        },
+        {
+          "bone": "zxk__19",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.068",
+          "subtarget": ""
+        },
+        {
+          "bone": "zxk__4",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.053",
+          "subtarget": ""
+        },
+        {
+          "bone": "zxk__12",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.061",
+          "subtarget": ""
+        },
+        {
+          "bone": "zxk__20",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.069",
+          "subtarget": ""
+        },
+        {
+          "bone": "zxk__5",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.054",
+          "subtarget": ""
+        },
+        {
+          "bone": "zxk__13",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.062",
+          "subtarget": ""
+        },
+        {
+          "bone": "zxk__21",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.070",
+          "subtarget": ""
+        },
+        {
+          "bone": "zxk__6",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.055",
+          "subtarget": ""
+        },
+        {
+          "bone": "zxk__14",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.063",
+          "subtarget": ""
+        },
+        {
+          "bone": "zxk__22",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.071",
+          "subtarget": ""
+        },
+        {
+          "bone": "zxk__7",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.056",
+          "subtarget": ""
+        },
+        {
+          "bone": "zxk__15",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.064",
+          "subtarget": ""
+        },
+        {
+          "bone": "zxk__23",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.072",
+          "subtarget": ""
+        },
+        {
+          "bone": "zxk__8",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.057",
+          "subtarget": ""
+        },
+        {
+          "bone": "zxk__16",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.065",
+          "subtarget": ""
+        },
+        {
+          "bone": "zxk__24",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.073",
+          "subtarget": ""
+        },
+        {
+          "bone": "_shadow_手捩1.R",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "卡芙卡3.0_fixH_arm",
+          "subtarget": "_dummy_手捩1.R"
+        },
+        {
+          "bone": "_shadow_手捩2.R",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "卡芙卡3.0_fixH_arm",
+          "subtarget": "_dummy_手捩2.R"
+        },
+        {
+          "bone": "_shadow_手捩3.R",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "卡芙卡3.0_fixH_arm",
+          "subtarget": "_dummy_手捩3.R"
+        },
+        {
+          "bone": "_shadow_腕捩1.R",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "卡芙卡3.0_fixH_arm",
+          "subtarget": "_dummy_腕捩1.R"
+        },
+        {
+          "bone": "_shadow_腕捩2.R",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "卡芙卡3.0_fixH_arm",
+          "subtarget": "_dummy_腕捩2.R"
+        },
+        {
+          "bone": "_shadow_腕捩3.R",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "卡芙卡3.0_fixH_arm",
+          "subtarget": "_dummy_腕捩3.R"
+        },
+        {
+          "bone": "xk_0_0",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.074",
+          "subtarget": ""
+        },
+        {
+          "bone": "xk_1_0",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.082",
+          "subtarget": ""
+        },
+        {
+          "bone": "xk_2_0",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.090",
+          "subtarget": ""
+        },
+        {
+          "bone": "xk_0_1",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.075",
+          "subtarget": ""
+        },
+        {
+          "bone": "xk_1_1",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.083",
+          "subtarget": ""
+        },
+        {
+          "bone": "xk_2_1",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.091",
+          "subtarget": ""
+        },
+        {
+          "bone": "xk_0_2",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.076",
+          "subtarget": ""
+        },
+        {
+          "bone": "xk_1_2",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.084",
+          "subtarget": ""
+        },
+        {
+          "bone": "xk_2_2",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.092",
+          "subtarget": ""
+        },
+        {
+          "bone": "xk_0_3",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.077",
+          "subtarget": ""
+        },
+        {
+          "bone": "xk_1_3",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.085",
+          "subtarget": ""
+        },
+        {
+          "bone": "xk_2_3",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.093",
+          "subtarget": ""
+        },
+        {
+          "bone": "xk_0_4",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.078",
+          "subtarget": ""
+        },
+        {
+          "bone": "xk_1_4",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.086",
+          "subtarget": ""
+        },
+        {
+          "bone": "xk_2_4",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.094",
+          "subtarget": ""
+        },
+        {
+          "bone": "xk_0_5",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.079",
+          "subtarget": ""
+        },
+        {
+          "bone": "xk_1_5",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.087",
+          "subtarget": ""
+        },
+        {
+          "bone": "xk_2_5",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.095",
+          "subtarget": ""
+        },
+        {
+          "bone": "xk_0_6",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.080",
+          "subtarget": ""
+        },
+        {
+          "bone": "xk_1_6",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.088",
+          "subtarget": ""
+        },
+        {
+          "bone": "xk_2_6",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.096",
+          "subtarget": ""
+        },
+        {
+          "bone": "xk_0_7",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.081",
+          "subtarget": ""
+        },
+        {
+          "bone": "xk_1_7",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.089",
+          "subtarget": ""
+        },
+        {
+          "bone": "xk_2_7",
+          "type": "COPY_TRANSFORMS",
+          "mute": true,
+          "target": "mmd_bonetrack.097",
+          "subtarget": ""
+        },
+        {
+          "bone": "_shadow_手捩1.L",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "卡芙卡3.0_fixH_arm",
+          "subtarget": "_dummy_手捩1.L"
+        },
+        {
+          "bone": "_shadow_手捩2.L",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "卡芙卡3.0_fixH_arm",
+          "subtarget": "_dummy_手捩2.L"
+        },
+        {
+          "bone": "_shadow_手捩3.L",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "卡芙卡3.0_fixH_arm",
+          "subtarget": "_dummy_手捩3.L"
+        },
+        {
+          "bone": "_shadow_腕捩1.L",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "卡芙卡3.0_fixH_arm",
+          "subtarget": "_dummy_腕捩1.L"
+        },
+        {
+          "bone": "_shadow_腕捩2.L",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "卡芙卡3.0_fixH_arm",
+          "subtarget": "_dummy_腕捩2.L"
+        },
+        {
+          "bone": "_shadow_腕捩3.L",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "卡芙卡3.0_fixH_arm",
+          "subtarget": "_dummy_腕捩3.L"
+        },
+        {
+          "bone": "胸上2.L",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.048",
+          "subtarget": ""
+        },
+        {
+          "bone": "胸上2.R",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.049",
+          "subtarget": ""
+        },
+        {
+          "bone": "_shadow_肩C.R",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "卡芙卡3.0_fixH_arm",
+          "subtarget": "_dummy_肩C.R"
+        },
+        {
+          "bone": "_shadow_肩C.L",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "卡芙卡3.0_fixH_arm",
+          "subtarget": "_dummy_肩C.L"
+        },
+        {
+          "bone": "xj_0_1",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.107",
+          "subtarget": ""
+        },
+        {
+          "bone": "xj_1_1",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.108",
+          "subtarget": ""
+        },
+        {
+          "bone": "xj_2_1",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.109",
+          "subtarget": ""
+        },
+        {
+          "bone": "xj_3_1",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.110",
+          "subtarget": ""
+        },
+        {
+          "bone": "xj_4_1",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.111",
+          "subtarget": ""
+        },
+        {
+          "bone": "xj_5_1",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.112",
+          "subtarget": ""
+        },
+        {
+          "bone": "_shadow_足首D.R",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "卡芙卡3.0_fixH_arm",
+          "subtarget": "_dummy_足首D.R"
+        },
+        {
+          "bone": "_shadow_ひざD.R",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "卡芙卡3.0_fixH_arm",
+          "subtarget": "_dummy_ひざD.R"
+        },
+        {
+          "bone": "PendantB1_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.106",
+          "subtarget": ""
+        },
+        {
+          "bone": "BeltC1_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.098",
+          "subtarget": ""
+        },
+        {
+          "bone": "BeltC2_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.099",
+          "subtarget": ""
+        },
+        {
+          "bone": "BeltD1_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.100",
+          "subtarget": ""
+        },
+        {
+          "bone": "BeltD2_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.101",
+          "subtarget": ""
+        },
+        {
+          "bone": "BeltE1_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.102",
+          "subtarget": ""
+        },
+        {
+          "bone": "BeltE2_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.103",
+          "subtarget": ""
+        },
+        {
+          "bone": "BeltF1_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.104",
+          "subtarget": ""
+        },
+        {
+          "bone": "BeltF2_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "mmd_bonetrack.105",
+          "subtarget": ""
+        },
+        {
+          "bone": "_shadow_PendantB1_JNT",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "卡芙卡3.0_fixH_arm",
+          "subtarget": "_dummy_PendantB1_JNT"
+        },
+        {
+          "bone": "_shadow_足D.R",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "卡芙卡3.0_fixH_arm",
+          "subtarget": "_dummy_足D.R"
+        },
+        {
+          "bone": "_shadow_足首D.L",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "卡芙卡3.0_fixH_arm",
+          "subtarget": "_dummy_足首D.L"
+        },
+        {
+          "bone": "_shadow_ひざD.L",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "卡芙卡3.0_fixH_arm",
+          "subtarget": "_dummy_ひざD.L"
+        },
+        {
+          "bone": "_shadow_足D.L",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "卡芙卡3.0_fixH_arm",
+          "subtarget": "_dummy_足D.L"
+        },
+        {
+          "bone": "_shadow_腰キャンセル.R",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "卡芙卡3.0_fixH_arm",
+          "subtarget": "_dummy_腰キャンセル.R"
+        },
+        {
+          "bone": "_shadow_腰キャンセル.L",
+          "type": "COPY_TRANSFORMS",
+          "mute": false,
+          "target": "卡芙卡3.0_fixH_arm",
+          "subtarget": "_dummy_腰キャンセル.L"
+        }
+      ],
+      "rigids": 145,
+      "collision_collections": {
+        "rigids": 145,
+        "distinct_collection_sets": 1,
+        "top_sets": [
+          {
+            "collections": [
+              0
+            ],
+            "count": 145
+          }
+        ],
+        "rigids_with_no_collection": 0,
+        "note": "全部 rigids 只有 (0,) 时，改 MMD 掩码不会改变 Blender 层碰撞"
+      },
+      "point_cache": {
+        "is_baked": false,
+        "frame_start": 1,
+        "frame_end": 833
+      },
+      "behaviour": {
+        "fps": 24.0,
+        "frame_start": 1,
+        "frame_end": 24,
+        "substeps_per_frame": 10,
+        "solver_iterations": 20,
+        "point_cache_info": ""
+      },
+      "rigid_mass_max_kg": 10.0,
+      "penetration": null,
+      "dynamic": {
+        "frames_sampled": 60,
+        "frame_range": {
+          "start": 1,
+          "end": 60
+        },
+        "evidence_mode": "stepped",
+        "frozen_pairs": [
+          {
+            "bone": "xk_0_0",
+            "parent": "ひじ.L",
+            "rot_delta_deg": -0.0,
+            "parent_rot_delta_deg": 66.4123,
+            "max_angle_deg": 152.414,
+            "is_frozen_candidate": true,
+            "has_physics_constraint": true
+          },
+          {
+            "bone": "xk_0_1",
+            "parent": "ひじ.L",
+            "rot_delta_deg": 0.0,
+            "parent_rot_delta_deg": 66.4123,
+            "max_angle_deg": 152.414,
+            "is_frozen_candidate": true,
+            "has_physics_constraint": true
+          },
+          {
+            "bone": "xk_0_2",
+            "parent": "ひじ.L",
+            "rot_delta_deg": 0.0,
+            "parent_rot_delta_deg": 66.4123,
+            "max_angle_deg": 152.414,
+            "is_frozen_candidate": true,
+            "has_physics_constraint": true
+          },
+          {
+            "bone": "xk_0_3",
+            "parent": "ひじ.L",
+            "rot_delta_deg": 0.0,
+            "parent_rot_delta_deg": 66.4123,
+            "max_angle_deg": 152.414,
+            "is_frozen_candidate": true,
+            "has_physics_constraint": true
+          },
+          {
+            "bone": "xk_0_4",
+            "parent": "ひじ.L",
+            "rot_delta_deg": 0.0,
+            "parent_rot_delta_deg": 66.4123,
+            "max_angle_deg": 152.414,
+            "is_frozen_candidate": true,
+            "has_physics_constraint": true
+          },
+          {
+            "bone": "xk_0_5",
+            "parent": "ひじ.L",
+            "rot_delta_deg": 0.0,
+            "parent_rot_delta_deg": 66.4123,
+            "max_angle_deg": 152.414,
+            "is_frozen_candidate": true,
+            "has_physics_constraint": true
+          },
+          {
+            "bone": "xk_0_6",
+            "parent": "ひじ.L",
+            "rot_delta_deg": -0.0,
+            "parent_rot_delta_deg": 66.4123,
+            "max_angle_deg": 152.414,
+            "is_frozen_candidate": true,
+            "has_physics_constraint": true
+          },
+          {
+            "bone": "xk_0_7",
+            "parent": "ひじ.L",
+            "rot_delta_deg": -0.0,
+            "parent_rot_delta_deg": 66.4123,
+            "max_angle_deg": 152.414,
+            "is_frozen_candidate": true,
+            "has_physics_constraint": true
+          },
+          {
+            "bone": "zxk__1",
+            "parent": "ひじ.R",
+            "rot_delta_deg": 0.0,
+            "parent_rot_delta_deg": 125.8775,
+            "max_angle_deg": 146.908,
+            "is_frozen_candidate": true,
+            "has_physics_constraint": true
+          },
+          {
+            "bone": "zxk__2",
+            "parent": "ひじ.R",
+            "rot_delta_deg": 0.0,
+            "parent_rot_delta_deg": 125.8775,
+            "max_angle_deg": 146.908,
+            "is_frozen_candidate": true,
+            "has_physics_constraint": true
+          },
+          {
+            "bone": "zxk__3",
+            "parent": "ひじ.R",
+            "rot_delta_deg": 0.0,
+            "parent_rot_delta_deg": 125.8775,
+            "max_angle_deg": 146.908,
+            "is_frozen_candidate": true,
+            "has_physics_constraint": true
+          },
+          {
+            "bone": "zxk__4",
+            "parent": "ひじ.R",
+            "rot_delta_deg": 0.0,
+            "parent_rot_delta_deg": 125.8775,
+            "max_angle_deg": 146.908,
+            "is_frozen_candidate": true,
+            "has_physics_constraint": true
+          },
+          {
+            "bone": "zxk__5",
+            "parent": "ひじ.R",
+            "rot_delta_deg": 0.0,
+            "parent_rot_delta_deg": 125.8775,
+            "max_angle_deg": 146.908,
+            "is_frozen_candidate": true,
+            "has_physics_constraint": true
+          },
+          {
+            "bone": "zxk__6",
+            "parent": "ひじ.R",
+            "rot_delta_deg": 0.0,
+            "parent_rot_delta_deg": 125.8775,
+            "max_angle_deg": 146.908,
+            "is_frozen_candidate": true,
+            "has_physics_constraint": true
+          },
+          {
+            "bone": "zxk__7",
+            "parent": "ひじ.R",
+            "rot_delta_deg": 0.0,
+            "parent_rot_delta_deg": 125.8775,
+            "max_angle_deg": 146.908,
+            "is_frozen_candidate": true,
+            "has_physics_constraint": true
+          },
+          {
+            "bone": "zxk__8",
+            "parent": "ひじ.R",
+            "rot_delta_deg": 0.0,
+            "parent_rot_delta_deg": 125.8775,
+            "max_angle_deg": 146.908,
+            "is_frozen_candidate": true,
+            "has_physics_constraint": true
+          },
+          {
+            "bone": "PendantB1_JNT",
+            "parent": "ひざD.R",
+            "rot_delta_deg": 9.1627,
+            "parent_rot_delta_deg": 20.509,
+            "max_angle_deg": 37.203,
+            "is_frozen_candidate": false,
+            "has_physics_constraint": true
+          }
+        ],
+        "unit_angles": [
+          {
+            "uid": 144,
+            "anchor_bones": [
+              "PendantB1_JNT",
+              "右ひざD"
+            ],
+            "max_angle_deg": 37.203,
+            "bones_measured": 1,
+            "definition": "采样区间内该单元骨相对 f1 的世界旋转最大变化"
+          }
+        ],
+        "max_rotation_delta_deg": 152.414
+      },
+      "frozen_pairs": [
+        {
+          "bone": "xk_0_0",
+          "parent": "ひじ.L",
+          "rot_delta_deg": -0.0,
+          "parent_rot_delta_deg": 66.4123,
+          "max_angle_deg": 152.414,
+          "is_frozen_candidate": true,
+          "has_physics_constraint": true
+        },
+        {
+          "bone": "xk_0_1",
+          "parent": "ひじ.L",
+          "rot_delta_deg": 0.0,
+          "parent_rot_delta_deg": 66.4123,
+          "max_angle_deg": 152.414,
+          "is_frozen_candidate": true,
+          "has_physics_constraint": true
+        },
+        {
+          "bone": "xk_0_2",
+          "parent": "ひじ.L",
+          "rot_delta_deg": 0.0,
+          "parent_rot_delta_deg": 66.4123,
+          "max_angle_deg": 152.414,
+          "is_frozen_candidate": true,
+          "has_physics_constraint": true
+        },
+        {
+          "bone": "xk_0_3",
+          "parent": "ひじ.L",
+          "rot_delta_deg": 0.0,
+          "parent_rot_delta_deg": 66.4123,
+          "max_angle_deg": 152.414,
+          "is_frozen_candidate": true,
+          "has_physics_constraint": true
+        },
+        {
+          "bone": "xk_0_4",
+          "parent": "ひじ.L",
+          "rot_delta_deg": 0.0,
+          "parent_rot_delta_deg": 66.4123,
+          "max_angle_deg": 152.414,
+          "is_frozen_candidate": true,
+          "has_physics_constraint": true
+        },
+        {
+          "bone": "xk_0_5",
+          "parent": "ひじ.L",
+          "rot_delta_deg": 0.0,
+          "parent_rot_delta_deg": 66.4123,
+          "max_angle_deg": 152.414,
+          "is_frozen_candidate": true,
+          "has_physics_constraint": true
+        },
+        {
+          "bone": "xk_0_6",
+          "parent": "ひじ.L",
+          "rot_delta_deg": -0.0,
+          "parent_rot_delta_deg": 66.4123,
+          "max_angle_deg": 152.414,
+          "is_frozen_candidate": true,
+          "has_physics_constraint": true
+        },
+        {
+          "bone": "xk_0_7",
+          "parent": "ひじ.L",
+          "rot_delta_deg": -0.0,
+          "parent_rot_delta_deg": 66.4123,
+          "max_angle_deg": 152.414,
+          "is_frozen_candidate": true,
+          "has_physics_constraint": true
+        },
+        {
+          "bone": "zxk__1",
+          "parent": "ひじ.R",
+          "rot_delta_deg": 0.0,
+          "parent_rot_delta_deg": 125.8775,
+          "max_angle_deg": 146.908,
+          "is_frozen_candidate": true,
+          "has_physics_constraint": true
+        },
+        {
+          "bone": "zxk__2",
+          "parent": "ひじ.R",
+          "rot_delta_deg": 0.0,
+          "parent_rot_delta_deg": 125.8775,
+          "max_angle_deg": 146.908,
+          "is_frozen_candidate": true,
+          "has_physics_constraint": true
+        },
+        {
+          "bone": "zxk__3",
+          "parent": "ひじ.R",
+          "rot_delta_deg": 0.0,
+          "parent_rot_delta_deg": 125.8775,
+          "max_angle_deg": 146.908,
+          "is_frozen_candidate": true,
+          "has_physics_constraint": true
+        },
+        {
+          "bone": "zxk__4",
+          "parent": "ひじ.R",
+          "rot_delta_deg": 0.0,
+          "parent_rot_delta_deg": 125.8775,
+          "max_angle_deg": 146.908,
+          "is_frozen_candidate": true,
+          "has_physics_constraint": true
+        },
+        {
+          "bone": "zxk__5",
+          "parent": "ひじ.R",
+          "rot_delta_deg": 0.0,
+          "parent_rot_delta_deg": 125.8775,
+          "max_angle_deg": 146.908,
+          "is_frozen_candidate": true,
+          "has_physics_constraint": true
+        },
+        {
+          "bone": "zxk__6",
+          "parent": "ひじ.R",
+          "rot_delta_deg": 0.0,
+          "parent_rot_delta_deg": 125.8775,
+          "max_angle_deg": 146.908,
+          "is_frozen_candidate": true,
+          "has_physics_constraint": true
+        },
+        {
+          "bone": "zxk__7",
+          "parent": "ひじ.R",
+          "rot_delta_deg": 0.0,
+          "parent_rot_delta_deg": 125.8775,
+          "max_angle_deg": 146.908,
+          "is_frozen_candidate": true,
+          "has_physics_constraint": true
+        },
+        {
+          "bone": "zxk__8",
+          "parent": "ひじ.R",
+          "rot_delta_deg": 0.0,
+          "parent_rot_delta_deg": 125.8775,
+          "max_angle_deg": 146.908,
+          "is_frozen_candidate": true,
+          "has_physics_constraint": true
+        },
+        {
+          "bone": "PendantB1_JNT",
+          "parent": "ひざD.R",
+          "rot_delta_deg": 9.1627,
+          "parent_rot_delta_deg": 20.509,
+          "max_angle_deg": 37.203,
+          "is_frozen_candidate": false,
+          "has_physics_constraint": true
+        }
+      ],
+      "unit_angles": [
+        {
+          "uid": 144,
+          "anchor_bones": [
+            "PendantB1_JNT",
+            "右ひざD"
+          ],
+          "max_angle_deg": 37.203,
+          "bones_measured": 1,
+          "definition": "采样区间内该单元骨相对 f1 的世界旋转最大变化"
+        }
+      ],
+      "watched_bones": 17
+    },
+    "cache": {
+      "is_baked": false,
+      "frame_start": 1,
+      "frame_end": 833
+    }
+  },
+  "missing_evidence": [
+    "ab.differing_fields",
+    "ab.fields_compared",
+    "ab.result_identical",
+    "ab.variable_changed",
+    "blender.penetration"
+  ],
+  "warnings": [
+    "阈值 f3_parent_motion_deg=5.000 未标定，相关判据最高只能给 suspected",
+    "阈值 f4_angle_deg=60.000 未标定，相关判据最高只能给 suspected",
+    "pmx.py 未解析刚体质量，F4 的『根部质量』只作辅助、未参与判分",
+    "检出 22 个焊接冻结根；发根/耳饰这类『本来就应该刚接』的根也长这样，要靠动态增量区分「设计如此」与「F3 冻结」"
+  ],
+  "config": {
+    "schema_version": "diagnose/1",
+    "thresholds": {
+      "spring_zero_eps": {
+        "value": 1e-09,
+        "unit": "rad",
+        "source": "pmx.py Joint.springs_zero 同一口径"
+      },
+      "f3_frozen_deg": {
+        "value": 0.5,
+        "unit": "deg",
+        "source": "项目书 S3 证据① baked_increment2 = 0.00000°"
+      },
+      "f3_parent_motion_deg": {
+        "value": 5.0,
+        "unit": "deg",
+        "source": "未标定（保守下限），待 M04 用门禁数据复核",
+        "calibrated": false
+      },
+      "f4_wide_limit_rad": {
+        "value": 1.2,
+        "unit": "rad",
+        "source": "项目书 S2 根部限位 ±1.5708 rad（±90°）"
+      },
+      "f4_angle_deg": {
+        "value": 60.0,
+        "unit": "deg",
+        "source": "未标定（暂按『接近水平』的保守下限）",
+        "calibrated": false
+      },
+      "f5_gap_ratio": {
+        "value": 0.5,
+        "unit": "row",
+        "source": "S4 第 11 行 11/11 根骨无刚体（实测 ratio=1.0）"
+      },
+      "f6_numeric_eps": {
+        "value": 1e-09,
+        "unit": "raw",
+        "source": "S8 A/B 逐位相同（两次结果完全一样）"
+      }
+    },
+    "f4_calibrated": false,
+    "f3_calibrated": false
+  },
+  "judgment_fingerprint": "fd960f16c1be6ba49f4e652733b83227fb385d5b453b79774e995e97a20a91a0"
+}

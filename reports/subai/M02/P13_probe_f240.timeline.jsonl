@@ -1,0 +1,4 @@
+{"blend": "E:\\dsh pr\\woker2\\out\\subai\\M02\\s8\\J_baked.blend", "frame": 240, "step": "probe_start", "t": 0.093}
+{"bodies": 324, "cache_at_open": {"frame_end": 326, "frame_start": 1, "info": "326 frames in memory (2.9 MiB).", "is_baked": true, "is_outdated": true, "use_disk_cache": false}, "step": "probe_opened", "t": 0.583}
+{"cache_after_step": {"frame_end": 326, "frame_start": 1, "info": "326 frames in memory (2.9 MiB).", "is_baked": true, "is_outdated": true, "use_disk_cache": false}, "step": "probe_done", "t": 0.796}
+{"out": "E:\\dsh pr\\woker2\\reports\\subai\\M02\\P13_probe_f240.json", "step": "written", "t": 0.799}

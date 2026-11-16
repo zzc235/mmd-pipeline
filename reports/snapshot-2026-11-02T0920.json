@@ -1,0 +1,43 @@
+{
+  "reportVersion": 1,
+  "taskId": "2026-11-02-test-wrapup",
+  "title": "测试收官：关闭 observeIssues 与每小时提醒；飞书端到端实证（PR #5 已合并）",
+  "capturedAt": "2026-11-02T09:20:00+08:00",
+  "executor": "furina (dsh desktop 0.2.1-rc.3)",
+  "changes": [
+    { "target": "source:github", "field": "observeIssues", "before": true, "after": false, "revision": 3 },
+    { "target": "schedule", "id": "schedule-9d7e874f-acd4-4676-be53-de48a827c1ed", "action": "deleted" }
+  ],
+  "feishuProven": {
+    "ticket": "14a0bec5",
+    "decision": "accept / explicitRouted",
+    "thread": "feishu:oc_0246653d8e591221d1fa985f779d1cb9",
+    "pr": 5,
+    "prAuthor": "fishuser-sys",
+    "prState": "MERGED",
+    "mergedAt": "2026-11-02T01:05:04Z"
+  },
+  "githubProven": { "ticket": "a5a95db2", "pr": 4, "prState": "MERGED", "mergedAt": "2026-11-02T00:54:58Z" },
+  "idleCost": {
+    "feishuSource": "websocket long connection, 0 tokens",
+    "githubSource": "notifications poll every 60s, 0 tokens",
+    "workerQueue": "empty, 0 tokens",
+    "scheduledTasks": "PowerShell port probe, 0 tokens",
+    "costTrigger": "each inbound message = 1 eval call; accepted ticket adds 1 worker run"
+  },
+  "state": {
+    "instance": "running @3082, all services ready",
+    "githubReceived": 2,
+    "feishuReceived": 5,
+    "scheduledTasks": ["DSH Superagent", "DSH Superagent Watchdog"],
+    "dshReminders": [],
+    "patches": "E:\\dsh pr\\woker2\\patches\\dsh-superagent-windows-adaptation.patch",
+    "reports": 9
+  },
+  "leftovers": {
+    "prsMerged": [4, 5],
+    "issuesOpen": [1, 2, 3],
+    "branchesMerged": ["agent/readme-footer-comment-a5a95db2ee70", "agent/readme-feishu-trigger-14a0bec51a52"],
+    "repo": "zzc235/superagent-playground (private)"
+  }
+}

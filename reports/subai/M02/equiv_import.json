@@ -1,0 +1,196 @@
+{
+ "import_error": null,
+ "import_ok": true,
+ "imported_joint_objects": 389,
+ "pmx": "E:\\dsh pr\\woker2\\out\\subai\\M02\\飞霄_s2_x07.pmx",
+ "pmx_targets": [
+  "下擺_0_0",
+  "下擺_0_1",
+  "下擺_0_10",
+  "下擺_0_11",
+  "下擺_0_12",
+  "下擺_0_13",
+  "下擺_0_14",
+  "下擺_0_15",
+  "下擺_0_16",
+  "下擺_0_17",
+  "下擺_0_2",
+  "下擺_0_3",
+  "下擺_0_4",
+  "下擺_0_5",
+  "下擺_0_6",
+  "下擺_0_7",
+  "下擺_0_8",
+  "下擺_0_9"
+ ],
+ "rows": [
+  {
+   "delta_lower": 1.1920928910669204e-08,
+   "delta_upper": 1.1920928910669204e-08,
+   "joint": "下擺_0_0",
+   "limit_ang_x_lower": -0.699999988079071,
+   "limit_ang_x_upper": 0.699999988079071,
+   "object": "006_J.下擺_0_0",
+   "use_limit_ang_x": true
+  },
+  {
+   "delta_lower": 1.1920928910669204e-08,
+   "delta_upper": 1.1920928910669204e-08,
+   "joint": "下擺_0_1",
+   "limit_ang_x_lower": -0.699999988079071,
+   "limit_ang_x_upper": 0.699999988079071,
+   "object": "007_J.下擺_0_1",
+   "use_limit_ang_x": true
+  },
+  {
+   "delta_lower": 1.1920928910669204e-08,
+   "delta_upper": 1.1920928910669204e-08,
+   "joint": "下擺_0_2",
+   "limit_ang_x_lower": -0.699999988079071,
+   "limit_ang_x_upper": 0.699999988079071,
+   "object": "008_J.下擺_0_2",
+   "use_limit_ang_x": true
+  },
+  {
+   "delta_lower": 1.1920928910669204e-08,
+   "delta_upper": 1.1920928910669204e-08,
+   "joint": "下擺_0_3",
+   "limit_ang_x_lower": -0.699999988079071,
+   "limit_ang_x_upper": 0.699999988079071,
+   "object": "009_J.下擺_0_3",
+   "use_limit_ang_x": true
+  },
+  {
+   "delta_lower": 1.1920928910669204e-08,
+   "delta_upper": 1.1920928910669204e-08,
+   "joint": "下擺_0_4",
+   "limit_ang_x_lower": -0.699999988079071,
+   "limit_ang_x_upper": 0.699999988079071,
+   "object": "010_J.下擺_0_4",
+   "use_limit_ang_x": true
+  },
+  {
+   "delta_lower": 1.1920928910669204e-08,
+   "delta_upper": 1.1920928910669204e-08,
+   "joint": "下擺_0_5",
+   "limit_ang_x_lower": -0.699999988079071,
+   "limit_ang_x_upper": 0.699999988079071,
+   "object": "011_J.下擺_0_5",
+   "use_limit_ang_x": true
+  },
+  {
+   "delta_lower": 1.1920928910669204e-08,
+   "delta_upper": 1.1920928910669204e-08,
+   "joint": "下擺_0_6",
+   "limit_ang_x_lower": -0.699999988079071,
+   "limit_ang_x_upper": 0.699999988079071,
+   "object": "012_J.下擺_0_6",
+   "use_limit_ang_x": true
+  },
+  {
+   "delta_lower": 1.1920928910669204e-08,
+   "delta_upper": 1.1920928910669204e-08,
+   "joint": "下擺_0_7",
+   "limit_ang_x_lower": -0.699999988079071,
+   "limit_ang_x_upper": 0.699999988079071,
+   "object": "013_J.下擺_0_7",
+   "use_limit_ang_x": true
+  },
+  {
+   "delta_lower": 1.1920928910669204e-08,
+   "delta_upper": 1.1920928910669204e-08,
+   "joint": "下擺_0_8",
+   "limit_ang_x_lower": -0.699999988079071,
+   "limit_ang_x_upper": 0.699999988079071,
+   "object": "014_J.下擺_0_8",
+   "use_limit_ang_x": true
+  },
+  {
+   "delta_lower": 1.1920928910669204e-08,
+   "delta_upper": 1.1920928910669204e-08,
+   "joint": "下擺_0_9",
+   "limit_ang_x_lower": -0.699999988079071,
+   "limit_ang_x_upper": 0.699999988079071,
+   "object": "015_J.下擺_0_9",
+   "use_limit_ang_x": true
+  },
+  {
+   "delta_lower": 1.1920928910669204e-08,
+   "delta_upper": 1.1920928910669204e-08,
+   "joint": "下擺_0_10",
+   "limit_ang_x_lower": -0.699999988079071,
+   "limit_ang_x_upper": 0.699999988079071,
+   "object": "016_J.下擺_0_10",
+   "use_limit_ang_x": true
+  },
+  {
+   "delta_lower": 1.1920928910669204e-08,
+   "delta_upper": 1.1920928910669204e-08,
+   "joint": "下擺_0_11",
+   "limit_ang_x_lower": -0.699999988079071,
+   "limit_ang_x_upper": 0.699999988079071,
+   "object": "017_J.下擺_0_11",
+   "use_limit_ang_x": true
+  },
+  {
+   "delta_lower": 1.1920928910669204e-08,
+   "delta_upper": 1.1920928910669204e-08,
+   "joint": "下擺_0_12",
+   "limit_ang_x_lower": -0.699999988079071,
+   "limit_ang_x_upper": 0.699999988079071,
+   "object": "018_J.下擺_0_12",
+   "use_limit_ang_x": true
+  },
+  {
+   "delta_lower": 1.1920928910669204e-08,
+   "delta_upper": 1.1920928910669204e-08,
+   "joint": "下擺_0_13",
+   "limit_ang_x_lower": -0.699999988079071,
+   "limit_ang_x_upper": 0.699999988079071,
+   "object": "019_J.下擺_0_13",
+   "use_limit_ang_x": true
+  },
+  {
+   "delta_lower": 1.1920928910669204e-08,
+   "delta_upper": 1.1920928910669204e-08,
+   "joint": "下擺_0_14",
+   "limit_ang_x_lower": -0.699999988079071,
+   "limit_ang_x_upper": 0.699999988079071,
+   "object": "020_J.下擺_0_14",
+   "use_limit_ang_x": true
+  },
+  {
+   "delta_lower": 1.1920928910669204e-08,
+   "delta_upper": 1.1920928910669204e-08,
+   "joint": "下擺_0_15",
+   "limit_ang_x_lower": -0.699999988079071,
+   "limit_ang_x_upper": 0.699999988079071,
+   "object": "021_J.下擺_0_15",
+   "use_limit_ang_x": true
+  },
+  {
+   "delta_lower": 1.1920928910669204e-08,
+   "delta_upper": 1.1920928910669204e-08,
+   "joint": "下擺_0_16",
+   "limit_ang_x_lower": -0.699999988079071,
+   "limit_ang_x_upper": 0.699999988079071,
+   "object": "022_J.下擺_0_16",
+   "use_limit_ang_x": true
+  },
+  {
+   "delta_lower": 1.1920928910669204e-08,
+   "delta_upper": 1.1920928910669204e-08,
+   "joint": "下擺_0_17",
+   "limit_ang_x_lower": -0.699999988079071,
+   "limit_ang_x_upper": 0.699999988079071,
+   "object": "023_J.下擺_0_17",
+   "use_limit_ang_x": true
+  }
+ ],
+ "stage": "C-equivalence",
+ "targets_at_minus_plus_0_7": 18,
+ "targets_found": 18,
+ "task": "M02",
+ "tolerance": 1e-06,
+ "verdict": "EQUIVALENT"
+}

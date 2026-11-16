@@ -1,0 +1,12 @@
+﻿
+== HEAD ==
+071ec3c M02：CLI 与测试显式钉 UTF-8（main 在 PYTHONIOENCODING=utf-8 下红的那一类缺陷）
+== A) PYTHONIOENCODING=utf-8 ==
+Ran 327 tests in 18.387s
+OK (skipped=15)
+== B) 默认环境（未设 PYTHONIOENCODING）==
+Ran 327 tests in 17.895s
+OK (skipped=15)
+== C) 只跑 cache_state（默认环境）==
+Ran 35 tests in 0.318s
+OK

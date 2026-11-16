@@ -99,8 +99,13 @@ def _next_decision_id(rows: list, stamp: str | None = None) -> str:
 
 def resolve(target_id: str, decision: str, by: str, note: str = "",
             reason_code: str | None = None, decisions_path: str | None = None,
-            dry_run: bool = False) -> dict:
-    """Human 显式回答一条待批项。返回写入的那条裁决行（`dry_run` 时只返回不写）。"""
+            dry_run: bool = False, relayed_from: str = "") -> dict:
+    """Human 显式回答一条待批项。返回写入的那条裁决行（`dry_run` 时只返回不写）。
+
+    `relayed_from`：Human 在会话里**明确说了**答案，由 D0 转录落库时，把原话与时间放进来。
+    转录不是代决定——两者在记录里必须分得开：`relayed_from` 为空 = Human 本人调的命令行；
+    非空 = D0 转抄，原话逐字在案，谁想核对都看得见 D0 没有加料。
+    """
     if not _is_human(by):
         raise HumanGateError(
             "只有 Human 能关闭待批项（收到 by=%r）。D0 与执行席都不许代关——"
@@ -149,6 +154,10 @@ def resolve(target_id: str, decision: str, by: str, note: str = "",
         "message": "Human 回答 %s：%s" % (target_id, decision),
         "logged_at": logged_at,
     }
+    if relayed_from.strip():
+        record["relayed_from"] = relayed_from.strip()
+        record["evidence"].append(
+            "D0 转录 Human 在会话里的明确指令（不是 D0 自主决定）：%s" % relayed_from.strip())
     if decision not in allowed_decisions:  # 词表自检，理论上进不来
         raise HumanGateError("decision %r 不在词表里" % (decision,), "BAD_DECISION")
 

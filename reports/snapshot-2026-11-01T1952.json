@@ -1,0 +1,58 @@
+{
+  "reportVersion": 1,
+  "taskId": "2026-11-01-superagent-ceiling",
+  "title": "Super-agent 能力上限实测：三 Worker 并行 + 原型在 Windows 上跑起来",
+  "capturedAt": "2026-11-01T19:52:00+08:00",
+  "executor": "furina (dsh desktop 0.2.1-rc.3)",
+  "experiment": {
+    "triggeredAt": "2026-11-01T19:40:00+08:00",
+    "tickets": [
+      { "id": "T-0002", "worker": "subagent", "task": "fix pnpm build", "result": "ok", "artifact": "superagent-lite/reports/T-0002.md", "libIndexBytes": 450257 },
+      { "id": "T-0003", "worker": "subagent_claude_code", "task": "architecture review", "result": "ok: 0 done / 5 partial / 5 missing, 3 fake-implementations", "artifact": "superagent-lite/reports/T-0003.md" },
+      { "id": "T-0004", "worker": "subagent", "task": "router/watchdog boundary tests", "result": "7/7 pass, 10 real bugs (2 P0)", "artifact": "superagent-lite/reports/T-0004.md" }
+    ],
+    "parallelism": 3,
+    "durationApproxMin": 4
+  },
+  "prototype": {
+    "profile": "C:\\Users\\zzc\\.dsh\\profiles\\superagent",
+    "bundle": "dsh-superagent link:E:\\dsh pr\\woker2\\dsh-superagent",
+    "bootCommand": "dsh.cmd --profile superagent --no-open",
+    "panel": "http://127.0.0.1:3082/?token=<redacted>",
+    "panelHttp": 200,
+    "apiState": "ok",
+    "masterId": "orchestrator-872e61fff561543bb877efcd19c35b0b",
+    "maxWorkers": 3,
+    "evalMode": "observe",
+    "health": { "relay": "ready", "notice": "ready", "launch": "ready", "delivery": "ready", "assessment": "ready", "reply": "ready", "evals": "ready", "runtime": "paused", "github": "paused" },
+    "blockingIssue": { "place": "github", "code": "repositoryUnset", "detail": "The GitHub Source names no repository." },
+    "workarounds": [
+      "stateDir schema requires POSIX absolute path -> used '/dsh-state/superagent' which Node maps to E:\\dsh-state\\superagent",
+      "launcher script needs tmux/fcntl/ps -> bypassed by booting the profile directly"
+    ],
+    "stateDirResolved": "E:\\dsh-state\\superagent"
+  },
+  "changes": [
+    "created profile superagent from web template",
+    "wrote profiles/superagent/cordis.patch.yml (webserver 3082, stateDir /dsh-state/superagent)",
+    "installed bundle link:E:/dsh pr/woker2/dsh-superagent",
+    "built prototype lib/ (450257 B index.js)",
+    "fixed router.ps1 Next-TicketId format bug"
+  ],
+  "untouched": ["~/.claude", "profiles/desktop config", "~/.dsh/AGENTS.md", "prototype source (git clean)"],
+  "capabilityLadder": {
+    "L1_closedLoop": "done",
+    "L2_workerChannels": ["subagent", "subagent_claude_code", "teammate"],
+    "L3_watchdog": "done",
+    "L4_prototypeRunning": "done (services ready, source pending)",
+    "L5_realGithubTrigger": "blocked: agent account + repo",
+    "L6_alwaysOn_channels_memory": "missing"
+  },
+  "nextSteps": [
+    "register dedicated GitHub agent account + private test repo",
+    "fix lite bugs P0-1 (close drops conclusion) and P0-2 (drift semantics)",
+    "write PowerShell launcher for prototype (start/status/stop + HTTP probe)",
+    "autostart + reconnect for the 3082 instance",
+    "OS-level isolation for worker"
+  ]
+}
