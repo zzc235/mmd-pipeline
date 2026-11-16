@@ -47,6 +47,44 @@ class PlanError(ValueError):
     """窗口参数自相矛盾 —— 此时一个字节都不该写进场景。"""
 
 
+def assert_lock_owner(owner, *, lock_dir=None, checker=None):
+    """**跑 Blender 之前的第一句**：这把锁现在必须是自己的，否则立刻失败（`D-188`）。
+
+    为什么：`coordination.lock acquire` 在锁被占时本来就 exit 3，但**退出码管不住不看的人** ——
+    我 11-16 18:18 拿到 `LOCK_HELD` 没看就起了 7 个 Blender 进程。这条检查把「没持锁跑」
+    变成「进程根本不往下走」，而不是「跑完了才发现」。
+
+    `checker` 可注入（离屏测试用），默认 `coordination.lock.assert_owner`（只读不写）。
+    """
+    if not owner or "|" not in str(owner):
+        raise SystemExit("用法错误：--owner 必须写成 `模块|工作树`（例如 `模块负责3|A3`）")
+    if checker is None:
+        root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        if root not in sys.path:
+            sys.path.insert(0, root)
+        try:
+            from coordination import lock as lock_mod
+        except Exception as exc:              # 校验不了就不许跑（fail-closed）
+            raise SystemExit("LOCK_CHECK_UNAVAILABLE 无法导入 coordination.lock（%s）⇒ 拒绝起 Blender"
+                             % (exc,))
+        checker = lock_mod.assert_owner
+    try:
+        return checker(owner, lock_dir=lock_dir) if lock_dir else checker(owner)
+    except SystemExit:
+        raise
+    except Exception as exc:                  # NotOwner / IncompleteLock / ValueError
+        raise _owner_refusal(exc)
+
+
+def _owner_refusal(exc):
+    # 只用 GBK 能编的字符：Windows 控制台默认 gbk，打印 `⇒` 会自己抛 UnicodeEncodeError，
+    # 那就变成「为了报一个错而先崩一次」。
+    msg = "NOT_OWNER %s -> 拒绝起 Blender（先 acquire，再跑）" % (exc,)
+    print(msg)
+    sys.stdout.flush()
+    return SystemExit(3)
+
+
 # --------------------------------------------------------------- 纯 Python 层
 def plan(source_last_frame, *, frame_start=1, trim_end=None, hold_until=None):
     """源末帧 → 本步要做的操作 + 最终窗口。**不碰 bpy**，离屏可测。"""
@@ -438,11 +476,16 @@ def main(argv=None):
                     help="写进记录的附注（例如「尾帧未测」「对照行不进判词」），可重复")
     ap.add_argument("--arm-role", default=None,
                     help="本臂标签（C@W1 / C@W2 / D / 对照），只做记录用")
+    ap.add_argument("--owner", default=None,
+                    help="`模块|工作树`；**不给就不许起**：第一步校验这把锁是不是自己的（D-188）")
     ap.add_argument("--skip-ensure", action="store_true",
                     help="**只给反控用**：跳过插件闸门，用来证明「判红真的是这条闸门挡的」")
     ap.add_argument("--allow-scene-settings", action="store_true",
                     help="**只给反控用**：允许 import_vmd 改场景 fps（A6 会因此判红）")
     args = ap.parse_args(argv)
+
+    # 第一句：这把锁不是我的就一个字节都不动（D-188）。放在 import bpy 之前。
+    lock_info = assert_lock_owner(args.owner)
 
     import bpy
     try:                       # 作为包的一部分
@@ -460,6 +503,7 @@ def main(argv=None):
                            keep_scene_settings=not args.allow_scene_settings)
     rec["arm_role"] = args.arm_role
     rec["notes"] = list(args.note)
+    rec["profile"]["lock"] = lock_info
     src_blend = bpy.data.filepath            # ← 本进程打开的那份场景（不是我要写出的那份）
     if src_blend and os.path.exists(src_blend):
         with open(src_blend, "rb") as fh:

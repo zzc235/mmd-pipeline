@@ -185,6 +185,33 @@ class CheckRecordTest(unittest.TestCase):
         self.assertIn("A3_is_baked_false", bad)
 
 
+class LockOwnerGateTest(unittest.TestCase):
+    """`D-188`：跑 Blender 前第一句必须是 lock-owner 校验 —— 不持锁就不许往下走。"""
+
+    def test_missing_owner_is_usage_error(self):
+        with self.assertRaises(SystemExit):
+            AA.assert_lock_owner(None)
+
+    def test_bad_owner_format_is_usage_error(self):
+        with self.assertRaises(SystemExit):
+            AA.assert_lock_owner("模块负责3")          # 少了 |工作树
+
+    def test_not_owner_raises_exit_3(self):
+        def checker(owner):
+            raise RuntimeError("现在不是你的锁：持有者 '模块负责2|A2'")
+
+        with self.assertRaises(SystemExit) as ctx:
+            AA.assert_lock_owner("模块负责3|A3", checker=checker)
+        self.assertEqual(ctx.exception.code, 3)
+
+    def test_owner_ok_passes_through(self):
+        def checker(owner):
+            return {"held": True, "ident": owner}
+
+        got = AA.assert_lock_owner("模块负责3|A3", checker=checker)
+        self.assertEqual(got["ident"], "模块负责3|A3")
+
+
 class SourceOfTruthTest(unittest.TestCase):
     """两臂素材的换算必须在记录里显式，不许下游猜（D-186 第三节）。"""
 
