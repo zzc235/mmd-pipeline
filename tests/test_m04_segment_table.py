@@ -154,6 +154,57 @@ class RealSnapshotTest(unittest.TestCase):
         self.assertEqual(sens[0.10]["steady_deepest_mm"], -65.647)
 
 
+class BoundaryFrameTest(unittest.TestCase):
+    """边界不是「比例」定的，是**哪几帧进了瞬态窗口**定的（`4号` 19:38 的两级台阶）。"""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.rows = SEG.load_frames(SNAPSHOT)
+
+    def test_frame_needs_enough_frames_to_be_covered(self):
+        b = SEG.boundary_frames(self.rows, 302, [347, 353], 0.020)
+        self.assertEqual([x["frames_needed"] for x in b], [46, 52])
+        self.assertAlmostEqual(b[0]["hold_fraction"], 46 / 531.0, places=6)
+        # round(531*r) >= 46  <=>  r >= 45.5/531
+        self.assertAlmostEqual(b[0]["round_threshold"], 45.5 / 531.0, places=6)
+        self.assertAlmostEqual(b[1]["round_threshold"], 51.5 / 531.0, places=6)
+
+    def test_coverage_flag_follows_the_window(self):
+        b = {x["frame"]: x for x in
+             SEG.boundary_frames(self.rows, 302, [347, 353], 0.020, ratio=0.09)}
+        self.assertTrue(b[347]["covered_at_ratio"])   # round(531*0.09)=48 >= 46
+        self.assertFalse(b[353]["covered_at_ratio"])  # 48 < 52
+        b = {x["frame"]: x for x in
+             SEG.boundary_frames(self.rows, 302, [347, 353], 0.020, ratio=0.10)}
+        self.assertTrue(b[353]["covered_at_ratio"])
+
+    def test_smallest_covering_ratio_is_driven_by_the_farthest_frame(self):
+        b = SEG.boundary_frames(self.rows, 302, [347, 353], 0.020)
+        need = SEG.smallest_covering_ratio(b, 531)
+        self.assertEqual(need["frames_needed"], 52)          # f353 说了算
+        self.assertAlmostEqual(need["round_threshold"], 51.5 / 531.0, places=6)
+        self.assertLess(need["round_threshold"], 0.10)       # 10% 是安全余量
+        self.assertGreater(need["round_threshold"], 0.09)    # 但 9% 不够
+
+    def test_frame_outside_the_hold_is_refused(self):
+        """负控：f900 不在保持段内，拒算而不是静默返回。"""
+        with self.assertRaises(ValueError):
+            SEG.boundary_frames(self.rows, 302, [900], 0.020)
+
+    def test_two_step_shape_is_pinned(self):
+        """8% → 稳态 −81.290@f347；9% → −69.097@f353；10% → −65.647@f646。"""
+        sens = {round(s["ratio"], 2): s
+                for s in SEG.sensitivity(self.rows, 302, [0.08, 0.09, 0.10], 0.020,
+                                         boundary=[347, 353])}
+        expect = {0.08: (-81.290, 347), 0.09: (-69.097, 353), 0.10: (-65.647, 646)}
+        for ratio, (value, frame) in expect.items():
+            self.assertEqual((sens[ratio]["steady_deepest_mm"],
+                              sens[ratio]["steady_deepest_frame"]), (value, frame))
+        self.assertEqual(sens[0.08]["covers"], {"347": False, "353": False})
+        self.assertEqual(sens[0.09]["covers"], {"347": True, "353": False})
+        self.assertEqual(sens[0.10]["covers"], {"347": True, "353": True})
+
+
 class MainTest(unittest.TestCase):
     def test_cli_prints_rows_and_exits_zero(self):
         code = SEG.main(["--meta", SNAPSHOT, "--hold-from", "302", "--ratio", "0.10"])

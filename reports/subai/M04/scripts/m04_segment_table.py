@@ -41,7 +41,13 @@
 ----
     python reports/subai/M04/scripts/m04_segment_table.py \
         --meta reports/subai/M04/cd_round2/C_W2.meta.json --hold-from 302 \
-        --ratio 0.10 --ratio 0.50 --sensitivity 0.05,0.10,0.15,0.20
+        --ratio 0.10 --ratio 0.50 --sensitivity 0.05,0.10,0.15,0.20 \
+        --boundary-frames 304,344,346,347,353
+
+`--boundary-frames` 回答另一个问题：**边界其实由哪几帧决定**。比例只是让它可复现的
+约定；`round(hold_frames*r) >= k` 等价于 `r >= (k-0.5)/hold_frames`，那个 `k-0.5` 阈值
+就是「比例调到多少才会翻」。`C@W2` 上是两级台阶：`f347` 要 46 帧（阈值 8.57%）、
+`f353` 要 52 帧（9.70%），所以 8% / 9% / 10% 给出三组不同的稳态极值。
 """
 from __future__ import annotations
 
@@ -162,11 +168,54 @@ def build_rows(rows, hold_from, ratio, eps=EPS_DEFAULT, anim_from=None):
     }
 
 
-def sensitivity(rows, hold_from, ratios, eps=EPS_DEFAULT):
+def boundary_frames(rows, hold_from, frames, eps=EPS_DEFAULT, ratio=None):
+    """「边界由哪几帧决定」—— 比例只是代理，真正的分界是这几帧进不进瞬态窗口。
+
+    对每个候选帧给出：它的深度、把它纳入瞬态窗口所需的帧数 `k = frame-hold_from+1`、
+    物理口径的占段比 `k/hold_frames`、以及**可操作阈值**：`round(hold_frames*r) >= k`
+    等价于 `r >= (k-0.5)/hold_frames`，这是「比例调到多少才会翻」的那个数。
+    """
+    frame_max = max(int(r["frame"]) for r in rows)
+    hold_frames = frame_max - int(hold_from) + 1
+    k_at_ratio = None if ratio is None else int(round(hold_frames * float(ratio)))
+    out = []
+    for f in frames:
+        f = int(f)
+        rec = [r for r in rows if int(r["frame"]) == f]
+        if not rec:
+            raise ValueError("帧 %d 不在读数里" % f)
+        k = f - int(hold_from) + 1
+        if not 1 <= k <= hold_frames:
+            raise ValueError("帧 %d 不在保持段 %d..%d 内" % (f, hold_from, frame_max))
+        out.append({
+            "frame": f,
+            "depth_mm": round(float(rec[0]["max_depth_m"]) * 1000.0, 3),
+            "over_eps": float(rec[0]["max_depth_m"]) < -eps,
+            "frames_needed": k,
+            "hold_fraction": k / float(hold_frames),
+            "round_threshold": (k - 0.5) / float(hold_frames),
+            "covered_at_ratio": None if k_at_ratio is None else bool(k_at_ratio >= k),
+        })
+    return out
+
+
+def smallest_covering_ratio(boundaries, hold_frames):
+    """能让所有候选帧都落进瞬态窗口的最小比例（可操作口径）与其物理口径。"""
+    if not boundaries:
+        return None
+    need = max(b["frames_needed"] for b in boundaries)
+    return {"frames_needed": need,
+            "hold_fraction": need / float(hold_frames),
+            "round_threshold": (need - 0.5) / float(hold_frames)}
+
+
+def sensitivity(rows, hold_from, ratios, eps=EPS_DEFAULT, boundary=None):
     """换比例，看切分结论稳不稳 —— 这条才是「边框可复现」的检验。"""
+    boundary = [int(f) for f in (boundary or [])]
     out = []
     for ratio in ratios:
         block = build_rows(rows, hold_from, ratio, eps)
+        a, b = block["transition"]["window"]
         out.append({
             "ratio": float(ratio),
             "transition_window": block["transition"]["window"],
@@ -177,6 +226,7 @@ def sensitivity(rows, hold_from, ratios, eps=EPS_DEFAULT):
             "steady_over": block["steady"]["over_eps"],
             "steady_deepest_mm": block["steady"]["deepest_mm"],
             "steady_deepest_frame": block["steady"]["deepest_frame"],
+            "covers": {str(f): bool(a <= f <= b) for f in boundary},
         })
     return out
 
@@ -213,6 +263,8 @@ def main(argv=None):
                     help="比例规则，可重复（例如 0.10 与 0.50）")
     ap.add_argument("--sensitivity", default=None,
                     help="逗号分隔的一组比例，用来验「换切点结论还成不成立」")
+    ap.add_argument("--boundary-frames", default=None,
+                    help="逗号分隔的帧号：这些帧进不进瞬态窗口，决定了比例下限在哪")
     ap.add_argument("--eps", type=float, default=EPS_DEFAULT, help="判据 ε（米）")
     ap.add_argument("--json", action="store_true", help="输出 json 而不是 markdown")
     args = ap.parse_args(argv)
@@ -220,13 +272,18 @@ def main(argv=None):
         sys.stdout.reconfigure(encoding="utf-8")
 
     ratios = args.ratio or [0.10]
+    bframes = ([int(x) for x in args.boundary_frames.split(",") if x.strip()]
+               if args.boundary_frames else [])
     try:
         rows = load_frames(args.meta)
         blocks = [build_rows(rows, args.hold_from, r, args.eps, args.anim_from)
                   for r in ratios]
+        bounds = boundary_frames(rows, args.hold_from, bframes, args.eps)
+        need = smallest_covering_ratio(bounds,
+                                       blocks[0]["rule"]["hold_frames"])
         sens = (sensitivity(rows, args.hold_from,
                             [float(x) for x in args.sensitivity.split(",") if x.strip()],
-                            args.eps)
+                            args.eps, bframes)
                 if args.sensitivity else [])
     except ValueError as exc:
         sys.stderr.write("REFUSED: %s\n" % exc)
@@ -234,7 +291,8 @@ def main(argv=None):
 
     if args.json:
         print(json.dumps({"meta": args.meta, "eps": args.eps,
-                          "blocks": blocks, "sensitivity": sens},
+                          "blocks": blocks, "boundary": bounds,
+                          "smallest_covering_ratio": need, "sensitivity": sens},
                          ensure_ascii=False, indent=2, sort_keys=True))
         return 0
 
@@ -246,6 +304,22 @@ def main(argv=None):
                  rule["hold_frames"], rule["ratio"] * 100.0,
                  rule["transition_frames"]))
         print(render(block))
+        print("")
+    if bounds:
+        print("边界由哪几帧决定（比例只是代理，这几帧进不进瞬态窗口才是分界）：")
+        print("| 帧 | 深度 | 需覆盖帧数 k | 占段长 k/N | round() 阈值 (k−0.5)/N | 落在哪个窗口（本期比例） |")
+        print("|---|---|---|---|---|---|")
+        a, b = blocks[0]["transition"]["window"]
+        for bd in bounds:
+            print("| f%d | %.3f mm | %d | %.2f%% | %.2f%% | %s |"
+                  % (bd["frame"], bd["depth_mm"], bd["frames_needed"],
+                     bd["hold_fraction"] * 100.0, bd["round_threshold"] * 100.0,
+                     "交接瞬态" if a <= bd["frame"] <= b else "稳态保持"))
+        if need:
+            print("⇒ 让这几帧全部落进瞬态窗口的最小比例：物理口径 %.2f%%（%d 帧），"
+                  "可操作口径（本次 round() 落点）%.2f%%"
+                  % (need["hold_fraction"] * 100.0, need["frames_needed"],
+                     need["round_threshold"] * 100.0))
         print("")
     if sens:
         print("换比例（同一条规则，只改比例）：")
