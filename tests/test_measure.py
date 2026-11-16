@@ -109,6 +109,56 @@ class TestFrozen(unittest.TestCase):
         self.assertEqual(m["frozen"]["consecutive_frames"], 6)
 
 
+class TestSequentialEvalPlan(unittest.TestCase):
+    """P12：缓存不进 `.blend`，冷跳是第三条轨迹（D_max 1.922861 m）。
+
+    所以采样计划必须是「从 frame_start 连续步进」，任何回退/冷跳都要在计划阶段就被拒。
+    """
+
+    def test_visit_is_contiguous_from_frame_start(self):
+        p = measure.plan_sequential_eval(1, 60, 80, baseline_frame=60)
+        self.assertEqual(p["visited_frames"], list(range(1, 81)),
+                         "被访问的帧必须连续升序、从 frame_start 起，因为冷跳拿到的是另一条轨迹")
+        self.assertEqual(p["warmup_frames"], 59, "首个被测帧之前要先空走 59 帧")
+        self.assertEqual(p["policy"], "sequential_from_frame_start")
+
+    def test_measuring_from_frame_start_needs_no_warmup(self):
+        p = measure.plan_sequential_eval(1, 1, 20)
+        self.assertEqual(p["warmup_frames"], 0)
+        self.assertEqual(p["visited_frames"][0], 1)
+
+    def test_baseline_frame_inside_warmup_does_not_jump_back(self):
+        p = measure.plan_sequential_eval(1, 20, 40, baseline_frame=5)
+        self.assertEqual(p["visited_frames"], list(range(1, 41)),
+                         "基线帧落在预热段里：照走一遍，不额外回头取")
+        self.assertIn(5, p["visited_frames"])
+
+    def test_rejects_baseline_after_last_frame(self):
+        with self.assertRaises(measure.SequentialEvalError):
+            measure.plan_sequential_eval(1, 1, 20, baseline_frame=50)
+
+    def test_rejects_baseline_before_frame_start(self):
+        with self.assertRaises(measure.SequentialEvalError):
+            measure.plan_sequential_eval(10, 20, 30, baseline_frame=1)
+
+    def test_rejects_first_frame_before_frame_start(self):
+        with self.assertRaises(measure.SequentialEvalError):
+            measure.plan_sequential_eval(5, 1, 20)
+
+    def test_rejects_reversed_range(self):
+        with self.assertRaises(measure.SequentialEvalError):
+            measure.plan_sequential_eval(1, 20, 10)
+
+    def test_rejects_non_int_frames(self):
+        for bad in (True, 1.5, "1", None):
+            with self.assertRaises(measure.SequentialEvalError):
+                measure.plan_sequential_eval(1, bad, 20)
+
+    def test_error_is_assembly_error(self):
+        """门禁/装配层只捕 AssemblyError 一族；新异常必须落在同一族里。"""
+        self.assertTrue(issubclass(measure.SequentialEvalError, measure.AssemblyError))
+
+
 class TestPenetration(unittest.TestCase):
     def test_negative_depth_is_penetration(self):
         pen = [{"frame": 5, "roi": "row11", "max_depth_m": -0.2, "bone": "b1"},

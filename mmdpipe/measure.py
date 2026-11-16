@@ -1,4 +1,4 @@
-﻿"""M04 · 逐帧测量 → measurement 装配器（纯 Python，不 import bpy）。
+"""M04 · 逐帧测量 → measurement 装配器（纯 Python，不 import bpy）。
 
 为什么需要这一层
 ----------------
@@ -17,6 +17,8 @@ Blender 侧（A1）只负责落**逐帧原始值**：`frame, bone, angle_deg`、
   的那一根（`max(angle) ` 最小），报它的父链增量、目标最大角、以及「角度 ≤ frozen_eps_deg
   的最长连续帧数」。没有骨满足父链条件时，`frozen_deg` 段照写，门禁会判 PASS（本来就不该动）。
 * `penetration`：按 ROI 取 `min(max_depth_m)`（最负=最深），并统计有穿入的帧数与骨次。
+* `plan_sequential_eval`：逐帧采样只能从 `scene.frame_start` 顺序步进——缓存不进 `.blend`，
+  冷跳到中段是另一条轨迹（P12：`D_max = 1.922861 m`）。采样器不许自带「跳帧取一行」。
 """
 from __future__ import annotations
 
@@ -133,6 +135,66 @@ def _streak(frames_sorted, values_by_frame, eps):
         else:
             run = 0
     return best
+
+
+class SequentialEvalError(AssemblyError):
+    """顺序求值计划不可满足：不能回退、不能冷跳、区间不合法。"""
+
+
+def plan_sequential_eval(frame_start, first_frame, last_frame, *, baseline_frame=None):
+    """逐帧采样器必须遵守的顺序求值计划（P12 实测结论，不是偏好）。
+
+    为什么
+    ------
+    `B_from_blend1.blend` 的 `point_cache` 落盘时并不带帧数据（P12：重开后
+    `is_baked=false` / `is_outdated=true`，`info` 仍谎报「240 frames in memory」）。
+    在这种输入上**冷跳**（直接 `frame_set(109)`）得到的是第三条轨迹——与顺序求值
+    逐位不相等的 `D_max = 1.922861 m`；只有「从 `scene.frame_start` 逐帧步进到目标帧」
+    才和重算轨迹逐位相等（`seq@109` / `seq@240` 对 `P0` 均 `D_all = 0.000000`）。
+
+    因此交付契约是「必须从 `frame_start` 顺序求值」，采样器在架构上就不该有
+    「跳到第 N 帧取一行」这条路：本函数只产出**连续升序**的访问序列，调用方照着走。
+
+    返回
+    ----
+    dict：`visited_frames`（连续升序，从 `frame_start` 起）、`warmup_frames`
+    （首个被测帧之前必须空走的帧数）、以及原样记回 meta 的四个边界值。
+
+    拒绝（`SequentialEvalError`，调用方应转 UNKNOWN，不得吞成 PASS）
+    ------
+    * 区间非法（`last < first`，或 `first < frame_start` 达不到）；
+    * `baseline_frame` 早于 `frame_start`（冷跳才拿得到）；
+    * `baseline_frame` 晚于 `last_frame`（顺序求值不能回退）。
+    """
+    for name, value in (("frame_start", frame_start), ("first_frame", first_frame),
+                        ("last_frame", last_frame)):
+        if isinstance(value, bool) or not isinstance(value, int):
+            raise SequentialEvalError("%s 必须是整数帧号：%r" % (name, value))
+    if baseline_frame is not None and (isinstance(baseline_frame, bool)
+                                       or not isinstance(baseline_frame, int)):
+        raise SequentialEvalError("baseline_frame 必须是整数帧号：%r" % (baseline_frame,))
+    if last_frame < first_frame:
+        raise SequentialEvalError("区间反了：first=%d last=%d" % (first_frame, last_frame))
+    if first_frame < frame_start:
+        raise SequentialEvalError(
+            "首个被测帧 %d 早于 scene.frame_start %d：顺序求值到不了" % (first_frame, frame_start))
+    if baseline_frame is not None:
+        if baseline_frame < frame_start:
+            raise SequentialEvalError(
+                "baseline_frame %d 早于 scene.frame_start %d" % (baseline_frame, frame_start))
+        if baseline_frame > last_frame:
+            raise SequentialEvalError(
+                "baseline_frame %d 晚于区间末帧 %d：顺序求值不能回退（先走到再退回来等于冷跳）"
+                % (baseline_frame, last_frame))
+    return {
+        "frame_start": frame_start,
+        "first_frame": first_frame,
+        "last_frame": last_frame,
+        "baseline_frame": baseline_frame,
+        "visited_frames": list(range(frame_start, last_frame + 1)),
+        "warmup_frames": first_frame - frame_start,
+        "policy": "sequential_from_frame_start",
+    }
 
 
 def assemble(dynamics_rows, penetration_rows, *, sample_id, evidence_mode,
