@@ -1,4 +1,4 @@
-"""M04 · 逐帧测量 → measurement 装配器（纯 Python，不 import bpy）。
+﻿"""M04 · 逐帧测量 → measurement 装配器（纯 Python，不 import bpy）。
 
 为什么需要这一层
 ----------------
@@ -261,7 +261,7 @@ def assemble(dynamics_rows, penetration_rows, *, sample_id, evidence_mode,
             "frames": len(entry["frames"]),
             "bones": len(entry["bones"]),
             "frames_measured": len(entry["frames_seen"]),
-            "roi_bones": len(entry["bones_seen"]),
+            "bones_seen": len(entry["bones_seen"]),
             "epsilon_m": eps_m,
         }
     return measurement

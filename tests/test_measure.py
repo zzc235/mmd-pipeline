@@ -122,7 +122,8 @@ class TestPenetration(unittest.TestCase):
         self.assertEqual(m["penetration"]["bones"], 2)
         self.assertEqual(m["penetration"]["frames_measured"], 3,
                          "测了 3 帧、其中 2 帧穿入：两个数必须分开记")
-        self.assertEqual(m["penetration"]["roi_bones"], 3)
+        self.assertEqual(m["penetration"]["bones_seen"], 3,
+                         "曾经是最深点的骨数，不是 ROI 骨数")
 
     def test_absent_section_when_no_rows(self):
         m = measure.assemble(rows([(f, "b", 1.0) for f in range(1, 11)]), [],
