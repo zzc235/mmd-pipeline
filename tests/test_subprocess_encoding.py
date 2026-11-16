@@ -89,6 +89,27 @@ def scan_source(source: str, filename: str = "<string>") -> list:
 #: 否则"0 违规"又会变成"少扫了一堆也不知道"（D-086）。
 SCOPE_EXCLUDED_PREFIXES = ("reports/",)
 
+#: 但 `reports/` 里有**被流水线执行的代码**，它们必须进范围（D0 2026-11-16 18:18 的观察）：
+#: `reports/subai/<模块>/scripts/*.py` 是重建链、补丁、摘要、读回等真正跑起来的工具。
+#: 起因：`1号` 的补丁自检在 GBK 控制台里崩在打印 `⇒` 上（`UnicodeEncodeError`），
+#: 而他自检在 UTF-8 下是绿的——**护栏排除了 `reports/`，于是被管线调用的代码没人管**。
+#: 只放进「脚本目录」这一类；报告正文、JSON、md 仍在范围外（字节已被 evidence 引用，D-159）。
+CHAIN_SCRIPT_SEGMENT = "/scripts/"
+
+
+def is_chain_script(rel: str) -> bool:
+    """`reports/subai/<模块>/scripts/**.py`：被交付链执行的代码，必须与源码同标准。"""
+    return rel.startswith(SCOPE_EXCLUDED_PREFIXES) and CHAIN_SCRIPT_SEGMENT in rel
+
+
+def in_source_scope(rel: str) -> bool:
+    return (not rel.startswith(SCOPE_EXCLUDED_PREFIXES)) or is_chain_script(rel)
+
+
+def chain_scripts(root: str = ROOT) -> list:
+    """范围内、来自 `reports/` 的执行脚本（数量必须可见：这条范围不能被悄悄丢掉）。"""
+    return [f for f in tracked_py(root, include_excluded=True) if is_chain_script(f)]
+
 
 def tracked_py(root: str = ROOT, include_excluded: bool = False) -> list:
     """版本控制里的 .py（相对路径）。
@@ -112,13 +133,16 @@ def tracked_py(root: str = ROOT, include_excluded: bool = False) -> list:
         raise RuntimeError("git ls-files 没返回任何 .py——扫描范围为空时，'0 命中' 没有意义")
     if include_excluded:
         return files
-    return [f for f in files if not f.startswith(SCOPE_EXCLUDED_PREFIXES)]
+    return [f for f in files if in_source_scope(f)]
 
 
 def policy_excluded(root: str = ROOT) -> list:
-    """在版本控制里、但被策略排除在源码范围外的 .py（必须可见，不许静默）。"""
+    """在版本控制里、但被策略排除在源码范围外的 .py（必须可见，不许静默）。
+
+    `reports/**/scripts/` 已收进范围，所以这里只剩报告/证据正文里的 .py。
+    """
     return [f for f in tracked_py(root, include_excluded=True)
-            if f.startswith(SCOPE_EXCLUDED_PREFIXES)]
+            if not in_source_scope(f)]
 
 
 def scan_tree(root: str = ROOT) -> tuple:
@@ -151,14 +175,16 @@ def scan_tree(root: str = ROOT) -> tuple:
     return sorted(violations), scanned, skipped
 
 
-def summary_line(violations: list, scanned: int, skipped: list, excluded: int = 0) -> str:
+def summary_line(violations: list, scanned: int, skipped: list, excluded: int = 0,
+                 chain: int = 0) -> str:
     """固定输出形状：一眼能判绿/不判绿（1号 建议的形状）。
 
-    `excluded`：策略上不在范围内的文件数（`reports/` 里的证据脚本）。
-    数字必须出现，否则「0 违规」分不清「真干净」和「少扫了 93 个文件」。
+    `excluded`：策略上不在范围内的文件数（`reports/` 里非脚本的证据文件）。
+    `chain`：范围内来自 `reports/**/scripts/` 的执行脚本数。
+    两个数字都必须出现，否则「0 违规」分不清「真干净」和「少扫了一堆文件」。
     """
-    head = "scanned=%d  violations=%d  skipped=%d  excluded_policy=%d" % (
-        scanned, len(violations), len(skipped), excluded)
+    head = "scanned=%d  violations=%d  skipped=%d  excluded_policy=%d  chain_scripts=%d" % (
+        scanned, len(violations), len(skipped), excluded, chain)
     if skipped:
         head += "（%s）" % ", ".join("%s:%s" % (p, why) for p, why in skipped[:5])
     return head
@@ -168,9 +194,12 @@ class TestGuard(unittest.TestCase):
     def test_repo_is_clean(self):
         violations, scanned, skipped = scan_tree()
         excluded = policy_excluded()
-        line = summary_line(violations, scanned, skipped, len(excluded))
+        chain = chain_scripts()
+        line = summary_line(violations, scanned, skipped, len(excluded), len(chain))
         self.assertEqual(skipped, [], "有文件没扫成（不可判绿）：%s" % line)
         self.assertGreaterEqual(scanned, 50, "扫到的文件太少，护栏可能在空转：%s" % line)
+        self.assertGreaterEqual(len(chain), 10,
+                                "交付链脚本没进范围（或目录结构变了）：%s" % line)
         self.assertEqual(violations, [],
                          "这些 subprocess 调用按文本取输出却没有 encoding=：%s（%s）"
                          % (violations, line))
@@ -278,23 +307,27 @@ class TestGuard(unittest.TestCase):
             shutil.rmtree(tmp, ignore_errors=True)
 
     def test_scope_is_version_controlled_files(self):
-        """扫描范围来自 `git ls-files`，减去**明写的**策略外目录。
+        """扫描范围来自 `git ls-files`，减去**明写的**策略外目录，加上**被执行的链脚本**。
 
-        `reports/` 自 2026-11-16 16:44 起进版本控制（Human 定，`e7d9916`），于是它出现在
-        `git ls-files` 的结果里。它不该被本护栏管：那是证据脚本，字节已被 evidence 哈希引用，
-        改字节等于让历史记录失效（`D-159`）。所以排除要写成常量、并**计数可见**——
-        旧断言「reports/ 不该出现」是靠 `.gitignore` 顺带成立的，不是设计。
+        `reports/` 自 2026-11-16 16:44 起进版本控制（Human 定，`e7d9916`）。报告正文不该被
+        本护栏管：那是证据脚本，字节已被 evidence 哈希引用，改字节等于让历史记录失效（`D-159`）。
+        但 `reports/subai/<模块>/scripts/*.py` 是**交付链真正执行的代码**，必须进范围
+        （D0 2026-11-16 18:18：`1号` 的补丁自检在 GBK 控制台崩在打印 `⇒` 上，而护栏排除了它）。
         """
         files = tracked_py()
         self.assertTrue(files, "git ls-files 没返回任何 .py，扫描范围失效")
         self.assertFalse([f for f in files if f.startswith("build/")], "build/ 不该进扫描范围")
-        self.assertFalse([f for f in files if f.startswith("reports/")],
-                         "reports/ 是证据脚本，不该进源码扫描范围")
+        chain = chain_scripts()
+        self.assertTrue(chain, "reports/**/scripts/ 里的链脚本必须在范围内")
+        self.assertTrue(all(is_chain_script(f) for f in chain))
+        self.assertEqual(sorted(f for f in files if is_chain_script(f)), sorted(chain),
+                         "链脚本必须出现在 scan_tree 的范围里")
         excluded = policy_excluded()
-        self.assertTrue(excluded, "reports/ 已在版本控制里，策略外清单不该为空——为空说明 git 或过滤坏了")
-        self.assertTrue(all(f.startswith("reports/") for f in excluded))
-        line = summary_line([], len(files), [], len(excluded))
+        self.assertTrue(all(not is_chain_script(f) for f in excluded),
+                        "链脚本不许出现在『策略外』清单里：%r" % [f for f in excluded if is_chain_script(f)])
+        line = summary_line([], len(files), [], len(excluded), len(chain))
         self.assertIn("excluded_policy=%d" % len(excluded), line, "排除数必须在输出里可见")
+        self.assertIn("chain_scripts=%d" % len(chain), line, "链脚本数必须在输出里可见")
 
 
 if __name__ == "__main__":
