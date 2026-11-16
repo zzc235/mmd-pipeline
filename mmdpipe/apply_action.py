@@ -320,6 +320,116 @@ def fcurves_of(action):
     return out, "layers.strips.channelbags"
 
 
+class FcurveShapeError(RuntimeError):
+    """写侧找不到**唯一**可写的曲线容器。
+
+    读可以全部拼成一个列表，写不行：写要 `find()/new()` 这对方法，得先挑定
+    哪一个容器。挑不准的时候宁可红，也不许随手挑一个 —— 那是往别人的动作上改键。
+    """
+
+
+def _channelbags_of(action):
+    """分层动作里的 `channelbag` 列表（`layers[].strips[].channelbags[]`）。"""
+    out = []
+    for layer in getattr(action, "layers", []) or []:
+        for strip in getattr(layer, "strips", []) or []:
+            for bag in getattr(strip, "channelbags", None) or []:
+                out.append(bag)
+    return out
+
+
+def fcurve_container(action, datablock=None):
+    """取一个**可写**的 fcurve 容器（有 `.find/.new`），`fcurves_of` 的写侧。
+
+    顺序照 `AGENTS.md` 第一条「先找现成的」，也就是从最省事到最手工：
+      1. `action.fcurves` —— 同会话刚由导入器造出来的动作；`chain_nla` 今天走的就是这条
+      2. 分层动作里「槽位正好是 `datablock` 现在用的那个」channelbag
+      3. 分层动作里只有一个 channelbag 时，就是它
+      4. 多个又对不上槽位 ⇒ 抛 `FcurveShapeError`（不猜）
+    返回 `(容器, how)`；`how` 进记录，别让下一个人猜曲线写去了哪里。
+    """
+    try:
+        legacy = action.fcurves
+    except (AttributeError, TypeError):
+        legacy = None
+    if legacy is not None:
+        return legacy, "action.fcurves"
+    bags = _channelbags_of(action)
+    if not bags:
+        raise FcurveShapeError(
+            "动作 %r 既没有 .fcurves 也没有 channelbags：没有可写的地方"
+            % getattr(action, "name", "?"))
+    slot = None
+    if datablock is not None:
+        slot = getattr(getattr(datablock, "animation_data", None), "action_slot", None)
+    if slot is not None:
+        hit = [b for b in bags if getattr(b, "slot", None) is slot]
+        if len(hit) == 1:
+            return hit[0].fcurves, "channelbags[slot]"
+    if len(bags) == 1:
+        return bags[0].fcurves, "channelbags[0]"
+    raise FcurveShapeError(
+        "分层动作 %r 有 %d 个 channelbag 且槽位对不上，不敢挑一个"
+        % (getattr(action, "name", "?"), len(bags)))
+
+
+def ensure_fcurve(action, datablock, path, index=0, group=""):
+    """拿到（必要时新建）某条曲线，返回 `(fcurve, how)`。
+
+    分层动作上写曲线，Blender 5.2 有上游接口 `Action.fcurve_ensure_for_datablock`。
+    **它不是假设了，是量过的**（2026-11-16 只读探针，臂件 `C@W1.blend`，文件 sha 不变）：
+
+        exists_on_class    = false      ← `hasattr(bpy.types.Action, ...)` 会说不存在
+        exists_on_instance = true       ← 所以只能 `getattr(action, ...)`
+        __doc__            = "Action.fcurve_ensure_for_datablock(datablock, data_path,
+                              index=0, group_name=\"\") ... This action must already be
+                              assigned to the data-block. ..."
+        真调（对一份没挂到 ID 上的 `action.copy()`）= RuntimeError
+
+    所以顺序是：老形状 → 上游接口（**前置条件成立**才用）→ 自己走 channelbag。
+    前置条件不成立时不调用、只记 `upstream_skipped:<原因>` —— 拿异常当流程控制会让
+    每次正常拼接都背一条假故障，读记录的人分不清「真出事」和「本来就走这条」。
+    `how` 里会写清走了哪条，不藏。
+    """
+    try:
+        legacy = action.fcurves
+    except (AttributeError, TypeError):
+        legacy = None
+    if legacy is not None:
+        fc = legacy.find(path, index=index)
+        if fc is None:
+            fc = legacy.new(path, index=index, action_group=group)
+        return fc, "action.fcurves"
+    upstream = getattr(action, "fcurve_ensure_for_datablock", None)
+    note = ""
+    # 上游接口有**前置条件**（2026-11-16 真机量到，见 M05 报告 §十三）：
+    # 文档原话 "This action must already be assigned to the data-block"，
+    # 拿一份没挂到 ID 上的动作（NLA 条带上的动作就是这种）去调直接 RuntimeError。
+    # 所以先判前置条件，别靠异常当流程控制 —— 那条路每次都会在记录里留一条假故障。
+    assigned = datablock is not None and \
+        getattr(getattr(datablock, "animation_data", None), "action", None) is action
+    if callable(upstream):
+        if not assigned:
+            note = "; upstream_skipped:" + (
+                "no_datablock" if datablock is None else "action_not_assigned")
+        else:
+            try:
+                fc = upstream(datablock, path, index=index, group_name=group)
+                if fc is not None:
+                    return fc, "fcurve_ensure_for_datablock"
+                note = "; upstream_returned_None"
+            except Exception as exc:        # noqa: BLE001 —— 前置条件之外还会因为别的抛，抛了就退
+                note = "; upstream_raised:" + type(exc).__name__
+    cont, how = fcurve_container(action, datablock)
+    fc = cont.find(path, index=index)
+    if fc is None:
+        fc = cont.new(path, index=index, action_group=group)
+        how += "(new)"
+    else:
+        how += "(find)"
+    return fc, how + note
+
+
 def _trim_action(action, keep_until):
     """丢掉 keep_until 之后的关键帧；返回被丢掉的帧数（按曲线逐个算）。"""
     dropped = 0

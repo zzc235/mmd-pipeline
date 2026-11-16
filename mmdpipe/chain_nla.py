@@ -21,10 +21,12 @@ import addon_utils
 try:                       # 作为包的一部分（Blender 扩展里是 mmd_pipeline.mmdpipe）
     from . import vmd as vmd_mod
     from . import align as align_mod
+    from . import apply_action as apply_mod
 except ImportError:        # 作为独立脚本跑：blender -b -P mmdpipe/chain_nla.py
     sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     from mmdpipe import vmd as vmd_mod
     from mmdpipe import align as align_mod
+    from mmdpipe import apply_action as apply_mod
 
 SCALE = 0.08
 MEASURE_BONE = "センター"
@@ -97,16 +99,26 @@ def _local_basis(arm, bone):
 
 
 def _shift_b_action(arm, action, bone_name, local_delta, frame_lo, frame_hi):
-    """把 local_delta 加到 B 的 action 上该骨的位置曲线上（只影响 B 的区间）。"""
-    from mathutils import Vector
-    d = Vector(local_delta)
+    """把 local_delta 加到 B 的 action 上该骨的位置曲线上（只影响 B 的区间）。
+
+    返回 `(改写到的关键帧数, 曲线是从哪条路拿到的)`。
+
+    10 行写法（`action.fcurves.find/new`）只在**本会话刚由 `import_vmd` 造出来的**
+    动作上成立：动作随 `.blend` 存盘再读回来是分层/槽位动作，`.fcurves` 直接
+    `AttributeError`（2026-11-16 在 324 批次产物上实测）。所以写侧也走
+    `apply_action.ensure_fcurve`，和读侧同一个形状，不在这里另留一份实现。
+    """
+    d = tuple(float(v) for v in local_delta)      # 只按三轴取值，不需要 mathutils
     path = 'pose.bones["%s"].location' % bone_name
     fcurves = {}
+    via = []
     for i in range(3):
-        fc = action.fcurves.find(path, index=i)
-        if fc is None:
-            fc = action.fcurves.new(path, index=i, action_group=bone_name)
+        try:
+            fc, how = apply_mod.ensure_fcurve(action, arm, path, index=i, group=bone_name)
+        except apply_mod.FcurveShapeError as exc:
+            raise RuntimeError("B 的 action 上没有可写的位置曲线：%s" % exc)
         fcurves[i] = fc
+        via.append(how)
     any_key = False
     for i, fc in fcurves.items():
         if len(fc.keyframe_points):
@@ -119,7 +131,7 @@ def _shift_b_action(arm, action, bone_name, local_delta, frame_lo, frame_hi):
             fc.keyframe_points.insert(frame_hi, d[i], options={"FAST"})
     for fc in fcurves.values():
         fc.update()
-    return len(fcurves[0].keyframe_points)
+    return len(fcurves[0].keyframe_points), sorted(set(via))
 
 
 def _inject_bone(arm, measure):
@@ -171,7 +183,7 @@ def _measure_and_align(arm, action_b, a_last, b_first, mode):
         local_delta = M.inverted() @ (-world_delta)   # B 往回走，使首帧与 A 末重合
     except ValueError:
         return {"mode": "skip", "reason": "局部基不可逆（%s），跳过注入" % inject}
-    keys = _shift_b_action(arm, action_b, inject, local_delta, b_first, b_first + 300)
+    keys, via = _shift_b_action(arm, action_b, inject, local_delta, b_first, b_first + 300)
     return {
         "mode": plan.mode, "reason": plan.reason, "measure_bone": mb,
         "inject_bone": inject,
@@ -179,6 +191,7 @@ def _measure_and_align(arm, action_b, a_last, b_first, mode):
         "a_pos": [round(v, 4) for v in wa], "b_pos": [round(v, 4) for v in wb],
         "local_delta": [round(v, 5) for v in local_delta],
         "keys_touched": keys,
+        "fcurves_via": via,
     }
 
 
@@ -252,7 +265,8 @@ def concat_via_nla(pmx, a_path, b_path, out_path, gap=6, blend=0,
                      use_current_action=True, bake_types={"POSE"})
     bpy.ops.object.mode_set(mode="OBJECT")
     action = arm.animation_data.action
-    fcurves = len(action.fcurves) if action else 0
+    fcu_list, fcu_via = apply_mod.fcurves_of(action) if action else ([], None)
+    fcurves = len(fcu_list)
 
     # 复位场景帧位：mmd_tools 的 import_vmd 以 frame_current 为起点，
     # 留下来会让后续导入的动作整体平移（实测变 [454,1286]）。
@@ -260,9 +274,11 @@ def concat_via_nla(pmx, a_path, b_path, out_path, gap=6, blend=0,
     os.makedirs(os.path.dirname(os.path.abspath(out_path)) or ".", exist_ok=True)
     bpy.ops.mmd_tools.export_vmd(filepath=out_path, scale=1.0 / SCALE)
     if verbose:
-        print("  BAKE %s fcurves=%d → %s" % (action.name if action else "-", fcurves, out_path))
+        print("  BAKE %s fcurves=%d（读自 %s）→ %s"
+              % (action.name if action else "-", fcurves, fcu_via, out_path))
     return {"out": out_path, "a_last": a_last, "b_first": b_first,
             "frame_range": [0, int(b_last) - 1], "fcurves": fcurves,
+            "fcurves_via": fcu_via,
             "segments": 2, "gap": gap, "blend": blend, "align": align_rep}
 
 
