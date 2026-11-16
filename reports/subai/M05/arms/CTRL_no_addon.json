@@ -1,0 +1,130 @@
+{
+ "action": {
+  "fcurves": 0,
+  "frame_range": [
+   null,
+   null
+  ],
+  "name": null,
+  "nla_tracks": 0
+ },
+ "applied": {},
+ "arm": "星穹铁道—飞霄（无外套）_arm",
+ "arm_role": "反控-无插件闸门",
+ "cache": {
+  "freed_bake": false,
+  "has_rigidbody_world": true,
+  "is_baked": null
+ },
+ "checks": [
+  {
+   "detail": "ensure_addons={'mmd_tools': None}（`hasattr` 在没装上时也返回 True，只能信这个）",
+   "id": "A0_profile_ready",
+   "ok": false
+  },
+  {
+   "detail": "action=None fcurves=0（门槛 > 100）",
+   "id": "A1_action_applied",
+   "ok": false
+  },
+  {
+   "detail": "scene.frame_end=250，action.frame_range[1]=None，来源='not-applied'",
+   "id": "A2_frame_end_readback",
+   "ok": false
+  },
+  {
+   "detail": "rigidbody_world=True is_baked=None is_outdated=None freed_bake=False",
+   "id": "A3_is_baked_false",
+   "ok": false
+  },
+  {
+   "detail": "nla_tracks=0（单动作这一步不许留 NLA 轨道）",
+   "id": "A4_no_nla_stacking",
+   "ok": true
+  },
+  {
+   "detail": "scene.frame_end=250，plan.final_last=301",
+   "id": "A5_window_matches_plan",
+   "ok": false
+  },
+  {
+   "detail": "scene.fps_after=None，preset=24（导入动作改了容器 fps）",
+   "id": "A6_fps_matches_preset",
+   "ok": false
+  }
+ ],
+ "cleared": {
+  "action": false,
+  "nla_tracks": 0,
+  "orphan_actions": 0
+ },
+ "in_blend": {
+  "bytes": 5923244,
+  "path": "E:\\code\\mmdpipe-ai\\A1\\out\\subai\\M08\\run_20261116_1805\\rebuild_built.blend",
+  "sha256": "ef8e31a9fa2d4ef48d7e1b3e684a2238091c4b3b6b253d012fab4abe9f7ef27e"
+ },
+ "notes": [
+  "场景级反控：关掉插件闸门，应当判红且不写交付件"
+ ],
+ "out_blend": null,
+ "plan": {
+  "applied_first": 1,
+  "applied_last": 301,
+  "final_first": 1,
+  "final_last": 301,
+  "frame_start": 1,
+  "import_offset": 1,
+  "notes": [
+   "源末帧 300 → 应用后 301，不截不补"
+  ],
+  "ops": [],
+  "source_last_frame": 300
+ },
+ "profile": {
+  "ensure_addons": {
+   "mmd_tools": null
+  },
+  "lock_start": {
+   "heartbeat_age": 2.735549211502075,
+   "held": true,
+   "ident": "模块负责3|A3",
+   "raw": "模块负责3|A3|PID=27456|2026-11-16T18:29:43+08:00|M05 干净窗口独占重跑四臂（带锁三步证据）+ 两条反控（D-188 补证）"
+  },
+  "preset_fps": 24,
+  "update_scene_settings_forced_off": true
+ },
+ "scene": {
+  "fps_before": 24,
+  "name": "Scene"
+ },
+ "schema": "m05.apply_action/1",
+ "source": {
+  "bone_frames": 491,
+  "bones": 332,
+  "bytes": 57497,
+  "frame_range": [
+   0,
+   300
+  ],
+  "path": "E:\\dsh pr\\woker2\\out\\B_aligned.vmd",
+  "sha256": "5d391f1a01d2279aa9f769cf6cd20fc176b5aa2f542c2d5568608a69a02e762d"
+ },
+ "stage_motion": {
+  "issues": [
+   {
+    "code": "E-14",
+    "evidence": "",
+    "hint": "import_vmd 参数或文件出错：Calling operator \"bpy.ops.mmd_tools.import_vmd\" error, could not be found",
+    "severity": "block"
+   }
+  ],
+  "metrics": {},
+  "ok": false
+ },
+ "verdict": "BLOCKED",
+ "window": {
+  "frame_end": 250,
+  "frame_end_source": "not-applied",
+  "frame_start": 1
+ }
+}

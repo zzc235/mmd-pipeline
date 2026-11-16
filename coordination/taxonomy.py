@@ -3,9 +3,14 @@
 三件事：
 1. `validate(record)`：新裁决只能落在 `allowed_decision` / `allowed_reason_code` 里；
    不在表内的 reason_code **不接受为正常裁决**，转 `NEEDS_HUMAN` + `SCOPE_CHANGE`（§3-E.5）。
-2. `check_history(path)`：历史 162 条必须全部在 `legacy_map` 里有映射——**不改原文**。
+2. `check_history(path)`：历史必须逐条有交代——`legacy_map` 映射、或新记录本来就落在闭集里、
+   或（2026-11-16 18:5x 补）被后续合规记录用 `supersedes` 显式点名更正。**不改原文**。
 3. `append(path, record)`：唯一的追加入口（原子写：临时文件 + `os.replace`），
    保证「D0 无法再用自由文本 decision 改状态」。
+
+注意：绕过 `append()` 手写 JSON 追加会跳过第 1 步的词表校验。这种事真发生过一次
+（2026-11-16 18:44 我自己写 D-199…203，`decision="RULING"` 与 5 个自造 reason_code 都在表外），
+是 `check_history` 抓到的——所以第 2 步必须先于「手写」这条路存在，且不静默放行。
 
 退出码：0 OK / 3 词表违规 / 4 读不到。
 """
@@ -89,13 +94,65 @@ def new_decision_id(prefix: str = "D") -> str:
     return "%s-%s-NEW-%s" % (prefix, stamp, datetime.datetime.now().strftime("%H%M%S"))
 
 
+def kind_ok(row: dict, decisions: set, reasons: set) -> bool:
+    """这条记录的 kind 是否落在闭集里。"""
+    return (row.get("decision") in decisions
+            and (not row.get("reason_code") or row.get("reason_code") in reasons))
+
+
+def supersede_map(rows: list, decisions: set, reasons: set) -> tuple:
+    """收集「更正后的 kind」声明，返回 (`索引`, `问题列表`)。
+
+    一条词表外的记录（典型：D0 手写 JSON 追加、绕过了 `append()`）只有被
+    **后面一条合规记录显式点名更正**，才算有了交代；而不许被静默放行。
+
+    三条 fail-closed（少一条这套机制就成了洗白通道）：
+    1. 声明行自身必须落在闭集里 —— 不许用一条词表外的行去更正另一条；
+    2. 被更正的 id 必须在历史里真实存在 —— 否则凭空写个 id 就想「已被交代」；
+    3. 更正后的 kind 也必须在闭集里 —— 否则等于换个位置写词表外的词。
+
+    声明形状：`"supersedes": {"D-…-199": {"decision": "REASSIGN", "reason_code": "RULING"}}`
+    """
+    present = {row.get("decision_id") for row in rows}
+    index, problems = {}, []
+    for row in rows:
+        decl = row.get("supersedes")
+        if not decl:
+            continue
+        by = row.get("decision_id")
+        if not kind_ok(row, decisions, reasons):
+            problems.append({"by": by, "why": "声明行自身不在词表闭集里，不足以更正别人"})
+            continue
+        if not isinstance(decl, dict):
+            problems.append({"by": by, "why": "supersedes 必须是 {id: {decision, reason_code}}"})
+            continue
+        for target, intent in decl.items():
+            if target not in present:
+                problems.append({"by": by, "decision_id": target, "why": "被更正的 id 不在历史里"})
+                continue
+            if not isinstance(intent, dict):
+                problems.append({"by": by, "decision_id": target, "why": "更正意图必须是对象"})
+                continue
+            decision = (intent.get("decision") or "").strip()
+            reason = (intent.get("reason_code") or "").strip()
+            if decision not in decisions or (reason and reason not in reasons):
+                problems.append({"by": by, "decision_id": target,
+                                 "why": "更正后的 kind 仍不在闭集里"})
+                continue
+            index[target] = {"by": by, "decision": decision, "reason_code": reason}
+    return index, problems
+
+
 def check_history(path: str = DECISIONS_PATH, doc: dict | None = None) -> dict:
     """历史必须逐条有交代；**只读**，不改原文。
 
-    「有交代」有两条路（2026-11-16 16:1x 修）：老记录靠 `legacy_map` 映射；
-    **新记录**（词表落地之后写的）本来就落在闭集里，不需要 legacy 映射——
-    旧实现把两种都当历史，于是自己写的第一条新裁决就被判 `missing_mapping`，
-    那是判据错，不是记录错。
+    「有交代」有三条路（2026-11-16 16:1x 修 + 18:5x 补）：
+    1. 老记录靠 `legacy_map` 映射；
+    2. **新记录**（词表落地之后写的）本来就落在闭集里，不需要 legacy 映射——
+       旧实现把两种都当历史，于是自己写的第一条新裁决就被判 `missing_mapping`，
+       那是判据错，不是记录错；
+    3. 词表外但已被后续合规记录**显式点名更正**（`supersedes`）的 —— 进
+       `corrected_out_of_vocabulary` 让人看得见，不是静默放行。
     """
     doc = doc or load()
     legacy = doc["legacy_map"]
@@ -114,15 +171,25 @@ def check_history(path: str = DECISIONS_PATH, doc: dict | None = None) -> dict:
     def accounted(row: dict) -> bool:
         if row.get("decision_id") in legacy:
             return True
-        return (row.get("decision") in decisions
-                and (not row.get("reason_code") or row.get("reason_code") in reasons))
+        if kind_ok(row, decisions, reasons):
+            return True
+        return row.get("decision_id") in supersede_index
 
+    supersede_index, supersede_problems = supersede_map(rows, decisions, reasons)
+    by_id = {row.get("decision_id"): row for row in rows}
     missing = [row.get("decision_id") for row in rows if not accounted(row)]
+    corrected = [{"decision_id": target,
+                  "was": {"decision": by_id[target].get("decision"),
+                          "reason_code": by_id[target].get("reason_code")},
+                  **intent}
+                 for target, intent in supersede_index.items()]
     unknown_decisions = sorted({row.get("decision") for row in rows
                                 if row.get("decision") not in doc["state_decisions"]
                                 and row.get("decision") not in doc["non_state_decisions"]
                                 and row.get("decision") not in decisions})
     return {"records": len(rows), "missing_mapping": missing,
+            "corrected_out_of_vocabulary": corrected,
+            "bad_supersedes": supersede_problems,
             "unknown_decision_kinds": unknown_decisions}
 
 
@@ -169,7 +236,8 @@ def main(argv=None) -> int:
                              ensure_ascii=False))
             return 3
     result = check_history(args.decisions, doc)
-    ok = not result["missing_mapping"] and not result["unknown_decision_kinds"]
+    ok = (not result["missing_mapping"] and not result["unknown_decision_kinds"]
+          and not result["bad_supersedes"])
     print(json.dumps({"state": "OK" if ok else "CONFLICT", **result,
                       "allowed_decision": doc["allowed_decision"],
                       "allowed_reason_code_count": len(doc["allowed_reason_code"])},
