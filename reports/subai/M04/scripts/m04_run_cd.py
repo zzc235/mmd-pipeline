@@ -339,7 +339,6 @@ def main():
 
     dump = os.path.join(pen, "rigid_mask_dump_cd.json")
     align = os.path.join(pen, "roi_align_cd.json")
-    base = os.path.join(pen, "baseline_delivery_v1.json")
 
     arms = {"C_W1": (arm_files["C_W1"], 1, 240),
             "C_W2": (arm_files["C_W2"], 1, 832),
@@ -410,17 +409,13 @@ def main():
         BLENDER, "-b", "--python", os.path.join(HERE, "m04_roi_align.py"),
         "--", cw1, align], os.path.join(pen, "cd_step3_align.log"), align))
 
-    # 4) 静态基线：在**无动作**的输入重建件上取（三臂共用）
-    ledger["steps"].append(run("4_baseline", [
-        BLENDER, "-b", "--python", os.path.join(HERE, "m04_capsule_probe.py"),
-        "--", "--blend", a.input, "--targets", align, "--bones", ",".join(bones),
-        "--frames", "1:1", "--roi-label", "18_skirt_rigid",
-        "--baseline-write", base,
-        "--out", os.path.join(pen, "baseline_probe.jsonl"),
-        "--meta", os.path.join(pen, "baseline_probe.meta.json")],
-        os.path.join(pen, "cd_step4_baseline.log"), base))
+    # 4) 基线**逐臂各取自己的窗口首帧**（预注册 §五：C 相对 `B_aligned` 首帧、D 相对 `原神摇` 首帧）。
+    #    老写法在无动作输入件上取一条三臂共用 —— 那不是预注册的口径，而且候选对宇宙不同，
+    #    冻结比对器会因 `pairs_without_baseline != 0` 判 UNKNOWN（19:0x 实测 39 / 6789）。
+    # `--input`（无动作重建件）此后只作**出处**记进台账，不再参与判定。
+    ledger["input_role"] = "provenance_only（基线改为逐臂自取窗口首帧，见预注册 §五）"
 
-    # 5-7) 三臂
+    # 5-7) 三臂：先取该臂基线，再跑该臂
     for idx, key in enumerate(("C_W1", "C_W2", "D"), start=5):
         fname, f0, f1 = arms[key]
         arm_path = os.path.join(a.arms_dir, fname)
@@ -430,6 +425,27 @@ def main():
             ledger["arms"][key]["abort"] = "sha_changed_before_run"
             print("[%s] 跑前 sha 变了，该臂作废" % key, flush=True)
             continue
+        base = os.path.join(pen, "baseline_%s.json" % key)
+        ledger["steps"].append(run("%d_%s_baseline" % (idx, key), [
+            BLENDER, "-b", "--python", os.path.join(HERE, "m04_capsule_probe.py"),
+            "--", "--blend", arm_path, "--targets", align, "--bones", ",".join(bones),
+            "--frames", "%d:%d" % (f0, f0), "--roi-label", "18_skirt_rigid",
+            "--baseline-write", base,
+            "--out", os.path.join(pen, "baseline_%s.jsonl" % key),
+            "--meta", os.path.join(pen, "baseline_%s.meta.json" % key)],
+            os.path.join(pen, "cd_step%d_%s_baseline.log" % (idx, key)), base))
+        ledger["arms"][key]["baseline_path"] = base.replace("\\", "/")
+        if os.path.exists(base):
+            ledger["arms"][key]["baseline_sha256"] = sha256(base)
+            with io.open(base, encoding="utf-8") as fh:
+                bdoc = json.load(fh)
+            ledger["arms"][key]["baseline_pairs"] = bdoc.get("pairs")
+            ledger["arms"][key]["baseline_zero_overlap"] = bdoc.get("pairs_with_zero_overlap")
+        else:
+            ledger["arms"][key]["abort"] = "baseline_missing"
+            print("[%s] 基线没落盘，该臂不跑" % key, flush=True)
+            continue
+
         jsonl = os.path.join(pen, "%s.jsonl" % key)
         meta = os.path.join(pen, "%s.meta.json" % key)
         ledger["steps"].append(run("%d_%s" % (idx, key), [
