@@ -107,6 +107,28 @@ def load(path: str | None = None, overrides: dict | None = None) -> dict:
     return preset
 
 
+def section(preset: dict | None, name: str) -> dict:
+    """取预设里的一段；缺整段、或只给了一部分时，用 `DEFAULT_PRESET` 补齐。
+
+    为什么需要：`presets/*.json` 是**差分文件**，磁盘上并没有 `import` 段。
+    走 `load()` 的产线不受影响，但直接调 `stage_import(preset_dict)` 的调用者
+    （脚本、测试、将来面板单独调）拿到的可能是一份没有 `import` 的字典 ——
+    `preset["import"]` 当场 `KeyError`，而且那一行在 `try` 之外，表现为
+    「导入阶段直接抛栈」而不是可读的失败原因。2026-11-16 由 1号 实测撞出。
+    """
+    if preset is None:
+        preset = {}
+    if not isinstance(preset, dict):
+        raise TypeError("预设必须是 dict，收到 %r" % (type(preset).__name__,))
+    merged = _deep_merge(DEFAULT_PRESET, preset)
+    if name not in merged:
+        raise KeyError("预设里没有 %r 段，DEFAULT_PRESET 里也没有" % (name,))
+    if not isinstance(merged[name], dict):
+        raise TypeError("预设的 %r 段必须是 dict，收到 %r"
+                        % (name, type(merged[name]).__name__))
+    return merged[name]
+
+
 def save(preset: dict, path: str) -> str:
     os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
     with open(path, "w", encoding="utf-8") as fh:
