@@ -11,6 +11,7 @@
 * 反控：假烘焙把人偶挪一帧（`is_baked` 照样 True）⇒ 探针必须判红，`bake_gate_reason()`
   必须给出 BLOCK 理由。
 """
+import ast
 import inspect
 import os
 import sys
@@ -392,6 +393,170 @@ class TestCallSite(unittest.TestCase):
                 self.assertNotIn("bake=", head, "%s 里 stage_build 调用带了 bake" % path)
                 checked += 1
         self.assertGreater(checked, 0, "一个 stage_build 调用点都没找到，这条断言等于没跑")
+
+
+class TestBakeRecordSaysWhereTheCacheLives(unittest.TestCase):
+    """内存缓存**不随 `.blend` 落盘** ⇒ 记录必须自己说清「烘到哪去了」。"""
+
+    def _stage(self):
+        stage, _ = load_stage()
+        return stage
+
+    def _scene(self, cache):
+        return types.SimpleNamespace(
+            rigidbody_world=None if cache is None else types.SimpleNamespace(point_cache=cache))
+
+    def test_memory_only_cache_is_recorded_as_off(self):
+        stage = self._stage()
+        cache = types.SimpleNamespace(frame_start=1, frame_end=833,
+                                      use_disk_cache=False, disk_cache_bake=False)
+        rec = stage.bake_record(self._scene(cache),
+                                {"frame_start": 1, "frame_end": 833, "fps": 30},
+                                {}, True, True, False)
+        self.assertIs(rec["persist"]["use_disk_cache"], False)
+        self.assertIs(rec["persist"]["disk_cache_bake"], False)
+        self.assertFalse(rec["persist"]["reopened"])
+
+    def test_no_point_cache_is_none_not_false(self):
+        """量不到 ≠ 没开：没有 point_cache 时必须是 `None`，不许写 False 冒充读数。"""
+        stage = self._stage()
+        rec = stage.bake_record(self._scene(None), None, {}, False, False, False)
+        self.assertIsNone(rec["persist"]["use_disk_cache"])
+        self.assertIsNone(rec["persist"]["disk_cache_bake"])
+
+
+class TestBakeFailureShapeTellsTheThreeApart(unittest.TestCase):
+    """`D-214` / `D-217`：`applied=true` 不足判「交付件已烘」，三种形状要能分开打红。
+
+    `1号` 19:15 在重开的冻结件上量到的那份：`is_baked=true / is_outdated=true /
+    use_disk_cache=false`、`info="833 frames in memory (7.3 MiB), cache is outdated!"`，
+    冷跳读到的姿态与顺序重算差 `max_delta=1.85651505 m @f417`（275/323 超 tol）。
+    """
+
+    def setUp(self):
+        self.stage, _ = load_stage()
+
+    def _record(self, applied=True, reopened=None, baked_after=None, outdated=None,
+                replay_matched=True):
+        record = {
+            "requested": {"frame_start": 1, "frame_end": 833, "fps": 30},
+            "applied": applied,
+            "frame_start": 1, "frame_end": 833, "fps": 30,
+            "pose_source": "cache_replay" if applied else "fresh_solve",
+            "is_baked": applied, "is_outdated": False,
+            "probe": {"matched": True, "reference_moved": True},
+            "persist": {"use_disk_cache": False, "disk_cache_bake": False,
+                        "cache_info": None, "reopened": False,
+                        "is_baked_after_reopen": None, "is_outdated_after_reopen": None,
+                        "replay_probe": None},
+        }
+        if reopened is not None:
+            record = self.stage.bake_artifact_record(
+                record, reopened=reopened,
+                replay_probe={"matched": replay_matched, "max_delta": 0.0,
+                              "over_tol": 0 if replay_matched else 275, "frames": [417]},
+                is_baked_after_reopen=baked_after,
+                is_outdated_after_reopen=outdated)
+        return record
+
+    def test_not_baked(self):
+        record = self._record(applied=False)
+        self.assertEqual(self.stage.bake_failure_shape(record), "not_baked")
+        self.assertIn("applied", self.stage.bake_missing(record))
+
+    def test_baked_but_cache_not_usable_after_reopen(self):
+        """今晚那份：进程内六条全绿，重开就 `is_outdated` ⇒ 落「烘了但没持久化」。"""
+        record = self._record(reopened=True, baked_after=True, outdated=True)
+        self.assertEqual(self.stage.bake_failure_shape(record), "baked_not_persisted")
+        self.assertEqual(self.stage.bake_missing(record), [],
+                         "进程内六条应当全绿——红在重开那一层")
+        self.assertEqual(self.stage.bake_artifact_missing(record),
+                         ["cache_usable_after_reopen"])
+        self.assertIsNone(self.stage.bake_gate_reason(record))
+        self.assertIn("baked_not_persisted",
+                      self.stage.bake_artifact_gate_reason(record))
+
+    def test_never_reopened_is_unmeasured_not_a_failure(self):
+        """没在重开的字节上量过 ⇒ `replay_unmeasured`（缺料），不是 `replay_mismatch`（做错）。
+
+        `D-219`：把 `UNMEASURED` 当 `FAIL` 用，会让读者去找一个不存在的正确性 bug。
+        """
+        record = self._record()
+        self.assertEqual(self.stage.bake_failure_shape(record), "replay_unmeasured")
+        self.assertEqual(self.stage.bake_artifact_missing(record),
+                         ["reopen_measured", "cache_usable_after_reopen",
+                          "replay_matched_after_reopen"])
+
+    def test_reopened_without_a_replay_probe_is_unmeasured(self):
+        """缓存可用、但没做重放对照 ⇒ 仍然是「缺料」，不许写成不一致。"""
+        record = self._record(reopened=True, baked_after=True, outdated=False)
+        record["persist"]["replay_probe"] = None
+        self.assertEqual(self.stage.bake_failure_shape(record), "replay_unmeasured")
+        self.assertEqual(self.stage.bake_artifact_missing(record),
+                         ["replay_matched_after_reopen"])
+
+    def test_persisted_but_replay_differs(self):
+        """缓存可用、但冷跳读回来的姿态与顺序重算不一致 ⇒ 最难发现的那一种。"""
+        record = self._record(reopened=True, baked_after=True, outdated=False,
+                              replay_matched=False)
+        self.assertEqual(self.stage.bake_failure_shape(record), "replay_mismatch")
+        self.assertEqual(self.stage.bake_artifact_missing(record),
+                         ["replay_matched_after_reopen"])
+
+    def test_ok_when_measured_and_replayed_on_the_reopened_bytes(self):
+        record = self._record(reopened=True, baked_after=True, outdated=False)
+        self.assertEqual(self.stage.bake_failure_shape(record), "ok")
+        self.assertEqual(self.stage.bake_artifact_missing(record), [])
+        self.assertIsNone(self.stage.bake_artifact_gate_reason(record))
+
+    def test_disk_cache_switch_is_recorded_but_never_a_criterion(self):
+        """`use_disk_cache` 只记录：`D-218` 实测赋值会把 Blender 打死，判据不能建在它上面。"""
+        record = self._record(reopened=True, baked_after=True, outdated=False)
+        record["persist"]["use_disk_cache"] = True
+        self.assertEqual(self.stage.bake_failure_shape(record), "ok")
+        self.assertEqual(self.stage.bake_artifact_missing(record), [])
+        self.assertNotIn("use_disk_cache", " ".join(self.stage.BAKE_ARTIFACT_CRITERIA))
+
+    def test_artifact_criteria_build_on_the_in_process_ones(self):
+        """一层建在另一层上：不存在两份互相打架的规则。"""
+        self.assertEqual(list(self.stage.BAKE_CRITERIA),
+                         ["requested", "applied", "not_outdated", "probe_matched",
+                          "probe_informative", "fields_complete"])
+        self.assertEqual(list(self.stage.BAKE_ARTIFACT_CRITERIA),
+                         list(self.stage.BAKE_CRITERIA)
+                         + ["reopen_measured", "cache_usable_after_reopen",
+                            "replay_matched_after_reopen"])
+
+    def test_the_six_criteria_names_are_unchanged(self):
+        """1号 在读 `bake_checks()["probe_informative"]`：老键的名字与语义不许动。"""
+        checks = self.stage.bake_checks({})
+        for name in self.stage.BAKE_CRITERIA:
+            self.assertIn(name, checks)
+        self.assertEqual(list(checks), list(self.stage.BAKE_ARTIFACT_CRITERIA))
+
+    def test_stage_py_never_writes_use_disk_cache(self):
+        """反控：源码里不许**赋值** `use_disk_cache`（赋值会把 Blender 打死）。
+
+        只允许读（`getattr(cache, "use_disk_cache", ...)`）。这条防的是「下次有人好心把它打开」。
+        用 AST 判，不按词匹配——文档字符串里写着这个字段名的地方不算。
+        """
+        tree = ast.parse(inspect.getsource(sys.modules["mmdpipe.stage"]))
+        offenders = []
+        for node in ast.walk(tree):
+            targets = []
+            if isinstance(node, (ast.Assign, ast.AugAssign, ast.AnnAssign)):
+                targets = (node.targets if isinstance(node, ast.Assign)
+                           else [node.target])
+            for target in targets:
+                for sub in ast.walk(target):
+                    if isinstance(sub, ast.Attribute) and sub.attr == "use_disk_cache":
+                        offenders.append(node.lineno)
+            if (isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
+                    and node.func.id == "setattr"
+                    and any(isinstance(a, ast.Constant) and a.value == "use_disk_cache"
+                            for a in node.args)):
+                offenders.append(node.lineno)
+        self.assertEqual(offenders, [], "stage.py 里出现了对 use_disk_cache 的赋值")
 
 
 if __name__ == "__main__":
