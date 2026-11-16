@@ -139,7 +139,8 @@ def assert_partition(parts, start, end):
     return True
 
 
-def build_rows(rows, hold_from, ratio, eps=EPS_DEFAULT, anim_from=None):
+def build_rows(rows, hold_from, ratio, eps=EPS_DEFAULT, anim_from=None,
+               rule_kind="post_hoc"):
     """按一条比例规则切保持段，返回 (动画段行, 保持段行, 切分两行)。"""
     frame_min = min(int(r["frame"]) for r in rows)
     frame_max = max(int(r["frame"]) for r in rows)
@@ -161,7 +162,7 @@ def build_rows(rows, hold_from, ratio, eps=EPS_DEFAULT, anim_from=None):
     assert_partition([anim, hold], anim_from, frame_max)
     assert_partition([head, tail], hold_from, frame_max)
     return {
-        "rule": {"rule_kind": "segment_ratio", "hold_from": hold_from,
+        "rule": {"rule_kind": rule_kind, "hold_from": hold_from,
                  "ratio": float(ratio), "hold_frames": hold_frames,
                  "transition_frames": k},
         "anim": anim, "hold": hold, "transition": head, "steady": tail,
@@ -254,6 +255,49 @@ def render(block):
     return "\n".join(lines)
 
 
+def _ensure_repo_root_on_path():
+    """`python path/to/script.py` 时 `sys.path[0]` 是**脚本目录**、不是仓库根 —— 直接
+    `import coordination` 会失败，而失败在这里表现为「沉默地没接上」（今晚的老形状）。
+    所以显式把仓库根插进 `sys.path`。"""
+    import os
+    root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(
+        os.path.dirname(os.path.abspath(__file__))))))
+    if root not in sys.path:
+        sys.path.insert(0, root)
+    return root
+
+
+def _window_rules():
+    """窗口规则闭集由 `coordination.comparability` 定义，不在这里另立一套。"""
+    try:
+        _ensure_repo_root_on_path()
+        from coordination.comparability import WINDOW_RULES
+        return tuple(WINDOW_RULES)
+    except Exception:
+        return ("preregistered", "segment_ratio", "post_hoc")
+
+
+def _delegated_stability(rows, rule, sens, eps=EPS_DEFAULT):
+    """「对切点稳健」这句话交给 `comparability.cut_sensitivity()` 算，不由本脚本嘴说。
+
+    本脚本的 `--sensitivity` 只描述「换比例各给什么数」；判词（`STABLE` /
+    `CONCLUSION_STABLE_NUMBER_UNSTABLE` / `UNSTABLE`）与「哪几帧在动」由 `总控` 的
+    闭包给。它落地后，这里就是薄包装 —— 同一件事在两处各写一遍正是今天反复付代价的形状。
+    """
+    try:
+        _ensure_repo_root_on_path()
+        from coordination.comparability import cut_sensitivity, ratio_cuts
+    except Exception:
+        return None
+    start = rule["hold_from"]
+    end = start + rule["hold_frames"] - 1
+    ratios = [s["ratio"] for s in sens]
+    cuts = ratio_cuts(start, end, ratios)
+    out = cut_sensitivity(rows, cuts, start, end, eps=eps)
+    out["ratios"] = ratios
+    return out
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--meta", required=True, help="meta json（含 per_frame）")
@@ -266,6 +310,9 @@ def main(argv=None):
     ap.add_argument("--boundary-frames", default=None,
                     help="逗号分隔的帧号：这些帧进不进瞬态窗口，决定了比例下限在哪")
     ap.add_argument("--eps", type=float, default=EPS_DEFAULT, help="判据 ε（米）")
+    ap.add_argument("--rule-kind", default="post_hoc",
+                    help="窗口规则分类：preregistered / segment_ratio / post_hoc"
+                         "（默认 post_hoc —— 危险的默认值往保守那边放，`D-224`）")
     ap.add_argument("--json", action="store_true", help="输出 json 而不是 markdown")
     args = ap.parse_args(argv)
     if sys.stdout.encoding and sys.stdout.encoding.lower() not in ("utf-8", "utf8"):
@@ -275,8 +322,12 @@ def main(argv=None):
     bframes = ([int(x) for x in args.boundary_frames.split(",") if x.strip()]
                if args.boundary_frames else [])
     try:
+        rules_ok = _window_rules()
+        if args.rule_kind not in rules_ok:
+            raise ValueError("rule_kind %r 不在闭集 %r 内" % (args.rule_kind, list(rules_ok)))
         rows = load_frames(args.meta)
-        blocks = [build_rows(rows, args.hold_from, r, args.eps, args.anim_from)
+        blocks = [build_rows(rows, args.hold_from, r, args.eps, args.anim_from,
+                             rule_kind=args.rule_kind)
                   for r in ratios]
         bounds = boundary_frames(rows, args.hold_from, bframes, args.eps)
         need = smallest_covering_ratio(bounds,
@@ -285,6 +336,8 @@ def main(argv=None):
                             [float(x) for x in args.sensitivity.split(",") if x.strip()],
                             args.eps, bframes)
                 if args.sensitivity else [])
+        delegated = _delegated_stability(
+            rows, blocks[0]["rule"], sens, args.eps) if sens else None
     except ValueError as exc:
         sys.stderr.write("REFUSED: %s\n" % exc)
         return 2
@@ -292,14 +345,18 @@ def main(argv=None):
     if args.json:
         print(json.dumps({"meta": args.meta, "eps": args.eps,
                           "blocks": blocks, "boundary": bounds,
-                          "smallest_covering_ratio": need, "sensitivity": sens},
+                          "smallest_covering_ratio": need, "sensitivity": sens,
+                          "comparability": delegated},
                          ensure_ascii=False, indent=2, sort_keys=True))
         return 0
 
     for block in blocks:
         rule = block["rule"]
-        print("窗口规则：%s（先于数据可判）—— 保持段 %d..%d 共 %d 帧，取前 %.0f%% = %d 帧作交接瞬态"
-              % (rule["rule_kind"], rule["hold_from"],
+        tag = ("（`post_hoc`：事后窗口，只能作解释、不许作判据 —— `D-224`）"
+               if rule["rule_kind"] == "post_hoc" else
+               "（`%s`）" % rule["rule_kind"])
+        print("窗口规则：%s%s —— 保持段 %d..%d 共 %d 帧，取前 %.0f%% = %d 帧作交接瞬态"
+              % (rule["rule_kind"], tag, rule["hold_from"],
                  rule["hold_from"] + rule["hold_frames"] - 1,
                  rule["hold_frames"], rule["ratio"] * 100.0,
                  rule["transition_frames"]))
@@ -331,6 +388,15 @@ def main(argv=None):
                      s["transition_over"], s["transition_deepest_mm"], s["transition_deepest_frame"],
                      s["steady_window"][0], s["steady_window"][1], s["steady_over"],
                      s["steady_deepest_mm"], s["steady_deepest_frame"]))
+        if delegated:
+            print("")
+            print("切点敏感性判词（`coordination.comparability.cut_sensitivity()` 算的，不是本脚本说的）："
+                  "`%s`" % delegated["verdict"])
+            print("  两段的极值帧：%s；`over_eps` 范围 %s；`worst_frame_stable=%s`"
+                  % (", ".join("f%d" % f for f in delegated["worst_frames"]),
+                     delegated["over_eps_range"], delegated["worst_frame_stable"]))
+            print("  §注意：上述一切仍属 `%s` —— 判词只说明这些数在切点间稳不稳，"
+                  "不把它们抬成判据。" % blocks[0]["rule"]["rule_kind"])
     return 0
 
 

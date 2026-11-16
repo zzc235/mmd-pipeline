@@ -102,7 +102,8 @@ class RealSnapshotTest(unittest.TestCase):
 
     def test_boundaries_come_from_the_rule(self):
         rule = self.block["rule"]
-        self.assertEqual(rule["rule_kind"], "segment_ratio")
+        # 默认是 post_hoc：危险的默认值往保守那边放（`D-224` 裁定这条窗口只能作解释）
+        self.assertEqual(rule["rule_kind"], "post_hoc")
         self.assertEqual(rule["hold_frames"], 531)
         self.assertEqual(rule["transition_frames"], 53)
         self.assertEqual(self.block["transition"]["window"], [302, 354])
@@ -203,6 +204,52 @@ class BoundaryFrameTest(unittest.TestCase):
         self.assertEqual(sens[0.08]["covers"], {"347": False, "353": False})
         self.assertEqual(sens[0.09]["covers"], {"347": True, "353": False})
         self.assertEqual(sens[0.10]["covers"], {"347": True, "353": True})
+
+
+class RuleKindTest(unittest.TestCase):
+    """`D-224`：这条窗口是 `post_hoc` —— 默认值就得是它，还得挡非法值。"""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.rows = SEG.load_frames(SNAPSHOT)
+
+    def test_rule_kind_must_be_from_the_closed_set(self):
+        self.assertEqual(SEG._window_rules(),
+                         ("preregistered", "segment_ratio", "post_hoc"))
+
+    def test_explicit_preregistered_is_carried_through(self):
+        block = SEG.build_rows(self.rows, 302, 0.10, rule_kind="preregistered")
+        self.assertEqual(block["rule"]["rule_kind"], "preregistered")
+
+    def test_cli_refuses_unknown_rule_kind(self):
+        code = SEG.main(["--meta", SNAPSHOT, "--hold-from", "302",
+                         "--ratio", "0.10", "--rule-kind", "looks_fine"])
+        self.assertEqual(code, 2)
+
+
+class DelegatedStabilityTest(unittest.TestCase):
+    """「对切点稳健」这句话由 `coordination.comparability` 算，不由本脚本嘴说。"""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.rows = SEG.load_frames(SNAPSHOT)
+        cls.block = SEG.build_rows(cls.rows, 302, 0.10)
+        cls.sens = SEG.sensitivity(cls.rows, 302, [0.08, 0.09, 0.10])
+
+    def test_delegation_works_from_a_script_dir_on_sys_path(self):
+        """`python path/to/script.py` 时 `sys.path[0]` 是脚本目录，不能沉默地没接上。"""
+        out = SEG._delegated_stability(self.rows, self.block["rule"], self.sens, 0.020)
+        self.assertIsNotNone(out)
+        self.assertEqual(out["sides"], ["prefix", "rest"])
+
+    def test_verdict_is_unstable_and_says_which_frames_move(self):
+        out = SEG._delegated_stability(self.rows, self.block["rule"], self.sens, 0.020)
+        self.assertEqual(out["verdict"], "UNSTABLE")
+        self.assertEqual(out["worst_frames"], [304, 347, 353, 646])
+        self.assertFalse(out["worst_frame_stable"])
+        # prefix 恒为 f304、动的是 rest —— 这正是只看 prefix 会漏掉的那种
+        self.assertEqual(out["worst_frames_by_side"]["prefix"], [304, 304, 304])
+        self.assertEqual(out["worst_frames_by_side"]["rest"], [347, 353, 646])
 
 
 class MainTest(unittest.TestCase):
