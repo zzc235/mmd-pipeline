@@ -163,7 +163,10 @@ def addon_ready(name: str, operators: dict | None = None) -> bool:
     op = ops.get(name)
     if op is not None:
         return operator_registered(namespace, op)
-    import addon_utils
+    try:
+        import addon_utils
+    except ImportError:          # 不在 Blender 里：没有可查的模块状态 ⇒ 不能当"就绪"
+        return False
     for module in ADDON_CANDIDATES.get(name, (name,)):
         try:
             if addon_utils.check(module)[1]:
@@ -178,8 +181,15 @@ def ensure_addons(names=("mmd_tools", "jinfengling_hsr_addon"), ready=None) -> d
 
     `ready` 可注入（默认读 bpy 算子），测试用它把「enable 成功但算子没注册」
     这条缺陷钉住：即使 enable 不抛异常，`ready() == False` 也必须返回 False。
+
+    `addon_utils` 不在（纯 Python 环境）时**不抛异常、直接判红**：没有启用器就只能
+    验证「本来就就绪」，验不出来就是 False。抛 ImportError 那种写法会被外层的
+    `except Exception` 吞成一句「导入失败」，又是一次「看起来通过」。
     """
-    import addon_utils
+    try:
+        import addon_utils
+    except ImportError:
+        addon_utils = None
     probe = addon_ready if ready is None else ready
     status = {}
     for name in names:
@@ -187,6 +197,8 @@ def ensure_addons(names=("mmd_tools", "jinfengling_hsr_addon"), ready=None) -> d
         for module in ADDON_CANDIDATES.get(name, (name,)):
             if ok:
                 break
+            if addon_utils is None:
+                continue
             try:
                 # default_set/persistent 都关：headless 跑流水线不该改用户偏好
                 addon_utils.enable(module, default_set=False, persistent=False)
@@ -295,6 +307,95 @@ MASK_WIRED_KEYS = (
     "unexpressible", "asymmetric_pairs",
     "verdict", "verdict_reasons")
 
+
+def constraint_limit(needed_count, max_constraints=None) -> tuple:
+    """建约束上限：**由 plan 推出**，`DEFAULT_MAX_CONSTRAINTS` 只当护栏（D-144③）。
+
+    返回 `(limit, guardrail_hit)`：
+
+    * `max_constraints is None`（默认）⇒ `limit = 需求本身`。需求多少就建多少，
+      上限**不是**一个写死的预算；只有需求超过护栏量级时才被护栏咬住并置
+      `guardrail_hit`——那时说明场景形状不对，不是"预算不够"。
+    * 显式给了 `max_constraints` ⇒ 那个值就是上限（调用者要一个更小的预算）。
+      这时 `needs > cap` 是**可预知的返工**，`coordination.preflight` 会在开工前拦下。
+
+    `mmdpipe.stage.apply_collision_masks()` 与 `mask_preflight_fields()` 都走这一个函数：
+    上限、预检读数、建场实际行为必须是同一处口径（"一处口径，别两个数各说各话"）。
+    """
+    needed = max(0, int(needed_count))
+    if max_constraints is not None:
+        return max(0, int(max_constraints)), False
+    if needed > mask_mod.DEFAULT_MAX_CONSTRAINTS:
+        return int(mask_mod.DEFAULT_MAX_CONSTRAINTS), True
+    return needed, False
+
+
+# 「通道接全了」的四条判据（`coordination/mask_channel_spec.md` §4，D0 `D-20261116-145`）。
+# **分开给、不许合成一个 `and`**：合取式里一位写错，整体永远是绿的，读数的人还看不出是哪条坏。
+# 名字进 `verdict_reasons`，红的那几条由 `mask_wired_missing()` 取反列出。
+MASK_WIRED_CRITERIA = (
+    "verdict_wired", "not_capped", "no_skipped", "added_plus_already_equals_needed")
+
+
+def mask_wired_checks(report) -> dict:
+    """四条判据逐条给 bool（读 `apply_collision_masks()` / `stage_mask()` 的报告）。"""
+    report = dict(report or {})
+    needed = report.get("constraints_needed")
+    added = report.get("constraints_added")
+    already = report.get("constraints_already_blocked")
+    identity = (needed is not None and added is not None and already is not None
+                and int(added) + int(already) == int(needed))
+    return {
+        "verdict_wired": report.get("verdict") == "WIRED",
+        # 必须是**显式的 False**：缺这个键（旧场景/外部搭的场景）不算"没 cap"
+        "not_capped": report.get("constraints_capped") is False,
+        # 同一件事：得显式说 0。`skipped_count` 缺失 ⇒ 红（"没记录"≠"没跳过"）
+        "no_skipped": report.get("skipped_count") == 0
+                      and not (report.get("skipped") or []),
+        "added_plus_already_equals_needed": bool(identity),
+    }
+
+
+def mask_wired_missing(report) -> list:
+    """没过的判据名（空列表 = 四条全绿）。判红的理由要能一条条念出来。"""
+    checks = mask_wired_checks(report)
+    return [name for name in MASK_WIRED_CRITERIA if not checks[name]]
+
+
+def mask_gate_reason(wired) -> str:
+    """通道开着（`wired is not None`）但四条判据没全绿 ⇒ 返回停机理由，否则 None。
+
+    `stage_build()` 在**烘焙之前**调用它（D0 15:11 / 总控 17:31②）：半套通道 + 已烘焙
+    是最贵的「看起来像干净」。`wired is None` 是「通道没开」（预设里显式关了），
+    那是另一种场景，不归这条闸管——所以这里返回 None，不许把它当成"接好了"。
+    """
+    if wired is None:
+        return None
+    missing = mask_wired_missing(wired)
+    if not missing:
+        return None
+    return ("碰撞通道没接全：verdict=%s，红项 %s（skipped %s 对）"
+            % (wired.get("verdict"),
+               ",".join(missing) or "-",
+               wired.get("skipped_count", 0)))
+
+
+def mask_preflight_fields(wired) -> dict:
+    """把通道读数接成 `coordination.preflight` 的三项：`needs` / `cap` / `skipped`。
+
+    **`cap` 取的是 `constraint_limit()` 的返回值**，与建场用的是同一个函数——
+    在请求 JSON 里手写 `8298` / `20000` 只证明那段 JSON 能解析，不证明上限真的由需求推出
+    （总控 17:31③）。`needs` = 这次要补的条数（`constraints_to_add`），不是总对数。
+    """
+    wired = wired or {}
+    needed = wired.get("constraints_needed")
+    to_add = wired.get("constraints_to_add")
+    if to_add is None and needed is not None:
+        to_add = max(0, int(needed) - int(wired.get("constraints_already_blocked") or 0))
+    cap, guardrail = constraint_limit(needed if needed is not None else (to_add or 0))
+    return {"needs": int(to_add or 0), "cap": int(cap),
+            "skipped": int(wired.get("skipped_count") or 0),
+            "guardrail_hit": bool(guardrail)}
 
 
 def mask_report(rigids=None, objects=None) -> dict:
@@ -506,14 +607,11 @@ def apply_collision_masks(scene=None, *, collection_index_of=None,
     # 上限**由 plan 推出，不吃默认值**（D0 15:11：「一处口径，别两个数各说各话」）。
     # `DEFAULT_MAX_CONSTRAINTS` 只作护栏：需求超过它说明场景形状不对，不是"预算不够"——
     # 那时停下、把 `guardrail_hit` 与逐条 `skipped` 写出来，绝不静默跑飞。
+    # 算法在 `constraint_limit()`（与 `mask_preflight_fields()` 同一处，预检读数才可信）。
     added = 0
-    if max_constraints is None:
-        limit = len(needed_pairs)
-        if limit > mask_mod.DEFAULT_MAX_CONSTRAINTS:
-            limit = mask_mod.DEFAULT_MAX_CONSTRAINTS
-            result["guardrail_hit"] = True
-    else:
-        limit = int(max_constraints)
+    limit, guardrail_hit = constraint_limit(len(needed_pairs), max_constraints)
+    if guardrail_hit:
+        result["guardrail_hit"] = True
     if constraint_creation not in (None, "template_copy", "ops"):
         raise ValueError("constraint_creation 只能是 None / 'template_copy' / 'ops'，收到 %r"
                          % (constraint_creation,))
@@ -821,14 +919,14 @@ def stage_build(preset, root, arm):
     if not rbw.enabled:
         res.add("G1", BLOCK, "刚体世界没开")
 
-    # **fail-closed：通道开着而没接全 ⇒ 在烘焙之前停下**（D0 15:11）。
+    # **fail-closed：通道开着而四条判据没全绿 ⇒ 在烘焙之前停下**（D0 15:11 / 总控 17:31②）。
+    # 判据本身在 `mask_gate_reason()`（纯函数，离屏可测）；这里只负责把它变成 BLOCK 并 return，
+    # 让 `runner.record()` 把 `blocked_by` 记上——`--force` 之外，后面到不了烘焙。
     # 半套通道 + 已烘焙的场景是最贵的「看起来像干净」：烧几十秒烘焙，然后被当作交付件
     # 引用几小时。这里宁可让建场红着，也不产出一个"通道部分生效"的可烘焙场景。
-    if wired is not None and wired.get("verdict") != "WIRED":
-        res.add("S8", BLOCK,
-                "碰撞通道没接全：verdict=%s，未通过项 %s（%d 对 skipped）"
-                % (wired.get("verdict"), ",".join(wired.get("verdict_reasons") or []) or "-",
-                   wired.get("skipped_count", 0)),
+    gate_reason = mask_gate_reason(wired)
+    if gate_reason is not None:
+        res.add("S8", BLOCK, gate_reason,
                 "补 constraint_factory / 放宽 max_constraints 之前不要烘焙；"
                 "要出无通道的对照场景请显式设 physics.apply_collision_masks=false")
         res.elapsed = _now() - t0
