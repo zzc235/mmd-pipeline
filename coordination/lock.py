@@ -496,6 +496,9 @@ def main(argv=None) -> int:
                                        "assert-owner", "guard"))
     ap.add_argument("--lock", default=None, help="锁目录（缺省 out/subai/locks/blender.lock）")
     ap.add_argument("--owner", default="", help="`模块|工作树`，如 `模块负责4|A4`")
+    ap.add_argument("--owner-module", default="",
+                    help="owner 的第一段（替代 --owner；竖线在后台作业启动器里会被当管道吞掉）")
+    ap.add_argument("--owner-tree", default="", help="owner 的第二段")
     ap.add_argument("--note", default="", help="一句话说明这次要跑什么")
     ap.add_argument("--wait", type=float, default=0.0, help="等锁秒数（默认 0＝不排队，直接失败）")
     ap.add_argument("--heartbeat-every", type=float, default=120.0,
@@ -505,6 +508,17 @@ def main(argv=None) -> int:
     ap.add_argument("--stale-minutes", type=float, default=DEFAULT_STALE_MINUTES,
                     help="心跳超过这么多分钟才算过期（默认 %.0f）" % DEFAULT_STALE_MINUTES)
     args = ap.parse_args(head)
+    if args.owner_module or args.owner_tree:
+        # 两段写法：`--owner-module 模块负责2 --owner-tree A2`。竖线在 cmd/后台作业启动器里
+        # 会被当管道吞掉（2号 19:07 实测），所以给一条不含竖线的入口；两种写法同时给 = 用法错，
+        # 不猜哪个更可信。
+        if args.owner:
+            print("LOCK_USAGE --owner 与 --owner-module/--owner-tree 只能给一种")
+            return EXIT_USAGE
+        if not (args.owner_module and args.owner_tree):
+            print("LOCK_USAGE 两段写法要同时给 --owner-module 与 --owner-tree")
+            return EXIT_USAGE
+        args.owner = "%s|%s" % (args.owner_module.strip(), args.owner_tree.strip())
 
     work_pids = [p.strip() for p in args.work_pid.split(",") if p.strip()]
     try:

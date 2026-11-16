@@ -246,3 +246,109 @@ Blender 刚体解算的步长 `dt = 1/fps` ⇒ 改 fps 就是改物理。而 M04
 **没验的仍然写着**：这条修法只在离屏哑对象上验过形状；**「拿一件存过盘的臂件再跑一次
 `apply_action`」这件事仍然没跑过**——它要拿窗口，而 324 批次之后窗口一直在别人手里
 （2号 的 C/D 三臂、1号 的烘焙）。下一批第一次真跑时补。
+
+## 十三、写侧：`chain_nla` 拼 B 的位置曲线（`D-213` 派工）
+
+`4号` 盘库时发现同一个形状还有一处更硬的：`mmdpipe/chain_nla.py:106/108` 是
+`_shift_b_action`，它拿 `action.fcurves.find(...)` / `.new(...)` **往 B 的 action 上改/建**曲线。
+分层动作上 `.fcurves` 连读都不给，写更没有 —— 一旦有人拿存过盘的件再拼，崩的是**「拼」**，
+不是「读」；而「拿存了盘的件再拼一次」正是 `D-210` 记下的那两处未做之一（NLA 三面）。
+
+**可达性（重要，别把这条修法说成「修好了一个正在犯的毛病」）**：今天 `chain_nla` **走不到**那条路。
+`concat_via_nla()` 每次进来先 `_fresh_scene()` 清场，再从 PMX + 两支 VMD 重新导入
+（`runner.py:468` 也是拿 VMD 段路径调它），所以它手里的动作**永远是本会话刚导入的**，
+`.fcurves` 读得到。换句话说：
+
+- **读侧**（`apply_action` 那条：`blender -b <in.blend>` 打开存盘件）—— 真件上真崩过，已修、已验；
+- **写侧**（`chain_nla` 这条）—— 今天是**防御性**修复：它保护的是「将来有人写『打开存盘件再拼』
+  这个入口」时不炸，而这个入口**目前不存在**（正是 NLA 三面那笔未做的工作）。
+  所以「拼接结果对不对」不但没验，**连一条能验它的入口都还没有**。
+
+修法：写侧也走同一个地方，不另留实现（`D-186`：两份实现就是两个真值）。
+`apply_action.py` 新增两件：
+
+- `fcurve_container(action, datablock)` —— 返回**可写**容器（有 `.find/.new`）：
+  ① `action.fcurves`（同会话刚造的动作，今天在用的那条）
+  ② 分层动作里槽位正好是 `datablock.animation_data.action_slot` 的那个 channelbag
+  ③ 只有一个 channelbag 时就是它
+  ④ 多个又对不上槽位 ⇒ 抛 `FcurveShapeError`。**不挑**：挑一个等于往别人的动作上改键，
+  而且写到一半才发现会留下半个拼接结果，比崩更难查。
+- `ensure_fcurve(action, datablock, path, index, group)` —— 拿到（必要时新建）一条曲线，返回
+  `(fcurve, how)`。顺序：老形状 → 上游接口 → 自己走 channelbag。
+
+**上游接口这件事按 `D-213` 的处理方式来写**：`Action.fcurve_ensure_for_datablock()` 是
+**待验假设，不是事实**。所以代码里它只是第二档候选：存在且调用不抛就用，`how` 记
+`fcurve_ensure_for_datablock`；抛了就退到 channelbag 那条路，并把异常类名留在 `how` 里
+（`channelbags[0](new); upstream_raised:TypeError`）——**它试过、什么时候抛的，读记录的人看得见**。
+`_shift_b_action` 现在返回 `(改写到几个键, 曲线从哪条路拿到的)`，`concat_via_nla` 的
+`align.fcurves_via` 与 `fcurves_via`（烘焙后那条读回）都落进报告。
+
+### 离屏 15 条 + 反向控制
+
+`tests/test_apply_action.py::FcurveWriteShapeTest` 9 条（老形状 find/new、分层单 bag、
+槽位优先于位置、两个 bag 不猜就红、连容器都没有也红、上游被用上、上游抛了退回去且留痕）；
+`tests/test_chain_nla_fcurves.py` 6 条（真的调 `_shift_b_action`：老形状建三条曲线两个键、
+分层动作位移既有键、槽位选对 bag、两个 bag 拒写且**一个字节都没写进去**、
+`action.fcurves.find` 那种旧写法在分层动作上确实 `AttributeError`）。
+
+反向控制 `out/subai/M05/ctrl_nla_write_shape.py`：把 `_shift_b_action` 退回旧写法 ⇒ **红 4 条**
+（其中两条是「拒写」变「崩」，说明旧写法连拒都做不到）；还原 ⇒ 6 条全绿。
+脚本自带还原，跑完 `git status` 只剩本次要提交的文件。
+
+全量 **690 tests × 默认/utf-8/gbk 三环境 OK（skipped 1）**，`status --check` OK。
+
+### 上游接口：`D-213` 那条「待验假设」现在有实测了
+
+派工原话是「先确认 5.2 的 `Action.fcurve_ensure_for_datablock()` 能不能直接用；我说的这句是
+待验假设，不是事实」。只读探针（`out/subai/M05/probe_fcurve_write_shape.py`，打开臂件
+`C@W1.blend`、在 `action.copy()` 上试、不存盘，前后 sha `79862401…` 同值）量到：
+
+| 项 | 读数 |
+|---|---|
+| `hasattr(bpy.types.Action, 'fcurve_ensure_for_datablock')` | **false** |
+| `getattr(action, 'fcurve_ensure_for_datablock')` | **true** |
+| `__doc__` 里的签名 | `(datablock, data_path, index=0, group_name="")` |
+| `__doc__` 里的前置条件 | "**This action must already be assigned to the data-block**"（并会顺手建 layer/strip/slot 再赋槽位） |
+| 对一份没挂到 ID 上的 `action.copy()` 真调 | `RuntimeError` |
+| 臂件本体 sha（前后） | `79862401ed1f…` 同值，`blend_untouched=true` |
+
+三件事因此定下来：
+
+1. **只能从动作实例上拿这个函数** —— 类上没有。`hasattr(bpy.types.Action, ...)` 会回答
+   「不存在」，跟今天那几个「按名字数东西，名字错了给 0」是同一族：**看不见不等于没有**。
+2. 签名和我猜的一致（`(datablock, data_path, index=, group_name=)`），不是「碰巧能跑」。
+3. **它有前置条件**，而 `chain_nla` 要写的那条曲线恰恰挂在 NLA 条带上、不挂在
+   `animation_data.action` 上 ⇒ 真机上调它必 `RuntimeError`。所以代码改成**先判前置条件**
+   （`datablock.animation_data.action is action` 才调），不成立就记
+   `upstream_skipped:action_not_assigned` 走 channelbag —— 拿异常当流程控制会让每一次正常
+   拼接都在记录里背一条假故障，读的人分不清「真出事」和「本来就走这条」。
+
+同一次探针还量到一处**很容易被误判的命名差**：`arm.animation_data.action_slot` 的标识是
+`OBB_aligned_bone`，而那个 channelbag 自己槽位的标识是 `B_aligned_bone` —— **是同一个槽位的
+两种叫法**（一个带 ID 前缀、一个是动作名）。代码里按**对象身份**比对（`bag.slot is slot`），
+若按名字比，会得出「对不上」然后拒写，而实际上唯一候选就摆在那里。
+
+### 一处去重（`4号` 复审提的，已改）
+
+第一版里读侧 `fcurves_of()` 与写侧 `fcurve_container()` 各写了一遍
+`layers[].strips[].channelbags[]` 的遍历 —— **同一形状的两份实现**，正是今天已经付过三次
+代价的那个形状（`mask_wired` 手抄 11 键 vs 清单 18 键、两份锁逻辑、`use_disk_cache` 差点
+被「好心打开」）。现在两侧共用 `_channelbags_of()`，层级一变只改一处，行为与顺序不变
+（`fcurves_of` 的两条控制仍然成立：退回旧写法红 3 条、还原全绿）。
+
+### 没验的（写在这里，别去别处找）
+
+1. **上游接口成功那条路没走过**：它要求动作已挂到 data-block 上，`chain_nla` 的场景里不成立，
+   所以真机只验到了「`RuntimeError` → 退 channelbag → `find` 到既有曲线」。
+2. **真的拿一份存过盘的件重跑 NLA 拼接，仍然没跑过**。离屏证明的是「形状能过」，
+   不是「拼出来的动作对」——对齐量、烘焙窗口、导出这些还得窗口里跑。
+3. 探针没量「多 bag 多槽位」的真实件：手上五份臂件都只有一个 channelbag，
+   所以 `FcurveShapeError` 那条拒写分支只有哑对象验过，**真件没验**。
+4. **第二档（槽位对上的 channelbag）在真件上从未被执行过** —— 这条是 `总控` 从我记录的
+   `how` 值反推出来的，补在这里：真机读数 `how = "channelbags[0](find)"` 用的是**第三档
+   （唯一 channelbag）**，因为五份臂件都只有一个 bag，第二档被短路。也就是说
+   `bag.slot is slot` 这个身份比较**一次都没被真正执行过**，而多槽位真件里跑起来的正是它。
+   它 fail-closed（对不上就抛 `FcurveShapeError`，不猜），所以不是正确性风险；
+   但「槽位选对 bag」这条目前只有哑对象证据。
+
+引用口径随之定死：`fcurves_via` / `how`（形状读数）可以引；**拼接结果对不对不许引**。

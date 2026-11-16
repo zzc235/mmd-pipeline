@@ -513,5 +513,78 @@ class TestMaskGate(unittest.TestCase):
         self.assertEqual(preflight_mod.check(request, worktree=ROOT)["state"], "READY")
 
 
+class _ListHatingScene(FakeScene):
+    """拒绝「列表值」的场景：Blender 的 IDProperty 数组收不了字符串列表。
+
+    假场景是 `dict`，什么值都存得下，所以离屏测试天生看不见这条边界 ——
+    这也正是「手抄 11 键 vs `MASK_WIRED_KEYS` 18 键」漂了 400 行没人发现的原因。
+    """
+
+    def __setitem__(self, key, value):
+        if isinstance(value, dict) and any(
+                isinstance(v, (list, tuple)) for v in value.values()):
+            raise TypeError("IDProperty 数组不支持列表值")
+        super().__setitem__(key, value)
+
+
+class TestMaskWiredRecordCoversTheWholeList(unittest.TestCase):
+    """场景里那本「建场记录」必须按 `MASK_WIRED_KEYS` 生成，不许手抄子集。
+
+    1号 2026-11-16 19:08 在冻结件回读里撞出：`mask_wired` 只有 11 个键，
+    `constraints_released` 不在里面 —— 于是「掩码放掉 2196 条」这件事在交付件里**没有出处**，
+    他只能数到 `10111 = 8298 + 1813`，拼不出 `4009`。手抄清单与 `MASK_WIRED_KEYS`
+    是同一个东西的两份写法，400 行后就漂了。
+    """
+
+    def setUp(self):
+        self.stage, self.bpy = load_stage()
+
+    def test_stored_record_carries_every_key_the_report_has(self):
+        wired_scene(self.bpy)
+        seed_template(self.bpy)
+        result = self.stage.apply_collision_masks()
+        stored = dict(self.bpy.scene["mask_wired"])
+        want = {k for k in self.stage.MASK_WIRED_KEYS if k in result}
+        self.assertEqual(set(stored), want,
+                         "场景里的建场记录与 MASK_WIRED_KEYS 对不上：少 %r / 多 %r"
+                         % (sorted(want - set(stored)), sorted(set(stored) - want)))
+
+    def test_released_count_lands_in_the_artifact(self):
+        """`constraints_released` 是「放掉了几条」的唯一出处，必须在件里。"""
+        wired_scene(self.bpy)
+        seed_template(self.bpy)
+        self.stage.apply_collision_masks()
+        self.assertIn("constraints_released", self.bpy.scene["mask_wired"])
+        self.assertIn("bodies", self.bpy.scene["mask_wired"])
+
+    def test_the_stored_key_is_not_outside_the_single_list(self):
+        wired_scene(self.bpy)
+        seed_template(self.bpy)
+        self.stage.apply_collision_masks()
+        extra = set(self.bpy.scene["mask_wired"]) - set(self.stage.MASK_WIRED_KEYS)
+        self.assertEqual(extra, set(), "记录里冒出清单外的键：%r" % (sorted(extra),))
+
+    def test_unstorable_value_does_not_wipe_the_record(self):
+        """一个值存不下 ⇒ 整条记录不许消失：退成标量，并把缺口记进返回值。
+
+        这条防的是「PARTIAL 时反而没证据」：`verdict_reasons` 一旦非空就带字符串列表，
+        旧写法整条 `scene["mask_wired"] = {...}` 会一起失败，连 `constraints_capped` 都没了。
+        """
+        wired_scene(self.bpy)
+        seed_template(self.bpy)
+        strict = _ListHatingScene(self.bpy.scene.collection.objects)
+        original = self.bpy.context.scene
+        self.bpy.context.scene = strict
+        try:
+            result = self.stage.apply_collision_masks()
+        finally:
+            self.bpy.context.scene = original
+        self.assertIn("mask_wired", strict, "整条建场记录被吞掉了")
+        self.assertIn("verdict_reasons", result.get("mask_wired_omitted") or [],
+                      "被丢掉的键没有记进返回值：%r" % (result.get("mask_wired_omitted"),))
+        self.assertIn("constraints_released", strict["mask_wired"])
+        self.assertIn("verdict", strict["mask_wired"])
+
+
 if __name__ == "__main__":
     unittest.main()
