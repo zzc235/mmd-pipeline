@@ -301,6 +301,9 @@ class MainTest(unittest.TestCase):
         text = err.getvalue()
         self.assertEqual(text.count("REFUSED:"), 1, text)
         self.assertNotIn("Traceback", text)
+        # 「只有一条红了」证明不了「红的是它该红的原因」（`3号` 20:35）：
+        # 再把**为什么拒**钉住 —— 换成别的 `ValueError` 或早点崩，这句就红。
+        self.assertIn("比例", text)
 
     def test_cli_refuses_hold_from_outside_the_readings(self):
         code = SEG.main(["--meta", SNAPSHOT, "--hold-from", "900", "--ratio", "0.10"])
