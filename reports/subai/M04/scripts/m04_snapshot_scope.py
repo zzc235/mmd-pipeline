@@ -76,7 +76,8 @@ def git_tracked(relpath, cwd=None):
     import subprocess
     try:
         r = subprocess.run(["git", "ls-files", "--error-unmatch", relpath],
-                           cwd=cwd, capture_output=True, text=True)
+                           cwd=cwd, capture_output=True, text=True,
+                           encoding="utf-8", errors="replace")
     except (OSError, ValueError):
         return None
     if r.returncode == 0:
