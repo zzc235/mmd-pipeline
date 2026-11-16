@@ -240,8 +240,12 @@ class PreflightTest(TempDirTest):
 class HumanGateTest(TempDirTest):
     """待批项只能被 Human 显式回答关掉——D0 代关必须被拒。"""
 
+    # 2026-11-16 16:44 Human 回答 D-20261116-159（reports/ 纳入 git）后，待批项从 7 条降到 6 条。
+    # **这张清单会随着 Human 真的回答而变短**——这正是它该有的行为；
+    # 变短不算失败，没人回答就自己变短才算（下面 test_closed_item_stays_closed 管这个）。
     EXPECTED = ["D-20261116-017", "D-20261116-023", "D-20261116-028",
-                "D-20261116-068", "D-20261116-075", "D-20261116-158", "D-20261116-159"]
+                "D-20261116-068", "D-20261116-075", "D-20261116-158"]
+    CLOSED_BY_HUMAN = "D-20261116-159"
 
     def setUp(self):
         super().setUp()
@@ -255,6 +259,12 @@ class HumanGateTest(TempDirTest):
 
     def test_open_list_is_exactly_the_seven(self):
         self.assertEqual([row["id"] for row in human_gate_mod.list_open(self.copy)], self.EXPECTED)
+
+    def test_closed_item_stays_closed_and_is_not_reopened(self):
+        # 被 Human 回答过的那条必须留在清单外；只有「后续裁决显式提到它」才关，
+        # 所以它不该因为时间是新的又被算成待批。
+        self.assertNotIn(self.CLOSED_BY_HUMAN,
+                         [row["id"] for row in human_gate_mod.list_open(self.copy)])
 
     def test_open_list_matches_status_aggregation(self):
         # `status --check` 的 C6 就是在核这条一致性：两个出口不许各说一套。
@@ -301,6 +311,21 @@ class HumanGateTest(TempDirTest):
         with self.assertRaises(human_gate_mod.HumanGateError) as ctx:
             human_gate_mod.resolve("D-20261116-999", "BLOCK", by="Human", decisions_path=self.copy)
         self.assertEqual(ctx.exception.code, "NOT_FOUND")
+
+    def test_relayed_answer_is_marked_as_transcription(self):
+        # Human 在会话里说了答案、由 D0 转抄落库：必须留下原话与「不是 D0 自主决定」这句，
+        # 否则「D0 代关」和「D0 抄写」在记录里长得一模一样。
+        quote = "会话 2026-11-16T16:44 原话：「纳入git」"
+        record = human_gate_mod.resolve(self.EXPECTED[0], "ACCEPT_INTERFACE", by="Human",
+                                        decisions_path=self.copy, relayed_from=quote)
+        self.assertEqual(record["relayed_from"], quote)
+        self.assertTrue(any("不是 D0 自主决定" in line for line in record["evidence"]))
+        self.assertEqual(record["resolves"], [self.EXPECTED[0]])
+
+    def test_direct_answer_has_no_relay_mark(self):
+        record = human_gate_mod.resolve(self.EXPECTED[0], "CANCEL", by="Human",
+                                        decisions_path=self.copy)
+        self.assertNotIn("relayed_from", record)
 
     def test_pending_approval_is_not_squeezed_out_by_later_decisions(self):
         # D-086 修的真缺陷：早期待批项被后来**无关**裁决挤掉，等于无人回答却消失。
