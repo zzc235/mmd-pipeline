@@ -25,6 +25,22 @@ ANGLE_WARN = 20.0
 ANGLE_ERROR = 45.0
 POS_WARN = 1.0          # PMX 单位（×0.08 ≈ 8 cm）
 POS_ERROR = 2.5
+NLA_MAX_SEGMENTS = 2    # chain_nla.concat_via_nla 的两段接口上限
+
+
+def nla_segments_check(n: int) -> tuple:
+    """NLA 路线能不能接下 n 段。返回 (ok, reason)。
+
+    N>2 必须在**写 chain.vmd 之前** BLOCK：只 WARN 然后继续用 paths[0]/paths[1]
+    跑，等于把后面的段静默丢掉，state 还会报成功（2026-11-15 就是这种形态）。
+    """
+    n = int(n)
+    if n == 2:
+        return True, ""
+    if n < 2:
+        return False, "NLA 拼接至少需要 2 段（当前 %d 段）" % n
+    return False, ("NLA 模式一次只支持 2 段（当前 %d 段）：在写 chain.vmd 之前 BLOCK，"
+                   "不静默丢段。改用 --chain-mode splice，或拆成两次两段任务。" % n)
 
 
 def _qangle(q1, q2):
@@ -63,6 +79,7 @@ class Segment:
     bones: dict
     offset: int = 0
     span: tuple = (0, 0)
+    index: int = 0
 
 
 def _track_summary(m):
@@ -100,16 +117,18 @@ def plan(paths, pmx_path=None, gap=6, fps=VMD_FPS, limit=12):
     真正的世界根位移由 `measure_align`（Blender 侧）测量。
     """
     segs = []
-    for p in paths:
+    for i, p in enumerate(paths):
         m = vmd_mod.load(p)
-        segs.append(Segment(path=p, motion=m, bones=_bone_records(m)))
+        segs.append(Segment(path=p, motion=m, bones=_bone_records(m), index=i))
 
     cursor = 0
     for s in segs:
+        first, last = s.motion.frame_range
         s.offset = cursor
-        end = s.motion.frame_range[1] if s.motion.bone_last_frame else 0
-        s.span = (cursor, cursor + end)
-        cursor = cursor + end + 1 + gap
+        # 与 vmd.concat 的自动排布同一口径：段起点对准 cursor，段内保留源首帧偏移。
+        # 两处必须一致，否则 plan 报 337、实际文件 244（2026-11-15 的丢段就是这个）。
+        s.span = (cursor + first, cursor + last)
+        cursor = cursor + last + 1 + gap
 
     report = {
         "inputs": paths,
@@ -119,6 +138,7 @@ def plan(paths, pmx_path=None, gap=6, fps=VMD_FPS, limit=12):
         "bone_sets": {},
         "overlaps": [],
         "joint_gaps": [],
+        "junctions": [],
         "pose_diff": [],
         "roots": [],
         "key_additions": {},
@@ -135,6 +155,8 @@ def plan(paths, pmx_path=None, gap=6, fps=VMD_FPS, limit=12):
             "ik_range": [min(m.ik_frames), max(m.ik_frames)] if m.ik_frames else None,
             "tail_valid": m.tracks_valid,
             "offset": s.offset, "timeline": [s.span[0], s.span[1]],
+            "expected_count": s.span[1] - s.span[0] + 1,
+            "gap_after": gap,
             "duration_s": round(s.span[1] / fps, 3),
         })
 
@@ -155,31 +177,49 @@ def plan(paths, pmx_path=None, gap=6, fps=VMD_FPS, limit=12):
             "missing_counts": {str(i): len(union - x) for i, x in enumerate(sets)},
         }
 
-        a, b = segs[0], segs[1]
-        a_end = max(a.motion.bone_last_frame.values()) if a.motion.bone_last_frame else 0
-        b_start = min(b.motion.bone_first_frame.values()) if b.motion.bone_first_frame else 0
-        for name in sorted(common):
-            ra = a.bones.get(name, {}).get(a_end)
-            rb = b.bones.get(name, {}).get(b_start)
-            if not ra or not rb:
-                ra = ra or _nearest(a.bones.get(name), a_end)
-                rb = rb or _nearest(b.bones.get(name), b_start)
-            if not ra or not rb:
-                continue
-            ang = _qangle(ra[1], rb[1])
-            pos = max(abs(ra[0][k] - rb[0][k]) for k in range(3))
-            sev = "error" if (ang > ANGLE_ERROR or pos > POS_ERROR) else \
-                  "warn" if (ang > ANGLE_WARN or pos > POS_WARN) else "info"
-            report["pose_diff"].append({
-                "bone": name, "angle_deg": round(ang, 2), "pos_delta": round(pos, 3),
-                "pos_delta_mm": round(pos * 80.0, 1),
-                "severity": sev,
+        # 每个相邻对都要有 junction：只比较 segs[0]/segs[1] 会让三段拼接的
+        # 第 2/3 段交接完全没人检查，也看不出中间整段被压掉。
+        for a, b in zip(ordered, ordered[1:]):
+            a_end = max(a.motion.bone_last_frame.values()) if a.motion.bone_last_frame else 0
+            b_start = min(b.motion.bone_first_frame.values()) if b.motion.bone_first_frame else 0
+            pose_diff = []
+            for name in sorted(common):
+                ra = a.bones.get(name, {}).get(a_end)
+                rb = b.bones.get(name, {}).get(b_start)
+                if not ra or not rb:
+                    ra = ra or _nearest(a.bones.get(name), a_end)
+                    rb = rb or _nearest(b.bones.get(name), b_start)
+                if not ra or not rb:
+                    continue
+                ang = _qangle(ra[1], rb[1])
+                pos = max(abs(ra[0][k] - rb[0][k]) for k in range(3))
+                sev = "error" if (ang > ANGLE_ERROR or pos > POS_ERROR) else \
+                      "warn" if (ang > ANGLE_WARN or pos > POS_WARN) else "info"
+                pose_diff.append({
+                    "bone": name, "angle_deg": round(ang, 2), "pos_delta": round(pos, 3),
+                    "pos_delta_mm": round(pos * 80.0, 1),
+                    "severity": sev,
+                })
+            pose_diff.sort(key=lambda x: -x["angle_deg"])
+            report["junctions"].append({
+                "pair": [a.index, b.index],
+                "a_path": a.path, "b_path": b.path,
+                "a_last_frame": a_end, "b_first_frame": b_start,
+                "timeline": [a.span[1], b.span[0]],
+                "gap": gap,
+                "over_threshold": sum(1 for p_ in pose_diff if p_["severity"] != "info"),
+                "max_angle_deg": pose_diff[0]["angle_deg"] if pose_diff else 0.0,
+                "pose_diff": pose_diff,
             })
-        report["pose_diff"].sort(key=lambda x: -x["angle_deg"])
+        # 兼容旧字段：pose_diff 仍指第一个交接对（两段拼接时完全等价）
+        report["pose_diff"] = report["junctions"][0]["pose_diff"] if report["junctions"] else []
 
         # 根链：必须按段算。用并集会出错——全ての親 只在 B 段动，
         # 并集视角下 センター 就被判成"有动画祖先"，而它其实是 A 段的根。
         if pmx_path:
+            a, b = ordered[0], ordered[1]
+            a_end = report["junctions"][0]["a_last_frame"]
+            b_start = report["junctions"][0]["b_first_frame"]
             model = pmx_mod.load(pmx_path)
             parent = {b.index: b.parent for b in model.bones}
             name_of = {b.index: b.name for b in model.bones}
@@ -235,8 +275,8 @@ def plan(paths, pmx_path=None, gap=6, fps=VMD_FPS, limit=12):
         report["key_additions"] = adds
 
     last = max(s.span[1] for s in segs) if segs else 0
-    # 过渡速度建议：舞蹈类观感阈值取 5°/帧
-    mx = report["pose_diff"][0]["angle_deg"] if report["pose_diff"] else 0.0
+    # 过渡速度建议：舞蹈类观感阈值取 5°/帧。多个交接取最差的那个。
+    mx = max((j["max_angle_deg"] for j in report["junctions"]), default=0.0)
     report["max_junction_angle"] = mx
     report["deg_per_frame"] = round(mx / (gap + 1), 2) if gap >= 0 else None
     report["recommended_gap"] = max(0, math.ceil(mx / 5.0) - 1)
@@ -285,6 +325,16 @@ def render_text(rep, limit=10):
         for p in rep["pose_diff"][:limit]:
             lines.append("    %-6s %-16s 角度 %6.1f°  位置 %6.3f"
                          % (p["severity"].upper(), p["bone"][:16], p["angle_deg"], p["pos_delta"]))
+
+    junctions = rep.get("junctions") or []
+    if len(junctions) > 1:
+        lines.append("")
+        lines.append("  交接对（%d 段 → %d 个交接，每对都要查）：" % (len(rep["segments"]), len(junctions)))
+        for j in junctions:
+            lines.append("    段%s→段%s  源帧 %s→%s  时间轴 %d..%d  超阈值 %d 根  最大 %.1f°"
+                         % (j["pair"][0], j["pair"][1], j["a_last_frame"], j["b_first_frame"],
+                            j["timeline"][0], j["timeline"][1],
+                            j["over_threshold"], j["max_angle_deg"]))
 
     if rep.get("pos_movers"):
         lines.append("")

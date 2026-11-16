@@ -404,13 +404,13 @@ def run(args) -> int:
         vmd_for_import = args.vmd
         chain_expr_offset = 0
         if args.motions:
-            paths = [p for p in args.motions.split(";") if p]
-            if len(paths) >= 2:
+            seg_paths = [p for p in args.motions.split(";") if p]
+            if len(seg_paths) >= 2:
                 chain_path = os.path.join(out_dir, "vmd", "chain.vmd")
                 sr = report_mod.StageResult("S3_chain")
                 try:
                     # 先只读体检：骨集差 / 交接姿态差 / 根链位移，不通过不写文件
-                    cplan = chainplan_mod.plan(paths, pmx_path=args.pmx,
+                    cplan = chainplan_mod.plan(seg_paths, pmx_path=args.pmx,
                                                gap=args.chain_gap,
                                                fps=preset["render"]["fps"])
                     sr.metrics["dryrun"] = {
@@ -425,6 +425,12 @@ def run(args) -> int:
                             (d["local_pos_delta"] for d in cplan.get("local_root_pos_delta", [])),
                             default=0.0),
                         "roots_per_segment": cplan.get("roots_per_segment"),
+                        # 每个相邻交接对都要落盘：两段时长度 1，三段时 2
+                        "junctions": [
+                            {"pair": j_["pair"], "timeline": j_["timeline"],
+                             "over_threshold": j_["over_threshold"],
+                             "max_angle_deg": j_["max_angle_deg"]}
+                            for j_ in cplan.get("junctions", [])],
                     }
                     if cplan["pose_diff"]:
                         top = cplan["pose_diff"][:3]
@@ -454,42 +460,68 @@ def run(args) -> int:
                     if getattr(args, "chain_mode", "splice") == "nla":
                         # NLA 路线（社区/官方能力）：分层 → 交叉淡化 → 烘焙 → export_vmd
                         from . import chain_nla as chain_nla_mod
-                        if len(paths) != 2:
-                            sr.add("E-00", report_mod.WARN,
-                                   "NLA 模式一次只支持 2 段，当前 %d 段" % len(paths))
-                        nrep = chain_nla_mod.concat_via_nla(
-                            args.pmx, paths[0], paths[1], chain_path,
-                            gap=args.chain_gap,
-                            blend=getattr(args, "chain_blend", 0),
-                            align=getattr(args, "align", "auto"), verbose=False)
-                        sr.metrics.update({
-                            "mode": "nla",
-                            "segments": len(paths),
-                            "gap": args.chain_gap,
-                            "blend": getattr(args, "chain_blend", 0),
-                            "frame_range": nrep["frame_range"],
-                            "fcurves": nrep["fcurves"],
-                            "align": nrep.get("align"),
-                            "out": nrep["out"],
-                        })
-                        sr.artifacts.append(nrep["out"])
-                        vmd_for_import = nrep["out"]
-                        sr.metrics["spans"] = [[0, [0, nrep["a_last"] - 1]],
-                                               [nrep["b_first"] - 1,
-                                                [nrep["b_first"] - 1, nrep["frame_range"][1]]]]
+                        ok_nla, why_nla = chainplan_mod.nla_segments_check(len(seg_paths))
+                        if not ok_nla:
+                            # 先 BLOCK 再动手：跑到 seg_paths[0]/seg_paths[1] 就已经丢段了
+                            sr.add("E-15", report_mod.BLOCK, why_nla)
+                        else:
+                            nrep = chain_nla_mod.concat_via_nla(
+                                args.pmx, seg_paths[0], seg_paths[1], chain_path,
+                                gap=args.chain_gap,
+                                blend=getattr(args, "chain_blend", 0),
+                                align=getattr(args, "align", "auto"), verbose=False)
+                            sr.metrics.update({
+                                "mode": "nla",
+                                "segments": len(seg_paths),
+                                "gap": args.chain_gap,
+                                "blend": getattr(args, "chain_blend", 0),
+                                "frame_range": nrep["frame_range"],
+                                "fcurves": nrep["fcurves"],
+                                "align": nrep.get("align"),
+                                "out": nrep["out"],
+                                "expected_total_frames": cplan.get("total_frames"),
+                                "chain_total_frames": nrep["frame_range"][1] + 1,
+                                "requested_render_frames": frame_end - frame_start + 1,
+                            })
+                            sr.artifacts.append(nrep["out"])
+                            vmd_for_import = nrep["out"]
+                            sr.metrics["spans"] = [[0, [0, nrep["a_last"] - 1]],
+                                                   [nrep["b_first"] - 1,
+                                                    [nrep["b_first"] - 1, nrep["frame_range"][1]]]]
                     else:
                         crep = concatvmd_mod.concat_vmd(
-                            paths, chain_path, gap=args.chain_gap, verbose=False)
+                            seg_paths, chain_path, gap=args.chain_gap, verbose=False)
+                        expected = cplan.get("total_frames")
+                        actual = crep.get("total_frames")
+                        requested = frame_end - frame_start + 1
                         sr.metrics.update({
                             "mode": "splice",
-                            "segments": len(paths),
+                            "segments": len(seg_paths),
                             "gap": args.chain_gap,
                             "frame_range": crep["final_range"],
                             "bone_records": crep["bone_records"],
+                            "expected_total_frames": expected,
+                            "chain_total_frames": actual,
+                            "requested_render_frames": requested,
                             "spans": [[s_["offset"], s_["dst_range"]] for s_ in crep["spans"]],
                             "out": crep["out"],
                         })
                         sr.artifacts.append(crep["out"])
+                        # 两笔账分开记：① plan vs 文件（丢段） ② 文件 vs --frames（截断）
+                        trunc = max(0, (expected or 0) - requested)
+                        sr.metrics["explicit_truncated_frames"] = trunc
+                        if trunc > 0:
+                            sr.add("E-00", report_mod.WARN,
+                                   "显式截断：请求 %d 帧 < 账本 %d 帧（差 %d），"
+                                   "只是没渲后面，不是丢段"
+                                   % (requested, expected, trunc),
+                                   "chain=%s plan=%s" % (actual, expected))
+                        if expected is not None and actual != expected:
+                            sr.add("E-15", report_mod.BLOCK,
+                                   "拼接帧数不守恒：chain=%s 帧，账本=%s 帧（gap=%d）"
+                                   % (actual, expected, args.chain_gap),
+                                   str([[s_["offset"], s_["dst_range"]]
+                                        for s_ in crep["spans"]]))
                     if crep is not None and crep["overlaps"]:
                         sr.add("E-15", report_mod.BLOCK,
                                "拼接后时间轴有重叠段", str(crep["overlaps"]))
@@ -498,7 +530,7 @@ def run(args) -> int:
                     # 表情属于哪一段：按"表情文件与该段动作同目录"判断
                     if args.expression and crep is not None:
                         expr_dir = os.path.dirname(os.path.abspath(args.expression))
-                        for idx, pth in enumerate(paths):
+                        for idx, pth in enumerate(seg_paths):
                             if os.path.dirname(os.path.abspath(pth)) == expr_dir:
                                 chain_expr_offset = crep["spans"][idx]["offset"]
                                 sr.metrics["expression_segment"] = idx
@@ -510,7 +542,7 @@ def run(args) -> int:
                     _write_state(state_path, state)
                     return 2
             else:
-                vmd_for_import = paths[0]
+                vmd_for_import = seg_paths[0]
 
         if args.expression:
             stem = os.path.splitext(os.path.basename(args.vmd))[0]
@@ -698,6 +730,17 @@ def run(args) -> int:
 
     st = stage_mod.stage_render(preset, png_dir, frame_start, frame_end, mp4_path)
     record(st)
+    # 渲染帧数回填到拼接阶段：只报"成功"不看实际出了多少帧，是丢段的最后一块遮羞布
+    if "S3_chain" in state["stages"]:
+        m_chain = state["stages"]["S3_chain"].setdefault("metrics", {})
+        rendered = st.metrics.get("frames_rendered")
+        req = m_chain.get("requested_render_frames")
+        m_chain["rendered_frames"] = rendered
+        if rendered is not None and req is not None:
+            m_chain["frame_conservation"] = (
+                "mismatch" if rendered != req
+                else "truncated" if m_chain.get("explicit_truncated_frames")
+                else "ok")
     state.setdefault("artifacts", {})["frames_dir"] = png_dir
     state["artifacts"]["mp4"] = mp4_path
     _write_state(state_path, state)

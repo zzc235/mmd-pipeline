@@ -182,6 +182,28 @@ def _measure_and_align(arm, action_b, a_last, b_first, mode):
     }
 
 
+def extend_upper_strip(upper, a_last: int) -> int:
+    """把 B 条带向前延伸 shift 帧，覆盖交接段（给交叉淡化用）。返回实际 shift（0=无需）。
+
+    关键：延伸后必须是**恒等映射** a(t)=t，否则 B 会被压缩/平移。
+    Blender 的 frame_start / action_frame_start 会互相联动，所以四个值都显式写，
+    并且按「先 frame 区间、后 action 区间」的顺序，最后以写回结果为准返回。
+    实测：只改 action 起点不改终点 → 条带被拉成 [448,867] 映射 [448,847]，
+    f847 与未淡化差 1.003 m；把终点也减 shift → 压缩 5.5%，f846 差 1.007 m。
+    """
+    target = a_last + 1
+    shift = int(upper.frame_start - target)
+    if shift <= 0:
+        return 0
+    new_end = int(upper.frame_end) + shift
+    upper.frame_start = target
+    upper.frame_end = new_end
+    upper.action_frame_start = target
+    upper.action_frame_end = new_end
+    upper.blend_in = shift
+    return shift
+
+
 def concat_via_nla(pmx, a_path, b_path, out_path, gap=6, blend=0,
                    align="auto", verbose=True):
     """两段动作 → NLA 分层 →（可选）根链对齐 → 交叉淡化 → 烘焙 → 导出 VMD。"""
@@ -211,15 +233,11 @@ def concat_via_nla(pmx, a_path, b_path, out_path, gap=6, blend=0,
 
     if blend > 0:
         upper = tracks[-1].strips[0]
-        target = a_last + 1
-        shift = int(upper.frame_start - target)
-        if shift > 0:
-            upper.action_frame_start -= shift
-            upper.action_frame_end -= shift
-            upper.frame_start = target
-            upper.blend_in = shift
-            if verbose:
-                print("  上层延伸 %d 帧 → f%d，blend_in=%d" % (shift, target, shift))
+        shift = extend_upper_strip(upper, a_last)
+        if shift and verbose:
+            print("  上层延伸 %d 帧 → f%d，blend_in=%d，action 起点 %d（终点保持 %d）"
+                  % (shift, a_last + 1, shift, upper.action_frame_start,
+                     upper.action_frame_end))
 
     bpy.context.scene.frame_start = 1
     bpy.context.scene.frame_end = int(b_last)
@@ -251,7 +269,10 @@ def concat_via_nla(pmx, a_path, b_path, out_path, gap=6, blend=0,
 def main(argv=None):
     argv = argv if argv is not None else (sys.argv[sys.argv.index("--") + 1:]
                                           if "--" in sys.argv else sys.argv[1:])
-    ap = argparse.ArgumentParser(prog="mmdpipe.chain_nla")
+    ap = argparse.ArgumentParser(
+        prog="mmdpipe.chain_nla",
+        description="两段动作 → NLA 分层 → 烘焙 → 导出 VMD。本入口只支持 2 段；"
+                    "3 段及以上请用 --chain-mode splice，或拆成两次两段任务。")
     ap.add_argument("--pmx", required=True)
     ap.add_argument("--a", required=True)
     ap.add_argument("--b", required=True)
