@@ -8,10 +8,10 @@
   },
   "tasks": {
     "M00": {
-      "status": "PARTIAL",
-      "reason": "调度层已入基线（覆盖闸门三点式、证据哈希、锁、分流），但「board 管状态」无实现载体，派生视图 status.py 未做",
-      "next": "A4 做 coordination/status.py（读本表 + decisions.jsonl 尾条，只读渲染）",
-      "updated": "2026-11-16T13:25+08:00"
+      "status": "PASS",
+      "reason": "调度层齐了：覆盖闸门三点式、证据哈希、锁、分流、task_status.json + coordination/status.py 派生视图（只读，退出码 0/2/3/4，两条应当被拒的输入验过）",
+      "next": "无",
+      "updated": "2026-11-16T13:31+08:00"
     },
     "M01": {
       "status": "PASS",
@@ -21,9 +21,9 @@
     },
     "M02": {
       "status": "PARTIAL",
-      "reason": "S8 = EFFECTIVE（作用域＝碰撞总开关接线，约 2/3 来自管线自补的 11 个静态占位刚体）；S2 定稿（限位活着但 0.7 rad 未被触及）。交付修复走 A 路：不烘焙 + 顺序求值契约（P12 已证伪「顺序跑一遍再存盘」，内存缓存不进 .blend）",
-      "next": "A1 做 §6 一次性豁免的 bake_all 受控实测；A4 修 stage.py 两处静默失败后重建交付场景",
-      "updated": "2026-11-16T13:28+08:00"
+      "reason": "S8 = EFFECTIVE（作用域＝碰撞总开关接线，约 2/3 来自管线自补的 11 个静态占位刚体）；S2 定稿；交付修复定为 B（烘焙），实测冷跳逐位等于顺序重算、bake_all 今天不复现段错误",
+      "next": "A1 走 attempt 7（判据四态 + 重建 artifacts + P11/P12/P13）；随后重建交付场景供 M04/M08 用",
+      "updated": "2026-11-16T13:31+08:00"
     },
     "M03": {
       "status": "PASS",

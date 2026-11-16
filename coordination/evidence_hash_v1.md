@@ -130,3 +130,16 @@ git diff --name-only main...HEAD      # 等价于 从 merge-base 算到 HEAD
 5. 核验方（D0）复核时，**先试 LF 规范化**，只有规范化后仍不等才算内容不一致。
 
 **为什么不是「一律用 git blob」**：`reports/` 与 `out/` 全在 gitignore 里，不进版本库，没有 blob 可比；规范化对两者都适用。
+
+### 5.1 `hash_basis` 是枚举，不是自由文本（2026-11-16 13:36，D0 定）
+
+`normalize()` 只保留固定字段，所以 `hash_basis` 必须真的进模式才落得进 canonical（M00 attempt 4 的改动）。取值收成枚举：
+
+| 写法 | 结果 |
+|---|---|
+| 省略（或空串） | 旧基数（磁盘原始字节）；canonical 里**不出现**该键，旧哈希逐字节不变 |
+| `"lf_normalized_v1"` | 进 canonical、参与哈希；首尾空白折叠后匹配 |
+| 其它任何字符串 | `EvidenceError`，`reason_code = "WRONG_HASH_BASIS"` |
+| 非字符串 | `EvidenceError` |
+
+**为什么收枚举**：自由文本的"标准"等于没有标准——写 `raw_bytes_v1` 和写 `foo` 一样能过，核验方反而要猜。允许省略是为了让已合并的 9 笔旧证据继续有效；新提交必须带 `lf_normalized_v1`。
