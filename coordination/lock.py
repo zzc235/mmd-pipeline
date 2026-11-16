@@ -350,6 +350,33 @@ def release(owner: str, lock_dir: str | None = None) -> dict:
     return {"held": False, "released": info["raw"], "lock_dir": lock_dir}
 
 
+def assert_owner(owner: str, lock_dir: str | None = None) -> dict:
+    """**跑 Blender 之前的第一句**：确认这把锁现在是你的，否则抛 `NotOwner`。
+
+    为什么要有它（D0 2026-11-16 18:20，`3号` 自报的真实事故）：`acquire` 在锁被占时
+    返回 `LOCK_HELD` 且退出码 3 —— 但**退出码是调用方的事**，有人不看返回值就往下跑了
+    7 个 Blender 进程，到 `release` 才报 `LOCK_NOT_YOURS`。工具没法强迫别人看退出码，
+    但可以给一条**在产物侧**才爆炸的检查：凡是要起 Blender 的脚本，第一句先 `assert-owner`，
+    不是自己持锁就直接失败，读数和产物一个都不留。
+
+    与 `acquire` 的区别：`acquire` 要写锁（可能抢到），`assert-owner` **只读不写**，
+    只回答「现在是不是我」，所以它可以安全地放在每个 Blender 进程的入口。
+    """
+    if not owner or "|" not in owner:
+        raise ValueError("owner 必须写成 `模块|工作树`")
+    lock_dir = lock_dir or paths.lock_dir()
+    if not os.path.isdir(lock_dir):
+        # 空闲 ≠ 谁都能跑：必须先 acquire 才叫「你在跑」。
+        raise NotOwner("锁空闲（没有锁目录 %s）：先 acquire 再起 Blender" % lock_dir)
+    info = read_owner(lock_dir)                     # 残缺锁在这里抛 IncompleteLock
+    mine = "|".join(owner.split("|")[:2])
+    if info["ident"] != mine:
+        raise NotOwner("现在不是你的锁：持有者 %r，你是 %r —— 不许起 Blender"
+                       % (info["raw"], mine))
+    return {"held": True, "ident": info["ident"], "raw": info["raw"],
+            "heartbeat_age": heartbeat_age_seconds(lock_dir)}
+
+
 def render_status(info: dict) -> str:
     if not info.get("held"):
         return "空闲：%s" % info.get("lock_dir", "")
@@ -374,7 +401,8 @@ def main(argv=None) -> int:
         epilog="退出码：0 正常 / 2 用法 / 3 冲突或拒绝回收 / 4 锁状态不可判定。\n"
                "回收（reclaim）三条同时成立才允许：记录的 PID 全不活、系统里没有 blender 进程、"
                "心跳超过阈值；回收是**搬到** locks/_reclaimed/ 下，不删，owner.txt 原样保留。")
-    ap.add_argument("action", choices=("acquire", "release", "status", "touch", "reclaim"))
+    ap.add_argument("action", choices=("acquire", "release", "status", "touch", "reclaim",
+                                       "assert-owner"))
     ap.add_argument("--lock", default=None, help="锁目录（缺省 out/subai/locks/blender.lock）")
     ap.add_argument("--owner", default="", help="`模块|工作树`，如 `模块负责4|A4`")
     ap.add_argument("--note", default="", help="一句话说明这次要跑什么")
@@ -402,6 +430,10 @@ def main(argv=None) -> int:
         if args.action == "reclaim":
             info = reclaim(args.lock, args.stale_minutes)
             print("RECLAIMED %s -> %s" % (info["reclaimed"], info["moved_to"]))
+            return EXIT_OK
+        if args.action == "assert-owner":
+            info = assert_owner(args.owner, args.lock)
+            print("OWNER_OK %s" % info["raw"])
             return EXIT_OK
         print(render_status(status(args.lock)))
         return EXIT_OK
