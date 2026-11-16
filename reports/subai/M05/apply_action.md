@@ -424,3 +424,35 @@ readonly 分布 = 5 / 14
 **仍然留在 `out/` 的**：`arms/20261116_324/` 那 14 个产物（含 `manifest.json` 账本本身）——
 6–10 MB 的 `.blend` 不进 git 是对的。所以「这批的字节」在干净 checkout 上依然量不了，
 能复跑的是**控制逻辑**；枚举的 sha 结论由进 git 的 `reports/subai/M05/arms_audit_324.json` 承载。
+
+### 证据/摘要生成器也镜像进仓，并且**默认拒绝覆盖**
+
+同一条第十三条继续往下一层查：报告里的证据不是凭空写的，它有两条生成链，原先也都只在 `out/`：
+
+- `reports/subai/M05/scripts/build_arms_summary_324.py`：七臂记录 → `arms/20261116_324/summary.json`
+- `reports/subai/M05/scripts/build_evidence_attempt11.py`：→ `evidence_m05_attempt11.json` + 闸门包
+
+照 `D-225` 的「能补的用记录、不可逆的用拒绝」分了一下：**这两支的默认输出是已提交的交付证据**，
+重跑一次就会静默改写它 ⇒ 默认路径已存在就 `exit 2`，要覆盖必须显式 `--force`；
+新增 `--out` 只为**验证**（写到临时目录，产物树不留东西）。
+
+验证不是「应该能跑」：
+
+| 项 | 读数 |
+|---|---|
+| `summary.json` 重建（`--out` 到临时路径） | **与已提交件逐字节相同**：30 965 B / sha `ca3afd87…` |
+| `evidence_m05_attempt11.json` 重建 | `evidence/1:5a46a74d…`，`evidence check` **exit 0**；与已提交的 `0d66add0…` **不同** |
+| 已提交证据与闸门包 | 未被改动（`0d66add0…` / `3ae49f68…`） |
+
+digest 不同是**对的**：证据的输入里有 `apply_action.py`、`tests/test_apply_action.py`、本报告、`summary.json`，
+而这四份在 attempt 11 之后都改过。它说明**证据是「那个 HEAD 的读数」，不是永久真相** ——
+所以更不能让它被随手重跑覆盖。
+
+#### 镜像过程中撞出来的两处，都是我自己埋的
+
+1. **账本混进了输入**：批次目录里放了 `manifest.json`（冻结账本），而 summary 生成器把目录里每个
+   `.json` 都当臂记录 ⇒ 重跑会多一条 `{"arm": "manifest", 全 None}` 的假记录，把物证摘要从
+   30 965 静默改成 31 580 字节。已加 `*manifest*.json` 排除（与 `artifact_audit` 同一条规则）。
+2. **`--out` 只重定向了证据、没重定向闸门包**：第一次验证就把已提交的 `gate_m05_attempt11.json`
+   改了一个 snapshot 路径，被 `git status` 抓到、已 `git checkout --` 还原。现在闸门包跟着 `--out` 走
+   —— **验证性运行必须能完全落在临时目录里**，否则「只验证一次」就是一次改写。
