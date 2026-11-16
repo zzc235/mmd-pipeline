@@ -494,3 +494,29 @@ readback_arms.json sha256 前后同为 eaf82204…（一个字节没写）
 再告诉你能不能落盘。已挪到 `main()` 最前面，先判目标再干活；负控因此不再需要一份 `.blend` 也能验
 （实测无 `.blend` 时照样 `rc=10`，目标 sha 不变）。真正保证「没写」的仍是文件 sha 前后同值，
 退出码只负责让调用方停下。
+
+### 报告头条数**只用仓内文件**重算（`2号` 20:15 那把尺）
+
+`2号` 给 M04 立的同一把尺，我这边也做成了机器核：`reports/subai/M05/scripts/verify_report_numbers.py`
+只读 git 里的 `summary.json` 与 `arms_audit_324.json`，**不碰 `out/`**，逐条断言：
+
+```
+臂数量 / 回读臂数 / 回读状态(status=measured)
+五臂 × {u324=324、mask_wired needed 10111 / added 8298 / already 1813 / capped false /
+        readback_mismatch 0 / skipped 0、is_baked false、frame_end 301/301/832/833/447、fps 24、产物 0o444}
+审计 {state OK、two_way_checked true、listed 14、drift []、only_on_disk []}
+报告引用的每个路径 in-git
+⇒ 退出码 0，0 条对不上
+```
+
+它当场抓出我两处**没进 git 的引用**（`readback_arms.json`、`probe_fcurve_write_shape.json`）——
+处理方式不是加豁免了事，而是**每条豁免必须写清「那个数由仓里哪一份承载」**：
+
+| 不入仓的路径 | 为什么 | 那个数在仓里哪儿 |
+|---|---|---|
+| `arms/…/manifest.json` | 冻结账本本身 | `arms_audit_324.json`（本脚本断言 state/listed/drift） |
+| `arms/…/readback_arms.json` | 回读原件 | `summary.json.artifact_readback`（本脚本逐臂断言） |
+| `probe_fcurve_write_shape.json` | 探针原件 | 报告 §十三 表格 + `evidence_m05_attempt11.json` |
+
+所以现在的口径是：**报告头条的每一个数都能在干净 checkout 上重算**；不能重算的只有「那批字节本身」，
+而它们不是头条数，是产物。
