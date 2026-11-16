@@ -6,16 +6,17 @@
 
 M08 开始前必须存在一个从 `coordination/decisions.jsonl` 派生的**单一状态视图**（`coordination/status.py`，纯派生、无写入口），能回答：每个 task 当前状态、未决项、待 Human 批项。理由：`coordination/board.db` 从未被实现（D-049），当前状态只存在于裁决日志里；再引入第二份状态必然漂移。
 
-## 2. 交付物：`.blend` 必须自洽
+## 2. 交付物：`.blend` 必须自洽，且自洽由**行为探针**证明
 
 2026-11-16 已证实的缺陷：`out/subai/M02/blend/B_from_blend1.blend`（= `E_base` = `G_base`，sha `dd7f6877…`）缓存 `is_baked=true` **且 `is_outdated=true`**，**打开即渲染**得到回放轨迹，与解烘焙重算的轨迹差**下摆 0.9087 m / 全刚体 1.6206 m**——同一个文件给出两条动画（D-044）。
 
+**同一天晚些时候的重要更正**（D-067）：**标志位判不出好坏**。一次健康的烘焙件（`bake_all` 后 326 帧）重开同样显示 `is_baked=true && is_outdated=true`，但它的冷跳 f109/f240 与顺序重算**逐位相同**。`is_baked && is_outdated` 的真实含义是「打开时无法证明缓存与当前设置一致」，它只是**筛选信号**。
+
 验收要求：
 
-- 交付的每个 `.blend` 必须通过 `m02_cache_gate.py` 的 `exit 0`，即满足二者之一：
-  - `is_baked = false`（首次 `frame_set` 会重算，handoff 必须写明耗时）；
-  - `is_baked = true && is_outdated = false`（回放 == 重算）。
-- `exit 3`（`DEFECT_BAKED_OUTDATED`）一律判不通过，不许以"能渲染出片"绕过。
+- 交付形态取 **B（烘焙）**：`ptcache.bake_all(bake=True)` 实测可用（32.2 s / 326 帧 / 无段错误 / 不要求 `use_disk_cache`），代价 33 s/场景、+650 KB。§6 的豁免为常驻，条件四条：只在副本上、每场景单次、崩溃只记退出码不重试、**成功也必须过行为探针**。
+- **行为探针 = 冷跳中间帧 vs 顺序重算**：两者逐位相同 → `OK_BAKED_VERIFIED`(0)；不一致 → `DEFECT_BAKED_OUTDATED`(3)；**没做探针 → `SUSPECT_BAKED_OUTDATED`(4)，未测 ≠ 不合格，不得静默放行**。
+- 不烘焙交付（A 路）只作降级：必须写明「从 `scene.frame_start` 顺序求值」，且**已知对人不成立**（谁拖时间轴谁看到别的动画）。
 
 ## 3. 场景构成必须写进验收结论
 
