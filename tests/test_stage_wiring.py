@@ -10,11 +10,16 @@
 * 建约束默认走「复制已有 ncc」，不走逐条 `bpy.ops`（后者每条触发全场景求值）。
 """
 import copy as copy_mod
+import inspect
+import os
 import sys
 import types
 import unittest
 
+from coordination import preflight as preflight_mod
 from mmdpipe import mask as mask_mod
+
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 # ---------------------------------------------------------------- 假 bpy
@@ -356,6 +361,150 @@ class TestStageMaskVerdict(unittest.TestCase):
         report = self.stage.stage_mask()
         self.assertEqual(report["verdict"], "EMPTY")
         self.assertEqual(report["verdict_reasons"], ["no_bodies"])
+
+
+class TestMaskGate(unittest.TestCase):
+    """`D-144③`：上限由 plan 推出 + 四条判据**逐条可红** + 建场前 fail-closed。
+
+    四条判据（`WIRED / capped=false / skipped==[] / added+already==needed`）分成四个 bool
+    给出，不许合成一个 `and`：合取式里一位写错，整体永远是绿的而读数的人看不出哪条坏。
+    所以下面四个**红样本**分别只破坏一条，逐个判红。
+    """
+
+    def setUp(self):
+        self.stage, self.bpy = load_stage()
+
+    def _green(self):
+        wired_scene(self.bpy)
+        seed_template(self.bpy)
+        self.bpy.ops_calls.clear()
+        return self.stage.apply_collision_masks()
+
+    # ------------------------------------------------------------ 绿样本
+
+    def test_all_four_criteria_green_in_one_assertion(self):
+        result = self._green()
+        checks = self.stage.mask_wired_checks(result)
+        self.assertEqual(sorted(checks), sorted(self.stage.MASK_WIRED_CRITERIA),
+                         "判据清单和实现漂了：%r" % (checks,))
+        self.assertEqual(
+            {name for name, ok in checks.items() if not ok}, set(),
+            "四条判据有红的：%r（判词理由 %r）"
+            % ({name: ok for name, ok in checks.items() if not ok},
+               result.get("verdict_reasons")))
+        self.assertEqual(self.stage.mask_wired_missing(result), [])
+        self.assertIsNone(self.stage.mask_gate_reason(result))
+
+    # ------------------------------------------------------------ 四条红样本
+
+    def test_each_criterion_can_turn_red_alone(self):
+        """四条各红一次：每条都只该红它自己。"""
+        base = self._green()
+        mutations = {
+            "verdict_wired": {"verdict": "PARTIAL"},
+            "not_capped": {"constraints_capped": True},
+            "no_skipped": {"skipped_count": 1},
+            "added_plus_already_equals_needed":
+                {"constraints_added": base["constraints_added"] + 1},
+        }
+        for name, patch in mutations.items():
+            broken = dict(base)
+            broken.update(patch)
+            self.assertEqual(
+                self.stage.mask_wired_missing(broken), [name],
+                "破坏 %s（%r）之后红项不对：%r" % (name, patch,
+                                            self.stage.mask_wired_missing(broken)))
+            self.assertIn(name, self.stage.mask_gate_reason(broken))
+
+    def test_skipped_list_also_breaks_the_skipped_criterion(self):
+        broken = dict(self._green())
+        broken["skipped_count"] = 0
+        broken["skipped"] = [{"pair": ["a", "b"], "reason": "达到建约束上限"}]
+        self.assertIn("no_skipped", self.stage.mask_wired_missing(broken))
+
+    def test_missing_record_is_red_not_green(self):
+        """没有建场记录的字段（旧场景/手搭场景）不许读成「没问题」。"""
+        base = self._green()
+        expected = {"constraints_capped": "not_capped", "skipped_count": "no_skipped"}
+        for key, criterion in expected.items():
+            broken = dict(base)
+            broken.pop(key)
+            self.assertIn(
+                criterion, self.stage.mask_wired_missing(broken),
+                "缺 %s 却判绿了：%r" % (key, self.stage.mask_wired_missing(broken)))
+
+    def test_channel_off_is_not_gated(self):
+        """通道没开（`wired is None`）不归这条闸管——但也绝不算「接好了」。"""
+        self.assertIsNone(self.stage.mask_gate_reason(None))
+        self.assertEqual(self.stage.mask_wired_missing(None),
+                         list(self.stage.MASK_WIRED_CRITERIA),
+                         "没读数时四条判据必须全是红的（不是「没跳过」）")
+
+    # ------------------------------------------------------------ fail-closed 在调用点上
+
+    def test_stage_build_really_calls_the_gate(self):
+        """只测抽出来的纯函数 = 「测了没改的那份文件」（D-125 那类假绿）。
+
+        所以还要证明它在**建场路径上**：`stage_build()` 调它、并且在任何烘焙动作之前
+        `return`；`runner.record()` 对 BLOCK 停住（`--force` 之外）。
+        """
+        src = inspect.getsource(self.stage.stage_build)
+        self.assertIn("mask_gate_reason(wired)", src,
+                      "stage_build 没调用 mask_gate_reason —— 判据没接在建场路径上")
+        self.assertNotIn("bake", src.lower(),
+                         "stage_build 里出现了烘焙动作：fail-closed 必须在烘焙之前")
+        gate_at = src.index("mask_gate_reason(wired)")
+        self.assertLess(gate_at, src.rindex("return res"),
+                        "BLOCK 之后又往下走了（`return res` 不在闸门后面）")
+        with open(os.path.join(ROOT, "mmdpipe", "runner.py"), encoding="utf-8") as fh:
+            runner_src = fh.read()
+        self.assertIn("if result.blocked:", runner_src)
+        self.assertIn("return not result.blocked or args.force", runner_src,
+                      "runner 没在 BLOCK 上停 ⇒ 建场红了还会继续烘焙")
+
+    # ------------------------------------------------------------ preflight 读数同一个函数
+
+    def test_preflight_cap_comes_from_the_same_function_as_the_build(self):
+        """`cap` 必须与建场用的是同一个函数返回值，不许在请求 JSON 里手写。"""
+        result = self._green()
+        fields = self.stage.mask_preflight_fields(result)
+        self.assertEqual(fields["needs"], result["constraints_to_add"])
+        self.assertEqual(
+            fields["cap"],
+            self.stage.constraint_limit(result["constraints_needed"])[0],
+            "预检的 cap 不是建场那个上限函数的返回值：%r" % (fields,))
+        self.assertEqual(fields["skipped"], 0)
+        request = {
+            "provenance": {"stage": os.path.join(ROOT, "mmdpipe", "stage.py")},
+            "lease": False,
+            **fields,
+        }
+        outcome = preflight_mod.check(request, worktree=ROOT)
+        self.assertEqual(outcome["state"], "READY",
+                         "预热请求没过：%s" % (preflight_mod.render(outcome),))
+        # 红样本：同一个需求，cap 手写成比 needs 小 ⇒ 开工前就拦（CAP_UNMET）
+        shrunk = dict(request, cap=max(0, fields["needs"] - 1))
+        blocked = preflight_mod.check(shrunk, worktree=ROOT)
+        self.assertEqual(blocked["state"], "BLOCKED")
+        self.assertEqual(blocked["reason_code"], "CAP_UNMET")
+
+    def test_delivery_scale_arithmetic(self):
+        """全尺寸读数（记录值：需求 10 111 对、已挡 1 813 对 ⇒ 要补 8 298）。
+
+        这条不碰 Blender：用的是 `reports/subai/M00/measurements.json` 里那两个数的算术关系，
+        核对「上限由需求推出」在交付尺度上的读数：cap = 10 111（护栏 20 000 不咬），needs = 8 298。
+        """
+        result = {"constraints_needed": 10111,
+                  "constraints_already_blocked": 1813,
+                  "constraints_to_add": 10111 - 1813,
+                  "skipped_count": 0}
+        self.assertEqual(result["constraints_to_add"], 8298)
+        fields = self.stage.mask_preflight_fields(result)
+        self.assertEqual(fields, {"needs": 8298, "cap": 10111, "skipped": 0,
+                                  "guardrail_hit": False})
+        request = {"provenance": {"stage": os.path.join(ROOT, "mmdpipe", "stage.py")},
+                   "lease": False, **fields}
+        self.assertEqual(preflight_mod.check(request, worktree=ROOT)["state"], "READY")
 
 
 if __name__ == "__main__":

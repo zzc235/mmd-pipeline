@@ -10,8 +10,8 @@
     "M00": {
       "status": "PASS",
       "reason": "调度层齐了：覆盖闸门三点式、证据哈希 evidence/1（hash_basis 枚举 + measurements + commit/scope + 不动点 + check 退出码 0/3/4/5）、coordination/lock.py fail-closed、status 视图待批项全量聚合、全仓 subprocess 解码护栏（scanned/skipped 可见）",
-      "next": "A4（进行中）：D-144③ 主体已在 main 落地（8aba272：上限由 plan() 推出、DEFAULT_MAX_CONSTRAINTS 4000→20000、stage_build 里 verdict!=WIRED 在建场烘焙前 fail-closed）。剩三件补证明：①四条判据 WIRED/capped=false/skipped==[]/added+already==needed 的单一断言，且四条各自都要能判红；②fail-closed 的离屏测试，并证明 stage_build 真的调用那个纯函数（不许只测抽出来的函数）；③preflight 的 cap 取自 plan() 返回值、不手写。实测基线：532 tests × 三环境绿（A4 worktree 9ec7c15 已并入 main 1142994）",
-      "updated": "2026-11-16T17:32+08:00"
+      "next": "A4：D-144③ 已收口并合入 main（mask_wired_checks 四条判据分开给且逐条可红、mask_gate_reason 在 stage_build 调用点 fail-closed、constraint_limit 为唯一上限来源）；D0 独立复算八条红样本各红对应一条。Task accepted（D-20261116-181）。剩余已知限制：fail-closed 未在真建场上触发过、真 Blender 装扩展未复测 —— 随 1号 重建窗口一并验",
+      "updated": "2026-11-16T17:48+08:00"
     },
     "M01": {
       "status": "PASS",
@@ -22,8 +22,8 @@
     "M02": {
       "status": "PARTIAL",
       "reason": "判据七态（旗标只筛选、结论靠行为探针）、P12 负 / P13 正、重建三数、P9 拒绝路径、掩码结构性未接线都已实测；交付契约定为 B（烘焙），冷跳逐位等于顺序重算",
-      "next": "A1：① 换轴重做 S2 —— 变量轴换成实测峰值最大的那根轴（±0.7 rad 限值结构保留），重出 prereg（写清选轴依据 + 三轴峰值 + 各限值敏感性）后重跑（Human 2026-11-16 17:04「换限轴」，D-20261116-170）；② 掩码通道落地后重建 delivery_v1 并交掩码读数与行为探针；通道 WIRED 前所有物理数带「按全互撞解算」限定（Human 已认账，D-20261116-172）；③ 通道落地后 S8 第三层 + 重取影响量",
-      "updated": "2026-11-16T17:10+08:00"
+      "next": "A1：S2 选轴证据 D0 已独立复算一致（Y=1.009819 rad > Z 0.756623 > X 0.578768，Z÷Y=0.7493），但 s2_prereg_v4.md §四.1「五臂 frames.jsonl 逐字节相同」不成立（B2r_baseline 818344 B 与 B2_* 681725 B 不同，B2_gravity/B2_none 该路径缺）—— 先改成交付逐臂表（臂名/路径/字节/sha/是否参与选轴）并把结论收窄为「三轴峰值逐位相同」，交回后 D0 合并并冻结新 sha；P2（limit 回读 ⇒ AXIS_FRAME_MISMATCH）批准为强制前置，若真触发不许只把轴从 X 换到 Y，须在约束作用参考系重算三轴峰值。M08 重建等此后再发车",
+      "updated": "2026-11-16T17:48+08:00"
     },
     "M03": {
       "status": "PASS",
@@ -34,8 +34,8 @@
     "M04": {
       "status": "PARTIAL",
       "reason": "顺序求值改计划制（回退/冷跳在计划阶段拒）；胶囊口径改相对基线；网格口径 v2 在解析实体上自检通过（0.9933/0.9867/0.27 mm），真实网格 77.01% 不可计分、可计分区 0.9367/0.9067/−8.2 mm",
-      "next": "A2（进行中）：①预注册已冻结为 prereg v4+amendA1A3（基准 ab68315b… / 28215 B，D-20261116-179）；②A0 正控 v2 读数表已收（tier=3、中位 10.878 mm、最大 15.544 mm @f19、重解 240/240 逐位相同）；③修确定性判官并把 a0_free_determinism.json 的错位判词重写（旧「四组全部作废」作废，D-154 未撤回）；④等 1号 delivery_v1 重建完，C@W1/C@W2/D 按 pose_source=fresh_solve 跑，开 Blender 前过 preflight、每 10 分钟 touch 心跳",
-      "updated": "2026-11-16T17:36+08:00"
+      "next": "A2：判官拆「灵敏度/确定性」两个问题已合入 main（tier=None + DETERMINISTIC，旧 JSON 留档 supersedes）；C/D 发车清单已批准（W1=1..240、W2=1..832、C 跑两次、D 与 C@W2 比；B_aligned 300 帧 ⇒ 301..832 末帧定格的限制要进 known_risks）；档位本轮 T2，T3 需四条件同时成立（场景自身 WIRED/cap=0/skipped=[] + 契约 B 烘焙与行为探针 + delivery_v1 sha 同一次 + cap 来自 constraint_limit）。只等 1号 delivery_v1；缺项判 UNMEASURED 不判 FAIL",
+      "updated": "2026-11-16T17:48+08:00"
     },
     "M05": {
       "status": "PARTIAL",
@@ -52,8 +52,8 @@
     "M07": {
       "status": "PASS",
       "reason": "D/E/F 三段全通（validate/build、真隔离安装 + smoke 8/8、12 帧 E2E 两入口各 15 项 PASS、受控失败 exit 1）；两条产品路径缺陷已修并验过；stage.py 两处静默失败已派 A4 并在修",
-      "next": "A4（进行中）：两条 stage.py 假成功缺陷的**代码**已在 0321505 修好（ensure_addons 认候选模块名 + get_rna_type() 断言 + require_importer；preset 三处改走 preset.section()）。本轮只补离屏证明：①ensure_addons 正控断言到调用层（真的调了 enable）+ 反控两条（enable 不抛但算子没注册 / 扩展名 _typo 用真实候选名造）必须判红；②preset 正控（两份真预设经 load() 差异可见）与反控（只差默认值/{} 时差异为空），并用 stub 把 section() 退化成直返原始 dict 证明新比对在旧行为上判红。全局安装按 Human 决定保留 1.3.0",
-      "updated": "2026-11-16T17:32+08:00"
+      "next": "A4：两条 stage.py 假成功缺陷的代码已在 0321505 修、离屏正控/反控已补并合入 main（ensure_addons 正控断言到调用层、反控两条用真实候选名、preset 反控用 stub 退化 section() 证明旧行为判红）。全局安装按 Human 决定保留 1.3.0。Task accepted（D-20261116-181）。剩余：真 Blender 里装/不装扩展的复测搭 1号 重建窗口做",
+      "updated": "2026-11-16T17:48+08:00"
     },
     "M08": {
       "status": "NOT_STARTED",

@@ -1,0 +1,285 @@
+{
+ "count": 34,
+ "identical_groups": {
+  "5075fd387842060160a70299b17c552ee4ed7bed2c48992eec7cba3375d8aa91": [
+   "D",
+   "D_run"
+  ],
+  "5b810f6092a960a6c14a78f563a18717a741822111ec5793bf1673f54b1f8f50": [
+   "baseline",
+   "x07"
+  ],
+  "7baa7b985fac1f8abf0ab92d0213db4cac8d1f9d8e762137e1c04a83725b80f3": [
+   "B2_baseline",
+   "B2_x07",
+   "B2_y07",
+   "B2_z07"
+  ],
+  "80819da0c14a84efedefce423126c526119720ca029de977ef357d23d9bc9df7": [
+   "P0",
+   "P1",
+   "P11seq",
+   "P13run",
+   "P13run_b",
+   "P4"
+  ],
+  "85f58aa97f50c8846755db959cc853ffc91512da9159744ebfcecc72ae1b90bc": [
+   "B_baseline",
+   "B_x07"
+  ],
+  "b53ceb6209fa03bc46dcc273118c3d9c93cf51515c8ef957b826565a9d00f208": [
+   "A1",
+   "A2",
+   "A_FINAL",
+   "B",
+   "B_FINAL",
+   "C",
+   "E"
+  ],
+  "c7c1ae9fc4f41f1ab3c37d5421be290631afd20a344c2ea920da03ae34a4d840": [
+   "B2r_baseline",
+   "B2r_x07"
+  ]
+ },
+ "root": "E:\\dsh pr\\woker2\\out\\subai\\M02",
+ "rows": [
+  {
+   "arm": "B2_baseline",
+   "bytes": 681725,
+   "kind": "dyn",
+   "path": "dyn\\B2_baseline\\frames.jsonl",
+   "sha256": "7baa7b985fac1f8abf0ab92d0213db4cac8d1f9d8e762137e1c04a83725b80f3"
+  },
+  {
+   "arm": "B2_x07",
+   "bytes": 681725,
+   "kind": "dyn",
+   "path": "dyn\\B2_x07\\frames.jsonl",
+   "sha256": "7baa7b985fac1f8abf0ab92d0213db4cac8d1f9d8e762137e1c04a83725b80f3"
+  },
+  {
+   "arm": "B2_y07",
+   "bytes": 681725,
+   "kind": "dyn",
+   "path": "dyn\\B2_y07\\frames.jsonl",
+   "sha256": "7baa7b985fac1f8abf0ab92d0213db4cac8d1f9d8e762137e1c04a83725b80f3"
+  },
+  {
+   "arm": "B2_z07",
+   "bytes": 681725,
+   "kind": "dyn",
+   "path": "dyn\\B2_z07\\frames.jsonl",
+   "sha256": "7baa7b985fac1f8abf0ab92d0213db4cac8d1f9d8e762137e1c04a83725b80f3"
+  },
+  {
+   "arm": "B2r_baseline",
+   "bytes": 818344,
+   "kind": "dyn",
+   "path": "dyn\\B2r_baseline\\frames.jsonl",
+   "sha256": "c7c1ae9fc4f41f1ab3c37d5421be290631afd20a344c2ea920da03ae34a4d840"
+  },
+  {
+   "arm": "B2r_x07",
+   "bytes": 818344,
+   "kind": "dyn",
+   "path": "dyn\\B2r_x07\\frames.jsonl",
+   "sha256": "c7c1ae9fc4f41f1ab3c37d5421be290631afd20a344c2ea920da03ae34a4d840"
+  },
+  {
+   "arm": "B_baseline",
+   "bytes": 370899,
+   "kind": "dyn",
+   "path": "dyn\\B_baseline\\frames.jsonl",
+   "sha256": "85f58aa97f50c8846755db959cc853ffc91512da9159744ebfcecc72ae1b90bc"
+  },
+  {
+   "arm": "B_x07",
+   "bytes": 370899,
+   "kind": "dyn",
+   "path": "dyn\\B_x07\\frames.jsonl",
+   "sha256": "85f58aa97f50c8846755db959cc853ffc91512da9159744ebfcecc72ae1b90bc"
+  },
+  {
+   "arm": "baseline",
+   "bytes": 373694,
+   "kind": "dyn",
+   "path": "dyn\\baseline\\frames.jsonl",
+   "sha256": "5b810f6092a960a6c14a78f563a18717a741822111ec5793bf1673f54b1f8f50"
+  },
+  {
+   "arm": "prepared_baseline",
+   "bytes": 373605,
+   "kind": "dyn",
+   "path": "dyn\\prepared_baseline\\frames.jsonl",
+   "sha256": "2264f4f85d57c1d75d5f0d3ef4e732ed0ef1fdcb5c77cafefe68b2fcbf8fd582"
+  },
+  {
+   "arm": "prepared_x07",
+   "bytes": 373612,
+   "kind": "dyn",
+   "path": "dyn\\prepared_x07\\frames.jsonl",
+   "sha256": "fcaa0c80933e7346702e8480ea1ce5f7a52f885ae14cfbbcb0d2a34390a801e7"
+  },
+  {
+   "arm": "x07",
+   "bytes": 373694,
+   "kind": "dyn",
+   "path": "dyn\\x07\\frames.jsonl",
+   "sha256": "5b810f6092a960a6c14a78f563a18717a741822111ec5793bf1673f54b1f8f50"
+  },
+  {
+   "arm": "A1",
+   "bytes": 3904076,
+   "kind": "s8",
+   "path": "s8\\A1\\frames.jsonl",
+   "sha256": "b53ceb6209fa03bc46dcc273118c3d9c93cf51515c8ef957b826565a9d00f208"
+  },
+  {
+   "arm": "A2",
+   "bytes": 3904076,
+   "kind": "s8",
+   "path": "s8\\A2\\frames.jsonl",
+   "sha256": "b53ceb6209fa03bc46dcc273118c3d9c93cf51515c8ef957b826565a9d00f208"
+  },
+  {
+   "arm": "A_FINAL",
+   "bytes": 3904076,
+   "kind": "s8",
+   "path": "s8\\A_FINAL\\frames.jsonl",
+   "sha256": "b53ceb6209fa03bc46dcc273118c3d9c93cf51515c8ef957b826565a9d00f208"
+  },
+  {
+   "arm": "B",
+   "bytes": 3904076,
+   "kind": "s8",
+   "path": "s8\\B\\frames.jsonl",
+   "sha256": "b53ceb6209fa03bc46dcc273118c3d9c93cf51515c8ef957b826565a9d00f208"
+  },
+  {
+   "arm": "B_FINAL",
+   "bytes": 3904076,
+   "kind": "s8",
+   "path": "s8\\B_FINAL\\frames.jsonl",
+   "sha256": "b53ceb6209fa03bc46dcc273118c3d9c93cf51515c8ef957b826565a9d00f208"
+  },
+  {
+   "arm": "C",
+   "bytes": 3904076,
+   "kind": "s8",
+   "path": "s8\\C\\frames.jsonl",
+   "sha256": "b53ceb6209fa03bc46dcc273118c3d9c93cf51515c8ef957b826565a9d00f208"
+  },
+  {
+   "arm": "D",
+   "bytes": 3885839,
+   "kind": "s8",
+   "path": "s8\\D\\frames.jsonl",
+   "sha256": "5075fd387842060160a70299b17c552ee4ed7bed2c48992eec7cba3375d8aa91"
+  },
+  {
+   "arm": "D_run",
+   "bytes": 3885839,
+   "kind": "s8",
+   "path": "s8\\D_run\\frames.jsonl",
+   "sha256": "5075fd387842060160a70299b17c552ee4ed7bed2c48992eec7cba3375d8aa91"
+  },
+  {
+   "arm": "E",
+   "bytes": 3904076,
+   "kind": "s8",
+   "path": "s8\\E\\frames.jsonl",
+   "sha256": "b53ceb6209fa03bc46dcc273118c3d9c93cf51515c8ef957b826565a9d00f208"
+  },
+  {
+   "arm": "F",
+   "bytes": 3904076,
+   "kind": "s8",
+   "path": "s8\\F\\frames.jsonl",
+   "sha256": "7adde99bb20e3bcd4741e63d46c42fb235ed13b9a1f4626a8d4c66aee6af32c1"
+  },
+  {
+   "arm": "P0",
+   "bytes": 3912824,
+   "kind": "s8",
+   "path": "s8\\P0\\frames.jsonl",
+   "sha256": "80819da0c14a84efedefce423126c526119720ca029de977ef357d23d9bc9df7"
+  },
+  {
+   "arm": "P1",
+   "bytes": 3912824,
+   "kind": "s8",
+   "path": "s8\\P1\\frames.jsonl",
+   "sha256": "80819da0c14a84efedefce423126c526119720ca029de977ef357d23d9bc9df7"
+  },
+  {
+   "arm": "P10",
+   "bytes": 3913137,
+   "kind": "s8",
+   "path": "s8\\P10\\frames.jsonl",
+   "sha256": "d7cf8b8cff844867d98eedbe1c5e46d8d91fbb07d1134131ba85ce1407a1ddaa"
+  },
+  {
+   "arm": "P11seq",
+   "bytes": 3912824,
+   "kind": "s8",
+   "path": "s8\\P11seq\\frames.jsonl",
+   "sha256": "80819da0c14a84efedefce423126c526119720ca029de977ef357d23d9bc9df7"
+  },
+  {
+   "arm": "P13run",
+   "bytes": 3912824,
+   "kind": "s8",
+   "path": "s8\\P13run\\frames.jsonl",
+   "sha256": "80819da0c14a84efedefce423126c526119720ca029de977ef357d23d9bc9df7"
+  },
+  {
+   "arm": "P13run_b",
+   "bytes": 3912824,
+   "kind": "s8",
+   "path": "s8\\P13run_b\\frames.jsonl",
+   "sha256": "80819da0c14a84efedefce423126c526119720ca029de977ef357d23d9bc9df7"
+  },
+  {
+   "arm": "P2",
+   "bytes": 3916316,
+   "kind": "s8",
+   "path": "s8\\P2\\frames.jsonl",
+   "sha256": "939fce37eea3e6cdb111217eddae0b7ebe806632269bdc675dc56453936f5741"
+  },
+  {
+   "arm": "P3",
+   "bytes": 3913063,
+   "kind": "s8",
+   "path": "s8\\P3\\frames.jsonl",
+   "sha256": "8a15fd56ae9177e263cf5d3d617a191554088d0df1b7e54d55e2df174e5c439d"
+  },
+  {
+   "arm": "P4",
+   "bytes": 3912824,
+   "kind": "s8",
+   "path": "s8\\P4\\frames.jsonl",
+   "sha256": "80819da0c14a84efedefce423126c526119720ca029de977ef357d23d9bc9df7"
+  },
+  {
+   "arm": "P5",
+   "bytes": 3920334,
+   "kind": "s8",
+   "path": "s8\\P5\\frames.jsonl",
+   "sha256": "b97d21b958d9635516c8fe07f8d09aca03cd0594921d3f94a4c8c2518dac0ad3"
+  },
+  {
+   "arm": "P6",
+   "bytes": 3913166,
+   "kind": "s8",
+   "path": "s8\\P6\\frames.jsonl",
+   "sha256": "2d0e16950cb1ad1d6921102f3f6c555108a27695e5d57e40577514c6db0c1fe7"
+  },
+  {
+   "arm": "P8",
+   "bytes": 3913353,
+   "kind": "s8",
+   "path": "s8\\P8\\frames.jsonl",
+   "sha256": "6aa2273b6cb6b8fe21cfa57e34e89c7452995960e2c105e2a59fd7b365adf59e"
+  }
+ ]
+}
