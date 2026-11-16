@@ -94,7 +94,10 @@ class DescribeSourceTest(unittest.TestCase):
 def good_record(**over):
     """一条全绿记录（三臂里真跑出来的形状）。反控都从这个底座上改动一处。"""
     rec = {
-        "profile": {"ensure_addons": {"mmd_tools": True}},
+        "profile": {"ensure_addons": {"mmd_tools": True}, "preset_fps": 24,
+                    "update_scene_settings_forced_off": True},
+        "scene": {"frame_start": 1, "frame_end": 833, "fps_before": 24, "fps_after": 24,
+                  "fps_changed": False},
         "source": {"path": "A.vmd", "sha256": "0" * 64, "frame_range": [0, 832],
                    "bones": 259, "bone_frames": 43962},
         "plan": AA.plan(832),
@@ -165,6 +168,15 @@ class CheckRecordTest(unittest.TestCase):
         rec["action"]["frame_range"] = [1, 833]
         rec["window"]["frame_end"] = 833
         self.assertEqual(failed(rec), ("BLOCKED", ["A5_window_matches_plan"]))
+
+    # --- 反控 4：导入动作把容器 fps 改了（物理步长 dt=1/fps 变了）→ 只红 A6
+    def test_reject_fps_changed_by_import_only_A6(self):
+        rec = good_record(scene={"fps_after": 30, "fps_changed": True})
+        self.assertEqual(failed(rec), ("BLOCKED", ["A6_fps_matches_preset"]))
+
+    def test_reject_missing_preset_fps_only_A6(self):
+        rec = good_record(profile={"preset_fps": None})
+        self.assertEqual(failed(rec), ("BLOCKED", ["A6_fps_matches_preset"]))
 
     def test_missing_fields_are_red_not_exception(self):
         verdict, bad = failed({})

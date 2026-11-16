@@ -23,7 +23,7 @@
   "freed_bake": false,
   "has_rigidbody_world": true,
   "is_baked": false,
-  "is_outdated": null,
+  "is_outdated": true,
   "point_cache_range": [
    1,
    447
@@ -46,7 +46,7 @@
    "ok": true
   },
   {
-   "detail": "rigidbody_world=True is_baked=False is_outdated=None freed_bake=False",
+   "detail": "rigidbody_world=True is_baked=False is_outdated=True freed_bake=False",
    "id": "A3_is_baked_false",
    "ok": true
   },
@@ -58,6 +58,11 @@
   {
    "detail": "scene.frame_end=447，plan.final_last=447",
    "id": "A5_window_matches_plan",
+   "ok": true
+  },
+  {
+   "detail": "scene.fps_after=24，preset=24",
+   "id": "A6_fps_matches_preset",
    "ok": true
   }
  ],
@@ -75,9 +80,9 @@
   "447 帧原片版（027179ac…），非预注册素材，不进 D 的判词"
  ],
  "out_blend": {
-  "bytes": 8597604,
+  "bytes": 8597621,
   "path": "E:\\code\\mmdpipe-ai\\A3\\out\\subai\\M05\\arms\\D_ctrl_447.blend",
-  "sha256": "015a9ca4ca9dc25ad82d098439156d71b4e54a8c5c378d725f251ad770eb87db"
+  "sha256": "80a952a3d2bff71a6b269e2942da73780bb565b1382351e39b99086c52c16a35"
  },
  "plan": {
   "applied_first": 1,
@@ -95,12 +100,14 @@
  "profile": {
   "ensure_addons": {
    "mmd_tools": true
-  }
+  },
+  "preset_fps": 24,
+  "update_scene_settings_forced_off": true
  },
  "scene": {
-  "fps_after": 30,
+  "fps_after": 24,
   "fps_before": 24,
-  "fps_changed": true,
+  "fps_changed": false,
   "name": "Scene"
  },
  "schema": "m05.apply_action/1",

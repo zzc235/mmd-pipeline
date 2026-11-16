@@ -46,6 +46,11 @@
    "detail": "scene.frame_end=250，plan.final_last=301",
    "id": "A5_window_matches_plan",
    "ok": false
+  },
+  {
+   "detail": "scene.fps_after=None，preset=24（导入动作改了容器 fps）",
+   "id": "A6_fps_matches_preset",
+   "ok": false
   }
  ],
  "cleared": {
@@ -78,7 +83,9 @@
  "profile": {
   "ensure_addons": {
    "mmd_tools": null
-  }
+  },
+  "preset_fps": 24,
+  "update_scene_settings_forced_off": true
  },
  "scene": {
   "fps_before": 24,
