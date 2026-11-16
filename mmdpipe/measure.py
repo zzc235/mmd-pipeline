@@ -136,7 +136,7 @@ def _streak(frames_sorted, values_by_frame, eps):
 
 
 def assemble(dynamics_rows, penetration_rows, *, sample_id, evidence_mode,
-             frames, assembly, penetrations_roi=None):
+             frames, assembly, penetrations_roi=None, penetrations_basis=None):
     """两路逐帧数据 → `physics_gate` 能吃的 measurement。"""
     cfg = assembly["assembly"]
     if frames.get("start") is None or frames.get("end") is None:
@@ -264,6 +264,9 @@ def assemble(dynamics_rows, penetration_rows, *, sample_id, evidence_mode,
             "bones_seen": len(entry["bones_seen"]),
             "epsilon_m": eps_m,
         }
+        # 口径（mesh/capsule）由生产者声明，不在这里猜：门禁缺 basis 会判 UNKNOWN。
+        if penetrations_basis:
+            measurement["penetration"]["basis"] = str(penetrations_basis)
     return measurement
 
 
@@ -279,6 +282,8 @@ def build_parser():
     p.add_argument("--frame-start", type=int, required=True)
     p.add_argument("--frame-end", type=int, required=True)
     p.add_argument("--roi", help="穿透 ROI 名（多 ROI 时必须指定）")
+    p.add_argument("--penetration-basis", choices=["mesh", "capsule"],
+                   help="穿透口径：mesh=网格穿入 / capsule=刚体胶囊重叠。不给则门禁判 UNKNOWN")
     p.add_argument("--out", required=True)
     return p
 
@@ -301,6 +306,7 @@ def main(argv=None):
             _require(row, ("frame", "bone", "angle_deg", "parent_delta_deg"), "dynamics")
         measurement = assemble(
             dynamics, penetration, sample_id=args.sample_id,
+            penetrations_basis=args.penetration_basis,
             evidence_mode=args.evidence_mode,
             frames={"start": args.frame_start, "end": args.frame_end},
             assembly=assembly, penetrations_roi=args.roi)

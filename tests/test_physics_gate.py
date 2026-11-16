@@ -37,7 +37,7 @@ def measurement(**over):
         "frozen": {"parent_delta_deg": 2.0, "target_delta_deg": 20.0,
                    "consecutive_frames": 0},
         "penetration": {"roi": "row11", "max_depth_m": 0.01, "frames": 5, "bones": 11,
-                    "frames_measured": 240, "roi_bones": 18},
+                    "frames_measured": 240, "basis": "mesh"},
     }
     base.update(over)
     return base
@@ -185,17 +185,18 @@ class TestPenetration(unittest.TestCase):
     def test_fail_on_history_depth(self):
         m = measurement(penetration={"roi": "row11", "max_depth_m": -0.202,
                                      "frames": 31, "bones": 11,
-                                     "frames_measured": 240})
+                                     "frames_measured": 240, "basis": "mesh"})
         self.assertEqual(pg.evaluate(m, profile())["gate_results"]["penetration"]["status"],
                          pg.FAIL)
 
     def test_epsilon_boundary(self):
         eps = profile()["gates"]["penetration"]["depth_epsilon_m"]
         at = measurement(penetration={"roi": "r", "max_depth_m": -eps,
-                                      "frames": 3, "bones": 5, "frames_measured": 240})
+                                      "frames": 3, "bones": 5,
+                                      "frames_measured": 240, "basis": "mesh"})
         inside = measurement(penetration={"roi": "r", "max_depth_m": -eps + 0.001,
                                           "frames": 3, "bones": 5,
-                                          "frames_measured": 240})
+                                          "frames_measured": 240, "basis": "mesh"})
         self.assertEqual(pg.evaluate(at, profile())["gate_results"]["penetration"]["status"],
                          pg.FAIL)
         self.assertEqual(pg.evaluate(inside, profile())["gate_results"]["penetration"]["status"],
@@ -203,7 +204,7 @@ class TestPenetration(unittest.TestCase):
 
     def test_missing_roi_is_unknown(self):
         m = measurement(penetration={"max_depth_m": -0.3, "frames": 9, "bones": 4,
-                                     "frames_measured": 240})
+                                     "frames_measured": 240, "basis": "mesh"})
         out = pg.evaluate(m, profile())["gate_results"]["penetration"]
         self.assertEqual(out["status"], pg.UNKNOWN)
         self.assertIn("penetration.roi", out["missing"])
@@ -215,11 +216,50 @@ class TestPenetration(unittest.TestCase):
         等于这份门禁在干净样本上永远给不出 PASS。
         """
         m = measurement(penetration={"roi": "18_skirt_rigid", "max_depth_m": -0.017064,
-                                     "frames": 0, "bones": 0, "frames_measured": 240,
-                                     "roi_bones": 18})
+                                     "frames": 0, "bones": 0,
+                                     "frames_measured": 240, "basis": "mesh"})
         out = pg.evaluate(m, profile())["gate_results"]["penetration"]
         self.assertEqual(out["status"], pg.PASS)
         self.assertIn("240", out["reason"])
+
+    def test_missing_basis_is_unknown(self):
+        """口径缺失不许默认成 mesh：胶囊的数字贴不上网格 epsilon。"""
+        m = measurement(penetration={"roi": "r", "max_depth_m": 0.0,
+                                     "frames": 3, "bones": 5, "frames_measured": 240})
+        out = pg.evaluate(m, profile())["gate_results"]["penetration"]
+        self.assertEqual(out["status"], pg.UNKNOWN)
+        self.assertIn("penetration.basis", out["missing"])
+
+    def test_unknown_basis_is_unknown(self):
+        m = measurement(penetration={"roi": "r", "basis": "gauss", "max_depth_m": 0.0,
+                                     "frames": 3, "bones": 5, "frames_measured": 240})
+        out = pg.evaluate(m, profile())["gate_results"]["penetration"]
+        self.assertEqual(out["status"], pg.UNKNOWN)
+        self.assertIn("basis", out["reason"])
+
+    def test_capsule_pass_never_claims_model_clean(self):
+        """胶囊干净只能说「刚体胶囊无重叠」，不许写成「无穿入」。"""
+        m = measurement(penetration={"roi": "r", "basis": "capsule", "max_depth_m": -0.001,
+                                     "frames": 2, "bones": 3, "frames_measured": 240})
+        out = pg.evaluate(m, profile())["gate_results"]["penetration"]
+        self.assertEqual(out["status"], pg.PASS)
+        self.assertIn("刚体胶囊口径", out["reason"])
+        self.assertIn("不代表模型无穿入", out["reason"])
+
+    def test_mesh_reason_names_basis(self):
+        m = measurement(penetration={"roi": "r", "basis": "mesh", "max_depth_m": -0.001,
+                                     "frames": 2, "bones": 3, "frames_measured": 240})
+        out = pg.evaluate(m, profile())["gate_results"]["penetration"]
+        self.assertIn("网格口径", out["reason"])
+
+    def test_basis_specific_epsilon_is_used(self):
+        prof = json.loads(json.dumps(profile()))
+        prof["gates"]["penetration"]["depth_epsilon_capsule_m"] = 0.005
+        m = measurement(penetration={"roi": "r", "basis": "capsule", "max_depth_m": -0.008,
+                                     "frames": 2, "bones": 3, "frames_measured": 240})
+        out = pg.evaluate(m, prof)["gate_results"]["penetration"]
+        self.assertEqual(out["status"], pg.FAIL)
+        self.assertIn("0.0050", out["reason"])
 
     def test_missing_frames_measured_is_unknown(self):
         m = measurement(penetration={"roi": "r", "max_depth_m": 0.0,
@@ -249,7 +289,8 @@ class TestErrors(unittest.TestCase):
 
     def test_nan_is_rejected(self):
         m = measurement(penetration={"roi": "r", "max_depth_m": float("nan"),
-                                     "frames": 1, "bones": 1, "frames_measured": 1})
+                                     "frames": 1, "bones": 1,
+                                     "frames_measured": 1, "basis": "mesh"})
         with self.assertRaises(pg.GateInputError):
             pg.evaluate(m, profile())
 
@@ -290,7 +331,8 @@ class TestCli(unittest.TestCase):
             with open(meas, "w", encoding="utf-8") as fh:
                 json.dump(measurement(penetration={"roi": "r", "max_depth_m": -0.5,
                                                    "frames": 3, "bones": 9,
-                                                   "frames_measured": 240}), fh)
+                                                   "frames_measured": 240,
+                                                   "basis": "mesh"}), fh)
             proc = subprocess.run(
                 [sys.executable, "-m", "mmdpipe.physics_gate",
                  "--measurement", meas, "--profile", PROFILE_PATH],
