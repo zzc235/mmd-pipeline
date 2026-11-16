@@ -27,10 +27,25 @@ apply_collision_masks(scene, *, collection_index_of=None) -> dict
 
 ## 2. 语义映射（这是本文档的核心，实现前必须先认同）
 
-PMX 语义（mmd_tools 的 `mmd_rigid` 上就有）：
+PMX / mmd_tools 语义（`mmd_rigid` 上就有）：
 
 - `collision_group`：该刚体**属于**哪一组（0–15）；
-- `collision_group_mask`：该刚体**与哪些组碰撞**（位图，含自身组时允许自碰）。
+- `collision_group_mask`：该刚体**与哪些组碰撞**。**实测事实（1号 14:04）：它是 16 个布尔（位集合），不是 int。**
+  ⇒ 读它必须按位折算（`bits |= 1 << i for i, flag in enumerate(value)`），**不许 `int(value)`**——
+  1号 的第一版就是 `int(mask)` 抛 `TypeError` 被吞掉，于是「不该互撞的对」算成 0，输出读起来像「PMX 里没有这种对」，实际差 40 418 对。
+
+## 2.5 场景级现状基线（1号 的探头实测，`J_baked.blend`）
+
+```
+VERDICT UNWIRED  patterns=1  disallowed_pairs=40418  separated=0
+rigid_objects 324   mmd_rigid_objects 324   mask_read_failures 0
+distinct_group_mask 28   distinct_group_number 9
+collection_patterns 只有 1 种（全 bit0，324/324）
+disable_collisions_constraints 0
+```
+
+324 个刚体共 52 326 对，其中 **40 418 对按 PMX 掩码不该互撞，而在 Blender 里一对都没被分开**。
+这是「通道没接」的完整量级，也是通道接上之后的验收基线：`distinct_patterns` 必须 ≥2、`separated` 必须从 0 抬起来，**抬到 40 418 附近才算全接上，差多少要能解释**（被 `DISABLE_COLLISIONS` 另路处理的、掩码全 0 的、非对称被跳过的）。
 
 Blender 语义（`rigid_body.collision_collections`，20 位布尔）——**以下是 D0 的理解，尚未实测，实现者必须先验证再照做**：
 
@@ -61,7 +76,8 @@ Blender 语义（`rigid_body.collision_collections`，20 位布尔）——**以
 
 | # | 判据 | 应当被拒 / 应当区分的输入 |
 |---|---|---|
-| 1 | 逐刚体回读：`collision_collections` 与源掩码一致 | **全 0 掩码与全 1 掩码必须给出不同的位**（这是最低要求，也是 4号 自己提的那条） |
+| 1 | 逐刚体回读：`collision_collections` 与源掩码一致 | **全 0 掩码与全 1 掩码必须给出不同的位**（4号 自己提的那种单元级判据） |
+| 1b | **场景级**：`reports/subai/M02/scripts/m02_mask_channel_probe.py`（1号 交，三态 0 WIRED / 2 UNWIRED PENDING / 1 CANNOT） | 通道落地后必须从 `UNWIRED separated=0` 变成 `WIRED`，且 `separated` 相对 40418 的差能被解释 |
 | 2 | 源数据未被改动 | 跑前跑后 `mmd_rigid.collision_group`/`collision_group_mask` 逐刚体快照相同；源 `.blend` sha256 前后一致 |
 | 3 | 非对称掩码被报出 | 合成场景里放一对非对称掩码，返回值 `asymmetric_pairs > 0` 且 `skipped[]` 非空 |
 | 4 | 约束/通道数量可核 | `constraints_added` 与 `collections_set` 都是具体数，不是布尔；`skipped[]` 为空（除非有非对称对） |
