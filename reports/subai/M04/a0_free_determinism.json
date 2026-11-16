@@ -1,0 +1,69 @@
+{
+  "criterion_m": 0.001,
+  "detail": {
+    "A0_max_depth_m": -3e-05,
+    "A_max_depth_m": -3e-05,
+    "direction_expected": "A0 更穿透（max_depth_m 更负 / overlapping_pairs 更多 / raw 更负）",
+    "direction_note": "方向判据只属于灵敏度问题（A vs A0），确定性问题不判方向",
+    "direction_ok": null,
+    "frames_compared": 240,
+    "identical": true,
+    "max_abs_delta_m": 0.0,
+    "max_abs_delta_m_raw_float": 0.0,
+    "overlapping_pairs_sum": {
+      "A": 41815,
+      "A0": 41815
+    },
+    "quantized_to": "1e-06（探针输出精度）",
+    "raw_depth_min": {
+      "A": -0.097323,
+      "A0": -0.097323
+    },
+    "tier_applicable": false,
+    "verdict": "同一场景两次独立解算逐位相同 ⇒ 解算确定（姿态可复现）",
+    "worst_frame": 1
+  },
+  "not_a_verdict_for_groups": "A0 不进任何判词；它只决定四组能不能被引用",
+  "provenance": {
+    "baseline_sha256": {
+      "A": "b3cbe2e81a40a16c27603e485ccfd831186706ad87602bceec90befbe1bb6bea",
+      "A0": "b3cbe2e81a40a16c27603e485ccfd831186706ad87602bceec90befbe1bb6bea"
+    },
+    "blend": {
+      "A": "out\\subai\\M04\\penetration\\R_free.blend",
+      "A0": "out\\subai\\M04\\penetration\\R_free.blend"
+    },
+    "eval_policy": {
+      "A": "sequential_from_frame_start",
+      "A0": "sequential_from_frame_start"
+    },
+    "frames": {
+      "A": [
+        1,
+        240
+      ],
+      "A0": [
+        1,
+        240
+      ]
+    },
+    "frames_measured": {
+      "A": 240,
+      "A0": 240
+    }
+  },
+  "question": "determinism",
+  "spec": "m04_a0_control/1",
+  "superseded_reason": "旧判词作废原因：判官套错对象（灵敏度判官被判在确定性对上），数据未变；新判词由 --question determinism 重算",
+  "supersedes": {
+    "bytes": 1443,
+    "path": "out\\subai\\M04\\penetration\\a0_free_determinism_v1_superseded.json",
+    "sha256_lf_normalized": "d195263c8d5f0c5cd79852929db93d35e09e1bc48bc1c009dcb3b481ab84ef2f",
+    "sha256_raw": "d195263c8d5f0c5cd79852929db93d35e09e1bc48bc1c009dcb3b481ab84ef2f",
+    "tier": 1,
+    "verdict": "仪器看不见碰撞状态 ⇒ 四组全部作废",
+    "word": "UNMEASURED"
+  },
+  "tier": null,
+  "word": "DETERMINISTIC"
+}

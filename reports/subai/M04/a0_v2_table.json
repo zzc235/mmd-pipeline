@@ -1,0 +1,363 @@
+{
+  "arm_state": {
+    "A0_free": {
+      "blend": "out\\subai\\M04\\penetration\\A0_free.blend",
+      "eval_policy": "sequential_from_frame_start",
+      "frames_measured": 240,
+      "is_baked": false,
+      "is_outdated": true
+    },
+    "A240": {
+      "blend": "out\\subai\\M02\\blend\\B_from_blend1.blend",
+      "eval_policy": "sequential_from_frame_start",
+      "frames_measured": 240,
+      "is_baked": true,
+      "is_outdated": true
+    },
+    "R_free": {
+      "blend": "out\\subai\\M04\\penetration\\R_free.blend",
+      "eval_policy": "sequential_from_frame_start",
+      "frames_measured": 240,
+      "is_baked": false,
+      "is_outdated": true
+    },
+    "R_free2": {
+      "blend": "out\\subai\\M04\\penetration\\R_free.blend",
+      "eval_policy": "sequential_from_frame_start",
+      "frames_measured": 240,
+      "is_baked": false,
+      "is_outdated": true
+    }
+  },
+  "arms": {
+    "A0_free": {
+      "bytes": 77820,
+      "path": "E:\\dsh pr\\woker2\\out\\subai\\M04\\penetration\\A0_free.meta.json",
+      "sha256_lf_normalized": "891cbd52bbab3c482cd5737a641911c700cbf36bc16563b0bcafff7d82ad53bc"
+    },
+    "A240": {
+      "bytes": 77314,
+      "path": "E:\\dsh pr\\woker2\\out\\subai\\M04\\penetration\\A240.meta.json",
+      "sha256_lf_normalized": "6ad06da7e975476317ee7c3a59dcc74fe8ac23e1808f19d0cc941415eb27bdaa"
+    },
+    "R_free": {
+      "bytes": 77309,
+      "path": "E:\\dsh pr\\woker2\\out\\subai\\M04\\penetration\\R_free.meta.json",
+      "sha256_lf_normalized": "2022b31f48c989cab7270ef5875b1bbef74d81e2e1bc008209f7f53c2c9d3b13"
+    },
+    "R_free2": {
+      "bytes": 77309,
+      "path": "E:\\dsh pr\\woker2\\out\\subai\\M04\\penetration\\R_free2.meta.json",
+      "sha256_lf_normalized": "d5ca118875081cf9dfe22d6c31b1c10d43dfc9f6b775ceb6656b3bd93b9f31a3"
+    }
+  },
+  "cross_check": {
+    "ok": true,
+    "rows": [
+      {
+        "check": "sens max_abs_delta_m ≡ judge",
+        "got": 0.015544,
+        "ok": true,
+        "want": 0.015544
+      },
+      {
+        "check": "sens worst_frame ≡ judge",
+        "got": 19,
+        "ok": true,
+        "want": 19
+      },
+      {
+        "check": "sens overlapping_pairs ≡ judge",
+        "got": [
+          41815,
+          43619
+        ],
+        "ok": true,
+        "want": [
+          41815,
+          43619
+        ]
+      },
+      {
+        "check": "repro max_abs_delta_m ≡ judge",
+        "got": 0.071059,
+        "ok": true,
+        "want": 0.071059
+      },
+      {
+        "check": "repro worst_frame ≡ judge",
+        "got": 88,
+        "ok": true,
+        "want": 88
+      },
+      {
+        "check": "repro overlapping_pairs ≡ judge",
+        "got": [
+          23451,
+          41815
+        ],
+        "ok": true,
+        "want": [
+          23451,
+          41815
+        ]
+      },
+      {
+        "check": "determ max_abs_delta_m ≡ judge",
+        "got": 0.0,
+        "ok": true,
+        "want": 0.0
+      },
+      {
+        "check": "determ worst_frame ≡ judge",
+        "got": 1,
+        "ok": true,
+        "want": 1
+      },
+      {
+        "check": "determ overlapping_pairs ≡ judge",
+        "got": [
+          41815,
+          41815
+        ],
+        "ok": true,
+        "want": [
+          41815,
+          41815
+        ]
+      },
+      {
+        "check": "旧 compare 相同帧(灵敏度) ≡ 本表",
+        "got": 1,
+        "ok": true,
+        "want": 1
+      },
+      {
+        "check": "旧 compare max_abs_delta(灵敏度) ≡ 本表",
+        "got": 0.015544,
+        "ok": true,
+        "want": 0.015544
+      },
+      {
+        "check": "旧 compare 相同帧(可重现) ≡ 本表",
+        "got": 1,
+        "ok": true,
+        "want": 1
+      },
+      {
+        "check": "旧 compare max_abs_delta(可重现) ≡ 本表",
+        "got": 0.071059,
+        "ok": true,
+        "want": 0.071059
+      },
+      {
+        "check": "旧 compare 相同帧(确定性) ≡ 本表",
+        "got": 240,
+        "ok": true,
+        "want": 240
+      },
+      {
+        "check": "旧 compare max_abs_delta(确定性) ≡ 本表",
+        "got": 0.0,
+        "ok": true,
+        "want": 0.0
+      }
+    ]
+  },
+  "judge_words_as_recorded": {
+    "determ": {
+      "tier": null,
+      "verdict": "同一场景两次独立解算逐位相同 ⇒ 解算确定（姿态可复现）",
+      "word": "DETERMINISTIC"
+    },
+    "repro": {
+      "tier": 3,
+      "verdict": "两种判词都可用",
+      "word": "仪器有效"
+    },
+    "sens": {
+      "tier": 3,
+      "verdict": "两种判词都可用",
+      "word": "仪器有效"
+    }
+  },
+  "pairs": [
+    {
+      "a": "R_free(位不动,清缓存,重解)",
+      "a_deeper_frames": 0,
+      "abs_delta_m": {
+        "max_raw_delta_signed": 0.015543999999999999,
+        "max_raw_float": 0.015543999999999999,
+        "over_all_frames": {
+          "count": 240,
+          "max": 0.015544,
+          "max_frame": 19,
+          "mean": 0.010332,
+          "median": 0.010878,
+          "p10": 0.006087,
+          "p25": 0.008602,
+          "p75": 0.012419,
+          "p90": 0.013266
+        },
+        "over_nonzero_frames": {
+          "count": 239,
+          "max": 0.015544,
+          "mean": 0.010375,
+          "median": 0.010926
+        },
+        "quantized_to": "1e-6"
+      },
+      "b": "A0_free(位全清,清缓存,重解)",
+      "b_deeper_frames": 239,
+      "frame_range": [
+        1,
+        240
+      ],
+      "frames": 240,
+      "max_depth_equal_frames": 1,
+      "overlapping_pairs_sum": {
+        "A0_free(位全清,清缓存,重解)": 43619,
+        "R_free(位不动,清缓存,重解)": 41815
+      },
+      "raw_depth_min": {
+        "A0_free(位全清,清缓存,重解)": -0.092024,
+        "R_free(位不动,清缓存,重解)": -0.097323
+      },
+      "row_identical_frames": 1,
+      "tag": "sens"
+    },
+    {
+      "a": "A240(缓存回放)",
+      "a_deeper_frames": 202,
+      "abs_delta_m": {
+        "max_raw_delta_signed": -0.07105900000000001,
+        "max_raw_float": 0.07105900000000001,
+        "over_all_frames": {
+          "count": 240,
+          "max": 0.071059,
+          "max_frame": 88,
+          "mean": 0.002173,
+          "median": 0.00042,
+          "p10": 0.000309,
+          "p25": 0.000341,
+          "p75": 0.001087,
+          "p90": 0.002082
+        },
+        "over_nonzero_frames": {
+          "count": 239,
+          "max": 0.071059,
+          "mean": 0.002182,
+          "median": 0.000421
+        },
+        "quantized_to": "1e-6"
+      },
+      "b": "R_free(重解)",
+      "b_deeper_frames": 37,
+      "frame_range": [
+        1,
+        240
+      ],
+      "frames": 240,
+      "max_depth_equal_frames": 1,
+      "overlapping_pairs_sum": {
+        "A240(缓存回放)": 23451,
+        "R_free(重解)": 41815
+      },
+      "raw_depth_min": {
+        "A240(缓存回放)": -0.096506,
+        "R_free(重解)": -0.097323
+      },
+      "row_identical_frames": 1,
+      "tag": "repro"
+    },
+    {
+      "a": "R_free",
+      "a_deeper_frames": 0,
+      "abs_delta_m": {
+        "max_raw_delta_signed": 0.0,
+        "max_raw_float": 0.0,
+        "over_all_frames": {
+          "count": 240,
+          "max": 0.0,
+          "max_frame": 1,
+          "mean": 0.0,
+          "median": 0.0,
+          "p10": 0.0,
+          "p25": 0.0,
+          "p75": 0.0,
+          "p90": 0.0
+        },
+        "over_nonzero_frames": {
+          "count": 0,
+          "max": null,
+          "mean": null,
+          "median": null
+        },
+        "quantized_to": "1e-6"
+      },
+      "b": "R_free2(再解一遍)",
+      "b_deeper_frames": 0,
+      "frame_range": [
+        1,
+        240
+      ],
+      "frames": 240,
+      "max_depth_equal_frames": 240,
+      "overlapping_pairs_sum": {
+        "R_free": 41815,
+        "R_free2(再解一遍)": 41815
+      },
+      "raw_depth_min": {
+        "R_free": -0.097323,
+        "R_free2(再解一遍)": -0.097323
+      },
+      "row_identical_frames": 240,
+      "tag": "determ"
+    }
+  ],
+  "quantized_to": "1e-6（探针输出精度，D-143 先量化再比）",
+  "selftest": {
+    "ok": true,
+    "rows": [
+      {
+        "check": "median(4 个)= (0.002+0.004)/2",
+        "got": 0.003,
+        "ok": true,
+        "want": 0.003
+      },
+      {
+        "check": "median(奇数个)",
+        "got": 0.003,
+        "ok": true,
+        "want": 0.003
+      },
+      {
+        "check": "量化 4e-7→0",
+        "got": 0.0,
+        "ok": true,
+        "want": 0.0
+      },
+      {
+        "check": "量化 6e-7→1e-6",
+        "got": 1e-06,
+        "ok": true,
+        "want": 1e-06
+      },
+      {
+        "check": "量化 0.0004 保留",
+        "got": 0.0004,
+        "ok": true,
+        "want": 0.0004
+      },
+      {
+        "check": "max 取真最大",
+        "got": 0.015544,
+        "ok": true,
+        "want": 0.015544
+      }
+    ]
+  },
+  "spec": "m04_a0_table/1",
+  "what": "A0 正控 v2 三对臂的逐帧分布（由 *_meta.json 只读重算；不开 Blender）",
+  "why": "旧 compare 只存 max，中位数只在 stdout；本表把分布与读数前提一起落盘"
+}
