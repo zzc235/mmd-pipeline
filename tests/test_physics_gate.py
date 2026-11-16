@@ -245,6 +245,9 @@ class TestPenetration(unittest.TestCase):
         self.assertEqual(out["status"], pg.PASS)
         self.assertIn("刚体胶囊口径", out["reason"])
         self.assertIn("不代表模型无穿入", out["reason"])
+        self.assertIn("未超出基线", out["reason"],
+                      "胶囊口径的数字可能是相对基线的增量，不能说成「无重叠」")
+        self.assertNotIn("无重叠", out["reason"].split("（")[0])
 
     def test_mesh_reason_names_basis(self):
         m = measurement(penetration={"roi": "r", "basis": "mesh", "max_depth_m": -0.001,

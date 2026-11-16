@@ -250,8 +250,10 @@ def gate_penetration(measurement, cfg):
                        % (label, roi, measured, depth, eps), evid)
     if basis == "capsule":
         # 胶囊没覆盖的骨在这套口径里等于不存在，所以只能声明「胶囊无重叠」
-        reason = ("%s：ROI %s 实测 %d 帧，最深重叠 %.4f m，未超过 epsilon %.4f m"
-                  "（仅表示刚体胶囊无重叠，不代表模型无穿入）"
+        # 胶囊口径的数字通常是「相对基线的超额重叠」（D-056），所以这里只说「未超出基线」，
+        # 不说「无重叠」——后者会把「本来就有 9 cm 常态叠合、只是没变化」读成「没有重叠」。
+        reason = ("%s：ROI %s 实测 %d 帧，最深重叠/超出基线增量 %.4f m，未超过 epsilon %.4f m"
+                  "（仅表示刚体胶囊未超出基线，不代表模型无穿入）"
                   % (label, roi, measured, depth, eps))
     else:
         reason = ("%s：ROI %s 实测 %d 帧，最深 %.4f m，未超过 epsilon %.4f m"
