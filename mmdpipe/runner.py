@@ -56,9 +56,15 @@ def _fingerprint(pmx_path: str, vmd_path: str, preset: dict) -> dict:
     }
 
 
-def _write_state(path: str, state: dict) -> None:
+def _write_state(path: str, state: dict, mirror_path: str = "") -> None:
+    """写最新状态，并同步 per-run 副本。mirror 失败不能丢根状态，只记录运行失败。"""
+    payload = json.dumps(state, ensure_ascii=False, indent=2)
     with open(path, "w", encoding="utf-8") as fh:
-        json.dump(state, fh, ensure_ascii=False, indent=2)
+        fh.write(payload)
+    if mirror_path and os.path.normcase(os.path.abspath(mirror_path)) != os.path.normcase(
+            os.path.abspath(path)):
+        with open(mirror_path, "w", encoding="utf-8") as fh:
+            fh.write(payload)
 
 
 def _copy_textures(src_pmx: str, dst_pmx: str, textures) -> tuple:
@@ -76,7 +82,7 @@ def _copy_textures(src_pmx: str, dst_pmx: str, textures) -> tuple:
             missing.append(name)
             continue
         os.makedirs(os.path.dirname(dst) or ".", exist_ok=True)
-        if not os.path.exists(dst) or os.path.getsize(dst) != os.path.getsize(src):
+        if not os.path.exists(dst) or _sha256(src) != _sha256(dst):
             shutil.copy2(src, dst)
             copied += 1
     return copied, missing
@@ -162,16 +168,30 @@ def run(args) -> int:
         preset["camera"]["rot"] = frozen["rot"]
         preset["camera"]["lens"] = frozen.get("lens", preset["camera"]["lens"])
     started_at = time.strftime("%Y-%m-%d %H:%M:%S")
-    paths = layout_mod.plan(os.path.abspath(args.out),
-                            getattr(args, "layout", layout_mod.DEFAULT_LAYOUT),
-                            started_at)
+    try:
+        paths = layout_mod.plan(os.path.abspath(args.out),
+                                getattr(args, "layout", layout_mod.DEFAULT_LAYOUT),
+                                started_at,
+                                explicit_run_id=getattr(args, "run_id", "") or "")
+    except ValueError as exc:
+        print("拒绝运行：%s" % exc)
+        return 2
     out_dir = paths["work"]
     png_dir = os.path.join(out_dir, "frames")
     mp4_path = os.path.join(out_dir, "result.mp4")
     scene_path = os.path.join(out_dir, "scene.blend")
-    # state 留在 --out 根目录，不跟着 run id 走：
-    # 它是"最近一次运行"的记录，也是下次开跑时的兼容性检查点；产物才进 work/。
+    # state 留在 --out 根目录，作为「最近一次运行」的兼容检查点；同时写进本次 run，
+    # 保证 work/<run_id>/ 是可独立归档、复盘的一包。
     state_path = os.path.join(paths["root"], "pipeline_state.json")
+    run_state_path = os.path.join(out_dir, "pipeline_state.json")
+
+    # isolated 的 run_id 冲突必须在使用资源前拦下。legacy 是历史平铺布局，保持旧语义。
+    if paths["layout"] == "isolated":
+        for label, directory in (("work", out_dir), ("final", paths["final"])):
+            if directory and os.path.isdir(directory) and any(os.listdir(directory)):
+                print("拒绝运行：%s/%s 已存在且非空（run_id 冲突，换 --run-id 或换 --out）"
+                      % (label, directory))
+                return 4
     os.makedirs(out_dir, exist_ok=True)
     if not _guard_state(state_path):
         return 4
@@ -208,8 +228,23 @@ def run(args) -> int:
     print("  帧 %d..%d @ %d fps" % (frame_start, frame_end, preset["render"]["fps"]))
     print("=" * 72, flush=True)
 
+    # 所有进入流程的源文件都纳入只读守卫：主 VMD、多段 motions、表情、道具 PMX。
+    # 只护主 PMX/VMD 会让一段 motion 中途被替换而日志仍“正常”。
+    source_files = {"pmx": args.pmx, "vmd": args.vmd}
+    if args.motions:
+        for idx, p in enumerate(x for x in args.motions.split(";") if x):
+            source_files["motions[%d]" % idx] = p
+    if args.expression:
+        source_files["expression"] = args.expression
+    if args.prop:
+        for idx, item in enumerate(args.prop):
+            path, _, _bone = item.rpartition("@")
+            source_files["prop[%d]" % idx] = path if path else item
     try:
         state["fingerprint"] = _fingerprint(args.pmx, args.vmd, preset)
+        state["fingerprint"]["source_files"] = [
+            {"name": name, "path": path, "sha256": _sha256(path)}
+            for name, path in source_files.items()]
         if args.motions:
             state["fingerprint"]["motions"] = [
                 {"path": p, "sha256": _sha256(p)}
@@ -218,23 +253,20 @@ def run(args) -> int:
         print("读不到输入文件：%s" % exc)
         return 1
 
-    # 只读守卫：源 PMX 与 VMD 在整条流程里必须一个字节都不变。
-    source_sha_before = {
-        "pmx": state["fingerprint"]["pmx"]["sha256"],
-        "vmd": state["fingerprint"]["vmd"]["sha256"],
-    }
+    source_sha_before = {name: _sha256(path) for name, path in source_files.items()}
     state["source_readonly"] = True
+    state["input"]["guarded_files"] = sorted(source_files)
 
     def record(result):
         state["stages"][result.stage] = result.as_dict()
-        _write_state(state_path, state)
+        _write_state(state_path, state, run_state_path)
         print(result.text(), flush=True)
         if result.blocked:
             state["blocked_by"].append(result.stage)
         return not result.blocked or args.force
 
     def source_unchanged(label=""):
-        now = {"pmx": _sha256(args.pmx), "vmd": _sha256(args.vmd)}
+        now = {name: _sha256(path) for name, path in source_files.items()}
         changed = [k for k in now if now[k] != source_sha_before[k]]
         if not changed:
             return True
@@ -247,6 +279,9 @@ def run(args) -> int:
 
     # ---------------- S0 / S1：纯 Python 预检与普查
     mute_bones = []
+    # 默认值必须先定义：PMX 解析失败路径也要能走到统一出口，不能靠「正常路径恰好赋值过」。
+    pmx_for_import = args.pmx
+    phys = None
     try:
         model = pmx_mod.load(args.pmx)
     except pmx_mod.PMXError as exc:
@@ -265,7 +300,7 @@ def run(args) -> int:
                    "PMX 尾段解析失败，刚体/关节数据不可信", census["tail_error"])
         if not record(s1):
             state["finished_at"] = time.strftime("%Y-%m-%d %H:%M:%S")
-            _write_state(state_path, state)
+            _write_state(state_path, state, run_state_path)
             return 2
 
         # 物理资格判断（纯结构，不看名字）
@@ -382,11 +417,11 @@ def run(args) -> int:
                 sc.add("E-00", report_mod.INFO, "无可碰撞侵入，PMX 不改")
             if not record(sc):
                 state["finished_at"] = time.strftime("%Y-%m-%d %H:%M:%S")
-                _write_state(state_path, state)
+                _write_state(state_path, state, run_state_path)
                 return 2
             if not source_unchanged("clearance 之后"):
                 state["finished_at"] = time.strftime("%Y-%m-%d %H:%M:%S")
-                _write_state(state_path, state)
+                _write_state(state_path, state, run_state_path)
                 return 2
         state["import_pmx"] = pmx_for_import
 
@@ -539,7 +574,7 @@ def run(args) -> int:
                     sr.add("E-15", report_mod.BLOCK, "多动作拼接失败：%s" % exc)
                 if not record(sr):
                     state["finished_at"] = time.strftime("%Y-%m-%d %H:%M:%S")
-                    _write_state(state_path, state)
+                    _write_state(state_path, state, run_state_path)
                     return 2
             else:
                 vmd_for_import = seg_paths[0]
@@ -571,7 +606,7 @@ def run(args) -> int:
                 sx.add("E-15", report_mod.BLOCK, "表情 VMD 合并失败：%s" % exc)
             if not record(sx):
                 state["finished_at"] = time.strftime("%Y-%m-%d %H:%M:%S")
-                _write_state(state_path, state)
+                _write_state(state_path, state, run_state_path)
                 return 2
         state["import_vmd"] = vmd_for_import
 
@@ -603,7 +638,7 @@ def run(args) -> int:
                             os.path.join(out_dir, "preflight.json"))
             if not record(s3_pre):
                 state["finished_at"] = time.strftime("%Y-%m-%d %H:%M:%S")
-                _write_state(state_path, state)
+                _write_state(state_path, state, run_state_path)
                 return 2
         except vmd_mod.VMDError as exc:
             s3_pre = report_mod.StageResult("S3_match")
@@ -627,7 +662,7 @@ def run(args) -> int:
     st, root, arm, mesh = stage_mod.stage_import(preset, pmx_for_import)
     if not record(st):
         state["finished_at"] = time.strftime("%Y-%m-%d %H:%M:%S")
-        _write_state(state_path, state)
+        _write_state(state_path, state, run_state_path)
         return 2
     if root is None or arm is None or mesh is None:
         return 2
@@ -635,7 +670,7 @@ def run(args) -> int:
     st = stage_mod.stage_build(preset, root, arm)
     if not record(st):
         state["finished_at"] = time.strftime("%Y-%m-%d %H:%M:%S")
-        _write_state(state_path, state)
+        _write_state(state_path, state, run_state_path)
         return 2
 
     # 按物理单元加阻尼：覆盖袖子/头发/挂件这类"名字匹配不到"的过约束单元。
@@ -655,13 +690,13 @@ def run(args) -> int:
         st = stage_mod.stage_physics_policy(arm, mute_bones, preset["physics"]["policy"])
         if not record(st):
             state["finished_at"] = time.strftime("%Y-%m-%d %H:%M:%S")
-            _write_state(state_path, state)
+            _write_state(state_path, state, run_state_path)
             return 2
 
     st, action_end = stage_mod.stage_motion(preset, root, arm, vmd_for_import, frame_end)
     if not record(st):
         state["finished_at"] = time.strftime("%Y-%m-%d %H:%M:%S")
-        _write_state(state_path, state)
+        _write_state(state_path, state, run_state_path)
         return 2
     if action_end is not None and action_end < frame_end:
         s_len = report_mod.StageResult("S3_length")
@@ -675,19 +710,19 @@ def run(args) -> int:
     st = stage_mod.stage_look(preset, mesh, arm)
     if not record(st):
         state["finished_at"] = time.strftime("%Y-%m-%d %H:%M:%S")
-        _write_state(state_path, state)
+        _write_state(state_path, state, run_state_path)
         return 2
 
     st_props = stage_mod.stage_props(preset, arm)
     if not record(st_props):
         state["finished_at"] = time.strftime("%Y-%m-%d %H:%M:%S")
-        _write_state(state_path, state)
+        _write_state(state_path, state, run_state_path)
         return 2
 
     st, cam = stage_mod.stage_camera(preset, frame_start, frame_end)
     if not record(st):
         state["finished_at"] = time.strftime("%Y-%m-%d %H:%M:%S")
-        _write_state(state_path, state)
+        _write_state(state_path, state, run_state_path)
         return 2
     if cam is None:
         return 2
@@ -702,7 +737,7 @@ def run(args) -> int:
         json.dump(cam_json, fh, ensure_ascii=False, indent=2)
     state["camera"] = cam_json
     state.setdefault("artifacts", {})["camera"] = cam_path
-    _write_state(state_path, state)
+    _write_state(state_path, state, run_state_path)
     if cam_json["source"] == "measured":
         print("相机已冻结，下次加 --camera %s 可跳过测量" % cam_path, flush=True)
 
@@ -715,8 +750,9 @@ def run(args) -> int:
         print("pack_all 跳过：%s" % exc, flush=True)
 
     bpy.ops.wm.save_as_mainfile(filepath=scene_path, compress=True)
-    state["artifacts"] = {"scene": scene_path}
-    _write_state(state_path, state)
+    # 不能重置 artifacts：S6 的 camera.json 等前面登记的产物会被静默丢掉。
+    state.setdefault("artifacts", {})["scene"] = scene_path
+    _write_state(state_path, state, run_state_path)
     print("scene saved: %s" % scene_path, flush=True)
 
     # 渲前重新加载落盘产物：阶段隔离，保证渲的是文件而不是内存态。
@@ -725,7 +761,7 @@ def run(args) -> int:
     # 会随帧数累积放大，不是流程问题。
     bpy.ops.wm.open_mainfile(filepath=scene_path)
     state["reloaded_before_render"] = True
-    _write_state(state_path, state)
+    _write_state(state_path, state, run_state_path)
     print("reloaded for render: %s" % scene_path, flush=True)
 
     st = stage_mod.stage_render(preset, png_dir, frame_start, frame_end, mp4_path)
@@ -743,7 +779,7 @@ def run(args) -> int:
                 else "ok")
     state.setdefault("artifacts", {})["frames_dir"] = png_dir
     state["artifacts"]["mp4"] = mp4_path
-    _write_state(state_path, state)
+    _write_state(state_path, state, run_state_path)
 
     if args.probe:
         record(stage_mod.stage_probe(preset, frame_start))
@@ -759,11 +795,18 @@ def run(args) -> int:
     # 免得"看着有 mp4 就当成了成品"。
     landed = []
     if state["ok"] and paths["final"]:
-        landed = layout_mod.promote(out_dir, paths["final"])
-        shutil.copy2(state_path, os.path.join(paths["final"], "pipeline_state.json"))
-        landed.append("pipeline_state.json")
-        state["final"] = {"dir": paths["final"], "files": landed}
-    _write_state(state_path, state)
+        try:
+            landed = layout_mod.promote(out_dir, paths["final"])
+            shutil.copy2(state_path, os.path.join(paths["final"], "pipeline_state.json"))
+            landed.append("pipeline_state.json")
+            state["final"] = {"dir": paths["final"], "files": landed}
+        except FileExistsError as exc:
+            st = report_mod.StageResult("S8_promote")
+            st.add("E-00", report_mod.BLOCK, str(exc))
+            record(st)
+            state["ok"] = False
+            landed = []
+    _write_state(state_path, state, run_state_path)
 
     print()
     print("=" * 72)

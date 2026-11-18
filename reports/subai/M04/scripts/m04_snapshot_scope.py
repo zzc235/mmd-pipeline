@@ -96,7 +96,11 @@ def check_copies(scope, snap_dir, tracked=None, rel_snap=None):
 
     三态：`OK` / `MISMATCH` / `UNMEASURED`（git 不可用时算不出，不许算成不一致）。
     """
-    tracked = tracked or git_tracked
+    # 缺省的 git 探针必须绑定快照所在仓库；否则从别的 cwd 跑全量测试时 git 查的是
+    # 调用者所在目录， tracked 返回 None，真已入账的副本被误报 UNMEASURED。
+    if tracked is None:
+        repo_root = _paths.find_repo_root(snap_dir)
+        tracked = lambda rel: git_tracked(rel, cwd=repo_root)  # noqa: E731
     rel_snap = rel_snap or snap_dir
     copies = scope.get("snapshot_copies") or []
     if not copies:

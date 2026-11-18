@@ -16,6 +16,7 @@ PMX、拼接 VMD、成片、联络表、相机参数、state）。全混在同�
 """
 from __future__ import annotations
 
+import hashlib
 import os
 import re
 import shutil
@@ -45,12 +46,22 @@ def run_id(started_at: str) -> str:
     return "run"
 
 
-def plan(root: str, layout: str = DEFAULT_LAYOUT, started_at: str = "") -> dict:
-    """算出这次运行各产物该落在哪。"""
+def sanitize_run_id(raw: str) -> str:
+    """协调层 run_id 只允许安全字符；拒绝而不是净化（净化后的名字不是调用方以为的那个）。"""
+    if not isinstance(raw, str) or not re.fullmatch(r"[A-Za-z0-9._-]{1,80}", raw or ""):
+        raise ValueError("run_id 只允许 [A-Za-z0-9._-]{1,80}，收到 %r" % (raw,))
+    if raw in (".", "..") or raw.strip(".") == "":
+        raise ValueError("run_id 不许是点目录：%r" % (raw,))
+    return raw
+
+
+def plan(root: str, layout: str = DEFAULT_LAYOUT, started_at: str = "",
+         explicit_run_id: str = "") -> dict:
+    """算出这次运行各产物该落在哪。显式 run_id 来自协调层，必须安全且唯一。"""
     if layout not in LAYOUTS:
         raise ValueError("未知布局 %r，可选 %s" % (layout, ", ".join(LAYOUTS)))
     root = os.path.abspath(root)
-    rid = run_id(started_at)
+    rid = sanitize_run_id(explicit_run_id) if explicit_run_id else run_id(started_at)
     if layout == "isolated":
         work = os.path.join(root, "work", rid)
         final = os.path.join(root, "final", rid)
@@ -66,11 +77,22 @@ def plan(root: str, layout: str = DEFAULT_LAYOUT, started_at: str = "") -> dict:
     }
 
 
+def _same_file_bytes(a: str, b: str) -> bool:
+    if not (os.path.isfile(a) and os.path.isfile(b)):
+        return False
+    if os.path.getsize(a) != os.path.getsize(b):
+        return False
+    with open(a, "rb") as fa, open(b, "rb") as fb:
+        return hashlib.sha256(fa.read()).hexdigest() == hashlib.sha256(fb.read()).hexdigest()
+
+
 def promote(work_dir: str, final_dir: str, names=DELIVERABLES) -> list:
     """把成片从 work 复制到 final。返回实际落地的文件名（缺失的不算错）。
 
     用复制不用移动：work 里留着同一份，事后要复现（改参数重渲、比对帧）
     不用再跑一遍；删 work 也不影响 final。
+
+    final 里已有不同字节时拒绝覆盖。同字节视为幂等重复，不重复写入。
     """
     if not final_dir:
         return []
@@ -80,7 +102,11 @@ def promote(work_dir: str, final_dir: str, names=DELIVERABLES) -> list:
         if not os.path.isfile(src):
             continue
         os.makedirs(final_dir, exist_ok=True)
-        shutil.copy2(src, os.path.join(final_dir, name))
+        dst = os.path.join(final_dir, name)
+        if os.path.exists(dst) and not _same_file_bytes(src, dst):
+            raise FileExistsError("final 已有不同字节，拒绝覆盖：%s" % dst)
+        if not (os.path.exists(dst) and _same_file_bytes(src, dst)):
+            shutil.copy2(src, dst)
         landed.append(name)
     return landed
 

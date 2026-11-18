@@ -55,6 +55,8 @@ PARAMS: tuple[Param, ...] = (
     # ---- 输出与长度 ----
     Param("out", "path", default="mmdpipe_out", label="输出目录",
           help="所有产物写到这里（源文件不会被改）"),
+    Param("run_id", "str", advanced=True, label="运行号",
+          help="协调层分配的唯一 run_id；冲突目录必须拒绝，不许覆盖"),
     Param("layout", "choice", default="isolated", choices=("isolated", "legacy"),
           label="产物布局",
           help="isolated：中间产物进 work/<run>，成片只在全流程通过后落 final/<run>；"
@@ -122,6 +124,7 @@ ZONE_OF = {
     "preset": "asset",
     "camera": "asset",
     "out": "asset",
+    "run_id": "asset",
     "layout": "asset",
     "frames": "asset",
     "fps": "asset",

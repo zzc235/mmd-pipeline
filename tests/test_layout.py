@@ -23,6 +23,12 @@ class TestRunId(unittest.TestCase):
         b = layout.run_id("2026-11-11 21:07:31")
         self.assertNotEqual(a, b)
 
+    def test_explicit_run_id_sanitized(self):
+        self.assertEqual(layout.sanitize_run_id("M02_20261116T1.2-3_abcdef12"), "M02_20261116T1.2-3_abcdef12")
+        for bad in ("../x", "a/b", "", "x" * 81, ".", ".."):
+            with self.assertRaises(ValueError):
+                layout.sanitize_run_id(bad)
+
 
 class TestPlan(unittest.TestCase):
     def test_isolated_splits_work_and_final(self):
@@ -43,6 +49,12 @@ class TestPlan(unittest.TestCase):
     def test_unknown_layout_rejected(self):
         with self.assertRaises(ValueError):
             layout.plan("E:/out", "nope", "")
+
+    def test_explicit_run_id_is_used_verbatim(self):
+        p = layout.plan("E:/out", "isolated", "2026-11-11 21:07:30",
+                        explicit_run_id="M02_20261116T210000_abcd1234")
+        self.assertEqual(p["run_id"], "M02_20261116T210000_abcd1234")
+        self.assertTrue(p["work"].endswith(p["run_id"]))
 
 
 class TestPromote(unittest.TestCase):
@@ -68,6 +80,18 @@ class TestPromote(unittest.TestCase):
 
     def test_no_final_dir_is_noop(self):
         self.assertEqual(layout.promote(self.work, ""), [])
+
+    def test_repromote_same_bytes_is_idempotent(self):
+        layout.promote(self.work, self.final)
+        self.assertEqual(sorted(layout.promote(self.work, self.final)),
+                         ["contact_sheet.png", "result.mp4"])
+
+    def test_different_bytes_in_final_refuse_overwrite(self):
+        layout.promote(self.work, self.final)
+        with open(os.path.join(self.final, "result.mp4"), "wb") as fh:
+            fh.write(b"changed")
+        with self.assertRaises(FileExistsError):
+            layout.promote(self.work, self.final)
 
     def test_describe_mentions_where(self):
         self.assertIn("isolated", layout.describe(layout.plan("E:/out", "isolated", "")))

@@ -2006,9 +2006,15 @@ def stage_render(preset, out_dir: str, frame_start: int, frame_end: int, encode_
     scene = bpy.context.scene
 
     os.makedirs(out_dir, exist_ok=True)
-    for name in os.listdir(out_dir):
-        if name.endswith(".png"):
-            os.remove(os.path.join(out_dir, name))
+    existing_png = [name for name in os.listdir(out_dir) if name.endswith(".png")]
+    if existing_png:
+        # 渲染目录里的旧 PNG 可能是上一次成功/失败运行的物证；清空是销毁证据。
+        res.add("E-00", BLOCK,
+                "渲染输出目录已有 %d 个 PNG，拒绝清空重渲：%s"
+                % (len(existing_png), ", ".join(existing_png[:5])),
+                "换 run_id / 换输出目录；确需复用目录必须显式在外层处理")
+        res.elapsed = _now() - t0
+        return res
 
     scene.render.resolution_x = rcfg["resolution"][0]
     scene.render.resolution_y = rcfg["resolution"][1]

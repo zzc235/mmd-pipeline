@@ -110,6 +110,11 @@ class TestRunnerArgvSingleVmd(unittest.TestCase):
             _parse("--vmd", "a.vmd", "--out", "o")
         self.assertNotEqual(ctx.exception.code, 0)
 
+    def test_explicit_run_id_is_parsed_from_single_source(self):
+        a = _parse("--pmx", "m.pmx", "--vmd", "a.vmd", "--out", "o",
+                   "--run-id", "M02_20261116T210000_abcd1234")
+        self.assertEqual(a.run_id, "M02_20261116T210000_abcd1234")
+
 
 class TestRunnerArgvShape(unittest.TestCase):
     """Blender 传参约定：参数必须放在 `--` 之后。"""
