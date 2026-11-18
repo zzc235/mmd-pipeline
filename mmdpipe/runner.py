@@ -56,14 +56,25 @@ def _fingerprint(pmx_path: str, vmd_path: str, preset: dict) -> dict:
     }
 
 
-def _write_state(path: str, state: dict, mirror_path: str = "") -> None:
-    """写最新状态，并同步 per-run 副本。mirror 失败不能丢根状态，只记录运行失败。"""
+def _write_state(path: str, state: dict, mirror_path: str = "",
+                 mirror_paths: tuple | list = ()) -> None:
+    """写最新状态，并同步 per-run 副本。mirror 失败不能丢根状态，只记录运行失败。
+
+    收尾时把 final 目录也作为 mirror 传入（而非先 copy2 再补写）：三份状态必须
+    来自同一次序列化，否则 final 那份会是上一拍的旧快照（ok/finished/final 段
+    都还没写），出现「成片成功但 final 状态说自己没通过」的证据账矛盾。
+    """
     payload = json.dumps(state, ensure_ascii=False, indent=2)
     with open(path, "w", encoding="utf-8") as fh:
         fh.write(payload)
-    if mirror_path and os.path.normcase(os.path.abspath(mirror_path)) != os.path.normcase(
-            os.path.abspath(path)):
-        with open(mirror_path, "w", encoding="utf-8") as fh:
+    targets = list(mirror_paths)
+    if mirror_path:
+        targets.append(mirror_path)
+    root = os.path.normcase(os.path.abspath(path))
+    for target in targets:
+        if os.path.normcase(os.path.abspath(target)) == root:
+            continue
+        with open(target, "w", encoding="utf-8") as fh:
             fh.write(payload)
 
 
@@ -794,10 +805,11 @@ def run(args) -> int:
     # 成片落地：只有全流程 ok 才进 final/。没通过时 final/ 里一个文件都不该出现，
     # 免得"看着有 mp4 就当成了成品"。
     landed = []
+    final_state_path = ""
     if state["ok"] and paths["final"]:
         try:
             landed = layout_mod.promote(out_dir, paths["final"])
-            shutil.copy2(state_path, os.path.join(paths["final"], "pipeline_state.json"))
+            final_state_path = os.path.join(paths["final"], "pipeline_state.json")
             landed.append("pipeline_state.json")
             state["final"] = {"dir": paths["final"], "files": landed}
         except FileExistsError as exc:
@@ -806,7 +818,10 @@ def run(args) -> int:
             record(st)
             state["ok"] = False
             landed = []
-    _write_state(state_path, state, run_state_path)
+            final_state_path = ""
+    # 最终状态一次性写 root / work / final 三份，保证 final 那份不是旧快照。
+    _write_state(state_path, state, run_state_path,
+                 mirror_paths=(final_state_path,) if final_state_path else ())
 
     print()
     print("=" * 72)

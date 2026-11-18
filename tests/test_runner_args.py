@@ -167,5 +167,60 @@ class TestRunnerDefaultsSingleSource(unittest.TestCase):
                       "_parse_args 没有走 params.add_arguments，声明表形同虚设")
 
 
+class TestRunnerStateMirror(unittest.TestCase):
+    """收尾状态的 final 副本必须与 root/work 同源同字节。
+
+    S7 实测抓到的缺陷：旧实现先 copy2(state_path → final) 再补写最终 state，
+    final 那份因此是上一拍的旧快照（ok=False、finished=None、无 final 段），
+    与同目录的成功成片自相矛盾。这里钉住「一次序列化、多处落盘」。
+    """
+
+    def setUp(self):
+        import json
+        import os
+        import tempfile
+        self.dir = tempfile.mkdtemp(prefix="mm_state_mirror_")
+        self.addCleanup(lambda: __import__("shutil").rmtree(self.dir, ignore_errors=True))
+        self.root = os.path.join(self.dir, "pipeline_state.json")
+        self.work = os.path.join(self.dir, "work", "pipeline_state.json")
+        self.final = os.path.join(self.dir, "final", "pipeline_state.json")
+        for p in (self.work, self.final):
+            os.makedirs(os.path.dirname(p), exist_ok=True)
+
+    def _load(self, path):
+        import json
+        with open(path, encoding="utf-8") as fh:
+            return json.load(fh)
+
+    def test_final_mirror_is_same_bytes_and_has_final_section(self):
+        state = {"ok": True, "finished_at": "2026-11-18 15:13:12",
+                 "run_id": "e2e_test", "final": {"dir": "final", "files": ["result.mp4"]}}
+        _runner._write_state(self.root, state, self.work, mirror_paths=(self.final,))
+        def raw(path):
+            with open(path, "rb") as fh:
+                return fh.read()
+
+        root_bytes = raw(self.root)
+        self.assertEqual(raw(self.work), root_bytes)
+        self.assertEqual(raw(self.final), root_bytes)
+        for p in (self.root, self.work, self.final):
+            d = self._load(p)
+            self.assertTrue(d["ok"], p)
+            self.assertEqual(d["finished_at"], "2026-11-18 15:13:12", p)
+            self.assertIsNotNone(d["final"], p)
+
+    def test_mirror_list_skips_same_path_as_root(self):
+        """root 自己混进 mirror 列表时跳过——不能把同一文件写两遍。"""
+        state = {"ok": True}
+        _runner._write_state(self.root, state, mirror_paths=(self.root, self.work))
+        self.assertEqual(self._load(self.work), state)
+        self.assertEqual(self._load(self.root), state)
+
+    def test_no_mirror_when_final_not_requested(self):
+        """没给 mirror 时只写 root，final 那份不该凭空出现。"""
+        _runner._write_state(self.root, {"ok": False})
+        self.assertFalse(__import__("os").path.exists(self.final))
+
+
 if __name__ == "__main__":
     unittest.main()
