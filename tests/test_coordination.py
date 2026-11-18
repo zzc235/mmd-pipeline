@@ -24,6 +24,24 @@ from coordination import paths as paths_mod
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
+def make_qualified_repo(root, name):
+    """建一个干净的临时 git 仓库，供 dispatcher worktree 资格预检当夹具。
+
+    底座与 S3 的 test_dispatcher_worktrees.make_repo 一致：内容随 name 变化，
+    避免同内容+同作者+同秒提交产生相同 hash。task 未设 base_commit 时 plan 会
+    取该仓库 HEAD 做 base，is-ancestor(HEAD, HEAD) 恒真，预检合格。
+    """
+    path = os.path.join(root, name)
+    os.makedirs(path, exist_ok=True)
+    assert subprocess.run(["git", "-C", path, "init", "-q"]).returncode == 0
+    with open(os.path.join(path, "f.txt"), "w", encoding="utf-8") as fh:
+        fh.write(name + "\n")
+    assert subprocess.run(["git", "-C", path, "add", "."]).returncode == 0
+    assert subprocess.run(["git", "-C", path, "-c", "user.email=a@b", "-c", "user.name=t",
+                           "commit", "-qm", "init"]).returncode == 0
+    return path
+
+
 def sha(text):
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
@@ -293,7 +311,9 @@ class TestGuards(BoardCase):
 
     def test_dispatch_does_not_start_agents(self):
         self.ready_task()
-        plan = dispatcher_mod.plan(self.board)
+        wt = make_qualified_repo(self.dir, "wt_a1")
+        plan = dispatcher_mod.plan(self.board, repo=wt,
+                                   worktrees={"A1": wt, "A2": wt, "A3": wt, "A4": wt})
         self.assertEqual(plan["state"], "DISPATCH")
         self.assertIn("不启动任何 AI", plan["note"])
         self.assertEqual(self.board.task("M01")["status"], "ready")

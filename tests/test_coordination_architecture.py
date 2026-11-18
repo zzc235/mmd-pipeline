@@ -14,6 +14,7 @@ import io
 import json
 import os
 import shutil
+import subprocess
 import sys
 import tempfile
 import time
@@ -49,6 +50,24 @@ def outside_path(*parts):
     path = os.path.join(OUTSIDE, *parts)
     assert not preflight_mod._norm(path).startswith(preflight_mod._norm(ROOT)), (
         "样本路径落在本 worktree 内，用例前提不成立：%s" % path)
+    return path
+
+
+def make_qualified_repo(root, name):
+    """建一个干净的临时 git 仓库，供 dispatcher worktree 资格预检当夹具。
+
+    底座与 S3 的 test_dispatcher_worktrees.make_repo 一致：内容随 name 变化，
+    避免同内容+同作者+同秒提交产生相同 hash。task 未设 base_commit 时 plan 会
+    取该仓库 HEAD 做 base，is-ancestor(HEAD, HEAD) 恒真，预检合格。
+    """
+    path = os.path.join(root, name)
+    os.makedirs(path, exist_ok=True)
+    assert subprocess.run(["git", "-C", path, "init", "-q"]).returncode == 0
+    with open(os.path.join(path, "f.txt"), "w", encoding="utf-8") as fh:
+        fh.write(name + "\n")
+    assert subprocess.run(["git", "-C", path, "add", "."]).returncode == 0
+    assert subprocess.run(["git", "-C", path, "-c", "user.email=a@b", "-c", "user.name=t",
+                           "commit", "-qm", "init"]).returncode == 0
     return path
 
 
@@ -768,9 +787,12 @@ class DispatcherP0Test(TempDirTest):
         self.board = board_mod.Board(self.path("board.db"))
         self.board.init()
         self.addCleanup(self.board.close)
+        self.wt = make_qualified_repo(self.tmp, "wt_p0")
 
     def plan(self, **extra):
-        return dispatcher_mod.plan(self.board, repo=ROOT, **extra)
+        return dispatcher_mod.plan(self.board, repo=self.wt,
+                                   worktrees={"P0": self.wt, "A1": self.wt, "A2": self.wt,
+                                              "A3": self.wt, "A4": self.wt}, **extra)
 
     def lane_row(self, result, lane):
         return next(row for row in result["assignments"] if row["lane"] == lane)

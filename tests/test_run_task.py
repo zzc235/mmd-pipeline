@@ -6,12 +6,31 @@
 import json
 import os
 import shutil
+import subprocess
 import tempfile
 import unittest
 
 from coordination import board as board_mod
 from coordination import dispatcher as dispatcher_mod
 from coordination import run_task as run_task_mod
+
+
+def make_qualified_repo(root, name):
+    """建一个干净的临时 git 仓库，供 dispatcher worktree 资格预检当夹具。
+
+    底座与 S3 的 test_dispatcher_worktrees.make_repo 一致：内容随 name 变化，
+    避免同内容+同作者+同秒提交产生相同 hash。task 未设 base_commit 时 plan 会
+    取该仓库 HEAD 做 base，is-ancestor(HEAD, HEAD) 恒真，预检合格。
+    """
+    path = os.path.join(root, name)
+    os.makedirs(path, exist_ok=True)
+    assert subprocess.run(["git", "-C", path, "init", "-q"]).returncode == 0
+    with open(os.path.join(path, "f.txt"), "w", encoding="utf-8") as fh:
+        fh.write(name + "\n")
+    assert subprocess.run(["git", "-C", path, "add", "."]).returncode == 0
+    assert subprocess.run(["git", "-C", path, "-c", "user.email=a@b", "-c", "user.name=t",
+                           "commit", "-qm", "init"]).returncode == 0
+    return path
 
 
 class RunTaskCase(unittest.TestCase):
@@ -96,7 +115,9 @@ class TestDispatcherResourceReservation(unittest.TestCase):
     def test_plan_reserves_blender_for_first_claim(self):
         self.board.add_task("M02", "M02", "A1", status="ready", resource="blender")
         self.board.add_task("M05", "M05", "A3", status="ready", resource="blender")
-        plan = dispatcher_mod.plan(self.board)
+        wt = make_qualified_repo(self.dir, "wt_dispatch")
+        plan = dispatcher_mod.plan(self.board, repo=wt,
+                                   worktrees={"A1": wt, "A2": wt, "A3": wt, "A4": wt})
         actions = {row["lane"]: row["action"] for row in plan["assignments"]}
         self.assertEqual(actions["A1"], "claim")
         self.assertEqual(actions["A3"], "idle")
