@@ -202,6 +202,8 @@ def build_parser() -> argparse.ArgumentParser:
     ap.add_argument("--head", default="")
     ap.add_argument("--repo", default="", help="证据覆盖校验仓库，缺省为 --worktree")
     ap.add_argument("--evidence", default="", help="执行成功后提交的证据 JSON")
+    ap.add_argument("--gate", default="",
+                    help="闸门包 JSON 路径；带 truth_tier 的 evidence 提交时必须提供，否则 GATE_FAILED")
     ap.add_argument("--claim", action="store_true", help="先按 lane 原子认领目标任务")
     ap.add_argument("--start", action="store_true", help="claim 后进入 running")
     ap.add_argument("--allow-dirty", action="store_true")
@@ -256,6 +258,9 @@ def main(argv=None) -> int:
             run_id = args.run_id or b.new_run_id(args.task)
         context = {"task_id": args.task, "agent": args.agent, "run_id": run_id,
                    "worktree": worktree_info["root"]}
+        # `--` 后的命令也要展开 {run_id} 等占位符：否则产物会落到字面的 "{run_id}" 目录。
+        # 与 spec 共用同一套 _format_value，缺值时同样 fail-closed 拒绝。
+        command = _format_value(command, context)
         spec = load_preflight_spec(args.spec, context)
         outcome = preflight_mod.check(spec, worktree=worktree_info["root"])
         if outcome["state"] != "READY":
@@ -301,8 +306,17 @@ def main(argv=None) -> int:
                     payload = json.load(fh)
             except (OSError, ValueError) as exc:
                 raise RunTaskError("证据 JSON 读不了：%s" % exc, "MISSING_EVIDENCE")
+            # 带 truth_tier 的 evidence 要求闸门包；--gate 提供时读入并透传给 submit。
+            # 未带 --gate 时保持 None（老证据走 legacy 通道，由 board.submit 决定）。
+            gate = None
+            if args.gate:
+                try:
+                    with open(args.gate, "r", encoding="utf-8-sig") as fh:
+                        gate = json.load(fh)
+                except (OSError, ValueError) as exc:
+                    raise RunTaskError("闸门包 JSON 读不了：%s" % exc, "MISSING_EVIDENCE")
             submit = b.submit(args.task, payload, base=args.base, head=args.head,
-                              repo=args.repo or worktree_info["root"])
+                              repo=args.repo or worktree_info["root"], gate=gate)
             result["submit"] = submit
         result["state"] = "RUN_OK"
         print(json.dumps(result, ensure_ascii=False, sort_keys=True))

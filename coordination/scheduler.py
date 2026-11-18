@@ -38,6 +38,7 @@ def build_parser() -> argparse.ArgumentParser:
     ap.add_argument("--status", default="ready")
     ap.add_argument("--resource", default="none")
     ap.add_argument("--evidence", default="")
+    ap.add_argument("--gate", default="", help="闸门包 JSON 路径；submit 带 truth_tier 证据时提供")
     ap.add_argument("--base", default="", help="覆盖校验的基线提交（缺省用任务行的 base_commit）")
     ap.add_argument("--head", default="HEAD")
     ap.add_argument("--repo", default="", help="git 仓库路径（缺省当前目录）")
@@ -74,9 +75,13 @@ def main(argv=None) -> int:
         elif args.command == "submit":
             with open(args.evidence, "r", encoding="utf-8") as fh:
                 payload = json.load(fh)
+            gate = None
+            if args.gate:
+                with open(args.gate, "r", encoding="utf-8") as fh:
+                    gate = json.load(fh)
             try:
                 _out(b.submit(args.task, payload, base=args.base or None,
-                              head=args.head, repo=args.repo or None))
+                              head=args.head, repo=args.repo or None, gate=gate))
             except evidence_mod.EvidenceError as exc:
                 _out({"state": "REJECTED", "reason_code": exc.reason_code, "why": str(exc),
                       "missing": getattr(exc, "missing", None)})
