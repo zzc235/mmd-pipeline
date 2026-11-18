@@ -179,7 +179,10 @@ def t_tool_entry():
 
 
 print("SMOKE START")
-addon_utils.enable(FULL, default_set=True, persistent=True)
+# S6 偏好隔离（手册 §9.2）：原 default_set=True, persistent=True 会把本扩展写进
+# 用户默认启用集并跨会话持久 ⇒ 污染全局 userpref.blend。改为会话内启用即可：
+# 本脚本 9 项 check 只依赖当前会话的包导入/算子注册，不依赖写默认偏好。
+addon_utils.enable(FULL, default_set=False, persistent=False)
 check("包内导入", t_import)
 check("参数同源", t_parity)
 check("插件启用闸门", t_addon_gate)
