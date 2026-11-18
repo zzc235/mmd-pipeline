@@ -20,6 +20,11 @@ import subprocess
 
 from . import board as board_mod
 from . import paths as paths_mod
+from . import run_task as run_task_mod
+
+# 席位 → worktree 绝对路径的显式登记（相对路径、缺项一律 fail-closed）。
+WORKTREES_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "worktrees.json")
+
 
 LANES = {
     "P0": ("M00",),
@@ -64,6 +69,60 @@ def p0_approval(b, task_id: str) -> dict:
     return {}
 
 
+def load_worktrees(path: str | None = None) -> dict:
+    """读席位→绝对路径登记。缺文件/坏格式/相对路径一律 fail-closed（返回不可用项）。"""
+    path = path or WORKTREES_FILE
+    try:
+        with open(path, encoding="utf-8-sig") as fh:
+            raw = json.load(fh)
+    except (OSError, ValueError):
+        return {}
+    if not isinstance(raw, dict):
+        return {}
+    out = {}
+    for seat, wt in raw.items():
+        if not isinstance(seat, str) or not isinstance(wt, str) or not wt.strip():
+            continue
+        if not os.path.isabs(wt):
+            continue
+        out[seat] = wt
+    return out
+
+
+def worktree_provenance(seat: str, base: str, wt: str | None,
+                        repo: str | None = None) -> dict:
+    """对拟 claim 席位做 worktree 资格预检；只读，不改任何 Git 状态。
+
+    复用 run_task.verify_worktree()，不另写一套 git 判据。任何不合格都返回
+    ok=False + needs_human 所需的 reason_code / 路径 / 可读原因，绝不返回 idle。
+
+    reason_code 只用 24 个闭集内的码（见 coordination/decision_taxonomy.json）：
+    配置缺失 / 路径非法 / Git 不可读归 PROVENANCE_INVALID（派工来源无效），
+    dirty 归 OWNERSHIP_VIOLATION（由 verify_worktree 抛出）。
+    具体差异写进可读 reason，不靠自造码区分。
+    """
+    missing = {"reason_code": "PROVENANCE_INVALID", "worktree": None,
+               "reason": "席位 %s 未在 coordination/worktrees.json 登记绝对路径" % seat}
+    if not wt:
+        return {"ok": False, **missing}
+    if not os.path.isabs(wt):
+        return {"ok": False, "reason_code": "PROVENANCE_INVALID", "worktree": wt,
+                "reason": "席位 %s 的 worktree 不是绝对路径：%s" % (seat, wt)}
+    if not os.path.isdir(wt):
+        return {"ok": False, "reason_code": "PROVENANCE_INVALID", "worktree": wt,
+                "reason": "席位 %s 的 worktree 路径不存在或不是目录：%s" % (seat, wt)}
+    try:
+        info = run_task_mod.verify_worktree(wt, base=base)
+    except run_task_mod.RunTaskError as exc:
+        return {"ok": False, "reason_code": exc.code or "PROVENANCE_INVALID",
+                "worktree": wt, "reason": str(exc)}
+    except (OSError, subprocess.SubprocessError) as exc:
+        return {"ok": False, "reason_code": "PROVENANCE_INVALID", "worktree": wt,
+                "reason": "席位 %s 的 worktree Git 不可读：%s" % (seat, exc)}
+    return {"ok": True, "worktree": info["root"], "worktree_head": info["head"],
+            "base": info["base"], "dirty": info["dirty"]}
+
+
 def status_tasks_of(status_path: str | None) -> dict:
     """读状态表（只读，用来识别「board 空但状态表非空」）。"""
     import io
@@ -78,9 +137,14 @@ def status_tasks_of(status_path: str | None) -> dict:
 
 
 def plan(b: board_mod.Board, now=None, status_path: str | None = None,
-         approve_p0: bool = False, repo: str | None = None) -> dict:
-    """算一份派工计划。只读，不改状态。"""
+         approve_p0: bool = False, repo: str | None = None,
+         worktrees: dict | None = None) -> dict:
+    """算一份派工计划。只读，不改状态。
+
+    worktrees 缺省从 coordination/worktrees.json 读；传 {} 或缺文件均 fail-closed。
+    """
     head = _git_head(repo)
+    registry = load_worktrees() if worktrees is None else worktrees
     board_count = b.db.execute("SELECT COUNT(*) c FROM tasks").fetchone()["c"]
     status_tasks = status_tasks_of(status_path)
     if board_count == 0 and status_tasks:
@@ -130,35 +194,56 @@ def plan(b: board_mod.Board, now=None, status_path: str | None = None,
         if not chosen:
             rows.append({"lane": lane, "agent": seat, "action": "idle"})
             continue
+        base = chosen.get("base_commit") or head
         entry = {"lane": lane, "agent": seat, "action": "claim",
                  "task_id": chosen["task_id"], "module": chosen["module"],
-                 "resource": chosen["resource"],
-                 "base_commit": chosen.get("base_commit") or head}
-        if chosen["resource"] and chosen["resource"] != "none":
-            reserved_resources.add(chosen["resource"])
+                 "resource": chosen["resource"], "base_commit": base}
+
+        # P0 必须先有 D0 明确批准，才谈得上 worktree 资格；未批准不预检、不占资源。
         if lane == "P0":
             approval = p0_approval(b, chosen["task_id"])
             if approve_p0 and not approval:
                 approval = {"approved_at": None, "by": "D0",
                             "changed_scope": "命令行 --approve-p0"}
             if not approval:
-                entry = {"lane": lane, "agent": seat, "action": "needs_approval",
-                         "task_id": chosen["task_id"], "module": chosen["module"],
-                         "reason": "P0 任务必须由 D0 明确批准（14 号令 §3-D.2）",
-                         "reason_code": "HUMAN_REQUIRED",
-                         "base_commit": chosen.get("base_commit") or head}
-            else:
-                entry["d0_approval"] = approval
-                entry["changed_scope"] = approval.get("changed_scope") or ""
-                entry["reason"] = "P0 派工：协调平台任务，需要 D0 批准后执行"
+                rows.append({"lane": lane, "agent": seat, "action": "needs_approval",
+                             "task_id": chosen["task_id"], "module": chosen["module"],
+                             "reason": "P0 任务必须由 D0 明确批准（14 号令 §3-D.2）",
+                             "reason_code": "HUMAN_REQUIRED", "base_commit": base})
+                continue
+            entry["d0_approval"] = approval
+            entry["changed_scope"] = approval.get("changed_scope") or ""
+            entry["reason"] = "P0 派工：协调平台任务，需要 D0 批准后执行"
+
+        # worktree 资格预检：缺配置/路径不存在/Git 不可读/base 非祖先/dirty 一律 needs_human。
+        # 关键顺序：预检通过后才预留资源，避免不合格候选提前挡住其他合法计划。
+        prov = worktree_provenance(seat, base, registry.get(seat), repo=repo)
+        if not prov["ok"]:
+            rows.append({
+                "lane": lane, "agent": seat, "action": "needs_human",
+                "task_id": chosen["task_id"], "module": chosen["module"],
+                "resource": chosen["resource"], "base_commit": base,
+                "reason_code": prov["reason_code"], "worktree": prov["worktree"],
+                "reason": prov["reason"],
+                "fix": "由 D0/Human 校准席位 worktree 与 coordination/worktrees.json 后重跑 dispatcher",
+            })
+            continue
+        entry["worktree"] = prov["worktree"]
+        entry["worktree_head"] = prov["worktree_head"]
+        if chosen["resource"] and chosen["resource"] != "none":
+            reserved_resources.add(chosen["resource"])
         rows.append(entry)
 
     actionable = [r for r in rows if r["action"] == "claim"]
+    need_human = [r for r in rows if r["action"] == "needs_human"]
+    # 有 needs_human 时绝不报 IDLE：那是 fail-closed 待人工处置，不是「都干完了」。
+    state = "DISPATCH" if actionable else ("NEEDS_HUMAN" if need_human else "IDLE")
     return {
         "queued_submission": queued,
         "backpressure": backpressure,
-        "state": "DISPATCH" if actionable else "IDLE",
+        "state": state,
         "base_commit": head,
+        "needs_human_count": len(need_human),
         "assignments": rows,
         "note": "半自动：本文件只给计划，不启动任何 AI（13 §8）",
     }
