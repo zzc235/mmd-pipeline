@@ -18,6 +18,8 @@ import unittest
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 SNAP = os.path.join(ROOT, "reports", "subai", "M04", "cd_round2")
+# 条数棘轮：加一条承载方就得改这个常量（`3号` 20:23 的形状），别让表静默增长。
+EXPECT_CARRIERS = 7
 MODULE = os.path.join(ROOT, "reports", "subai", "M04", "scripts", "m04_snapshot_scope.py")
 
 
@@ -138,52 +140,76 @@ class CopiesTest(unittest.TestCase):
 
 
 class CarriersTest(unittest.TestCase):
-    """`3号` 20:17：**豁免 ≠ 可核的转手** —— 每个「不在仓里」的引用都要写出承载方。
+    """`3号` 20:17：**豁免 ≠ 可核的转手**；`4号` 20:23：只做子串匹配会退化成新散文。
 
-    这里只核「承载方本身在仓里」：`carriers` 的值是文件路径（可以带 `|` 分隔多份，
-    也可以带括号说明），把路径段抽出来逐条 `git ls-files`。
+    所以每条承载方带三档 `kind`，每档机器判真假：
+    - `git`：`paths` 逐条必须 `git ls-files` 到；
+    - `out`：只在产物树 ⇒ 必须给 `carrier_of_out` 指回仓内一份（拿豁免冒充可核是不许的）；
+    - `input`：输入件不在仓 ⇒ 必须给 `sha256` 声明身份。
     """
 
     @classmethod
     def setUpClass(cls):
         cls.scope = SCOPE.load_json(os.path.join(SNAP, "manifest_scope.json"))
-        cls.repo = os.path.dirname(os.path.dirname(os.path.abspath(
-            os.path.join(SNAP, "..", "..", "..", ".."))))
 
-    @staticmethod
-    def _paths(value):
-        head = value.split("（")[0]
-        out = []
-        for part in head.split("|"):
-            part = part.strip()
-            if part.endswith(".json") or part.endswith(".md") or part.endswith(".py"):
-                out.append(part)
-        return out
+    def _resolve(self, rel):
+        """按三处候选把 `rel` 解析到盘上的绝对路径（快照目录 → 仓库根 → M04 scripts）。"""
+        cands = [os.path.join(SNAP, rel),
+                 os.path.join(ROOT, rel),
+                 os.path.join(ROOT, "reports", "subai", "M04", "scripts", rel)]
+        for cand in cands:
+            if os.path.exists(cand):
+                return cand
+        return None
 
-    def test_carriers_exist_and_are_in_git(self):
-        carriers = self.scope.get("carriers") or {}
+    def test_carriers_shape_is_hard(self):
+        carriers = self.scope.get("carriers") or []
         self.assertTrue(carriers, "manifest_scope 里没有 carriers 表")
-        missing = []
-        checked = 0
-        for key, value in carriers.items():
-            for rel in self._paths(value):
-                if "m04_" in rel or rel.startswith("reports/"):
-                    full = os.path.join(ROOT, rel)
-                else:
-                    full = os.path.join(SNAP, rel)
-                if not os.path.exists(full):
-                    missing.append((key, rel, "盘上不在"))
+        for ent in carriers:
+            self.assertIn(ent.get("kind"), ("git", "out", "input"), ent)
+            self.assertTrue(ent.get("key"), ent)
+            if ent["kind"] == "git":
+                self.assertTrue(ent.get("paths"), ent)
+            if ent["kind"] == "out":
+                # 「只在产物树」必须指回仓内一份承载方
+                self.assertTrue(ent.get("carrier_of_out"), ent)
+            if ent["kind"] == "input":
+                self.assertTrue(ent.get("sha256"), ent)
+
+    def test_git_carriers_are_tracked(self):
+        missing, checked = [], 0
+        for ent in self.scope["carriers"]:
+            for rel in ent.get("paths") or []:
+                full = self._resolve(rel)
+                if full is None:
+                    missing.append((ent["key"], rel, "盘上三处候选都没有"))
                     continue
                 rel_repo = os.path.relpath(full, ROOT).replace("\\", "/")
-                tracked = SCOPE.git_tracked(rel_repo, cwd=ROOT)
                 checked += 1
-                if tracked is not True:
-                    missing.append((key, rel, "git 里没有"))
+                if SCOPE.git_tracked(rel_repo, cwd=ROOT) is not True:
+                    missing.append((ent["key"], rel, "git 里没有"))
         self.assertEqual(missing, [], "承载方不可核：%s" % missing)
-        self.assertGreaterEqual(checked, 5, "carriers 里可核的路径太少，护栏可能在空转")
+        self.assertGreaterEqual(checked, 5, "可核路径太少，护栏可能在空转")
+
+    def test_out_carriers_point_back_into_git(self):
+        for ent in self.scope["carriers"]:
+            if ent.get("kind") != "out":
+                continue
+            back = self._resolve(ent["carrier_of_out"])
+            self.assertIsNotNone(back, ent)
+            rel_repo = os.path.relpath(back, ROOT).replace("\\", "/")
+            self.assertIs(SCOPE.git_tracked(rel_repo, cwd=ROOT), True,
+                          "out 档的承载方必须指回仓内一份：%s" % ent)
+
+    def test_carrier_count_is_a_ratchet(self):
+        """条数棘轮（`3号` 20:23）：加一条承载方就得动这个常量、留下 diff。"""
+        self.assertEqual(len(self.scope["carriers"]), EXPECT_CARRIERS,
+                         "承载方条数变了：改了这张表就把 EXPECT_CARRIERS 一起改")
 
     def test_carriers_note_states_the_rule(self):
-        self.assertIn("承载", self.scope["carriers_note"])
+        note = self.scope["carriers_note"]
+        self.assertIn("承载", note)
+        self.assertIn("豁免", note)
 
 
 class CliTest(unittest.TestCase):

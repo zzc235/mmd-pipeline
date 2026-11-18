@@ -1,80 +1,54 @@
 {
+  "spec": "manifest_scope/5",
+  "manifest": "manifest.json",
+  "path_field": "name",
+  "paths_are": "file name only, relative to `base` —— **不是**相对本目录",
   "base": "E:/dsh pr/woker2/out/subai/M04/penetration/round2_324b",
   "base_in_git": false,
-  "carriers": {
-    "frames_over_epsilon 与同域 1..240 对比、差 46.198 mm": "同上三份 meta（同域切片）+ reports/subai/M04/cd_round2/cmp_round2.json",
-    "pairs_without_baseline = 0/0/0": "三份 meta 的逐帧字段",
-    "三组读数（帧数/越判据帧/最深帧/最深值/中位数）": "reports/subai/M04/cd_round2/C_W1.meta.json|C_W2.meta.json|D.meta.json（逐帧 per_frame，报告 §二 由 ad631d3 的测试逐项重算）",
-    "保持段分段数（post_hoc，只解释）": "由 m04_segment_table.py 从 C_W2.meta.json 现算，不单独落账",
-    "批次 35 项的 bytes/sha256/只读位": "manifest.json（在仓）+ base（不在仓；由 m04_snapshot_scope.py 三态核，base 不在本机记 UNMEASURED）",
-    "每臂基线 5076 对（zero 5020）": "reports/subai/M04/cd_round2/baseline_C_W1.json|baseline_C_W2.json|baseline_D.json",
-    "首读偏差判别四趟读数": "reports/subai/M04/firstread/firstread_C_W1.json"
-  },
-  "carriers_note": "豁免 ≠ 可核的转手（3号 20:17）：每条「不在仓里」的引用都必须写出「这个数在仓里由哪一份承载」，并由测试断言过。这里列的就是那张表。",
   "entries_declared": 35,
   "entries_readonly": 35,
+  "snapshot_copies": [
+    {"name": "C_W1.meta.json", "in_git": true},
+    {"name": "C_W2.meta.json", "in_git": true},
+    {"name": "D.meta.json", "in_git": true},
+    {"name": "baseline_C_W1.json", "in_git": true},
+    {"name": "baseline_C_W2.json", "in_git": true},
+    {"name": "baseline_D.json", "in_git": true},
+    {"name": "cd_run_ledger.json", "in_git": true},
+    {"name": "cmp_round2.json", "in_git": true},
+    {"name": "_snapshot_index.json", "in_git": true},
+    {"name": "compare.log.txt", "in_git": true, "source_name_in_base": "compare.log",
+     "why_renamed": ".gitignore:39 的 *.log 吞掉原名 ⇒ 快照里以 .txt 落地，内容逐字节相同"},
+    {"name": "compare_selftest.log.txt", "in_git": true, "source_name_in_base": "compare_selftest.log",
+     "why_renamed": ".gitignore:39 的 *.log 吞掉原名 ⇒ 快照里以 .txt 落地，内容逐字节相同"}
+  ],
+  "two_way_checked": false,
+  "why": "manifest 的 35 条目全部住在 `base`（out/ 的只读批次目录）；本目录只放副本。按 `base` 解析是 35/35；按本目录双向枚举是副本，两者是不同宇宙，混着用会得到一堆假 only_on_disk —— 总控 19:50 的 artifact_audit 第一版就在这份上报过 46 条假 drift，改后记 two_way_checked=false。",
+  "why_v2": "19:55 main 红了一条：原版把 11 份副本一律声明成「在快照里」，而 compare.log / compare_selftest.log 被 `.gitignore:39` 的 `*.log` 吞掉、**从来没进过 git**。本机看着齐、别人的检出就缺 —— 一个靠本机状态的绿灯。现在每份副本带 `in_git`，false 的必须给出 `why_not`。",
+  "carriers_note": "豁免 ≠ 可核的转手（3号 20:17）：每条「不在仓里」的引用都必须写出「这个数在仓里由哪一份承载」。三档 `kind`（4号 20:23 的形状）：`git` = 路径本身就在仓里、过 `git ls-files`；`out` = 只在产物树，必须给 `carrier_of_out` 指回仓内一份（否则就是拿豁免冒充可核）；`input` = 输入件不在仓里，只能靠 sha 声明身份。",
+  "carriers": [
+    {"key": "三组读数（帧数/越判据帧/最深帧/最深值/中位数）", "kind": "git",
+     "paths": ["C_W1.meta.json", "C_W2.meta.json", "D.meta.json"]},
+    {"key": "frames_over_epsilon 与同域 1..240 对比、差 46.198 mm", "kind": "git",
+     "paths": ["C_W1.meta.json", "C_W2.meta.json", "D.meta.json", "cmp_round2.json"]},
+    {"key": "pairs_without_baseline = 0/0/0", "kind": "git",
+     "paths": ["C_W1.meta.json", "C_W2.meta.json", "D.meta.json", "cmp_round2.json"]},
+    {"key": "每臂基线 5076 对（zero 5020）", "kind": "git",
+     "paths": ["baseline_C_W1.json", "baseline_C_W2.json", "baseline_D.json"]},
+    {"key": "批次 35 项的 bytes/sha256/只读位", "kind": "out",
+     "paths": ["manifest.json"], "carrier_of_out": "manifest.json",
+     "note": "条目与 sha 在仓里的 manifest.json；字节本体在 base（out/ 批次目录），由 m04_snapshot_scope.py 三态核，base 不在本机记 UNMEASURED"},
+    {"key": "首读偏差判别四趟读数", "kind": "git",
+     "paths": ["reports/subai/M04/firstread/firstread_C_W1.json"]},
+    {"key": "保持段分段数（post_hoc，只解释）", "kind": "git",
+     "paths": ["reports/subai/M04/scripts/m04_segment_table.py"],
+     "note": "由脚本从 C_W2.meta.json 现算，不单独落账 —— 引用的对象是生成器本身"}
+  ],
   "how_to_audit": [
     "核身份：读 manifest.json 的 files[]，每项有 bytes / sha256 / sha256_lf_normalized / readonly；按 base 逐条解析（reports/subai/M04/scripts/m04_snapshot_scope.py --dir <快照目录>，退出码 0=OK / 2=MISMATCH / 3=UNMEASURED）",
     "base 不在本机（新克隆、别人的树）时结论是 UNMEASURED，不是 MISMATCH —— 量不了不等于不一致",
     "核副本：snapshot_copies 里 in_git=true 的用 `git ls-files` 判（不看 os.path.exists，那个只看本机）；in_git=false 的只看它有没有 why_not",
+    "核承载方：carriers 每条按 kind 判 —— git 档逐条 ls-files；out 档必须指回一条仓内路径（carrier_of_out）；input 档必须给 sha",
     "要双向枚举（盘上每个在账上）时，枚举 `base` 而不是本目录"
-  ],
-  "manifest": "manifest.json",
-  "path_field": "name",
-  "paths_are": "file name only, relative to `base` —— **不是**相对本目录",
-  "snapshot_copies": [
-    {
-      "in_git": true,
-      "name": "C_W1.meta.json"
-    },
-    {
-      "in_git": true,
-      "name": "C_W2.meta.json"
-    },
-    {
-      "in_git": true,
-      "name": "D.meta.json"
-    },
-    {
-      "in_git": true,
-      "name": "baseline_C_W1.json"
-    },
-    {
-      "in_git": true,
-      "name": "baseline_C_W2.json"
-    },
-    {
-      "in_git": true,
-      "name": "baseline_D.json"
-    },
-    {
-      "in_git": true,
-      "name": "cd_run_ledger.json"
-    },
-    {
-      "in_git": true,
-      "name": "cmp_round2.json"
-    },
-    {
-      "in_git": true,
-      "name": "_snapshot_index.json"
-    },
-    {
-      "in_git": true,
-      "name": "compare.log.txt",
-      "source_name_in_base": "compare.log",
-      "why_renamed": ".gitignore:39 的 *.log 吞掉原名 ⇒ 快照里以 .txt 落地，内容逐字节相同"
-    },
-    {
-      "in_git": true,
-      "name": "compare_selftest.log.txt",
-      "source_name_in_base": "compare_selftest.log",
-      "why_renamed": ".gitignore:39 的 *.log 吞掉原名 ⇒ 快照里以 .txt 落地，内容逐字节相同"
-    }
-  ],
-  "spec": "manifest_scope/4",
-  "two_way_checked": false,
-  "why": "manifest 的 35 条目全部住在 `base`（out/ 的只读批次目录）；本目录只放副本。按 `base` 解析是 35/35；按本目录双向枚举是副本，两者是不同宇宙，混着用会得到一堆假 only_on_disk —— 总控 19:50 的 artifact_audit 第一版就在这份上报过 46 条假 drift，改后记 two_way_checked=false。",
-  "why_v2": "19:55 main 红了一条：原版把 11 份副本一律声明成「在快照里」，而 compare.log / compare_selftest.log 被 `.gitignore:39` 的 `*.log` 吞掉、**从来没进过 git**。本机看着齐、别人的检出就缺 —— 一个靠本机状态的绿灯。现在每份副本带 `in_git`，false 的必须给出 `why_not`。",
-  "why_v3": "19:58 按 总控 建议改选「改名入 git」：两份 .log 以 .log.txt 落在快照里（内容逐字节相同），原件名留在 base；文件名是唯一障碍，不为此破形。"
+  ]
 }
