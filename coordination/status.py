@@ -3,9 +3,9 @@
     python -m coordination.status
     python -m coordination.status --status <task_status.json> --decisions <decisions.jsonl>
 
-为什么要这一层：`coordination/task_status.json` 是「现在是什么状态」的唯一权威表，
-`coordination/decisions.jsonl` 是历史与证据。两张表**必须对得上**——对不上说明要么
-D0 裁决完忘了改表，要么表里凭空多了任务。这条对账不能靠人眼，所以放在这里。
+为什么要这一层：`out/subai/coordination/board.db` 是运行时状态的唯一权威；
+`coordination/task_status.json` 只是兼容视图，`coordination/decisions.jsonl` 是裁决历史。
+三者**必须对得上**——对不上说明状态迁移、裁决落库或派生视图中间断链。这条对账不能靠人眼，所以放在这里。
 
 退出码：
     0  正常（打印表 + 待 Human 批项）
@@ -202,7 +202,9 @@ def _clip(text: str, width: int = 120) -> str:
 
 def _board_tasks(board_path: str) -> dict:
     import sqlite3
-    conn = sqlite3.connect(board_path, timeout=5.0)
+    # `mode=ro`：状态对账是只读视图，不允许缺库时由查询命令造一个空库。
+    uri = "file:%s?mode=ro" % os.path.abspath(board_path).replace("\\", "/")
+    conn = sqlite3.connect(uri, uri=True, timeout=5.0)
     conn.row_factory = sqlite3.Row
     try:
         rows = conn.execute(
@@ -329,7 +331,8 @@ def check(status_path: str, decisions_path: str, board_path: str | None = None) 
     # C7：deps_unknown 只允许出现在 blocked 任务上；completed 任务必须有 artifact
     with_deps_unknown = set()
     import sqlite3
-    conn = sqlite3.connect(board_path, timeout=5.0)
+    uri = "file:%s?mode=ro" % os.path.abspath(board_path).replace("\\", "/")
+    conn = sqlite3.connect(uri, uri=True, timeout=5.0)
     conn.row_factory = sqlite3.Row
     try:
         for row in conn.execute("SELECT task_id FROM events WHERE type='sync.deps_unknown'"):

@@ -129,15 +129,27 @@ def _iso(dt: datetime) -> str:
 
 
 class Board:
-    def __init__(self, path: str | None = None, clock=None):
-        # 缺省走共享单实例：四棵工作树算出的都是主工作树 out/subai/coordination/board.db
+    def __init__(self, path: str | None = None, clock=None, readonly: bool = False):
+        """打开任务板。
+
+        `readonly=True` 给 dispatcher/status 这类视图用：绝不创建目录、绝不建库、
+        绝不改 schema。缺库时 sqlite 直接报不可读，而不是悄悄造一个空世界。
+        """
         self.path = os.path.abspath(path or paths_mod.board_path())
-        os.makedirs(os.path.dirname(self.path) or ".", exist_ok=True)
+        self.readonly = bool(readonly)
+        if not self.readonly:
+            os.makedirs(os.path.dirname(self.path) or ".", exist_ok=True)
         self._clock = clock or (lambda: datetime.now(timezone.utc))
-        self.db = sqlite3.connect(self.path, timeout=5.0, isolation_level=None,
-                                  check_same_thread=False)
+        if self.readonly:
+            uri = "file:%s?mode=ro" % self.path.replace("\\", "/")
+            self.db = sqlite3.connect(uri, uri=True, timeout=5.0,
+                                      isolation_level=None, check_same_thread=False)
+        else:
+            self.db = sqlite3.connect(self.path, timeout=5.0, isolation_level=None,
+                                      check_same_thread=False)
         self.db.row_factory = sqlite3.Row
-        self.db.execute("PRAGMA journal_mode=WAL")
+        if not self.readonly:
+            self.db.execute("PRAGMA journal_mode=WAL")
         self.db.execute("PRAGMA foreign_keys=ON")
         self.db.execute("PRAGMA busy_timeout=5000")
 
@@ -162,6 +174,8 @@ class Board:
             self.db.execute("COMMIT")
 
     def init(self):
+        if self.readonly:
+            raise BoardError("只读连接不能 init/migrate", "BOARD_READONLY")
         self.db.executescript(SCHEMA)
         with self.tx() as c:
             for resource in ("blender", "gpu", "merge"):
@@ -175,6 +189,22 @@ class Board:
     def events(self) -> list:
         return [dict(r) for r in self.db.execute(
             "SELECT seq, ts, type, task_id, payload_json FROM events ORDER BY seq")]
+
+    # ---------- 运行身份 ----------
+
+    def new_run_id(self, task_id) -> str:
+        """生成候选运行号但不写库；preflight 通过后再由 issue_run_id 登记。"""
+        import uuid
+        now = self.now()
+        return "%s_%s_%s" % (
+            now.strftime("%Y%m%dT%H%M%S"), task_id.lower(), uuid.uuid4().hex[:8])
+
+    def issue_run_id(self, task_id, run_id=None) -> str:
+        """登记一次真实执行的唯一运行号，并把身份写进 append-only events。"""
+        run_id = run_id or self.new_run_id(task_id)
+        with self.tx() as c:
+            self.event(c, "RUN_ISSUED", task_id, {"run_id": run_id})
+        return run_id
 
     # ---------- 建图（测试与 dispatcher 用） ----------
 
@@ -193,13 +223,31 @@ class Board:
             c.execute("""INSERT OR REPLACE INTO deps(task_id, depends_on, artifact, version, required_sha)
                          VALUES(?,?,?,?,?)""", (task_id, depends_on, artifact, version, required_sha))
 
+    def _put_artifact(self, c, artifact_id, task_id, path, sha256,
+                      version="", acceptance="accepted") -> bool:
+        """登记不可变 artifact。同 ID 同字节幂等；同 ID 不同字节拒绝。"""
+        row = c.execute("SELECT * FROM artifacts WHERE artifact_id=?", (artifact_id,)).fetchone()
+        if row is not None:
+            same = (row["task_id"] == task_id and row["path"] == path
+                    and row["sha256"] == sha256 and row["version"] == version
+                    and row["acceptance"] == acceptance)
+            if same:
+                return False
+            raise BoardError(
+                "artifact_id %s 已登记为 %s@%s，拒绝替换成 %s@%s"
+                % (artifact_id, row["path"], (row["sha256"] or "")[:16],
+                   path, (sha256 or "")[:16]),
+                "SNAPSHOT_INVALID")
+        c.execute("""INSERT INTO artifacts(artifact_id, task_id, path, sha256,
+                                           version, acceptance, created_at)
+                     VALUES(?,?,?,?,?,?,?)""",
+                  (artifact_id, task_id, path, sha256, version, acceptance, _iso(self.now())))
+        return True
+
     def add_artifact(self, artifact_id, task_id, path, sha256, version="", acceptance="accepted"):
         """登记一份已验收产物，并把产出它的任务标 completed（等价于一次已完成的合并）。"""
         with self.tx() as c:
-            c.execute("""INSERT OR REPLACE INTO artifacts(artifact_id, task_id, path, sha256,
-                                                          version, acceptance, created_at)
-                         VALUES(?,?,?,?,?,?,?)""",
-                      (artifact_id, task_id, path, sha256, version, acceptance, _iso(self.now())))
+            self._put_artifact(c, artifact_id, task_id, path, sha256, version, acceptance)
             c.execute("UPDATE tasks SET status='completed', updated_at=? WHERE task_id=?",
                       (_iso(self.now()), task_id))
 
@@ -256,6 +304,13 @@ class Board:
     def _deps_ok(self, c, task_id) -> bool:
         rows = c.execute("SELECT * FROM deps WHERE task_id=?", (task_id,)).fetchall()
         for dep in rows:
+            done = c.execute("SELECT status FROM tasks WHERE task_id=?",
+                             (dep["depends_on"],)).fetchone()
+            if done is None or done["status"] != "completed":
+                return False
+            # artifact 为空表示只依赖上游任务完成；给了路径就必须找到对应产物。
+            if not dep["artifact"]:
+                continue
             got = c.execute(
                 """SELECT a.sha256 FROM artifacts a JOIN tasks t ON t.task_id=a.task_id
                    WHERE a.task_id=? AND a.path=? AND t.status='completed'""",
@@ -272,8 +327,9 @@ class Board:
             "WHERE d.depends_on=? AND t.status='blocked'", (task_id,)).fetchone()[0]
 
     def _pick_ready(self, c, lane, now, modules=None) -> dict:
+        # returned 是「修完后可再次认领」，不是终态；否则一次 RETURN_FIX 会让任务永远卡住。
         rows = c.execute(
-            "SELECT * FROM tasks WHERE lane=? AND status='ready'", (lane,)).fetchall()
+            "SELECT * FROM tasks WHERE lane=? AND status IN ('ready','returned')", (lane,)).fetchall()
         cand = []
         for row in rows:
             if modules is not None and row["module"] not in modules:
@@ -307,7 +363,7 @@ class Board:
             cur = c.execute(
                 """UPDATE tasks SET status='claimed', owner=?, claim_count=claim_count+1,
                                     attempt=attempt+1, lease_until=?, updated_at=?
-                   WHERE task_id=? AND status='ready'""",
+                   WHERE task_id=? AND status IN ('ready','returned')""",
                 (agent, until, _iso(now), pick["task_id"]))
             if cur.rowcount != 1:
                 return None
@@ -330,12 +386,30 @@ class Board:
 
     def heartbeat(self, task_id, lease_seconds=900):
         now = self.now()
+        until = _iso(now + timedelta(seconds=lease_seconds))
         with self.tx() as c:
             cur = c.execute(
                 "UPDATE tasks SET lease_until=?, updated_at=? WHERE task_id=? AND status IN ('claimed','running')",
-                (_iso(now + timedelta(seconds=lease_seconds)), _iso(now), task_id))
+                (until, _iso(now), task_id))
             if cur.rowcount != 1:
                 raise BoardError("任务 %s 不在租约内" % task_id)
+            # 任务与资源是同一份租约的两张视图；只续任务会让长跑中的资源被再次派工。
+            c.execute("UPDATE resources SET lease_until=? WHERE task_id=?", (until, task_id))
+
+    def fail_run(self, task_id, run_id, rc, why=""):
+        """一次生产命令失败：留痕、释放资源并 fail-closed 到 blocked。"""
+        now = self.now()
+        with self.tx() as c:
+            task = c.execute("SELECT status FROM tasks WHERE task_id=?", (task_id,)).fetchone()
+            if task is None or task["status"] not in ("claimed", "running"):
+                raise BoardError("任务 %s 当前不在执行态，不能登记运行失败" % task_id,
+                                 "OWNERSHIP_VIOLATION")
+            c.execute("UPDATE tasks SET status='blocked', owner=NULL, lease_until=NULL, updated_at=? "
+                      "WHERE task_id=?", (_iso(now), task_id))
+            self._release_resource(c, task_id)
+            self.event(c, "RUN_FAILED", task_id,
+                       {"run_id": run_id, "rc": int(rc), "why": why or "command_failed"})
+        return self.task(task_id)
 
     # ---------- 动作：提交 ----------
 
@@ -350,11 +424,27 @@ class Board:
         * 同一 task 同一 hash → DUPLICATE，不排队
         """
         normalized = evidence_mod.validate(payload)
+        digest = evidence_mod.digest(normalized)
+
+        # 先跑便宜检查，再做可能很贵的闸门/覆盖检查。事务内仍会原子复核一次。
+        cheap_task = self.task(task_id)
+        if not cheap_task:
+            raise BoardError("没有任务 %s" % task_id)
+        if cheap_task["status"] not in ("running", "claimed"):
+            raise BoardError("任务 %s 当前是 %s，不能提交" % (task_id, cheap_task["status"]))
+        if self.pending_count() >= QUEUE_LIMIT:
+            return {"state": "BACKPRESSURE", "task_id": task_id, "evidence_hash": digest}
+        cheap_dup = self.db.execute(
+            "SELECT 1 FROM submission_queue WHERE task_id=? AND evidence_hash=?",
+            (task_id, digest)).fetchone()
+        if cheap_dup:
+            return {"state": "DUPLICATE", "task_id": task_id, "evidence_hash": digest,
+                    "reason": "NO_NEW_EVIDENCE"}
+
         try:
             gate_result = gates_mod.enforce(payload, gate, worktree=repo or os.getcwd())
         except gates_mod.GateRejected as exc:
             raise BoardError("闸门没过：%s" % exc.detail, exc.reason_code)
-        digest = evidence_mod.digest(normalized)
         base = base or self.task(task_id).get("base_commit") or ""
         coverage = None
         if base:
@@ -362,10 +452,8 @@ class Board:
         now = self.now()
         with self.tx() as c:
             task = self.task(task_id)
-            if not task:
-                raise BoardError("没有任务 %s" % task_id)
-            if task["status"] not in ("running", "claimed"):
-                raise BoardError("任务 %s 当前是 %s，不能提交" % (task_id, task["status"]))
+            if not task or task["status"] not in ("running", "claimed"):
+                raise BoardError("任务 %s 状态在提交过程中变化，已拒绝" % task_id, "OWNERSHIP_VIOLATION")
             if self.pending_count() >= QUEUE_LIMIT:
                 self.event(c, "SUBMIT_REFUSED", task_id, {"why": "backpressure"})
                 return {"state": "BACKPRESSURE", "task_id": task_id, "evidence_hash": digest}
@@ -522,12 +610,10 @@ class Board:
             if row is None:
                 raise BoardError("任务 %s 不持有合并令牌" % task_id, "NO_MERGE_TOKEN")
             for art in artifacts:
-                c.execute("""INSERT OR REPLACE INTO artifacts(artifact_id, task_id, path, sha256,
-                                                              version, acceptance, created_at)
-                             VALUES(?,?,?,?,?,?,?)""",
-                          (art.get("artifact_id") or "%s:%s" % (task_id, art["path"]),
-                           task_id, art["path"], art["sha256"], art.get("version", ""),
-                           art.get("acceptance", "accepted"), _iso(now)))
+                self._put_artifact(
+                    c, art.get("artifact_id") or "%s:%s" % (task_id, art["path"]),
+                    task_id, art["path"], art["sha256"], art.get("version", ""),
+                    art.get("acceptance", "accepted"))
             c.execute("UPDATE merge_queue SET state='done', merge_commit=? WHERE task_id=?",
                       (merge_commit, task_id))
             c.execute("UPDATE resources SET holder=NULL, lease_until=NULL, task_id=NULL WHERE resource='merge'")
@@ -539,14 +625,23 @@ class Board:
                 "unlocked": unlocked}
 
     def _recompute_deps(self, c, now) -> list:
-        """依赖产物齐了才 blocked → ready（13 §7.4 第 5 步）。"""
+        """依赖产物齐了才 blocked → ready（13 §7.4 第 5 步）。
+
+        没有依赖记录的 blocked 任务保持 blocked：那通常表示 PARTIAL/Human/手工阻断，
+        「没登记依赖」不等于「没有阻塞原因」。
+        """
         unlocked = []
-        for row in c.execute("SELECT task_id FROM tasks WHERE status='blocked'").fetchall():
-            if self._deps_ok(c, row["task_id"]):
+        rows = c.execute("SELECT DISTINCT task_id FROM deps").fetchall()
+        for row in rows:
+            task_id = row["task_id"]
+            cur = c.execute("SELECT status FROM tasks WHERE task_id=?", (task_id,)).fetchone()
+            if cur is None or cur["status"] != "blocked":
+                continue
+            if self._deps_ok(c, task_id):
                 c.execute("UPDATE tasks SET status='ready', updated_at=? WHERE task_id=?",
-                          (_iso(now), row["task_id"]))
-                self.event(c, "UNBLOCKED", row["task_id"], {})
-                unlocked.append(row["task_id"])
+                          (_iso(now), task_id))
+                self.event(c, "UNBLOCKED", task_id, {})
+                unlocked.append(task_id)
         return unlocked
 
     def recompute_deps(self):

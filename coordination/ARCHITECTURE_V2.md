@@ -35,9 +35,14 @@ L1  状态    out/subai/coordination/board.db（sqlite，唯一状态事实源�
   跟着仓库走就没有互斥/没有共识。
 - `coordination/board.db` 是 0 字节空壳，`coordination/board_path.md` 里写明了原因与后果：
   谁把它当库，谁就在读一个空世界，而且**读空库不会报错**。
-- `coordination/task_status.json` 不再自称权威：它是**输入**，用
-  `python -m coordination.sync_board [--dry-run]` 单向灌进 board（幂等，加
-  `legacy_status` / `state_reason` 两列记录来源）。方向永远是一条：json → db。
+- `coordination/task_status.json` 不再自称权威：它是**兼容视图**。
+  灌库命令现在是 `python -m coordination.sync_board --mode bootstrap`，
+  且只允许成功一次；之后只能 `--mode check|verify`（也兼容 `--dry-run`）。
+  `sync_bootstrap` 表记录两份输入的 sha256，重复 bootstrap 默认为拒绝，
+  灾后恢复才允许 `--allow-resync`。
+- `coordination/task_graph.json` 是资源映射与依赖图的唯一声明；bootstrap 时落进 board。
+  依赖行的 `artifact` 为空表示只依赖上游 completed，给路径时才核产物 sha。
+  `task_status.json` → board 的灌库方向仍然永远只有一条。
 
 ### L2 证据：闸门挡在入口，前置挡在开工
 
@@ -162,7 +167,26 @@ python -m coordination.human_gate resolve --id D-20261116-017 \
 
 ---
 
-## 5. 边界（这套东西不解决什么）
+## 5. 统一执行入口（`coordination.run_task`）
+
+`run_pipeline.py` 仍是 Blender 业务入口，**不是**生产调度入口。生产长跑统一走：
+
+```powershell
+python -m coordination.run_task `
+  --task M02 --agent A1 --owner "模块负责1|A1" `
+  --worktree E:\code\mmdpipe-ai\A1 `
+  --spec <preflight.json> --base <commit> --head <commit> `
+  --evidence <evidence.json> --claim --start `
+  -- python run_pipeline.py --pmx ... --out ... --run-id "{run_id}"
+```
+
+这条入口只做协调层保证，顺序固定为：只读任务/参数预检 → worktree/base/head/dirty 校验 →
+preflight → 原子 claim/start 并登记唯一 run_id → 资源不是 none 时走 `lock guard` → 执行 → 证据提交。
+`--dry-run` 使用只读 board，不 claim/start、不发号、不占锁、不执行命令；任何开工前拒绝都不留 running。
+执行期间同时续 board 的任务与资源租约；命令非零退出会记 `RUN_FAILED`、释放资源并转 `blocked`。
+非 none 资源传 `--no-lock` 直接判 `RUN_USAGE`，不允许绕过文件锁。
+
+## 6. 边界（这套东西不解决什么）
 
 1. **闸门只认形状**：`evidence check` 过只说明"规范字节 + schema 合规"，不重算
    `files[]`/`artifacts[]` 与磁盘是否一致——那是生产者自证的反面，必须由 D0 或第三方复算。

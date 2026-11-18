@@ -1,0 +1,42 @@
+{
+  "_schema": "task_graph/1",
+  "_note": "board 的模块级执行图。artifact 为空表示只依赖上游 completed；给出 artifact 时才校验产物 sha。",
+  "resources": {
+    "M00": "none",
+    "M01": "none",
+    "M02": "blender",
+    "M03": "none",
+    "M04": "blender",
+    "M05": "blender",
+    "M06": "none",
+    "M07": "none",
+    "M08": "blender"
+  },
+  "dependencies": {
+    "M01": [],
+    "M02": [
+      {"task": "M01", "artifact": ""}
+    ],
+    "M03": [],
+    "M04": [
+      {"task": "M03", "artifact": ""},
+      {"task": "M02", "artifact": ""}
+    ],
+    "M05": [
+      {"task": "M01", "artifact": ""}
+    ],
+    "M06": [],
+    "M07": [
+      {"task": "M00", "artifact": ""}
+    ],
+    "M08": [
+      {"task": "M01", "artifact": ""},
+      {"task": "M02", "artifact": ""},
+      {"task": "M03", "artifact": ""},
+      {"task": "M04", "artifact": ""},
+      {"task": "M05", "artifact": ""},
+      {"task": "M06", "artifact": ""},
+      {"task": "M07", "artifact": ""}
+    ]
+  }
+}

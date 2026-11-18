@@ -98,6 +98,7 @@ def plan(b: board_mod.Board, now=None, status_path: str | None = None,
     queued = b.queued_count()
     pending = b.pending_count()
     backpressure = pending >= QUEUE_LIMIT
+    reserved_resources = set()
     for lane, modules in LANES.items():
         seat = LANE_SEAT[lane]
         busy = b.active_task_of(seat)
@@ -117,9 +118,12 @@ def plan(b: board_mod.Board, now=None, status_path: str | None = None,
         candidates.sort(key=lambda r: (-b.unlocks(r["task_id"]), r["task_id"]))
         chosen = None
         for cand in candidates:
-            with b.tx() as c:                      # 只读判断依赖与资源，事务内不写
-                ok_deps = b._deps_ok(c, cand["task_id"])
-                ok_res = b._resource_free(c, cand["resource"], b.now())
+            # 纯只读判断：dispatcher 是计划层，既不 claim，也不该拿写锁或触碰 schema。
+            # 但计划内已经有一条要拿同一资源时，下一条不能同时被派出——否则两条都会在 claim 时撞锁。
+            resource = cand["resource"] or "none"
+            ok_deps = b._deps_ok(b.db, cand["task_id"])
+            ok_res = (b._resource_free(b.db, resource, b.now())
+                      and resource not in reserved_resources)
             if ok_deps and ok_res:
                 chosen = cand
                 break
@@ -130,6 +134,8 @@ def plan(b: board_mod.Board, now=None, status_path: str | None = None,
                  "task_id": chosen["task_id"], "module": chosen["module"],
                  "resource": chosen["resource"],
                  "base_commit": chosen.get("base_commit") or head}
+        if chosen["resource"] and chosen["resource"] != "none":
+            reserved_resources.add(chosen["resource"])
         if lane == "P0":
             approval = p0_approval(b, chosen["task_id"])
             if approve_p0 and not approval:
@@ -177,8 +183,7 @@ def main(argv=None) -> int:
     ap.add_argument("--repo", default=None, help="取 base_commit 的 git 仓库")
     ap.add_argument("--write", action="store_true", help="把计划写入 --out")
     args = ap.parse_args(argv)
-    b = board_mod.Board(args.board)
-    b.init()
+    b = board_mod.Board(args.board, readonly=True)
     try:
         plan_dict = plan(b, status_path=args.status, approve_p0=args.approve_p0, repo=args.repo)
     finally:

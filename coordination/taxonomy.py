@@ -35,7 +35,8 @@ class TaxonomyError(ValueError):
 
 def load(path: str = TAXONOMY_PATH) -> dict:
     try:
-        return json.loads(io.open(path, encoding="utf-8").read())
+        with io.open(path, encoding="utf-8") as fh:
+            return json.load(fh)
     except (OSError, ValueError) as exc:
         raise TaxonomyError("读不到词表 %s：%s" % (path, exc), "PROVENANCE_INVALID")
 

@@ -50,8 +50,11 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main(argv=None) -> int:
     args = build_parser().parse_args(argv)
-    b = board_mod.Board(args.board)
-    b.init()
+    # 视图命令只读连接：缺库/缺表直接失败，不悄悄造空库；动作命令仍显式 init。
+    readonly_views = {"status", "events"}
+    b = board_mod.Board(args.board, readonly=args.command in readonly_views)
+    if args.command not in readonly_views:
+        b.init()
     try:
         if args.command == "init":
             _out({"state": "ok", "board": b.path})

@@ -299,6 +299,89 @@ class TestGuards(BoardCase):
         self.assertEqual(self.board.task("M01")["status"], "ready")
 
 
+class TestStateMachineHardening(BoardCase):
+    def test_returned_task_can_be_claimed_again(self):
+        self.board.add_task("M01", "M01", "A1", status="ready")
+        self.board.claim("A1", "A1")
+        self.board.start("M01")
+        self.board.submit("M01", evidence("M01", 1))
+        self.board.verify_begin()
+        self.assertEqual(self.board.decide("M01", "RETURN_FIX")["state"], "returned")
+        again = self.board.claim("A1", "A1")
+        self.assertIsNotNone(again)
+        self.assertEqual(again["task_id"], "M01")
+        self.assertEqual(again["status"], "claimed")
+
+    def test_blocked_task_without_deps_is_not_auto_unlocked(self):
+        self.board.add_task("M02", "M02", "A1", status="blocked")
+        self.assertEqual(self.board.recompute_deps(), [])
+        self.assertEqual(self.board.task("M02")["status"], "blocked")
+
+    def test_blocked_task_with_satisfied_task_dep_unlocks_without_artifact(self):
+        self.board.add_task("M01", "M01", "A1", status="completed")
+        self.board.add_task("M02", "M02", "A1", status="blocked")
+        self.board.add_dep("M02", "M01", "")
+        self.assertEqual(self.board.recompute_deps(), ["M02"])
+        self.assertEqual(self.board.task("M02")["status"], "ready")
+
+    def test_same_artifact_id_with_different_bytes_is_rejected(self):
+        self.board.add_artifact("a1", "M01", "x.json", sha("old"))
+        with self.assertRaises(board_mod.BoardError) as ctx:
+            self.board.add_artifact("a1", "M01", "x.json", sha("new"))
+        self.assertEqual(ctx.exception.reason_code, "SNAPSHOT_INVALID")
+        self.assertEqual(self.board.db.execute(
+            "SELECT sha256 FROM artifacts WHERE artifact_id='a1'").fetchone()["sha256"], sha("old"))
+
+    def test_readonly_board_does_not_create_database(self):
+        path = os.path.join(self.dir, "missing", "board.db")
+        with self.assertRaises(Exception):
+            board_mod.Board(path, readonly=True)
+        self.assertFalse(os.path.exists(path))
+
+
+class TestSyncBootstrap(BoardCase):
+    def _fixtures(self, extra_status=None):
+        doc = {"tasks": {
+            "M00": {"status": "PASS", "reason": "r", "next": "", "updated": "2026-11-16T00:00+08:00"},
+            "M01": {"status": "PARTIAL", "reason": "r", "next": "", "updated": "2026-11-16T00:00+08:00"},
+        }}
+        if extra_status:
+            doc["tasks"].update(extra_status)
+        status_path = os.path.join(self.dir, "task_status.json")
+        decisions_path = os.path.join(self.dir, "decisions.jsonl")
+        with open(status_path, "w", encoding="utf-8") as fh:
+            json.dump(doc, fh, ensure_ascii=False)
+        rows = [
+            {"decision_id": "D-20261116-001", "task_id": "M00", "decision": "ACCEPT_MERGE",
+             "reason_code": "EVIDENCE_COMPLETE", "evidence": ["abc1234"], "logged_at": "x"},
+            {"decision_id": "D-20261116-002", "task_id": "M01", "decision": "ACCEPT_INTERFACE",
+             "reason_code": "MISSING_EVIDENCE", "logged_at": "x"},
+        ]
+        with open(decisions_path, "w", encoding="utf-8") as fh:
+            for row in rows:
+                fh.write(json.dumps(row, ensure_ascii=False) + "\n")
+        graph_path = os.path.join(self.dir, "task_graph.json")
+        with open(graph_path, "w", encoding="utf-8") as fh:
+            json.dump({"dependencies": {"M01": [{"task": "M00", "artifact": ""}]},
+                       "resources": {"M00": "none", "M01": "blender"}}, fh)
+        return status_path, decisions_path, graph_path
+
+    def test_bootstrap_once_and_repeated_bootstrap_rejected(self):
+        from coordination import sync_board
+        status_path, decisions_path, graph_path = self._fixtures()
+        got = sync_board.sync(status_path, decisions_path, self.board.path, mode="bootstrap",
+                              graph_path=graph_path)
+        self.assertEqual(got["state"], "PHASE_B_OK")
+        self.assertEqual(self.board.task("M01")["resource"], "blender")
+        self.assertEqual(sync_board.bootstrap_done(self.board), True)
+        with self.assertRaises(board_mod.BoardError):
+            sync_board.sync(status_path, decisions_path, self.board.path, mode="bootstrap",
+                            graph_path=graph_path)
+        check = sync_board.sync(status_path, decisions_path, self.board.path, mode="check",
+                                graph_path=graph_path)
+        self.assertEqual(check["state"], "PHASE_B_CHECK_OK")
+
+
 class TestEvidenceHash(unittest.TestCase):
     """H1–H6（coordination/evidence_hash_v1.md §6）。"""
 

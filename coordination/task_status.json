@@ -1,5 +1,5 @@
 {
-  "_note": "任务级状态的唯一权威表（D0 维护）。coordination/decisions.jsonl 是历史与证据，这张表是「现在是什么状态」。任何一次裁决改变某任务状态时，D0 必须同时更新此文件并提交，二者不一致以本文件为准并追查原因。 2026-11-16 收尾（D-229 关账 + D-230 最后两笔合并与退出码分带）：main 6d657bd，902 tests × 默认/utf-8/gbk 三环境 exit 0（skipped 1），裁决 230 条，status --check 与 taxonomy --check 双 OK，ai/a1..a4 ahead 全 0（封版）。四棵树账本审计全绿。本日报告 reports/subai/coordination/task_report_20261116.md（§12 收尾补记含终局读数）；明日次序见其 §10。",
+  "_note": "派生状态视图（2026-11-16 架构修复后）。运行时唯一状态权威是 out/subai/coordination/board.db；coordination/decisions.jsonl 是裁决历史；本文件仅作兼容视图，任何不一致以 board 对账结果为准并追查同步链路。 2026-11-16 收尾（D-229 关账 + D-230 最后两笔合并与退出码分带）：main 6d657bd，902 tests × 默认/utf-8/gbk 三环境 exit 0（skipped 1），裁决 230 条，status --check 与 taxonomy --check 双 OK，ai/a1..a4 ahead 全 0（封版）。四棵树账本审计全绿。本日报告 reports/subai/coordination/task_report_20261116.md（§12 收尾补记含终局读数）；明日次序见其 §10。",
   "_schema": {
     "status": "PASS | PARTIAL | BLOCKED | NOT_STARTED",
     "reason": "一句话，说清为什么是这个状态",

@@ -49,10 +49,14 @@ def check(provenance: dict | None, worktree: str, external_roots=None) -> dict:
         if not isinstance(root, str) or not root.strip():
             bad_roots.append(repr(root))
             continue
-        root = os.path.abspath(root.strip())
-        if not os.path.isabs(root):
-            bad_roots.append("非绝对路径：%s" % root)
-        elif _under(root, worktree):
+        # 先判原始字符串是否绝对，再 abspath：否则 "relative/path" 会先被补成绝对，
+        # 于是「相对路径是误用」这条判据永远不成立（全量测试实测到的假绿）。
+        raw_root = root.strip()
+        if not os.path.isabs(raw_root):
+            bad_roots.append("非绝对路径：%s" % raw_root)
+            continue
+        root = os.path.abspath(raw_root)
+        if _under(root, worktree):
             bad_roots.append("外部根落在 worktree 内（不许用『外部』给树内路径洗白）：%s" % root)
         else:
             roots.append(root)
