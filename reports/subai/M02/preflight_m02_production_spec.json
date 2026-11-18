@@ -1,0 +1,50 @@
+{
+ "task_id": "M02",
+ "run_id": "{run_id}",
+ "expect_owner": "模块负责1|A1",
+ "lease": false,
+ "lease_note": "S5 dry-run 不取锁、不占锁、不启动命令；生产运行时由 run_task 的 lock guard 在 preflight 之后取锁（board resource=blender）。因此本 spec 的 lease=false 是真实状态：此刻锁空闲，没有任何人持锁。若要把 lease 这道闸真的走一遍，必须先在窗口内持锁、且 expect_owner 含『模块负责1|A1』——那是 S6 之后的事，不是这次 dry-run 的事。",
+ "needs": 8298,
+ "needs_source": "file:E:\\code\\mmdpipe-ai\\A4\\out\\subai\\M00\\plan_324.json#constraints_to_add",
+ "needs_planned": 10111,
+ "needs_planned_source": "file:E:\\code\\mmdpipe-ai\\A4\\out\\subai\\M00\\plan_324.json#constraints_needed",
+ "cap": 10111,
+ "cap_source": {
+  "rule": "mmdpipe.stage.constraint_limit(needed=10111, max_constraints=None) -> (10111, False)",
+  "guardrail_constant": "mmdpipe.mask.DEFAULT_MAX_CONSTRAINTS = 20000 (mmdpipe/mask.py:128)",
+  "guardrail_hit": false,
+  "read_basis": "mmdpipe/stage.py:316-335（静态读源码）",
+  "how_verified": "读代码，未执行函数：mmdpipe/stage.py 顶层 `import bpy`，非 Blender 进程 import 直接 ModuleNotFoundError（本轮实测）。判据是 stage.py:330-335 三条分支 + mask.py:128 常量。"
+ },
+ "skipped": 0,
+ "provenance": {
+  "build_script": "E:\\code\\mmdpipe-ai\\A1\\reports\\subai\\M02\\scripts\\m02_build_delivery.py",
+  "digest_script": "E:\\code\\mmdpipe-ai\\A1\\reports\\subai\\M02\\scripts\\m02_content_digest.py",
+  "mask_file": "E:\\code\\mmdpipe-ai\\A1\\mmdpipe\\mask.py",
+  "patch_bpy": "E:\\code\\mmdpipe-ai\\A1\\reports\\subai\\M02\\scripts\\m02_patch_bpy.py",
+  "patch_format": "E:\\code\\mmdpipe-ai\\A1\\reports\\subai\\M02\\scripts\\m02_patch_format.py",
+  "patch_input": "E:\\code\\mmdpipe-ai\\A1\\out\\subai\\M08\\run_20261116_1847\\extra_bodies_patch.json",
+  "plan_artifact": "E:\\code\\mmdpipe-ai\\A4\\out\\subai\\M00\\plan_324.json",
+  "pmx_input": "E:\\blender模型\\没有外套本家模型\\星穹铁道—飞霄（无外套）.pmx",
+  "preset_file": "E:\\code\\mmdpipe-ai\\A1\\presets\\feiying.json",
+  "readback_script": "E:\\code\\mmdpipe-ai\\A1\\reports\\subai\\M02\\scripts\\m02_m08_readback.py",
+  "source_blend": "E:\\dsh pr\\woker2\\out\\subai\\M02\\blend\\B_from_blend1.blend",
+  "stage_file": "E:\\code\\mmdpipe-ai\\A1\\mmdpipe\\stage.py",
+  "v3_script": "E:\\code\\mmdpipe-ai\\A1\\reports\\subai\\M02\\scripts\\m02_rebuild_scene_v3.py"
+ },
+ "external_roots": [
+  "E:\\code\\mmdpipe-ai\\A4",
+  "E:\\blender模型",
+  "E:\\dsh pr\\woker2"
+ ],
+ "external_roots_note": "三个外部根各自只为一个输入而立：A4 提供 plan_324.json（约束账），E:\\blender模型 提供 PMX 源，E:\\dsh pr\\woker2 提供交付件 B_from_blend1.blend（324 刚体）。逐项 sha256 见 Thread 回复里的核对表。",
+ "outputs": [
+  "out/subai/M02/{run_id}",
+  "out/subai/M02/{run_id}/rebuild_built.blend"
+ ],
+ "outputs_note": "两个目标当下都不存在；{run_id} 由 run_task 用本次 run 号展开（dry-run 展开为 dryrun_xxxxxxxx），所以没有人拥有它们，无需 overwrite 裁决。dry-run 不创建目录、不产文件。",
+ "note": "S5 dry-run 专用材料（M02 owner = 模块负责1|A1）。链路 = 324 重建 + 输入补丁 + 逐刚体回读；needs 是任务书需求（constraints_to_add），needs_planned 是 plan() 实测（constraints_needed），两者都进报告对账。本 spec 放在 out/（白名单忽略区）以保 A1 工作树 clean；若 Human 批准提交，再原字节移入 reports/subai/M02/ 并同步 sha。",
+ "material_for": "S5 dry-run（team Thread thread:272a49a3 · task:c4c159b9），依据 integration_20261118/reports/coordination/2026-11-18_S5前置材料清单_交M02owner.md",
+ "created": "2026-11-18T13:01:13+08:00",
+ "created_by": "模块负责1|A1"
+}
