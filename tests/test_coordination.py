@@ -253,6 +253,39 @@ class TestResources(BoardCase):
         self.assertIsNotNone(b.claim("A4", "A4"))
         b.close()
 
+    def test_merge_done_releases_task_resource(self):
+        """merge_done 完成后任务持有的业务资源必须归还，不留人工校正的债。
+
+        回归：merge_done 过去只清 merge 令牌，不清任务持有的 blender，
+        导致 M02/M04/M05 completed 后 resources.blender.holder 仍是旧 owner，
+        每次都要快照 + RESOURCE_CORRECTED 人工校正（board 资源锁根因）。
+        """
+        self.board.add_task("M02", "M02", "A1", status="ready", resource="blender")
+        self.board.claim("A1", "A1")
+        self.board.start("M02")
+        self.board.submit("M02", evidence("M02"))
+        self.board.verify_begin()
+        self.board.decide("M02", "ACCEPT_MERGE")
+        merge = self.board.merge_begin()
+        self.assertEqual(merge["task_id"], "M02")
+        # merge 前 blender 由 A1 持有；merge 令牌由 scheduler 持有。
+        before = self.board.db.execute(
+            "SELECT holder, task_id FROM resources WHERE resource='blender'").fetchone()
+        self.assertEqual(before["holder"], "A1")
+        self.assertEqual(before["task_id"], "M02")
+        # merge_done 后：merge 令牌和任务业务资源都要归还。
+        self.board.merge_done("M02", "deadbeef")
+        for res in ("blender", "merge"):
+            after = self.board.db.execute(
+                "SELECT holder, lease_until, task_id FROM resources WHERE resource=?",
+                (res,)).fetchone()
+            self.assertIsNone(after["holder"], res)
+            self.assertIsNone(after["lease_until"], res)
+            self.assertIsNone(after["task_id"], res)
+        # 资源真释放的判据：另一个 blender 任务现在能被认领。
+        self.board.add_task("M07", "M07", "A4", status="ready", resource="blender")
+        self.assertIsNotNone(self.board.claim("A4", "A4"))
+
 
 class TestRecovery(BoardCase):
     def test_10_lease_expiry_not_stuck(self):

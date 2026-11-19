@@ -621,6 +621,9 @@ class Board:
                       (merge_commit, _iso(now), task_id))
             unlocked = self._recompute_deps(c, now)
             self.event(c, "MERGE", task_id, {"merge_commit": merge_commit, "unlocked": unlocked})
+            # 上面只清了 merge 令牌；任务持有的业务资源（blender 等）也要归还，
+            # 否则 completed 后 holder 残留，每次得靠人工 RESOURCE_CORRECTED 校正。
+            self._release_resource(c, task_id)
         return {"state": "completed", "task_id": task_id, "merge_commit": merge_commit,
                 "unlocked": unlocked}
 
