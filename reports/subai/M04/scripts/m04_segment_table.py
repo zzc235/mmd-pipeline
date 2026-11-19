@@ -20,9 +20,11 @@
 看着数据切的窗口（例如 19:30 那版 `302..351`）在本脚本里**造不出来**，要引用只能标
 `POST_HOC_WINDOW`，而 `post_hoc` 只许作解释、不许作判据。`rule_kind` 跟着每一行一起输出。
 
-`coordination/comparability.py`（`总控` 19:34 说正在落）落地后，本脚本的「取最深值」应当
-改成调它的 `extremum_report()`；现在那一条模块在工作树里还不存在，所以这里仍是本地实现，
-不要假装接上了。
+极值的权威口径是 `coordination.comparability.extremum_report()`（D-224）：三件套
+（值 + 帧号 + 邻域计数）与 TRANSIENT / PLATEAU 判词都由它给，本脚本不另立一套。
+`window_stats()` 经它取最深值并把结果放进每行的 `extremum` 字段；老字段
+`deepest_mm` / `deepest_frame` 保留兼容。若 comparability 不在树里，`extremum=None`
+明确表示「没接上」，不静默当作已接。
 
 窗口定义（全部由 `hold_from` 与比例导出）
 -----------------------------------------
@@ -112,7 +114,19 @@ def window_stats(rows, a, b, eps=EPS_DEFAULT):
     mean = sum(vals) / n
     var = sum((v - mean) ** 2 for v in vals) / n
     deep = min(sel, key=lambda r: float(r["max_depth_m"]))
-    return {
+    deep_frame = int(deep["frame"])
+    # D-224：极值只能经 coordination.comparability.extremum_report() 取 —— 同笔给出
+    # 三件套（值 + 帧号 + 邻域计数）与 TRANSIENT / PLATEAU 判词，不许本脚本另立一套。
+    # 老字段 deepest_mm/deepest_frame 保留兼容；extremum 是新增的权威口径。
+    # comparability 不在树里时降级为本地三件套缺失（与 _window_rules 的降级风格一致），
+    # 但绝不假装接上：extremum=None 是可读的「没接上」事实。
+    try:
+        _ensure_repo_root_on_path()
+        from coordination.comparability import extremum_report
+        ext = extremum_report(sel, deep_frame, window_rule="segment_ratio")
+    except Exception:
+        ext = None
+    out = {
         "window": [a, b],
         "frames": n,
         "over_eps": sum(1 for v in vals if v < -eps),
@@ -120,8 +134,10 @@ def window_stats(rows, a, b, eps=EPS_DEFAULT):
         "mean_mm": round(mean * 1000.0, 3),
         "sd_mm": round(var ** 0.5 * 1000.0, 3),
         "deepest_mm": round(float(deep["max_depth_m"]) * 1000.0, 3),
-        "deepest_frame": int(deep["frame"]),
+        "deepest_frame": deep_frame,
+        "extremum": ext,
     }
+    return out
 
 
 def assert_partition(parts, start, end):

@@ -43,6 +43,38 @@ class WindowStatsTest(unittest.TestCase):
         self.assertEqual(w["deepest_mm"], -50.0)
         self.assertEqual(w["deepest_frame"], 4)
 
+    def test_extremum_is_delegated_to_comparability(self):
+        """D-224：极值必须经 comparability.extremum_report() 取，带出三件套+判词。"""
+        from coordination.comparability import TRANSIENT
+        # 尖峰：只有 f2 达到半量级，邻域内无同量级帧 ⇒ TRANSIENT
+        rows = synthetic([-0.001, -0.050, -0.001])
+        w = SEG.window_stats(rows, 1, 3)
+        ext = w["extremum"]
+        self.assertIsNotNone(ext, "comparability 在树里时必须接上，extremum 不得为 None")
+        self.assertEqual(ext["frame"], 2)
+        self.assertEqual(ext["max_depth_m"], -0.050)
+        self.assertEqual(ext["label"], TRANSIENT)
+        self.assertEqual(ext["peers_at_half_magnitude"], 0)
+        self.assertFalse(ext["usable_as_segment_property"])
+        self.assertEqual(ext["window_rule"], "segment_ratio")
+        # 三件套齐全：值 + 帧号 + 邻域计数
+        for k in ("max_depth_m", "frame", "neighbourhood_size"):
+            self.assertIn(k, ext)
+
+    def test_extremum_legacy_fields_still_compatible(self):
+        w = SEG.window_stats(synthetic([-0.001, -0.050, -0.001]), 1, 3)
+        self.assertEqual(w["deepest_mm"], -50.0)
+        self.assertEqual(w["deepest_frame"], 2)
+
+    def test_real_snapshot_f304_is_transient(self):
+        """回归锚点：真读数保持段最深 f304 必须是 TRANSIENT、不可作整段属性。"""
+        from coordination.comparability import TRANSIENT
+        rows = SEG.load_frames(SNAPSHOT)
+        hold = SEG.window_stats(rows, 302, 832)
+        self.assertEqual(hold["deepest_frame"], 304)
+        self.assertEqual(hold["extremum"]["label"], TRANSIENT)
+        self.assertFalse(hold["extremum"]["usable_as_segment_property"])
+
     def test_window_must_be_covered_by_readings(self):
         rows = synthetic([0.0] * 10)
         with self.assertRaises(ValueError):
