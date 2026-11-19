@@ -439,6 +439,40 @@ class FcurveWriteShapeTest(unittest.TestCase):
             AA.ensure_fcurve(act, self._Fake(animation_data=self._Fake(action_slot=None)),
                              'pose.bones["センター"].location', index=0)
 
+    def test_rna_slot_match_by_identifier_not_identity(self):
+        """真件形状：RNA 包装每次是新对象，is 恒假，但 identifier 相同必须命中。
+
+        2026-11-19 实测（`slots.new` + `channelbags.new`）：
+        `bag.slot is sl` → False，`bag.slot.identifier == sl.identifier` → True。
+        两个不同 Python 对象、同一个 identifier —— 第二档必须认它。
+        """
+        class RnaSlot:
+            def __init__(self, ident):
+                self.identifier = ident
+
+        bag_slot = RnaSlot("OBSlotA")
+        arm_slot = RnaSlot("OBSlotA")          # 不同实例、同 identifier
+        self.assertIsNot(bag_slot, arm_slot)
+        a, b = self._Fake(fcurves=self._Coll()), self._Fake(fcurves=self._Coll())
+        act = self._layered([a, b], slots=[RnaSlot("OBSlotB"), bag_slot])
+        arm = self._Fake(animation_data=self._Fake(action_slot=arm_slot))
+        _fc, how = AA.ensure_fcurve(act, arm, 'pose.bones["センター"].location', index=0)
+        self.assertEqual(how, "channelbags[slot](new)")
+        self.assertEqual((len(a.fcurves), len(b.fcurves)), (0, 1))
+
+    def test_rna_slot_with_different_identifier_is_refused(self):
+        """放宽到 identifier 后仍不许乱命中：id 不同 ⇒ 两 bag 对不上 ⇒ 红。"""
+        class RnaSlot:
+            def __init__(self, ident):
+                self.identifier = ident
+
+        act = self._layered([self._Fake(fcurves=self._Coll()),
+                             self._Fake(fcurves=self._Coll())],
+                            slots=[RnaSlot("OBSlotA"), RnaSlot("OBSlotB")])
+        arm = self._Fake(animation_data=self._Fake(action_slot=RnaSlot("OBSlotC")))
+        with self.assertRaises(AA.FcurveShapeError):
+            AA.ensure_fcurve(act, arm, 'pose.bones["センター"].location', index=0)
+
     def test_no_container_at_all_is_refused(self):
         with self.assertRaises(AA.FcurveShapeError):
             AA.ensure_fcurve(self._Fake(layers=[]), self._Fake(animation_data=None), "x")

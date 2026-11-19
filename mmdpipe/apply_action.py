@@ -339,6 +339,26 @@ class FcurveShapeError(RuntimeError):
     """
 
 
+def _slot_matches(bag_slot, wanted):
+    """槽位身份比较：`is` 对真件 RNA 包装恒假，必须补 `identifier` 比较。
+
+    2026-11-19 真件实测（Blender 5.2.2，`slots.new` + `channelbags.new`）：
+    `bag.slot is sl` → False，但两边 `identifier` 都是 `"OBSlotA"`。
+    RNA 包装对象每次属性访问都可能返回一个新的 Python wrapper，所以身份比较
+    在真件上永远落空；哑对象测试（`slot = object()` 直接赋给 bag.slot）里
+    `is` 才是真的。两种形状都得认：先 `is`（同实例 / 哑对象快路），
+    再比 `identifier`（真件 RNA）。两边至少一边没有 identifier 时只认 `is`，
+    不拿 None == None 当命中。
+    """
+    if bag_slot is wanted:
+        return True
+    if bag_slot is None or wanted is None:
+        return False
+    a = getattr(bag_slot, "identifier", None)
+    b = getattr(wanted, "identifier", None)
+    return a is not None and b is not None and a == b
+
+
 def fcurve_container(action, datablock=None):
     """取一个**可写**的 fcurve 容器（有 `.find/.new`），`fcurves_of` 的写侧。
 
@@ -364,7 +384,7 @@ def fcurve_container(action, datablock=None):
     if datablock is not None:
         slot = getattr(getattr(datablock, "animation_data", None), "action_slot", None)
     if slot is not None:
-        hit = [b for b in bags if getattr(b, "slot", None) is slot]
+        hit = [b for b in bags if _slot_matches(getattr(b, "slot", None), slot)]
         if len(hit) == 1:
             return hit[0].fcurves, "channelbags[slot]"
     if len(bags) == 1:
